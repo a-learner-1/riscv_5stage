@@ -1,0 +1,7 @@
+# ModelSim 本机工程与仿真产物
+*.mpf
+work/
+*.wlf
+*.cr.mti
+tcl_stacktrace.txt
+*.bak
