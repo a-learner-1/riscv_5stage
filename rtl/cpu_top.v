@@ -23,6 +23,8 @@ module cpu_top (
     wire [31:0] rs2_data_unused;
     wire [31:0] alu_result_x;
 
+    wire        forward_rs1_x;
+    wire [31:0] alu_a_x;
     // IF: fetch an instruction and store it in the IF/EX registers.
     if_stage u_if_stage (
         .clk     (clk),
@@ -53,8 +55,14 @@ module cpu_top (
         .rs2_data (rs2_data_unused)
     );
 
+  assign forward_rs1_x = wb_we &&
+                       (wb_rd != 5'd0) &&
+                       (wb_rd == rs1_addr_x);
+
+  assign alu_a_x = forward_rs1_x ? wb_data : rs1_data_x;
+
     alu u_alu (
-        .a      (rs1_data_x),
+        .a (alu_a_x),
         .b      (imm_x),
         .result (alu_result_x)
     );

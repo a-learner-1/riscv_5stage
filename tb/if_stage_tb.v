@@ -17,15 +17,15 @@ module if_stage_tb;
         .valid_x(valid_x)
     );
 
-    always #5 clk = ~clk;  // ???? 10 ns
+    always #5 clk = ~clk;  // period: 10 ns
 
     task automatic check_fetch(
         input [31:0] expected_pc,
         input [31:0] expected_instr
     );
         begin
-            @(posedge clk);
-            #1; // ?????????
+            @(posedge clk);//Waiting for the rising edge
+            #1; // Sampling Delay
             if (valid_x !== 1'b1 ||
                 pc_x !== expected_pc ||
                 instr_x !== expected_instr) begin
@@ -41,7 +41,7 @@ module if_stage_tb;
         #12 rst_n = 1'b1; // ??????????????
 
         check_fetch(32'd0, 32'h00500093);
-        check_fetch(32'd4, 32'h00300113);
+        check_fetch(32'd4, 32'h00308113);
         check_fetch(32'd8, 32'h00000013);
 
         $display("IF stage test passed");

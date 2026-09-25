@@ -13,7 +13,8 @@ module if_stage (
     always @(*) begin
         case (pc_f)
             32'd0:   instr_f = 32'h00500093; // addi x1, x0, 5
-            32'd4:   instr_f = 32'h00300113; // addi x2, x0, 3
+            //32'd4:   instr_f = 32'h00300113; // addi x2, x0, 3
+	    32'd4: instr_f = 32'h00308113; // addi x2, x1, 3
             default: instr_f = 32'h00000013; // NOP
         endcase
     end

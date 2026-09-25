@@ -31,7 +31,7 @@ module cpu_top_tb;
         rst_n = 1'b0;
         #12 rst_n = 1'b1;
 
-        // First fetch: addi x1, x0, 5.
+        // 15 ns: first instruction is fetched.
         @(posedge clk);
         #1;
         if (valid_x !== 1'b1 ||
@@ -41,42 +41,48 @@ module cpu_top_tb;
             $fatal(1);
         end
 
-        // First result enters EX/WB; second instruction is fetched.
+        // 25 ns: first result is in WB; second instruction uses forwarding in EX.
         @(posedge clk);
         #1;
         if (pc_x !== 32'd4 ||
-            instr_x !== 32'h00300113 ||
+            instr_x !== 32'h00308113 ||
             wb_we !== 1'b1 ||
             wb_pc !== 32'd0 ||
             wb_rd !== 5'd1 ||
-            wb_data !== 32'd5) begin
-            $display("FAIL: first ADDI result or second fetch");
+            wb_data !== 32'd5 ||
+            dut.forward_rs1_x !== 1'b1 ||
+            dut.alu_a_x !== 32'd5 ||
+            dut.alu_result_x !== 32'd8) begin
+            $display("FAIL: forwarding to second ADDI");
+            $display("WB: rd=%d data=%h; forward=%b ALU a=%h result=%h",
+                     wb_rd, wb_data, dut.forward_rs1_x,
+                     dut.alu_a_x, dut.alu_result_x);
             $fatal(1);
         end
 
-        // x1 is written; second result enters EX/WB.
+        // 35 ns: x1 is written; second result enters WB.
         @(posedge clk);
         #1;
         if (dut.u_regfile.regs[1] !== 32'd5 ||
             wb_we !== 1'b1 ||
             wb_pc !== 32'd4 ||
             wb_rd !== 5'd2 ||
-            wb_data !== 32'd3) begin
+            wb_data !== 32'd8) begin
             $display("FAIL: x1 writeback or second ADDI result");
             $fatal(1);
         end
 
-        // x2 is written. Later ROM instructions are NOPs.
+        // 45 ns: x2 is written.
         @(posedge clk);
         #1;
         if (dut.u_regfile.regs[1] !== 32'd5 ||
-            dut.u_regfile.regs[2] !== 32'd3 ||
+            dut.u_regfile.regs[2] !== 32'd8 ||
             wb_we !== 1'b0) begin
             $display("FAIL: final register values");
             $fatal(1);
         end
 
-        $display("PASS: cpu_top test passed, x1=5, x2=3");
+        $display("PASS: cpu_top test passed, x1=5, x2=8");
         $stop;
     end
 
