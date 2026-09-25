@@ -1,7 +1,9 @@
+`timescale 1ns/1ps
+
 module if_stage_tb;
 
-    reg clk = 1'b0;
-    reg rst_n = 1'b0;
+    reg clk;
+    reg rst_n;
 
     wire [31:0] pc_f;
     wire [31:0] pc_x;
@@ -9,28 +11,29 @@ module if_stage_tb;
     wire        valid_x;
 
     if_stage dut (
-        .clk(clk),
-        .rst_n(rst_n),
-        .pc_f(pc_f),
-        .pc_x(pc_x),
-        .instr_x(instr_x),
-        .valid_x(valid_x)
+        .clk     (clk),
+        .rst_n   (rst_n),
+        .pc_f    (pc_f),
+        .pc_x    (pc_x),
+        .instr_x (instr_x),
+        .valid_x (valid_x)
     );
 
-    always #5 clk = ~clk;  // period: 10 ns
+    initial clk = 1'b0;
+    always #5 clk = ~clk;
 
-    task automatic check_fetch(
-        input [31:0] expected_pc,
-        input [31:0] expected_instr
-    );
+    task check_fetch;
+        input [31:0] expected_pc;
+        input [31:0] expected_instr;
         begin
-            @(posedge clk);//Waiting for the rising edge
-            #1; // Sampling Delay
+            @(posedge clk);
+            #1;
             if (valid_x !== 1'b1 ||
                 pc_x !== expected_pc ||
-                instr_x !== expected_instr) begin
-                $display("FAIL: pc_x=%h instr_x=%h valid_x=%b",
-                         pc_x, instr_x, valid_x);
+                instr_x !== expected_instr ||
+                pc_f !== (expected_pc + 32'd4)) begin
+                $display("FAIL: pc_f=%h pc_x=%h instr_x=%h valid_x=%b",
+                         pc_f, pc_x, instr_x, valid_x);
                 $fatal(1);
             end
             $display("PASS: pc_x=%h instr_x=%h", pc_x, instr_x);
@@ -38,14 +41,16 @@ module if_stage_tb;
     endtask
 
     initial begin
-        #12 rst_n = 1'b1; // ??????????????
+        rst_n = 1'b0;
+        #12 rst_n = 1'b1;
 
-        check_fetch(32'd0, 32'h00500093);
-        check_fetch(32'd4, 32'h00308113);
-        check_fetch(32'd8, 32'h00000013);
+        check_fetch(32'd0,  32'h00500093);
+        check_fetch(32'd4,  32'h00308113);
+        check_fetch(32'd8,  32'h002081b3);
+        check_fetch(32'd12, 32'h00000013);
 
-        $display("IF stage test passed");
-        $finish;
+        $display("PASS: IF stage test passed");
+        $stop;
     end
 
 endmodule
