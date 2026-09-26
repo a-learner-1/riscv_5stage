@@ -49,9 +49,11 @@ module if_stage_tb;
         check_fetch(32'd4,  32'h00308113);
         check_fetch(32'd8,  32'h002081b3);
         check_fetch(32'd12, 32'h00318233);
-        check_fetch(32'd16, 32'h00000013);
+        check_fetch(32'd16, 32'h403202b3);
+        check_fetch(32'd20, 32'h40508333);
+        check_fetch(32'd24, 32'h00000013);
 
-        $display("PASS: IF stage four-instruction test passed");
+        $display("PASS: IF stage six-instruction test passed");
         $stop;
     end
 

@@ -19,6 +19,7 @@ module cpu_top (
     wire [31:0] imm_x;
     wire        is_addi_x;
     wire        is_add_x;
+    wire        is_sub_x;
 
     wire [31:0] rs1_data_x;
     wire [31:0] rs2_data_x;
@@ -46,7 +47,8 @@ module cpu_top (
         .rd_addr  (rd_addr_x),
         .imm_i    (imm_x),
         .is_addi  (is_addi_x),
-        .is_add   (is_add_x)
+        .is_add   (is_add_x),
+        .is_sub   (is_sub_x)
     );
 
     regfile u_regfile (
@@ -67,20 +69,21 @@ module cpu_top (
 
     assign alu_a_x = forward_rs1_x ? wb_data : rs1_data_x;
 
-    // Only ADD uses rs2 in the current instruction subset.
-    assign forward_rs2_x = is_add_x &&
+    // Both ADD and SUB use the second source register.
+    assign forward_rs2_x = (is_add_x || is_sub_x) &&
                            wb_we &&
                            (wb_rd != 5'd0) &&
                            (wb_rd == rs2_addr_x);
 
     assign rs2_value_x = forward_rs2_x ? wb_data : rs2_data_x;
 
-    // ADDI uses the immediate; ADD uses the second register value.
+    // ADDI uses an immediate; ADD and SUB use rs2.
     assign alu_b_x = is_addi_x ? imm_x : rs2_value_x;
 
     alu u_alu (
         .a      (alu_a_x),
         .b      (alu_b_x),
+        .sub    (is_sub_x),
         .result (alu_result_x)
     );
 
@@ -96,7 +99,7 @@ module cpu_top (
             wb_rd   <= rd_addr_x;
             wb_data <= alu_result_x;
             wb_we   <= valid_x &&
-                       (is_addi_x || is_add_x) &&
+                       (is_addi_x || is_add_x || is_sub_x) &&
                        (rd_addr_x != 5'd0);
         end
     end

@@ -9,6 +9,7 @@ module if_stage (
 
     reg [31:0] instr_f;
 
+
     // Instruction ROM.
     always @(*) begin
         case (pc_f)
@@ -16,6 +17,8 @@ module if_stage (
             32'd4:   instr_f = 32'h00308113; // addi x2, x1, 3
             32'd8:   instr_f = 32'h002081b3; // add  x3, x1, x2
             32'd12:  instr_f = 32'h00318233; // add  x4, x3, x3
+            32'd16:  instr_f = 32'h403202b3; // sub  x5, x4, x3
+            32'd20:  instr_f = 32'h40508333; // sub  x6, x1, x5
             default: instr_f = 32'h00000013; // NOP
         endcase
     end
