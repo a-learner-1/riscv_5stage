@@ -15,6 +15,7 @@ module if_stage (
             32'd0:   instr_f = 32'h00500093; // addi x1, x0, 5
             32'd4:   instr_f = 32'h00308113; // addi x2, x1, 3
             32'd8:   instr_f = 32'h002081b3; // add  x3, x1, x2
+            32'd12:  instr_f = 32'h00318233; // add  x4, x3, x3
             default: instr_f = 32'h00000013; // NOP
         endcase
     end

@@ -36,6 +36,7 @@ module if_stage_tb;
                          pc_f, pc_x, instr_x, valid_x);
                 $fatal(1);
             end
+
             $display("PASS: pc_x=%h instr_x=%h", pc_x, instr_x);
         end
     endtask
@@ -47,9 +48,10 @@ module if_stage_tb;
         check_fetch(32'd0,  32'h00500093);
         check_fetch(32'd4,  32'h00308113);
         check_fetch(32'd8,  32'h002081b3);
-        check_fetch(32'd12, 32'h00000013);
+        check_fetch(32'd12, 32'h00318233);
+        check_fetch(32'd16, 32'h00000013);
 
-        $display("PASS: IF stage test passed");
+        $display("PASS: IF stage four-instruction test passed");
         $stop;
     end
 
