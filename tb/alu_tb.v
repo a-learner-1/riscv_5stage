@@ -2,123 +2,193 @@
 
 module alu_tb;
 
+    localparam [2:0] ALU_ADD = 3'b000;
+    localparam [2:0] ALU_SUB = 3'b001;
+    localparam [2:0] ALU_AND = 3'b010;
+    localparam [2:0] ALU_OR  = 3'b011;
+    localparam [2:0] ALU_XOR = 3'b100;
+
     reg  [31:0] a;
     reg  [31:0] b;
-    reg         sub;
+    reg  [2:0]  alu_op;
     wire [31:0] result;
+
+    integer test_count;
 
     alu dut (
         .a      (a),
         .b      (b),
-        .sub    (sub),
+        .alu_op (alu_op),
         .result (result)
     );
 
     task check_alu;
-        input        test_sub;
+        input [2:0]  test_op;
         input [31:0] test_a;
         input [31:0] test_b;
         input [31:0] expected;
         begin
-            sub = test_sub;
-            a   = test_a;
-            b   = test_b;
+            alu_op = test_op;
+            a      = test_a;
+            b      = test_b;
             #1;
 
             if (result !== expected) begin
                 $display(
-                    "FAIL: sub=%b a=%h b=%h result=%h expected=%h",
-                    sub, a, b, result, expected
+                    "FAIL: op=%b a=%h b=%h result=%h expected=%h",
+                    alu_op, a, b, result, expected
                 );
                 $fatal(1);
             end
 
+            test_count = test_count + 1;
+
             $display(
-                "PASS: sub=%b a=%h b=%h result=%h",
-                sub, a, b, result
+                "PASS: case=%0d op=%b a=%h b=%h result=%h",
+                test_count, alu_op, a, b, result
             );
         end
     endtask
 
     initial begin
-        // Keep the original addition tests.
+        test_count = 0;
 
-        // 0 + 5 = 5
+        // ----------------------------------------
+        // Original 14 ADD/SUB cases.
+        // ----------------------------------------
+
+        // 1. 0 + 5 = 5
+        check_alu(ALU_ADD, 32'd0, 32'd5, 32'd5);
+
+        // 2. 5 + 3 = 8
+        check_alu(ALU_ADD, 32'd5, 32'd3, 32'd8);
+
+        // 3. 5 + (-1) = 4
+        check_alu(ALU_ADD, 32'd5, 32'hffffffff, 32'd4);
+
+        // 4. Addition wraparound.
+        check_alu(ALU_ADD, 32'hffffffff, 32'd1, 32'd0);
+
+        // 5. Signed overflow, keep the low 32 bits.
         check_alu(
-            1'b0, 32'd0, 32'd5, 32'd5
+            ALU_ADD, 32'h7fffffff, 32'd1, 32'h80000000
         );
 
-        // 5 + 3 = 8
+        // 6. 13 - 8 = 5
+        check_alu(ALU_SUB, 32'd13, 32'd8, 32'd5);
+
+        // 7. 5 - 8 = -3
+        check_alu(ALU_SUB, 32'd5, 32'd8, 32'hfffffffd);
+
+        // 8. 5 - 5 = 0
+        check_alu(ALU_SUB, 32'd5, 32'd5, 32'd0);
+
+        // 9. 0 - 1 = -1
+        check_alu(ALU_SUB, 32'd0, 32'd1, 32'hffffffff);
+
+        // 10. 5 - (-1) = 6
+        check_alu(ALU_SUB, 32'd5, 32'hffffffff, 32'd6);
+
+        // 11. Subtraction wraparound.
         check_alu(
-            1'b0, 32'd5, 32'd3, 32'd8
+            ALU_SUB, 32'h80000000, 32'd1, 32'h7fffffff
         );
 
-        // 5 + (-1) = 4
+        // 12-14. Change only the operation.
+        check_alu(ALU_ADD, 32'd7, 32'd2, 32'd9);
+        check_alu(ALU_SUB, 32'd7, 32'd2, 32'd5);
+        check_alu(ALU_ADD, 32'd7, 32'd2, 32'd9);
+
+        // ----------------------------------------
+        // AND tests.
+        // ----------------------------------------
+
+        // 15. AND with all ones preserves the input.
         check_alu(
-            1'b0, 32'd5, 32'hffffffff, 32'd4
+            ALU_AND, 32'ha5a5a5a5, 32'hffffffff, 32'ha5a5a5a5
         );
 
-        // Keep only the low 32 bits.
+        // 16. AND with zero produces zero.
         check_alu(
-            1'b0, 32'hffffffff, 32'd1, 32'd0
+            ALU_AND, 32'ha5a5a5a5, 32'h00000000, 32'h00000000
         );
 
-        // Signed overflow: no exception, keep the bit pattern.
+        // 17. Apply a mask to every byte.
         check_alu(
-            1'b0, 32'h7fffffff, 32'd1, 32'h80000000
+            ALU_AND, 32'ha5a5a5a5, 32'h0f0f0f0f, 32'h05050505
         );
 
-        // New subtraction tests.
+        // ----------------------------------------
+        // OR tests.
+        // ----------------------------------------
 
-        // 13 - 8 = 5
+        // 18. OR with zero preserves the input.
         check_alu(
-            1'b1, 32'd13, 32'd8, 32'd5
+            ALU_OR, 32'ha5a5a5a5, 32'h00000000, 32'ha5a5a5a5
         );
 
-        // 5 - 8 = -3
+        // 19. OR with all ones produces all ones.
         check_alu(
-            1'b1, 32'd5, 32'd8, 32'hfffffffd
+            ALU_OR, 32'ha5a5a5a5, 32'hffffffff, 32'hffffffff
         );
 
-        // 5 - 5 = 0
+        // 20. Set the low four bits of every byte.
         check_alu(
-            1'b1, 32'd5, 32'd5, 32'd0
+            ALU_OR, 32'ha5a5a5a5, 32'h0f0f0f0f, 32'hafafafaf
         );
 
-        // 0 - 1 = -1
+        // ----------------------------------------
+        // XOR tests.
+        // ----------------------------------------
+
+        // 21. XOR with itself produces zero.
         check_alu(
-            1'b1, 32'd0, 32'd1, 32'hffffffff
+            ALU_XOR, 32'ha5a5a5a5, 32'ha5a5a5a5, 32'h00000000
         );
 
-        // 5 - (-1) = 6
+        // 22. XOR with all ones inverts every bit.
         check_alu(
-            1'b1, 32'd5, 32'hffffffff, 32'd6
+            ALU_XOR, 32'ha5a5a5a5, 32'hffffffff, 32'h5a5a5a5a
         );
 
-        // Signed overflow: 0x80000000 - 1 wraps to 0x7fffffff.
+        // 23. Invert the low four bits of every byte.
         check_alu(
-            1'b1, 32'h80000000, 32'd1, 32'h7fffffff
+            ALU_XOR, 32'ha5a5a5a5, 32'h0f0f0f0f, 32'haaaaaaaa
         );
 
-        // Keep a and b unchanged; change only the operation.
-        // This verifies that sub controls the result immediately.
+        // ----------------------------------------
+        // Same inputs, five different operations.
+        // a = 12 (1100), b = 10 (1010).
+        // ----------------------------------------
 
-        // 7 + 2 = 9
-        check_alu(
-            1'b0, 32'd7, 32'd2, 32'd9
+        // 24. 12 + 10 = 22
+        check_alu(ALU_ADD, 32'd12, 32'd10, 32'd22);
+
+        // 25. 12 - 10 = 2
+        check_alu(ALU_SUB, 32'd12, 32'd10, 32'd2);
+
+        // 26. 1100 AND 1010 = 1000
+        check_alu(ALU_AND, 32'd12, 32'd10, 32'd8);
+
+        // 27. 1100 OR 1010 = 1110
+        check_alu(ALU_OR, 32'd12, 32'd10, 32'd14);
+
+        // 28. 1100 XOR 1010 = 0110
+        check_alu(ALU_XOR, 32'd12, 32'd10, 32'd6);
+
+        // ----------------------------------------
+        // Unused operation codes return zero.
+        // ----------------------------------------
+
+        // 29-31.
+        check_alu(3'b101, 32'd12, 32'd10, 32'd0);
+        check_alu(3'b110, 32'd12, 32'd10, 32'd0);
+        check_alu(3'b111, 32'd12, 32'd10, 32'd0);
+
+        $display(
+            "PASS: ALU ADD/SUB/AND/OR/XOR test passed, %0d cases",
+            test_count
         );
-
-        // 7 - 2 = 5
-        check_alu(
-            1'b1, 32'd7, 32'd2, 32'd5
-        );
-
-        // 7 + 2 = 9 again
-        check_alu(
-            1'b0, 32'd7, 32'd2, 32'd9
-        );
-
-        $display("PASS: ALU ADD/SUB test passed, 14 cases");
         $stop;
     end
 
