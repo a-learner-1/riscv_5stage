@@ -7,12 +7,12 @@ module cpu_top_tb;
 
     wire [31:0] pc_x;
     wire [31:0] instr_x;
-    wire        valid_x;
+    wire valid_x;
 
     wire [31:0] wb_pc;
     wire [4:0]  wb_rd;
     wire [31:0] wb_data;
-    wire        wb_we;
+    wire wb_we;
 
     localparam [2:0] ALU_ADD = 3'b000;
     localparam [2:0] ALU_SUB = 3'b001;
@@ -20,15 +20,32 @@ module cpu_top_tb;
     localparam [2:0] ALU_OR  = 3'b011;
     localparam [2:0] ALU_XOR = 3'b100;
 
-    // Flag order: ADDI ADD SUB AND OR XOR.
-    localparam [5:0] FLAG_ADDI = 6'b100000;
-    localparam [5:0] FLAG_ADD  = 6'b010000;
-    localparam [5:0] FLAG_SUB  = 6'b001000;
-    localparam [5:0] FLAG_AND  = 6'b000100;
-    localparam [5:0] FLAG_OR   = 6'b000010;
-    localparam [5:0] FLAG_XOR  = 6'b000001;
+    // Flag order: ADDI ADD SUB AND OR XOR ANDI ORI XORI.
+    localparam [8:0] F_ADDI = 9'b100000000;
+    localparam [8:0] F_ADD  = 9'b010000000;
+    localparam [8:0] F_SUB  = 9'b001000000;
+    localparam [8:0] F_AND  = 9'b000100000;
+    localparam [8:0] F_OR   = 9'b000010000;
+    localparam [8:0] F_XOR  = 9'b000001000;
+    localparam [8:0] F_ANDI = 9'b000000100;
+    localparam [8:0] F_ORI  = 9'b000000010;
+    localparam [8:0] F_XORI = 9'b000000001;
 
-    wire [5:0] decode_flags;
+    localparam integer NUM_INSTR = 15;
+
+    wire [8:0] decode_flags;
+
+    // Explicit expected values for each instruction.
+    reg [31:0] expected_instr  [0:NUM_INSTR-1];
+    reg [8:0]  expected_flags  [0:NUM_INSTR-1];
+    reg [2:0]  expected_op     [0:NUM_INSTR-1];
+    reg [1:0]  expected_fwd    [0:NUM_INSTR-1];
+    reg [31:0] expected_a      [0:NUM_INSTR-1];
+    reg [31:0] expected_b      [0:NUM_INSTR-1];
+    reg [31:0] expected_result [0:NUM_INSTR-1];
+
+    integer i;
+    reg expected_use_imm;
 
     cpu_top dut (
         .clk     (clk),
@@ -48,14 +65,15 @@ module cpu_top_tb;
         dut.is_sub_x,
         dut.is_and_x,
         dut.is_or_x,
-        dut.is_xor_x
+        dut.is_xor_x,
+        dut.is_andi_x,
+        dut.is_ori_x,
+        dut.is_xori_x
     };
 
-    // Clock period: 10 ns.
     initial clk = 1'b0;
     always #5 clk = ~clk;
 
-    // Wait for a rising edge, then let register updates settle.
     task tick;
         begin
             @(posedge clk);
@@ -63,70 +81,31 @@ module cpu_top_tb;
         end
     endtask
 
-    // Check instruction, decoding, forwarding and ALU result in EX.
-    task check_ex;
-        input [31:0] expected_pc;
-        input [31:0] expected_instr;
-        input [5:0]  expected_flags;
-        input [2:0]  expected_op;
-        input        expected_forward_rs1;
-        input        expected_forward_rs2;
-        input [31:0] expected_a;
-        input [31:0] expected_b;
-        input [31:0] expected_result;
+    // Populate one row of the expected-value table.
+    // fwd[1] = rs1 forwarding; fwd[0] = rs2 forwarding.
+    task set_case;
+        input integer index;
+        input [31:0] instruction;
+        input [8:0] flags;
+        input [2:0] op;
+        input [1:0] fwd;
+        input [31:0] a;
+        input [31:0] b;
+        input [31:0] result;
         begin
-            if (valid_x !== 1'b1 ||
-                pc_x !== expected_pc ||
-                instr_x !== expected_instr ||
-                decode_flags !== expected_flags ||
-                dut.alu_op_x !== expected_op ||
-                dut.forward_rs1_x !== expected_forward_rs1 ||
-                dut.forward_rs2_x !== expected_forward_rs2 ||
-                dut.alu_a_x !== expected_a ||
-                dut.alu_b_x !== expected_b ||
-                dut.alu_result_x !== expected_result) begin
-
-                $display("FAIL: EX stage at time=%0t", $time);
-
-                $display("  expected pc=%h instr=%h flags=%b op=%b",
-                         expected_pc,
-                         expected_instr,
-                         expected_flags,
-                         expected_op);
-
-                $display("  actual   pc=%h instr=%h flags=%b op=%b",
-                         pc_x,
-                         instr_x,
-                         decode_flags,
-                         dut.alu_op_x);
-
-                $display("  expected forward_rs1=%b forward_rs2=%b",
-                         expected_forward_rs1,
-                         expected_forward_rs2);
-
-                $display("  actual   forward_rs1=%b forward_rs2=%b",
-                         dut.forward_rs1_x,
-                         dut.forward_rs2_x);
-
-                $display("  expected a=%h b=%h result=%h",
-                         expected_a,
-                         expected_b,
-                         expected_result);
-
-                $display("  actual   a=%h b=%h result=%h",
-                         dut.alu_a_x,
-                         dut.alu_b_x,
-                         dut.alu_result_x);
-
-                $fatal(1, "EX stage mismatch");
-            end
+            expected_instr[index]  = instruction;
+            expected_flags[index]  = flags;
+            expected_op[index]     = op;
+            expected_fwd[index]    = fwd;
+            expected_a[index]      = a;
+            expected_b[index]      = b;
+            expected_result[index] = result;
         end
     endtask
 
-    // Check the result held in the EX/WB pipeline registers.
     task check_wb;
         input [31:0] expected_pc;
-        input [4:0]  expected_rd;
+        input [4:0] expected_rd;
         input [31:0] expected_data;
         begin
             if (wb_we !== 1'b1 ||
@@ -134,27 +113,19 @@ module cpu_top_tb;
                 wb_rd !== expected_rd ||
                 wb_data !== expected_data) begin
 
-                $display("FAIL: WB stage at time=%0t", $time);
+                $display("FAIL: WB at time=%0t", $time);
+                $display("expected pc=%h rd=%0d data=%h we=1",
+                         expected_pc, expected_rd, expected_data);
+                $display("actual   pc=%h rd=%0d data=%h we=%b",
+                         wb_pc, wb_rd, wb_data, wb_we);
 
-                $display("  expected pc=%h rd=%0d data=%h we=1",
-                         expected_pc,
-                         expected_rd,
-                         expected_data);
-
-                $display("  actual   pc=%h rd=%0d data=%h we=%b",
-                         wb_pc,
-                         wb_rd,
-                         wb_data,
-                         wb_we);
-
-                $fatal(1, "WB stage mismatch");
+                $fatal(1, "WB mismatch");
             end
         end
     endtask
 
-    // Check the value actually written into the register file.
     task check_reg;
-        input [4:0]  addr;
+        input [4:0] addr;
         input [31:0] expected_data;
         begin
             if (dut.u_regfile.regs[addr] !== expected_data) begin
@@ -162,7 +133,6 @@ module cpu_top_tb;
                          addr,
                          expected_data,
                          dut.u_regfile.regs[addr]);
-
                 $fatal(1, "Register writeback mismatch");
             end
         end
@@ -171,7 +141,64 @@ module cpu_top_tb;
     initial begin
         rst_n = 1'b0;
 
-        // Check reset.
+        // index, instruction, flags, ALU op, forwarding, A, B, result.
+
+        // Original nine instructions.
+        set_case(0, 32'h00500093, F_ADDI, ALU_ADD, 2'b00,
+                 32'd0, 32'd5, 32'd5);
+
+        set_case(1, 32'h00308113, F_ADDI, ALU_ADD, 2'b10,
+                 32'd5, 32'd3, 32'd8);
+
+        set_case(2, 32'h002081b3, F_ADD, ALU_ADD, 2'b01,
+                 32'd5, 32'd8, 32'd13);
+
+        set_case(3, 32'h00318233, F_ADD, ALU_ADD, 2'b11,
+                 32'd13, 32'd13, 32'd26);
+
+        set_case(4, 32'h403202b3, F_SUB, ALU_SUB, 2'b10,
+                 32'd26, 32'd13, 32'd13);
+
+        set_case(5, 32'h40508333, F_SUB, ALU_SUB, 2'b01,
+                 32'd5, 32'd13, 32'hfffffff8);
+
+        set_case(6, 32'h004373b3, F_AND, ALU_AND, 2'b10,
+                 32'hfffffff8, 32'd26, 32'd24);
+
+        set_case(7, 32'h0070e433, F_OR, ALU_OR, 2'b01,
+                 32'd5, 32'd24, 32'd29);
+
+        set_case(8, 32'h007444b3, F_XOR, ALU_XOR, 2'b10,
+                 32'd29, 32'd24, 32'd5);
+
+        // ANDI: 5 & 9 = 1.
+        // Raw rs2 field = 9, matching WB rd = 9.
+        // rs2 forwarding must still remain disabled.
+        set_case(9, 32'h0094f513, F_ANDI, ALU_AND, 2'b10,
+                 32'd5, 32'd9, 32'd1);
+
+        // ORI: 1 | 10 = 11.
+        // Raw rs2 field = 10, matching WB rd = 10.
+        set_case(10, 32'h00a56593, F_ORI, ALU_OR, 2'b10,
+                 32'd1, 32'd10, 32'd11);
+
+        // XORI: 11 ^ 11 = 0.
+        // Raw rs2 field = 11, matching WB rd = 11.
+        set_case(11, 32'h00b5c613, F_XORI, ALU_XOR, 2'b10,
+                 32'd11, 32'd11, 32'd0);
+
+        // XORI with -1: immediate must become ffffffff.
+        set_case(12, 32'hfff64693, F_XORI, ALU_XOR, 2'b10,
+                 32'd0, 32'hffffffff, 32'hffffffff);
+
+        // ANDI with -2048: immediate must become fffff800.
+        set_case(13, 32'h8006f713, F_ANDI, ALU_AND, 2'b10,
+                 32'hffffffff, 32'hfffff800, 32'hfffff800);
+
+        // ORI with -1: immediate must become ffffffff.
+        set_case(14, 32'hfff76793, F_ORI, ALU_OR, 2'b10,
+                 32'hfffff800, 32'hffffffff, 32'hffffffff);
+
         #1;
         if (valid_x !== 1'b0 ||
             wb_we !== 1'b0 ||
@@ -181,173 +208,145 @@ module cpu_top_tb;
             $fatal(1, "CPU reset mismatch");
         end
 
-        // Release reset at 12 ns.
         #11;
         rst_n = 1'b1;
 
-        // 16 ns: EX = addi x1, x0, 5.
-        tick;
-        check_ex(
-            32'd0, 32'h00500093,
-            FLAG_ADDI, ALU_ADD,
-            1'b0, 1'b0,
-            32'd0, 32'd5, 32'd5
-        );
+        // First check occurs at 16 ns.
+        // Each subsequent instruction is checked 10 ns later.
+        for (i = 0; i < NUM_INSTR; i = i + 1) begin
+            tick;
 
-        if (wb_we !== 1'b0) begin
-            $fatal(1, "Unexpected writeback during pipeline fill");
+            expected_use_imm =
+                (expected_flags[i] == F_ADDI) ||
+                (expected_flags[i] == F_ANDI) ||
+                (expected_flags[i] == F_ORI) ||
+                (expected_flags[i] == F_XORI);
+
+            // Check the instruction currently in EX.
+            if (valid_x !== 1'b1 ||
+                pc_x !== (i * 4) ||
+                instr_x !== expected_instr[i] ||
+                decode_flags !== expected_flags[i] ||
+                dut.use_imm_x !== expected_use_imm ||
+                dut.uses_rs2_x !== (!expected_use_imm) ||
+                dut.alu_op_x !== expected_op[i] ||
+                dut.forward_rs1_x !== expected_fwd[i][1] ||
+                dut.forward_rs2_x !== expected_fwd[i][0] ||
+                dut.alu_a_x !== expected_a[i] ||
+                dut.alu_b_x !== expected_b[i] ||
+                dut.alu_result_x !== expected_result[i]) begin
+
+                $display("FAIL: EX case=%0d time=%0t", i + 1, $time);
+
+                $display("expected pc=%h instr=%h flags=%b op=%b",
+                         i * 4,
+                         expected_instr[i],
+                         expected_flags[i],
+                         expected_op[i]);
+
+                $display("actual   pc=%h instr=%h flags=%b op=%b",
+                         pc_x, instr_x, decode_flags, dut.alu_op_x);
+
+                $display("expected use_imm=%b fwd=%b a=%h b=%h result=%h",
+                         expected_use_imm,
+                         expected_fwd[i],
+                         expected_a[i],
+                         expected_b[i],
+                         expected_result[i]);
+
+                $display("actual use_imm=%b uses_rs2=%b fwd=%b a=%h b=%h result=%h",
+                         dut.use_imm_x,
+                         dut.uses_rs2_x,
+                         {dut.forward_rs1_x, dut.forward_rs2_x},
+                         dut.alu_a_x,
+                         dut.alu_b_x,
+                         dut.alu_result_x);
+
+                $fatal(1, "EX mismatch");
+            end
+
+            if (expected_use_imm &&
+                (dut.imm_x !== expected_b[i])) begin
+                $fatal(1, "Immediate sign-extension mismatch");
+            end
+
+            // The immediately preceding instruction is in WB.
+            if (i == 0) begin
+                if (wb_we !== 1'b0)
+                    $fatal(1, "Unexpected write during pipeline fill");
+            end else begin
+                check_wb(
+                    (i - 1) * 4,
+                    expected_instr[i - 1][11:7],
+                    expected_result[i - 1]
+                );
+            end
+
+            // The instruction two positions earlier has committed.
+            if (i >= 2) begin
+                check_reg(
+                    expected_instr[i - 2][11:7],
+                    expected_result[i - 2]
+                );
+            end
+
+            // Confirm that these cases really exercise a raw-field
+            // collision with WB rd, while rs2 forwarding stays off.
+            if ((i >= 9) && (i <= 11)) begin
+                if (dut.rs2_addr_x !== wb_rd ||
+                    dut.forward_rs2_x !== 1'b0) begin
+                    $fatal(1, "Immediate raw-rs2 collision test failed");
+                end
+            end
+
+            $display("PASS: case=%0d pc=%0d instr=%h result=%h",
+                     i + 1, pc_x, instr_x, dut.alu_result_x);
         end
 
-        // 26 ns: EX = addi x2, x1, 3.
-        // WB holds x1 = 5; forward it to rs1.
-        tick;
-        check_ex(
-            32'd4, 32'h00308113,
-            FLAG_ADDI, ALU_ADD,
-            1'b1, 1'b0,
-            32'd5, 32'd3, 32'd8
-        );
-        check_wb(32'd0, 5'd1, 32'd5);
-
-        $display("PASS: ADDI rs1 forwarding, 5 + 3 = 8");
-
-        // 36 ns: EX = add x3, x1, x2.
-        // WB holds x2 = 8; forward it to rs2.
-        tick;
-        check_ex(
-            32'd8, 32'h002081b3,
-            FLAG_ADD, ALU_ADD,
-            1'b0, 1'b1,
-            32'd5, 32'd8, 32'd13
-        );
-        check_wb(32'd4, 5'd2, 32'd8);
-        check_reg(5'd1, 32'd5);
-
-        $display("PASS: ADD rs2 forwarding, 5 + 8 = 13");
-
-        // 46 ns: EX = add x4, x3, x3.
-        // WB holds x3 = 13; forward it to both sources.
-        tick;
-        check_ex(
-            32'd12, 32'h00318233,
-            FLAG_ADD, ALU_ADD,
-            1'b1, 1'b1,
-            32'd13, 32'd13, 32'd26
-        );
-        check_wb(32'd8, 5'd3, 32'd13);
-        check_reg(5'd2, 32'd8);
-
-        $display("PASS: dual-source forwarding, 13 + 13 = 26");
-
-        // 56 ns: EX = sub x5, x4, x3.
-        // WB holds x4 = 26; forward it to rs1.
-        tick;
-        check_ex(
-            32'd16, 32'h403202b3,
-            FLAG_SUB, ALU_SUB,
-            1'b1, 1'b0,
-            32'd26, 32'd13, 32'd13
-        );
-        check_wb(32'd12, 5'd4, 32'd26);
-        check_reg(5'd3, 32'd13);
-
-        $display("PASS: SUB rs1 forwarding, 26 - 13 = 13");
-
-        // 66 ns: EX = sub x6, x1, x5.
-        // WB holds x5 = 13; forward it to rs2.
-        tick;
-        check_ex(
-            32'd20, 32'h40508333,
-            FLAG_SUB, ALU_SUB,
-            1'b0, 1'b1,
-            32'd5, 32'd13, 32'hfffffff8
-        );
-        check_wb(32'd16, 5'd5, 32'd13);
-        check_reg(5'd4, 32'd26);
-
-        $display("PASS: SUB rs2 forwarding, 5 - 13 = -8");
-
-        // 76 ns: EX = and x7, x6, x4.
-        // WB holds x6 = -8; forward it to rs1.
-        tick;
-        check_ex(
-            32'd24, 32'h004373b3,
-            FLAG_AND, ALU_AND,
-            1'b1, 1'b0,
-            32'hfffffff8, 32'd26, 32'd24
-        );
-        check_wb(32'd20, 5'd6, 32'hfffffff8);
-        check_reg(5'd5, 32'd13);
-
-        $display("PASS: AND rs1 forwarding, -8 & 26 = 24");
-
-        // 86 ns: EX = or x8, x1, x7.
-        // WB holds x7 = 24; forward it to rs2.
-        tick;
-        check_ex(
-            32'd28, 32'h0070e433,
-            FLAG_OR, ALU_OR,
-            1'b0, 1'b1,
-            32'd5, 32'd24, 32'd29
-        );
-        check_wb(32'd24, 5'd7, 32'd24);
-        check_reg(5'd6, 32'hfffffff8);
-
-        $display("PASS: OR rs2 forwarding, 5 | 24 = 29");
-
-        // 96 ns: EX = xor x9, x8, x7.
-        // WB holds x8 = 29; forward it to rs1.
-        tick;
-        check_ex(
-            32'd32, 32'h007444b3,
-            FLAG_XOR, ALU_XOR,
-            1'b1, 1'b0,
-            32'd29, 32'd24, 32'd5
-        );
-        check_wb(32'd28, 5'd8, 32'd29);
-        check_reg(5'd7, 32'd24);
-
-        $display("PASS: XOR rs1 forwarding, 29 ^ 24 = 5");
-
-        // 106 ns: EX = NOP; WB holds x9 = 5.
-        tick;
-        check_ex(
-            32'd36, 32'h00000013,
-            FLAG_ADDI, ALU_ADD,
-            1'b0, 1'b0,
-            32'd0, 32'd0, 32'd0
-        );
-        check_wb(32'd32, 5'd9, 32'd5);
-        check_reg(5'd8, 32'd29);
-
-        // 116 ns: x9 has been written into the register file.
-        // The NOP in WB must not enable a write to x0.
+        // 166 ns: final instruction is in WB; EX contains a NOP.
         tick;
 
-        if (wb_we !== 1'b0) begin
+        check_wb(32'd56, 5'd15, 32'hffffffff);
+        check_reg(5'd14, 32'hfffff800);
+
+        if (valid_x !== 1'b1 ||
+            pc_x !== 32'd60 ||
+            instr_x !== 32'h00000013 ||
+            decode_flags !== F_ADDI ||
+            dut.use_imm_x !== 1'b1 ||
+            dut.alu_a_x !== 32'd0 ||
+            dut.alu_b_x !== 32'd0 ||
+            dut.alu_result_x !== 32'd0) begin
+            $fatal(1, "Trailing NOP mismatch");
+        end
+
+        // 176 ns: x15 is written; NOP must not enable a write.
+        tick;
+
+        if (wb_we !== 1'b0)
             $fatal(1, "NOP must not enable register writeback");
+
+        // All 15 instructions have different destination registers.
+        for (i = 0; i < NUM_INSTR; i = i + 1) begin
+            check_reg(
+                expected_instr[i][11:7],
+                expected_result[i]
+            );
         end
 
-        check_reg(5'd1, 32'd5);
-        check_reg(5'd2, 32'd8);
-        check_reg(5'd3, 32'd13);
-        check_reg(5'd4, 32'd26);
-        check_reg(5'd5, 32'd13);
-        check_reg(5'd6, 32'hfffffff8);
-        check_reg(5'd7, 32'd24);
-        check_reg(5'd8, 32'd29);
-        check_reg(5'd9, 32'd5);
-
-        $display("PASS: cpu_top logic integration test passed");
+        $display("PASS: immediate instructions do not forward rs2");
+        $display("PASS: negative immediate sign extension");
+        $display("PASS: cpu_top immediate logic integration test passed");
         $display("PASS: x1=5 x2=8 x3=13 x4=26 x5=13");
-        $display("PASS: x6=fffffff8 (-8) x7=24 x8=29 x9=5");
+        $display("PASS: x6=fffffff8 x7=24 x8=29 x9=5");
+        $display("PASS: x10=1 x11=11 x12=0");
+        $display("PASS: x13=ffffffff x14=fffff800 x15=ffffffff");
 
         $stop;
     end
 
-    // Prevent the test from running forever if the clock stops.
     initial begin
-        #1000;
+        #2000;
         $fatal(1, "CPU test timeout");
     end
 
