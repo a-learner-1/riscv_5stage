@@ -15,7 +15,11 @@ module decoder (
 
     output wire        is_andi,
     output wire        is_ori,
-    output wire        is_xori
+    output wire        is_xori,
+
+    output wire        is_sll,
+    output wire        is_srl,
+    output wire        is_sra
 );
 
     wire [6:0] opcode;
@@ -26,16 +30,14 @@ module decoder (
     assign funct3 = instr[14:12];
     assign funct7 = instr[31:25];
 
-    // Extract register address fields.
     assign rs1_addr = instr[19:15];
     assign rs2_addr = instr[24:20];
     assign rd_addr  = instr[11:7];
 
-    // Sign-extend the 12-bit I-type immediate to 32 bits.
+    // Sign-extend the 12-bit I-type immediate.
     assign imm_i = {{20{instr[31]}}, instr[31:20]};
 
     // I-type arithmetic and logic instructions.
-    // instr[31:20] is an immediate, so do not check funct7 here.
     assign is_addi =
         (opcode == 7'b0010011) &&
         (funct3 == 3'b000);
@@ -77,5 +79,21 @@ module decoder (
         (opcode == 7'b0110011) &&
         (funct3 == 3'b100) &&
         (funct7 == 7'b0000000);
+
+    // Register shift instructions.
+    assign is_sll =
+        (opcode == 7'b0110011) &&
+        (funct3 == 3'b001) &&
+        (funct7 == 7'b0000000);
+
+    assign is_srl =
+        (opcode == 7'b0110011) &&
+        (funct3 == 3'b101) &&
+        (funct7 == 7'b0000000);
+
+    assign is_sra =
+        (opcode == 7'b0110011) &&
+        (funct3 == 3'b101) &&
+        (funct7 == 7'b0100000);
 
 endmodule

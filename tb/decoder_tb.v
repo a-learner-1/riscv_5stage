@@ -3,17 +3,20 @@
 module decoder_tb;
 
     // Flag order:
-    // ADDI ADD SUB AND OR XOR ANDI ORI XORI
-    localparam [8:0] DEC_NONE = 9'b000000000;
-    localparam [8:0] DEC_ADDI = 9'b100000000;
-    localparam [8:0] DEC_ADD  = 9'b010000000;
-    localparam [8:0] DEC_SUB  = 9'b001000000;
-    localparam [8:0] DEC_AND  = 9'b000100000;
-    localparam [8:0] DEC_OR   = 9'b000010000;
-    localparam [8:0] DEC_XOR  = 9'b000001000;
-    localparam [8:0] DEC_ANDI = 9'b000000100;
-    localparam [8:0] DEC_ORI  = 9'b000000010;
-    localparam [8:0] DEC_XORI = 9'b000000001;
+    // ADDI ADD SUB AND OR XOR ANDI ORI XORI SLL SRL SRA
+    localparam [11:0] DEC_NONE = 12'b000000000000;
+    localparam [11:0] DEC_ADDI = 12'b100000000000;
+    localparam [11:0] DEC_ADD  = 12'b010000000000;
+    localparam [11:0] DEC_SUB  = 12'b001000000000;
+    localparam [11:0] DEC_AND  = 12'b000100000000;
+    localparam [11:0] DEC_OR   = 12'b000010000000;
+    localparam [11:0] DEC_XOR  = 12'b000001000000;
+    localparam [11:0] DEC_ANDI = 12'b000000100000;
+    localparam [11:0] DEC_ORI  = 12'b000000010000;
+    localparam [11:0] DEC_XORI = 12'b000000001000;
+    localparam [11:0] DEC_SLL  = 12'b000000000100;
+    localparam [11:0] DEC_SRL  = 12'b000000000010;
+    localparam [11:0] DEC_SRA  = 12'b000000000001;
 
     reg [31:0] instr;
 
@@ -31,8 +34,11 @@ module decoder_tb;
     wire is_andi;
     wire is_ori;
     wire is_xori;
+    wire is_sll;
+    wire is_srl;
+    wire is_sra;
 
-    wire [8:0] decode_flags;
+    wire [11:0] decode_flags;
 
     integer test_count;
 
@@ -52,7 +58,11 @@ module decoder_tb;
 
         .is_andi  (is_andi),
         .is_ori   (is_ori),
-        .is_xori  (is_xori)
+        .is_xori  (is_xori),
+
+        .is_sll   (is_sll),
+        .is_srl   (is_srl),
+        .is_sra   (is_sra)
     );
 
     assign decode_flags = {
@@ -64,7 +74,10 @@ module decoder_tb;
         is_xor,
         is_andi,
         is_ori,
-        is_xori
+        is_xori,
+        is_sll,
+        is_srl,
+        is_sra
     };
 
     task check_decode;
@@ -73,12 +86,11 @@ module decoder_tb;
         input [4:0]  expected_rs2;
         input [4:0]  expected_rd;
         input [31:0] expected_imm;
-        input [8:0]  expected_flags;
+        input [11:0] expected_flags;
         begin
             instr = test_instr;
             #1;
 
-            // Check extracted fields and all instruction flags.
             if (rs1_addr !== expected_rs1 ||
                 rs2_addr !== expected_rs2 ||
                 rd_addr !== expected_rd ||
@@ -87,13 +99,10 @@ module decoder_tb;
                 $display("FAIL: case=%0d instr=%h",
                          test_count + 1, instr);
 
-                $display("  actual: rs1=%0d rs2=%0d rd=%0d flags=%b",
-                         rs1_addr,
-                         rs2_addr,
-                         rd_addr,
-                         decode_flags);
+                $display("actual: rs1=%0d rs2=%0d rd=%0d flags=%b",
+                         rs1_addr, rs2_addr, rd_addr, decode_flags);
 
-                $display("  expected: rs1=%0d rs2=%0d rd=%0d flags=%b",
+                $display("expected: rs1=%0d rs2=%0d rd=%0d flags=%b",
                          expected_rs1,
                          expected_rs2,
                          expected_rd,
@@ -102,20 +111,15 @@ module decoder_tb;
                 $fatal(1, "Decoder field or flag mismatch");
             end
 
-            // Check the sign-extended immediate for all supported
-            // I-type arithmetic and logic instructions.
+            // Only these supported instructions consume imm_i.
             if ((expected_flags == DEC_ADDI) ||
                 (expected_flags == DEC_ANDI) ||
                 (expected_flags == DEC_ORI) ||
                 (expected_flags == DEC_XORI)) begin
 
                 if (imm_i !== expected_imm) begin
-                    $display("FAIL: case=%0d instr=%h",
-                             test_count + 1, instr);
-
-                    $display("  immediate actual=%h expected=%h",
-                             imm_i, expected_imm);
-
+                    $display("FAIL: instr=%h imm=%h expected=%h",
+                             instr, imm_i, expected_imm);
                     $fatal(1, "Immediate sign-extension mismatch");
                 end
             end
@@ -138,16 +142,15 @@ module decoder_tb;
         instr = 32'd0;
         test_count = 0;
 
-        $display("Flag order: ADDI ADD SUB AND OR XOR ANDI ORI XORI");
+        $display(
+            "Flag order: ADDI ADD SUB AND OR XOR ANDI ORI XORI SLL SRL SRA"
+        );
 
         // Arguments:
         // instruction, rs1, raw rs2 field, rd, immediate, flags.
         //
-        // For I-type instructions, instr[24:20] is part of the
-        // immediate. The raw rs2 field is not a source register.
-        //
-        // The immediate argument is checked only for:
-        // ADDI, ANDI, ORI and XORI.
+        // For I-type instructions, the raw rs2 field is part
+        // of the immediate, not a second source register.
 
         // 1. addi x1, x0, 5
         check_decode(
@@ -170,12 +173,12 @@ module decoder_tb;
             32'hffffffff, DEC_ADDI
         );
 
-        // 5. NOP: addi x0, x0, 0
+        // 5. NOP
         check_decode(
             32'h00000013, 5'd0, 5'd0, 5'd0, 32'd0, DEC_ADDI
         );
 
-        // 6. SLTI is not supported yet.
+        // 6. SLTI: not supported yet.
         check_decode(
             32'h00502093, 5'd0, 5'd5, 5'd1, 32'd0, DEC_NONE
         );
@@ -210,9 +213,9 @@ module decoder_tb;
             32'h40000033, 5'd0, 5'd0, 5'd0, 32'd0, DEC_SUB
         );
 
-        // 13. SRA is not supported yet.
+        // 13. sra x3, x1, x2: now supported.
         check_decode(
-            32'h4020d1b3, 5'd1, 5'd2, 5'd3, 32'd0, DEC_NONE
+            32'h4020d1b3, 5'd1, 5'd2, 5'd3, 32'd0, DEC_SRA
         );
 
         // 14. addi x3, x1, 1026
@@ -245,148 +248,179 @@ module decoder_tb;
             32'h00004033, 5'd0, 5'd0, 5'd0, 32'd0, DEC_XOR
         );
 
-        // 20. AND-like R-type encoding with wrong funct7.
+        // 20-22. Wrong funct7 for register logic instructions.
         check_decode(
             32'h4020f1b3, 5'd1, 5'd2, 5'd3, 32'd0, DEC_NONE
         );
-
-        // 21. OR-like R-type encoding with wrong funct7.
         check_decode(
             32'h4020e1b3, 5'd1, 5'd2, 5'd3, 32'd0, DEC_NONE
         );
-
-        // 22. XOR-like R-type encoding with wrong funct7.
         check_decode(
             32'h4020c1b3, 5'd1, 5'd2, 5'd3, 32'd0, DEC_NONE
         );
 
-        // 23. andi x3, x1, 2: now supported.
+        // 23. andi x3, x1, 2
         check_decode(
             32'h0020f193, 5'd1, 5'd2, 5'd3, 32'd2, DEC_ANDI
         );
 
-        // 24. ori x3, x1, 2: now supported.
+        // 24. ori x3, x1, 2
         check_decode(
             32'h0020e193, 5'd1, 5'd2, 5'd3, 32'd2, DEC_ORI
         );
 
-        // 25. xori x3, x1, 2: now supported.
+        // 25. xori x3, x1, 2
         check_decode(
             32'h0020c193, 5'd1, 5'd2, 5'd3, 32'd2, DEC_XORI
         );
 
-        // 26. SLL is not supported yet.
+        // 26. sll x3, x1, x2: now supported.
         check_decode(
-            32'h002091b3, 5'd1, 5'd2, 5'd3, 32'd0, DEC_NONE
+            32'h002091b3, 5'd1, 5'd2, 5'd3, 32'd0, DEC_SLL
         );
 
-        // 27. andi x3, x1, 0
+        // 27-31. ANDI immediate tests.
         check_decode(
             32'h0000f193, 5'd1, 5'd0, 5'd3, 32'd0, DEC_ANDI
         );
-
-        // 28. andi x3, x1, -1
         check_decode(
             32'hfff0f193, 5'd1, 5'd31, 5'd3,
             32'hffffffff, DEC_ANDI
         );
-
-        // 29. andi x3, x1, 2047: maximum positive immediate.
         check_decode(
             32'h7ff0f193, 5'd1, 5'd31, 5'd3,
             32'h000007ff, DEC_ANDI
         );
-
-        // 30. andi x3, x1, -2048: minimum negative immediate.
         check_decode(
             32'h8000f193, 5'd1, 5'd0, 5'd3,
             32'hfffff800, DEC_ANDI
         );
-
-        // 31. andi x3, x1, 1026
-        // Upper immediate bits must not be treated as funct7.
         check_decode(
             32'h4020f193, 5'd1, 5'd2, 5'd3, 32'd1026, DEC_ANDI
         );
 
-        // 32. ori x3, x1, 0
+        // 32-36. ORI immediate tests.
         check_decode(
             32'h0000e193, 5'd1, 5'd0, 5'd3, 32'd0, DEC_ORI
         );
-
-        // 33. ori x3, x1, -1
         check_decode(
             32'hfff0e193, 5'd1, 5'd31, 5'd3,
             32'hffffffff, DEC_ORI
         );
-
-        // 34. ori x3, x1, 2047
         check_decode(
             32'h7ff0e193, 5'd1, 5'd31, 5'd3,
             32'h000007ff, DEC_ORI
         );
-
-        // 35. ori x3, x1, -2048
         check_decode(
             32'h8000e193, 5'd1, 5'd0, 5'd3,
             32'hfffff800, DEC_ORI
         );
-
-        // 36. ori x3, x1, 1026
         check_decode(
             32'h4020e193, 5'd1, 5'd2, 5'd3, 32'd1026, DEC_ORI
         );
 
-        // 37. xori x3, x1, 0
+        // 37-41. XORI immediate tests.
         check_decode(
             32'h0000c193, 5'd1, 5'd0, 5'd3, 32'd0, DEC_XORI
         );
-
-        // 38. xori x3, x1, -1
         check_decode(
             32'hfff0c193, 5'd1, 5'd31, 5'd3,
             32'hffffffff, DEC_XORI
         );
-
-        // 39. xori x3, x1, 2047
         check_decode(
             32'h7ff0c193, 5'd1, 5'd31, 5'd3,
             32'h000007ff, DEC_XORI
         );
-
-        // 40. xori x3, x1, -2048
         check_decode(
             32'h8000c193, 5'd1, 5'd0, 5'd3,
             32'hfffff800, DEC_XORI
         );
-
-        // 41. xori x3, x1, 1026
         check_decode(
             32'h4020c193, 5'd1, 5'd2, 5'd3, 32'd1026, DEC_XORI
         );
 
-        // 42. SLLI is not supported yet.
+        // 42. SLLI: immediate shift is not supported yet.
         check_decode(
             32'h00209193, 5'd1, 5'd2, 5'd3, 32'd0, DEC_NONE
         );
 
-        // 43. SRLI is not supported yet.
+        // 43. SRLI: immediate shift is not supported yet.
         check_decode(
             32'h0020d193, 5'd1, 5'd2, 5'd3, 32'd0, DEC_NONE
         );
 
-        // 44. Same fields as ANDI, but opcode is 0000011.
-        // Must not be recognized as ANDI.
+        // 44. Wrong opcode: must not be recognized as ANDI.
         check_decode(
             32'h0020f183, 5'd1, 5'd2, 5'd3, 32'd0, DEC_NONE
         );
 
-        if (test_count != 44) begin
+        // 45. srl x3, x1, x2
+        check_decode(
+            32'h0020d1b3, 5'd1, 5'd2, 5'd3, 32'd0, DEC_SRL
+        );
+
+        // 46. sll x0, x0, x0
+        check_decode(
+            32'h00001033, 5'd0, 5'd0, 5'd0, 32'd0, DEC_SLL
+        );
+
+        // 47. srl x0, x0, x0
+        check_decode(
+            32'h00005033, 5'd0, 5'd0, 5'd0, 32'd0, DEC_SRL
+        );
+
+        // 48. sra x0, x0, x0
+        check_decode(
+            32'h40005033, 5'd0, 5'd0, 5'd0, 32'd0, DEC_SRA
+        );
+
+        // 49. sll x31, x31, x31
+        check_decode(
+            32'h01ff9fb3, 5'd31, 5'd31, 5'd31, 32'd0, DEC_SLL
+        );
+
+        // 50. srl x31, x31, x31
+        check_decode(
+            32'h01ffdfb3, 5'd31, 5'd31, 5'd31, 32'd0, DEC_SRL
+        );
+
+        // 51. sra x31, x31, x31
+        check_decode(
+            32'h41ffdfb3, 5'd31, 5'd31, 5'd31, 32'd0, DEC_SRA
+        );
+
+        // 52. SLL-like encoding with funct7 = 0100000.
+        // There is no separate arithmetic-left-shift instruction.
+        check_decode(
+            32'h402091b3, 5'd1, 5'd2, 5'd3, 32'd0, DEC_NONE
+        );
+
+        // 53. SLL-like encoding with funct7 = 0000001.
+        check_decode(
+            32'h022091b3, 5'd1, 5'd2, 5'd3, 32'd0, DEC_NONE
+        );
+
+        // 54. Right-shift-like encoding with funct7 = 0000001.
+        check_decode(
+            32'h0220d1b3, 5'd1, 5'd2, 5'd3, 32'd0, DEC_NONE
+        );
+
+        // 55. SRAI: different opcode, not supported yet.
+        check_decode(
+            32'h4020d193, 5'd1, 5'd2, 5'd3, 32'd0, DEC_NONE
+        );
+
+        // 56. SLLI with shamt=31: still not a register shift.
+        check_decode(
+            32'h01f09193, 5'd1, 5'd31, 5'd3, 32'd0, DEC_NONE
+        );
+
+        if (test_count != 56) begin
             $fatal(1, "Unexpected test count");
         end
 
         $display(
-            "PASS: decoder ADDI/ADD/SUB/AND/OR/XOR/ANDI/ORI/XORI test passed, %0d cases",
+            "PASS: decoder shift test passed, %0d cases",
             test_count
         );
 

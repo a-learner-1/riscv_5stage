@@ -20,24 +20,30 @@ module cpu_top_tb;
     localparam [2:0] ALU_OR  = 3'b011;
     localparam [2:0] ALU_XOR = 3'b100;
 
-    // Flag order: ADDI ADD SUB AND OR XOR ANDI ORI XORI.
-    localparam [8:0] F_ADDI = 9'b100000000;
-    localparam [8:0] F_ADD  = 9'b010000000;
-    localparam [8:0] F_SUB  = 9'b001000000;
-    localparam [8:0] F_AND  = 9'b000100000;
-    localparam [8:0] F_OR   = 9'b000010000;
-    localparam [8:0] F_XOR  = 9'b000001000;
-    localparam [8:0] F_ANDI = 9'b000000100;
-    localparam [8:0] F_ORI  = 9'b000000010;
-    localparam [8:0] F_XORI = 9'b000000001;
+    localparam [2:0] ALU_SLL = 3'b101;
+    localparam [2:0] ALU_SRL = 3'b110;
+    localparam [2:0] ALU_SRA = 3'b111;
+    // Flag order: ADDI ADD SUB AND OR XOR ANDI ORI XORI SLL SRL SRA.
+    localparam [11:0] F_ADDI = 12'b100000000000;
+    localparam [11:0] F_ADD  = 12'b010000000000;
+    localparam [11:0] F_SUB  = 12'b001000000000;
+    localparam [11:0] F_AND  = 12'b000100000000;
+    localparam [11:0] F_OR   = 12'b000010000000;
+    localparam [11:0] F_XOR  = 12'b000001000000;
+    localparam [11:0] F_ANDI = 12'b000000100000;
+    localparam [11:0] F_ORI  = 12'b000000010000;
+    localparam [11:0] F_XORI = 12'b000000001000;
 
-    localparam integer NUM_INSTR = 15;
+    localparam [11:0] F_SLL = 12'b000000000100;
+    localparam [11:0] F_SRL = 12'b000000000010;
+    localparam [11:0] F_SRA = 12'b000000000001;
+    localparam integer NUM_INSTR = 25;
 
-    wire [8:0] decode_flags;
+    wire [11:0] decode_flags;
 
     // Explicit expected values for each instruction.
     reg [31:0] expected_instr  [0:NUM_INSTR-1];
-    reg [8:0]  expected_flags  [0:NUM_INSTR-1];
+    reg [11:0]  expected_flags  [0:NUM_INSTR-1];
     reg [2:0]  expected_op     [0:NUM_INSTR-1];
     reg [1:0]  expected_fwd    [0:NUM_INSTR-1];
     reg [31:0] expected_a      [0:NUM_INSTR-1];
@@ -68,7 +74,10 @@ module cpu_top_tb;
         dut.is_xor_x,
         dut.is_andi_x,
         dut.is_ori_x,
-        dut.is_xori_x
+        dut.is_xori_x,
+        dut.is_sll_x,
+        dut.is_srl_x,
+        dut.is_sra_x
     };
 
     initial clk = 1'b0;
@@ -86,7 +95,7 @@ module cpu_top_tb;
     task set_case;
         input integer index;
         input [31:0] instruction;
-        input [8:0] flags;
+        input [11:0] flags;
         input [2:0] op;
         input [1:0] fwd;
         input [31:0] a;
@@ -199,6 +208,28 @@ module cpu_top_tb;
         set_case(14, 32'hfff76793, F_ORI, ALU_OR, 2'b10,
                  32'hfffff800, 32'hffffffff, 32'hffffffff);
 
+        // Shift integration cases.
+        set_case(15, 32'h00a79833, F_SLL, ALU_SLL, 2'b10,
+                 32'hffffffff, 32'd1, 32'hfffffffe);
+        set_case(16, 32'h00a858b3, F_SRL, ALU_SRL, 2'b10,
+                 32'hfffffffe, 32'd1, 32'h7fffffff);
+        set_case(17, 32'h40a85933, F_SRA, ALU_SRA, 2'b00,
+                 32'hfffffffe, 32'd1, 32'hffffffff);
+        set_case(18, 32'h02100993, F_ADDI, ALU_ADD, 2'b00,
+                 32'd0, 32'd33, 32'd33);
+        set_case(19, 32'h41335a33, F_SRA, ALU_SRA, 2'b01,
+                 32'hfffffff8, 32'd33, 32'hfffffffc);
+        set_case(20, 32'h01351ab3, F_SLL, ALU_SLL, 2'b00,
+                 32'd1, 32'd33, 32'd2);
+        set_case(21, 32'h00aadb33, F_SRL, ALU_SRL, 2'b10,
+                 32'd2, 32'd1, 32'd1);
+        set_case(22, 32'h016b1bb3, F_SLL, ALU_SLL, 2'b11,
+                 32'd1, 32'd1, 32'd2);
+        set_case(23, 32'h02000c13, F_ADDI, ALU_ADD, 2'b00,
+                 32'd0, 32'd32, 32'd32);
+        set_case(24, 32'h01885cb3, F_SRL, ALU_SRL, 2'b01,
+                 32'hfffffffe, 32'd32, 32'hfffffffe);
+
         #1;
         if (valid_x !== 1'b0 ||
             wb_we !== 1'b0 ||
@@ -303,14 +334,14 @@ module cpu_top_tb;
                      i + 1, pc_x, instr_x, dut.alu_result_x);
         end
 
-        // 166 ns: final instruction is in WB; EX contains a NOP.
+        // 266 ns: final instruction is in WB; EX contains a NOP.
         tick;
 
-        check_wb(32'd56, 5'd15, 32'hffffffff);
-        check_reg(5'd14, 32'hfffff800);
+        check_wb(32'd96, 5'd25, 32'hfffffffe);
+        check_reg(5'd24, 32'd32);
 
         if (valid_x !== 1'b1 ||
-            pc_x !== 32'd60 ||
+            pc_x !== 32'd100 ||
             instr_x !== 32'h00000013 ||
             decode_flags !== F_ADDI ||
             dut.use_imm_x !== 1'b1 ||
@@ -320,13 +351,13 @@ module cpu_top_tb;
             $fatal(1, "Trailing NOP mismatch");
         end
 
-        // 176 ns: x15 is written; NOP must not enable a write.
+        // 276 ns: x25 is written; NOP must not enable a write.
         tick;
 
         if (wb_we !== 1'b0)
             $fatal(1, "NOP must not enable register writeback");
 
-        // All 15 instructions have different destination registers.
+        // All 25 instructions have different destination registers.
         for (i = 0; i < NUM_INSTR; i = i + 1) begin
             check_reg(
                 expected_instr[i][11:7],
@@ -336,12 +367,15 @@ module cpu_top_tb;
 
         $display("PASS: immediate instructions do not forward rs2");
         $display("PASS: negative immediate sign extension");
-        $display("PASS: cpu_top immediate logic integration test passed");
+        $display("PASS: cpu_top shift integration test passed, 25 instructions");
         $display("PASS: x1=5 x2=8 x3=13 x4=26 x5=13");
         $display("PASS: x6=fffffff8 x7=24 x8=29 x9=5");
         $display("PASS: x10=1 x11=11 x12=0");
         $display("PASS: x13=ffffffff x14=fffff800 x15=ffffffff");
 
+        $display("PASS: x16=fffffffe x17=7fffffff x18=ffffffff");
+        $display("PASS: x19=33 x20=fffffffc x21=2 x22=1 x23=2");
+        $display("PASS: x24=32 x25=fffffffe");
         $stop;
     end
 

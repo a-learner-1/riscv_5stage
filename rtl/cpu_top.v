@@ -18,6 +18,9 @@ module cpu_top (
     localparam [2:0] ALU_OR  = 3'b011;
     localparam [2:0] ALU_XOR = 3'b100;
 
+    localparam [2:0] ALU_SLL = 3'b101;
+    localparam [2:0] ALU_SRL = 3'b110;
+    localparam [2:0] ALU_SRA = 3'b111;
     wire [31:0] pc_f;
 
     wire [4:0] rs1_addr_x;
@@ -34,6 +37,9 @@ module cpu_top (
     wire is_andi_x;
     wire is_ori_x;
     wire is_xori_x;
+    wire is_sll_x;
+    wire is_srl_x;
+    wire is_sra_x;
 
     wire use_imm_x;
     wire uses_rs2_x;
@@ -76,7 +82,10 @@ module cpu_top (
 
         .is_andi  (is_andi_x),
         .is_ori   (is_ori_x),
-        .is_xori  (is_xori_x)
+        .is_xori  (is_xori_x),
+        .is_sll   (is_sll_x),
+        .is_srl   (is_srl_x),
+        .is_sra   (is_sra_x)
     );
 
     regfile u_regfile (
@@ -103,7 +112,10 @@ module cpu_top (
         is_sub_x |
         is_and_x |
         is_or_x  |
-        is_xor_x;
+        is_xor_x |
+        is_sll_x |
+        is_srl_x |
+        is_sra_x;
 
     assign writes_rd_x = use_imm_x | uses_rs2_x;
 
@@ -131,6 +143,9 @@ module cpu_top (
 
     // Register and immediate versions share the same ALU operation.
     assign alu_op_x =
+        is_sll_x                 ? ALU_SLL :
+        is_srl_x                 ? ALU_SRL :
+        is_sra_x                 ? ALU_SRA :
         is_sub_x                 ? ALU_SUB :
         (is_and_x | is_andi_x)    ? ALU_AND :
         (is_or_x  | is_ori_x)     ? ALU_OR  :

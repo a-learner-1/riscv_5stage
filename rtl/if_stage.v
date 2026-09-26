@@ -45,6 +45,17 @@ module if_stage (
             32'd56:
                 instr_f = 32'hfff76793; // ori x15, x14, -1
 
+            32'd60: instr_f = 32'h00a79833; // sll x16, x15, x10
+            32'd64: instr_f = 32'h00a858b3; // srl x17, x16, x10
+            32'd68: instr_f = 32'h40a85933; // sra x18, x16, x10
+            32'd72: instr_f = 32'h02100993; // addi x19, x0, 33
+            32'd76: instr_f = 32'h41335a33; // sra x20, x6, x19
+            32'd80: instr_f = 32'h01351ab3; // sll x21, x10, x19
+            32'd84: instr_f = 32'h00aadb33; // srl x22, x21, x10
+            32'd88: instr_f = 32'h016b1bb3; // sll x23, x22, x22
+            32'd92: instr_f = 32'h02000c13; // addi x24, x0, 32
+            32'd96: instr_f = 32'h01885cb3; // srl x25, x16, x24
+
             default:
                 instr_f = 32'h00000013; // NOP
         endcase
@@ -65,3 +76,4 @@ module if_stage (
     end
 
 endmodule
+
