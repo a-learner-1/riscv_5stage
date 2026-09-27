@@ -73,6 +73,29 @@ module if_stage (
             32'd156: instr_f = 32'h001d5d93; // srli x27, x26, 1
             32'd160: instr_f = 32'h401d5e13; // srai x28, x26, 1
 
+            32'd164: instr_f = 32'h01afa0b3; // slt x1, x31, 26
+            32'd168: instr_f = 32'h01afb133; // sltu x2, x31, 26
+            32'd172: instr_f = 32'h000fa193; // slti x3, x31, 0
+            32'd176: instr_f = 32'h000fb213; // sltiu x4, x31, 0
+            32'd180: instr_f = 32'hfffdb293; // sltiu x5, x27, -1
+            32'd184: instr_f = 32'hffffa313; // slti x6, x31, -1
+            32'd188: instr_f = 32'h01d8a3b3; // slt x7, x17, 29
+            32'd192: instr_f = 32'h01d8b433; // sltu x8, x17, 29
+            32'd196: instr_f = 32'h800ea493; // slti x9, x29, -2048
+            32'd200: instr_f = 32'h800eb513; // sltiu x10, x29, -2048
+            32'd204: instr_f = 32'h001d2593; // slti x11, x26, 1
+            32'd208: instr_f = 32'h001d3613; // sltiu x12, x26, 1
+            32'd212: instr_f = 32'h01fd26b3; // slt x13, x26, 31
+            32'd216: instr_f = 32'h01fd3733; // sltu x14, x26, 31
+            32'd220: instr_f = 32'h01a727b3; // slt x15, x14, 26
+            32'd224: instr_f = 32'h00f73833; // sltu x16, x14, 15
+            32'd228: instr_f = 32'h010828b3; // slt x17, x16, 16
+            32'd232: instr_f = 32'h0118b913; // sltiu x18, x17, 17
+            32'd236: instr_f = 32'h01afa033; // slt x0, x31, 26
+            32'd240: instr_f = 32'hffff3993; // sltiu x19, x30, -1
+            32'd244: instr_f = 32'h7fff2a13; // slti x20, x30, 2047
+            32'd248: instr_f = 32'h011eaab3; // slt x21, x29, 17
+
             default:
                 instr_f = 32'h00000013; // NOP
         endcase

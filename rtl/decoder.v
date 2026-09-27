@@ -22,7 +22,11 @@ module decoder (
     output wire        is_sra,
     output wire        is_slli,
     output wire        is_srli,
-    output wire        is_srai
+    output wire        is_srai,
+    output wire        is_slt,
+    output wire        is_sltu,
+    output wire        is_slti,
+    output wire        is_sltiu
 );
 
     wire [6:0] opcode;
@@ -107,4 +111,11 @@ module decoder (
                      (funct3 == 3'b101) && (funct7 == 7'b0000000);
     assign is_srai = (opcode == 7'b0010011) &&
                      (funct3 == 3'b101) && (funct7 == 7'b0100000);
+    // SLTIU still sign-extends the 12-bit immediate; only comparison is unsigned.
+    assign is_slti  = (opcode == 7'b0010011) && (funct3 == 3'b010);
+    assign is_sltiu = (opcode == 7'b0010011) && (funct3 == 3'b011);
+    assign is_slt   = (opcode == 7'b0110011) && (funct3 == 3'b010) &&
+                      (funct7 == 7'b0000000);
+    assign is_sltu  = (opcode == 7'b0110011) && (funct3 == 3'b011) &&
+                      (funct7 == 7'b0000000);
 endmodule

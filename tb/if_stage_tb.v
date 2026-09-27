@@ -104,9 +104,31 @@ module if_stage_tb;
         check_fetch(32'd152, 32'h00106d13);
         check_fetch(32'd156, 32'h001d5d93);
         check_fetch(32'd160, 32'h401d5e13);
-        check_fetch(32'd164, 32'h00000013);
+        check_fetch(32'd164, 32'h01afa0b3);
+        check_fetch(32'd168, 32'h01afb133);
+        check_fetch(32'd172, 32'h000fa193);
+        check_fetch(32'd176, 32'h000fb213);
+        check_fetch(32'd180, 32'hfffdb293);
+        check_fetch(32'd184, 32'hffffa313);
+        check_fetch(32'd188, 32'h01d8a3b3);
+        check_fetch(32'd192, 32'h01d8b433);
+        check_fetch(32'd196, 32'h800ea493);
+        check_fetch(32'd200, 32'h800eb513);
+        check_fetch(32'd204, 32'h001d2593);
+        check_fetch(32'd208, 32'h001d3613);
+        check_fetch(32'd212, 32'h01fd26b3);
+        check_fetch(32'd216, 32'h01fd3733);
+        check_fetch(32'd220, 32'h01a727b3);
+        check_fetch(32'd224, 32'h00f73833);
+        check_fetch(32'd228, 32'h010828b3);
+        check_fetch(32'd232, 32'h0118b913);
+        check_fetch(32'd236, 32'h01afa033);
+        check_fetch(32'd240, 32'hffff3993);
+        check_fetch(32'd244, 32'h7fff2a13);
+        check_fetch(32'd248, 32'h011eaab3);
+        check_fetch(32'd252, 32'h00000013);
 
-        $display("PASS: IF stage 41-instruction test passed");
+        $display("PASS: IF stage 63-instruction test passed");
         $stop;
     end
 

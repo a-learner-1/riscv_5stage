@@ -3,7 +3,7 @@ catch {quit -sim}
 if {![file exists work]} {vlib work}
 vmap work work
 vlog -sv -work work rtl/if_stage.v rtl/regfile.v rtl/decoder.v rtl/alu.v rtl/cpu_top.v tb/alu_tb.v tb/decoder_tb.v tb/if_stage_tb.v tb/cpu_top_tb.v
-vsim -voptargs=+acc -onfinish stop -wlf cpu_shift_imm_run.wlf work.cpu_top_tb
+vsim -voptargs=+acc -onfinish stop -wlf cpu_compare_run.wlf work.cpu_top_tb
 add wave sim:/cpu_top_tb/clk sim:/cpu_top_tb/rst_n
 add wave sim:/cpu_top_tb/pc_x sim:/cpu_top_tb/instr_x
 add wave sim:/cpu_top_tb/wb_pc sim:/cpu_top_tb/wb_rd sim:/cpu_top_tb/wb_data sim:/cpu_top_tb/wb_we

@@ -3,24 +3,28 @@
 module decoder_tb;
 
     // Flag order:
-    // ADDI ADD SUB AND OR XOR ANDI ORI XORI SLL SRL SRA SLLI SRLI SRAI
-    localparam [14:0] DEC_NONE = 15'b000000000000000;
-    localparam [14:0] DEC_ADDI = 15'b100000000000000;
-    localparam [14:0] DEC_ADD  = 15'b010000000000000;
-    localparam [14:0] DEC_SUB  = 15'b001000000000000;
-    localparam [14:0] DEC_AND  = 15'b000100000000000;
-    localparam [14:0] DEC_OR   = 15'b000010000000000;
-    localparam [14:0] DEC_XOR  = 15'b000001000000000;
-    localparam [14:0] DEC_ANDI = 15'b000000100000000;
-    localparam [14:0] DEC_ORI  = 15'b000000010000000;
-    localparam [14:0] DEC_XORI = 15'b000000001000000;
-    localparam [14:0] DEC_SLL  = 15'b000000000100000;
-    localparam [14:0] DEC_SRL  = 15'b000000000010000;
-    localparam [14:0] DEC_SRA  = 15'b000000000001000;
+    // ADDI ADD SUB AND OR XOR ANDI ORI XORI SLL SRL SRA SLLI SRLI SRAI SLT SLTU SLTI SLTIU
+    localparam [18:0] DEC_NONE = 19'b0000000000000000000;
+    localparam [18:0] DEC_ADDI = 19'b1000000000000000000;
+    localparam [18:0] DEC_ADD  = 19'b0100000000000000000;
+    localparam [18:0] DEC_SUB  = 19'b0010000000000000000;
+    localparam [18:0] DEC_AND  = 19'b0001000000000000000;
+    localparam [18:0] DEC_OR   = 19'b0000100000000000000;
+    localparam [18:0] DEC_XOR  = 19'b0000010000000000000;
+    localparam [18:0] DEC_ANDI = 19'b0000001000000000000;
+    localparam [18:0] DEC_ORI  = 19'b0000000100000000000;
+    localparam [18:0] DEC_XORI = 19'b0000000010000000000;
+    localparam [18:0] DEC_SLL  = 19'b0000000001000000000;
+    localparam [18:0] DEC_SRL  = 19'b0000000000100000000;
+    localparam [18:0] DEC_SRA  = 19'b0000000000010000000;
 
-    localparam [14:0] DEC_SLLI = 15'b000000000000100;
-    localparam [14:0] DEC_SRLI = 15'b000000000000010;
-    localparam [14:0] DEC_SRAI = 15'b000000000000001;
+    localparam [18:0] DEC_SLLI = 19'b0000000000001000000;
+    localparam [18:0] DEC_SRLI = 19'b0000000000000100000;
+    localparam [18:0] DEC_SRAI = 19'b0000000000000010000;
+    localparam [18:0] DEC_SLT   = 19'b0000000000000001000;
+    localparam [18:0] DEC_SLTU  = 19'b0000000000000000100;
+    localparam [18:0] DEC_SLTI  = 19'b0000000000000000010;
+    localparam [18:0] DEC_SLTIU = 19'b0000000000000000001;
     integer sh, upper;
     reg [31:0] instr;
 
@@ -42,8 +46,9 @@ module decoder_tb;
     wire is_srl;
     wire is_sra;
     wire is_slli, is_srli, is_srai;
+    wire is_slt, is_sltu, is_slti, is_sltiu;
 
-    wire [14:0] decode_flags;
+    wire [18:0] decode_flags;
 
     integer test_count;
 
@@ -70,7 +75,9 @@ module decoder_tb;
         .is_sra   (is_sra),
         .is_slli  (is_slli),
         .is_srli  (is_srli),
-        .is_srai  (is_srai)
+        .is_srai  (is_srai),
+        .is_slt   (is_slt), .is_sltu (is_sltu),
+        .is_slti  (is_slti), .is_sltiu (is_sltiu)
     );
 
     assign decode_flags = {
@@ -85,7 +92,8 @@ module decoder_tb;
         is_xori,
         is_sll,
         is_srl,
-        is_sra, is_slli, is_srli, is_srai
+        is_sra, is_slli, is_srli, is_srai,
+        is_slt, is_sltu, is_slti, is_sltiu
     };
 
     task check_decode;
@@ -94,7 +102,7 @@ module decoder_tb;
         input [4:0]  expected_rs2;
         input [4:0]  expected_rd;
         input [31:0] expected_imm;
-        input [14:0] expected_flags;
+        input [18:0] expected_flags;
         begin
             instr = test_instr;
             #1;
@@ -126,7 +134,8 @@ module decoder_tb;
                 (expected_flags == DEC_XORI) ||
                 (expected_flags == DEC_SLLI) ||
                 (expected_flags == DEC_SRLI) ||
-                (expected_flags == DEC_SRAI)) begin
+                (expected_flags == DEC_SRAI) ||
+                (expected_flags == DEC_SLTI) || (expected_flags == DEC_SLTIU)) begin
 
                 if (imm_i !== expected_imm) begin
                     $display("FAIL: instr=%h imm=%h expected=%h",
@@ -154,7 +163,7 @@ module decoder_tb;
         test_count = 0;
 
         $display(
-            "Flag order: ADDI ADD SUB AND OR XOR ANDI ORI XORI SLL SRL SRA SLLI SRLI SRAI"
+            "Flag order: ADDI ADD SUB AND OR XOR ANDI ORI XORI SLL SRL SRA SLLI SRLI SRA SLT SLTU SLTI SLTIU"
         );
 
         // Arguments:
@@ -189,9 +198,9 @@ module decoder_tb;
             32'h00000013, 5'd0, 5'd0, 5'd0, 32'd0, DEC_ADDI
         );
 
-        // 6. SLTI: not supported yet.
+        // 6. SLTI x1, x0, 5 is now supported.
         check_decode(
-            32'h00502093, 5'd0, 5'd5, 5'd1, 32'd0, DEC_NONE
+            32'h00502093, 5'd0, 5'd5, 5'd1, 32'd5, DEC_SLTI
         );
 
         // 7. add x3, x1, x2
@@ -448,12 +457,30 @@ module decoder_tb;
         check_decode(32'h00109183, 5'd1, 5'd1, 5'd3, 32'd0, DEC_NONE);
         check_decode(32'h0010d183, 5'd1, 5'd1, 5'd3, 32'd0, DEC_NONE);
         check_decode(32'h4010d183, 5'd1, 5'd1, 5'd3, 32'd0, DEC_NONE);
-        if (test_count != 408) begin
+        check_decode(32'h01afa0b3, 5'd31, 5'd26, 5'd1, 32'h00000000, DEC_SLT);
+        check_decode(32'h01afb133, 5'd31, 5'd26, 5'd2, 32'h00000000, DEC_SLTU);
+        check_decode(32'h000fa193, 5'd31, 5'd0, 5'd3, 32'h00000000, DEC_SLTI);
+        check_decode(32'h000fb213, 5'd31, 5'd0, 5'd4, 32'h00000000, DEC_SLTIU);
+        check_decode(32'hfffdb293, 5'd27, 5'd31, 5'd5, 32'hffffffff, DEC_SLTIU);
+        check_decode(32'hffffa313, 5'd31, 5'd31, 5'd6, 32'hffffffff, DEC_SLTI);
+        check_decode(32'h01d8a3b3, 5'd17, 5'd29, 5'd7, 32'h00000000, DEC_SLT);
+        check_decode(32'h01d8b433, 5'd17, 5'd29, 5'd8, 32'h00000000, DEC_SLTU);
+        check_decode(32'h800ea493, 5'd29, 5'd0, 5'd9, 32'hfffff800, DEC_SLTI);
+        check_decode(32'h800eb513, 5'd29, 5'd0, 5'd10, 32'hfffff800, DEC_SLTIU);
+        check_decode(32'h001d2593, 5'd26, 5'd1, 5'd11, 32'h00000001, DEC_SLTI);
+        check_decode(32'h001d3613, 5'd26, 5'd1, 5'd12, 32'h00000001, DEC_SLTIU);
+        check_decode(32'h01fd26b3, 5'd26, 5'd31, 5'd13, 32'h00000000, DEC_SLT);
+        check_decode(32'h01fd3733, 5'd26, 5'd31, 5'd14, 32'h00000000, DEC_SLTU);
+        check_decode(32'h0020a1b3, 5'd1, 5'd2, 5'd3, 32'd0, DEC_SLT);
+        check_decode(32'h01ffb1b3, 5'd31, 5'd31, 5'd3, 32'd0, DEC_SLTU);
+        check_decode(32'h4020a1b3, 5'd1, 5'd2, 5'd3, 32'd0, DEC_NONE);
+        check_decode(32'h4020b1b3, 5'd1, 5'd2, 5'd3, 32'd0, DEC_NONE);
+        if (test_count != 426) begin
             $fatal(1, "Unexpected test count");
         end
 
         $display(
-            "PASS: decoder immediate shift test passed, %0d cases",
+            "PASS: decoder comparison regression passed, %0d cases",
             test_count
         );
 

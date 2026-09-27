@@ -14,40 +14,46 @@ module cpu_top_tb;
     wire [31:0] wb_data;
     wire wb_we;
 
-    localparam [2:0] ALU_ADD = 3'b000;
-    localparam [2:0] ALU_SUB = 3'b001;
-    localparam [2:0] ALU_AND = 3'b010;
-    localparam [2:0] ALU_OR  = 3'b011;
-    localparam [2:0] ALU_XOR = 3'b100;
+    localparam [3:0] ALU_ADD = 4'b000;
+    localparam [3:0] ALU_SUB = 4'b001;
+    localparam [3:0] ALU_AND = 4'b010;
+    localparam [3:0] ALU_OR  = 4'b011;
+    localparam [3:0] ALU_XOR = 4'b100;
 
-    localparam [2:0] ALU_SLL = 3'b101;
-    localparam [2:0] ALU_SRL = 3'b110;
-    localparam [2:0] ALU_SRA = 3'b111;
+    localparam [3:0] ALU_SLL = 4'b101;
+    localparam [3:0] ALU_SRL = 4'b110;
+    localparam [3:0] ALU_SRA = 4'b111;
     // Flag order: ADDI ADD SUB AND OR XOR ANDI ORI XORI SLL SRL SRA SLLI SRLI SRAI.
-    localparam [14:0] F_ADDI = 15'b100000000000000;
-    localparam [14:0] F_ADD  = 15'b010000000000000;
-    localparam [14:0] F_SUB  = 15'b001000000000000;
-    localparam [14:0] F_AND  = 15'b000100000000000;
-    localparam [14:0] F_OR   = 15'b000010000000000;
-    localparam [14:0] F_XOR  = 15'b000001000000000;
-    localparam [14:0] F_ANDI = 15'b000000100000000;
-    localparam [14:0] F_ORI  = 15'b000000010000000;
-    localparam [14:0] F_XORI = 15'b000000001000000;
+    localparam [18:0] F_ADDI = 19'b1000000000000000000;
+    localparam [18:0] F_ADD  = 19'b0100000000000000000;
+    localparam [18:0] F_SUB  = 19'b0010000000000000000;
+    localparam [18:0] F_AND  = 19'b0001000000000000000;
+    localparam [18:0] F_OR   = 19'b0000100000000000000;
+    localparam [18:0] F_XOR  = 19'b0000010000000000000;
+    localparam [18:0] F_ANDI = 19'b0000001000000000000;
+    localparam [18:0] F_ORI  = 19'b0000000100000000000;
+    localparam [18:0] F_XORI = 19'b0000000010000000000;
 
-    localparam [14:0] F_SLL = 15'b000000000100000;
-    localparam [14:0] F_SRL = 15'b000000000010000;
-    localparam [14:0] F_SRA = 15'b000000000001000;
-    localparam [14:0] F_SLLI = 15'b000000000000100;
-    localparam [14:0] F_SRLI = 15'b000000000000010;
-    localparam [14:0] F_SRAI = 15'b000000000000001;
-    localparam integer NUM_INSTR = 41;
+    localparam [18:0] F_SLL = 19'b0000000001000000000;
+    localparam [18:0] F_SRL = 19'b0000000000100000000;
+    localparam [18:0] F_SRA = 19'b0000000000010000000;
+    localparam [18:0] F_SLLI = 19'b0000000000001000000;
+    localparam [18:0] F_SRLI = 19'b0000000000000100000;
+    localparam [18:0] F_SRAI = 19'b0000000000000010000;
+    localparam [3:0] ALU_SLT  = 4'b1000;
+    localparam [3:0] ALU_SLTU = 4'b1001;
+    localparam [18:0] F_SLT   = 19'b0000000000000001000;
+    localparam [18:0] F_SLTU  = 19'b0000000000000000100;
+    localparam [18:0] F_SLTI  = 19'b0000000000000000010;
+    localparam [18:0] F_SLTIU = 19'b0000000000000000001;
+    localparam integer NUM_INSTR = 63;
 
-    wire [14:0] decode_flags;
+    wire [18:0] decode_flags;
 
     // Explicit expected values for each instruction.
     reg [31:0] expected_instr  [0:NUM_INSTR-1];
-    reg [14:0]  expected_flags  [0:NUM_INSTR-1];
-    reg [2:0]  expected_op     [0:NUM_INSTR-1];
+    reg [18:0]  expected_flags  [0:NUM_INSTR-1];
+    reg [3:0]  expected_op     [0:NUM_INSTR-1];
     reg [1:0]  expected_fwd    [0:NUM_INSTR-1];
     reg [31:0] expected_a      [0:NUM_INSTR-1];
     reg [31:0] expected_b      [0:NUM_INSTR-1];
@@ -80,7 +86,8 @@ module cpu_top_tb;
         dut.is_xori_x,
         dut.is_sll_x,
         dut.is_srl_x,
-        dut.is_sra_x, dut.is_slli_x, dut.is_srli_x, dut.is_srai_x
+        dut.is_sra_x, dut.is_slli_x, dut.is_srli_x, dut.is_srai_x,
+        dut.is_slt_x, dut.is_sltu_x, dut.is_slti_x, dut.is_sltiu_x
     };
 
     initial clk = 1'b0;
@@ -98,8 +105,8 @@ module cpu_top_tb;
     task set_case;
         input integer index;
         input [31:0] instruction;
-        input [14:0] flags;
-        input [2:0] op;
+        input [18:0] flags;
+        input [3:0] op;
         input [1:0] fwd;
         input [31:0] a;
         input [31:0] b;
@@ -169,6 +176,29 @@ module cpu_top_tb;
         set_case(39, 32'h001d5d93, F_SRLI, ALU_SRL, 2'b10, 32'h00000001, 32'd1, 32'h00000000);
         set_case(40, 32'h401d5e13, F_SRAI, ALU_SRA, 2'b00, 32'h00000001, 32'd1, 32'h00000000);
 
+        set_case(41, 32'h01afa0b3, F_SLT, ALU_SLT, 2'b00, 32'hffffffff, 32'd1, 32'd1);
+        set_case(42, 32'h01afb133, F_SLTU, ALU_SLTU, 2'b00, 32'hffffffff, 32'd1, 32'd0);
+        set_case(43, 32'h000fa193, F_SLTI, ALU_SLT, 2'b00, 32'hffffffff, 32'd0, 32'd1);
+        set_case(44, 32'h000fb213, F_SLTIU, ALU_SLTU, 2'b00, 32'hffffffff, 32'd0, 32'd0);
+        set_case(45, 32'hfffdb293, F_SLTIU, ALU_SLTU, 2'b00, 32'h00000000, 32'hffffffff, 32'd1);
+        set_case(46, 32'hffffa313, F_SLTI, ALU_SLT, 2'b00, 32'hffffffff, 32'hffffffff, 32'd0);
+        set_case(47, 32'h01d8a3b3, F_SLT, ALU_SLT, 2'b00, 32'h7fffffff, 32'hf0000000, 32'd0);
+        set_case(48, 32'h01d8b433, F_SLTU, ALU_SLTU, 2'b00, 32'h7fffffff, 32'hf0000000, 32'd1);
+        set_case(49, 32'h800ea493, F_SLTI, ALU_SLT, 2'b00, 32'hf0000000, 32'hfffff800, 32'd1);
+        set_case(50, 32'h800eb513, F_SLTIU, ALU_SLTU, 2'b00, 32'hf0000000, 32'hfffff800, 32'd1);
+        set_case(51, 32'h001d2593, F_SLTI, ALU_SLT, 2'b00, 32'h00000001, 32'd1, 32'd0);
+        set_case(52, 32'h001d3613, F_SLTIU, ALU_SLTU, 2'b00, 32'h00000001, 32'd1, 32'd0);
+        set_case(53, 32'h01fd26b3, F_SLT, ALU_SLT, 2'b00, 32'h00000001, 32'hffffffff, 32'd0);
+        set_case(54, 32'h01fd3733, F_SLTU, ALU_SLTU, 2'b00, 32'h00000001, 32'hffffffff, 32'd1);
+        set_case(55, 32'h01a727b3, F_SLT, ALU_SLT, 2'b10, 32'h00000001, 32'd1, 32'd0);
+        set_case(56, 32'h00f73833, F_SLTU, ALU_SLTU, 2'b01, 32'h00000001, 32'd0, 32'd0);
+        set_case(57, 32'h010828b3, F_SLT, ALU_SLT, 2'b11, 32'h00000000, 32'd0, 32'd0);
+        set_case(58, 32'h0118b913, F_SLTIU, ALU_SLTU, 2'b10, 32'h00000000, 32'd17, 32'd1);
+        set_case(59, 32'h01afa033, F_SLT, ALU_SLT, 2'b00, 32'hffffffff, 32'd1, 32'd1);
+        set_case(60, 32'hffff3993, F_SLTIU, ALU_SLTU, 2'b00, 32'h00000007, 32'hffffffff, 32'd1);
+        set_case(61, 32'h7fff2a13, F_SLTI, ALU_SLT, 2'b00, 32'h00000007, 32'h000007ff, 32'd1);
+        set_case(62, 32'h011eaab3, F_SLT, ALU_SLT, 2'b00, 32'hf0000000, 32'd0, 32'd1);
+
         #1;
         if (valid_x !== 0 || wb_we !== 0 || wb_pc !== 0 ||
             wb_rd !== 0 || wb_data !== 0)
@@ -186,7 +216,8 @@ module cpu_top_tb;
                                      (expected_flags[i] == F_SRAI);
                 expected_use_imm = expected_shift_imm ||
                     (expected_flags[i] == F_ADDI) || (expected_flags[i] == F_ANDI) ||
-                    (expected_flags[i] == F_ORI) || (expected_flags[i] == F_XORI);
+                    (expected_flags[i] == F_ORI) || (expected_flags[i] == F_XORI) ||
+                    (expected_flags[i] == F_SLTI) || (expected_flags[i] == F_SLTIU);
                 if (valid_x !== 1'b1 || pc_x !== (i*4) ||
                     instr_x !== expected_instr[i] || decode_flags !== expected_flags[i] ||
                     dut.use_imm_x !== expected_use_imm ||
@@ -210,7 +241,7 @@ module cpu_top_tb;
                     dut.imm_x !== expected_b[i]) $fatal(1,"Sign extension mismatch");
                 if (expected_shift_imm && dut.shamt_imm_x !== expected_b[i])
                     $fatal(1,"Shift immediate extraction mismatch");
-                if (((i>=9)&&(i<=11)) || ((i>=34)&&(i<=36))) begin
+                if (((i>=9)&&(i<=11)) || ((i>=34)&&(i<=36)) || (i==58)) begin
                     if (dut.rs2_addr_x !== wb_rd || dut.forward_rs2_x !== 1'b0)
                         $fatal(1,"False rs2 dependency test failed");
                 end
@@ -256,7 +287,8 @@ module cpu_top_tb;
         $display("PASS: original 25 instructions preserved");
         $display("PASS: SLLI/SRLI/SRAI shamt 0/1/31, rs1 forwarding, no rs2 forwarding");
         $display("PASS: writes to x0 suppressed, repeated destination writeback checked");
-        $display("PASS: cpu_top immediate shift integration test passed, 41 instructions");
+        $display("PASS: signed/unsigned comparison, negative immediates and forwarding checked");
+        $display("PASS: cpu_top comparison integration test passed, 63 instructions");
         $display("PASS: x26=1 x27=0 x28=0 x29=f0000000 x30=7 x31=ffffffff");
         $stop;
     end

@@ -12,15 +12,17 @@ module cpu_top (
     output reg         wb_we
 );
 
-    localparam [2:0] ALU_ADD = 3'b000;
-    localparam [2:0] ALU_SUB = 3'b001;
-    localparam [2:0] ALU_AND = 3'b010;
-    localparam [2:0] ALU_OR  = 3'b011;
-    localparam [2:0] ALU_XOR = 3'b100;
+    localparam [3:0] ALU_ADD = 4'b000;
+    localparam [3:0] ALU_SUB = 4'b001;
+    localparam [3:0] ALU_AND = 4'b010;
+    localparam [3:0] ALU_OR  = 4'b011;
+    localparam [3:0] ALU_XOR = 4'b100;
 
-    localparam [2:0] ALU_SLL = 3'b101;
-    localparam [2:0] ALU_SRL = 3'b110;
-    localparam [2:0] ALU_SRA = 3'b111;
+    localparam [3:0] ALU_SLL = 4'b101;
+    localparam [3:0] ALU_SRL = 4'b110;
+    localparam [3:0] ALU_SRA = 4'b111;
+    localparam [3:0] ALU_SLT  = 4'b1000;
+    localparam [3:0] ALU_SLTU = 4'b1001;
     wire [31:0] pc_f;
 
     wire [4:0] rs1_addr_x;
@@ -43,6 +45,7 @@ module cpu_top (
     wire is_slli_x;
     wire is_srli_x;
     wire is_srai_x;
+    wire is_slt_x, is_sltu_x, is_slti_x, is_sltiu_x;
     wire use_shift_imm_x;
     wire [31:0] shamt_imm_x;
 
@@ -59,7 +62,7 @@ module cpu_top (
 
     wire [31:0] alu_a_x;
     wire [31:0] alu_b_x;
-    wire [2:0]  alu_op_x;
+    wire [3:0]  alu_op_x;
     wire [31:0] alu_result_x;
 
     if_stage u_if_stage (
@@ -93,7 +96,11 @@ module cpu_top (
         .is_sra   (is_sra_x),
         .is_slli  (is_slli_x),
         .is_srli  (is_srli_x),
-        .is_srai  (is_srai_x)
+        .is_srai  (is_srai_x),
+        .is_slt   (is_slt_x),
+        .is_sltu  (is_sltu_x),
+        .is_slti  (is_slti_x),
+        .is_sltiu (is_sltiu_x)
     );
 
     regfile u_regfile (
@@ -117,7 +124,8 @@ module cpu_top (
         is_andi_x |
         is_ori_x  |
         is_xori_x |
-        use_shift_imm_x;
+        use_shift_imm_x |
+        is_slti_x | is_sltiu_x;
 
     // Only these instructions consume a second source register.
     assign uses_rs2_x =
@@ -128,7 +136,8 @@ module cpu_top (
         is_xor_x |
         is_sll_x |
         is_srl_x |
-        is_sra_x;
+        is_sra_x |
+        is_slt_x | is_sltu_x;
 
     assign writes_rd_x = use_imm_x | uses_rs2_x;
 
@@ -157,6 +166,8 @@ module cpu_top (
 
     // Register and immediate versions share the same ALU operation.
     assign alu_op_x =
+        (is_slt_x | is_slti_x)     ? ALU_SLT  :
+        (is_sltu_x | is_sltiu_x)   ? ALU_SLTU :
         (is_sll_x | is_slli_x)   ? ALU_SLL :
         (is_srl_x | is_srli_x)   ? ALU_SRL :
         (is_sra_x | is_srai_x)   ? ALU_SRA :
