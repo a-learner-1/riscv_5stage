@@ -7,7 +7,7 @@ module branch_tb;
     wire valid_x, wb_we;
     wire [4:0] wb_rd;
 
-    localparam integer STEPS = 33;
+    localparam integer STEPS = 31;
     reg [31:0] exp_pc [0:STEPS-1];
     reg [31:0] exp_instr [0:STEPS-1];
     reg exp_valid [0:STEPS-1];
@@ -88,8 +88,6 @@ module branch_tb;
         step(28, 396, 32'h00000013, 0, 0, 2'b00, 0); // squash x29 = 99
         step(29, 400, 32'h01bd9463, 1, 0, 2'b00, 8); // BNE not taken
         step(30, 404, 32'h00700e13, 1, 0, 2'b00, 0); // x28 = 7
-        step(31, 408, 32'h00000013, 1, 0, 2'b00, 0);
-        step(32, 412, 32'h00000013, 1, 0, 2'b00, 0);
 
         #11;
         rst_n = 1'b1;
@@ -123,6 +121,10 @@ module branch_tb;
                           wb_pc == 380 || wb_pc == 396))
                 $fatal(1, "Wrong-path instruction committed at PC=%0d", wb_pc);
         end
+
+        // Drain the last ADDI writeback before the new jump program begins.
+        tick;
+        tick;
 
         if (dut.u_regfile.regs[14] !== 3 || dut.u_regfile.regs[15] !== 4 ||
             dut.u_regfile.regs[16] !== 0 || dut.u_regfile.regs[17] !== 1 ||

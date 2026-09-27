@@ -140,6 +140,29 @@ module if_stage (
             32'd400: instr_f = 32'h01bd9463; // bne x27, x27, +8 (not taken)
             32'd404: instr_f = 32'h00700e13; // addi x28, x0, 7
 
+            // JAL/JALR regression. The poison writes are on wrong paths.
+            32'd408: instr_f = 32'h008002ef; // jal x5, +8; link = 412
+            32'd412: instr_f = 32'h06300813; // poison x16 = 99
+            32'd416: instr_f = 32'h00128413; // addi x8, x5, 1
+            32'd420: instr_f = 32'h1b500313; // addi x6, x0, 437
+            32'd424: instr_f = 32'h000303e7; // jalr x7, 0(x6); target = 436
+            32'd428: instr_f = 32'h06300993; // poison x19 = 99
+            32'd432: instr_f = 32'h06300a13; // poison x20 = 99
+            32'd436: instr_f = 32'h00138a93; // addi x21, x7, 1
+            32'd440: instr_f = 32'h0080006f; // jal x0, +8; no link write
+            32'd444: instr_f = 32'h06300813; // poison x16 = 99
+            32'd448: instr_f = 32'h00600b13; // addi x22, x0, 6
+            32'd452: instr_f = 32'h00000497; // auipc x9, 0
+            32'd456: instr_f = 32'h00d48067; // jalr x0, 13(x9); 465 & ~1 = 464
+            32'd460: instr_f = 32'h06300c13; // poison x24 = 99
+            32'd464: instr_f = 32'h00200513; // addi x10, x0, 2
+            32'd468: instr_f = 32'h00000593; // addi x11, x0, 0
+            32'd472: instr_f = 32'h00158593; // addi x11, x11, 1
+            32'd476: instr_f = 32'h00a58663; // beq x11, x10, +12
+            32'd480: instr_f = 32'hff9ff66f; // jal x12, -8; link = 484
+            32'd484: instr_f = 32'h06300c13; // poison x24 = 99
+            32'd488: instr_f = 32'h00b606b3; // add x13, x12, x11
+
             default:
                 instr_f = 32'h00000013; // NOP
         endcase

@@ -31,6 +31,7 @@ module cpu_top (
     wire [31:0] imm_x;
     wire [31:0] imm_u_x;
     wire [31:0] imm_b_x;
+    wire [31:0] imm_j_x;
 
     wire is_addi_x;
     wire is_add_x;
@@ -50,9 +51,14 @@ module cpu_top (
     wire is_slt_x, is_sltu_x, is_slti_x, is_sltiu_x;
     wire is_lui_x, is_auipc_x;
     wire is_beq_x, is_bne_x;
+    wire is_jal_x, is_jalr_x, is_jump_x;
     wire is_branch_x;
     wire branch_taken_x;
     wire [31:0] branch_target_x;
+    wire jump_taken_x;
+    wire [31:0] jump_target_x;
+    wire redirect_x;
+    wire [31:0] redirect_pc_x;
     wire use_upper_imm_x;
     wire use_shift_imm_x;
     wire [31:0] shamt_imm_x;
@@ -78,8 +84,8 @@ module cpu_top (
     if_stage u_if_stage (
         .clk     (clk),
         .rst_n   (rst_n),
-        .redirect_x (branch_taken_x),
-        .redirect_pc_x (branch_target_x),
+        .redirect_x (redirect_x),
+        .redirect_pc_x (redirect_pc_x),
         .pc_f    (pc_f),
         .pc_x    (pc_x),
         .instr_x (instr_x),
@@ -94,6 +100,7 @@ module cpu_top (
         .imm_i    (imm_x),
         .imm_u    (imm_u_x),
         .imm_b    (imm_b_x),
+        .imm_j    (imm_j_x),
 
         .is_addi  (is_addi_x),
         .is_add   (is_add_x),
@@ -118,7 +125,9 @@ module cpu_top (
         .is_lui   (is_lui_x),
         .is_auipc (is_auipc_x),
         .is_beq   (is_beq_x),
-        .is_bne   (is_bne_x)
+        .is_bne   (is_bne_x),
+        .is_jal   (is_jal_x),
+        .is_jalr  (is_jalr_x)
     );
 
     regfile u_regfile (
@@ -139,6 +148,7 @@ module cpu_top (
     // U-type immediate bits are not register source addresses.
     assign use_upper_imm_x = is_lui_x | is_auipc_x;
     assign is_branch_x = is_beq_x | is_bne_x;
+    assign is_jump_x = is_jal_x | is_jalr_x;
 
     // All immediate instructions select the immediate operand path.
     assign use_imm_x =
@@ -163,8 +173,10 @@ module cpu_top (
         is_slt_x | is_sltu_x |
         is_branch_x;
 
-    assign uses_rs1_x = (use_imm_x | uses_rs2_x) && !use_upper_imm_x;
-    assign writes_rd_x = (use_imm_x | uses_rs2_x) && !is_branch_x;
+    assign uses_rs1_x = ((use_imm_x | uses_rs2_x) && !use_upper_imm_x)
+                        | is_jalr_x;
+    assign writes_rd_x = ((use_imm_x | uses_rs2_x) && !is_branch_x)
+                         | is_jump_x;
 
     // WB -> EX forwarding for rs1.
     assign forward_rs1_x =
@@ -195,6 +207,11 @@ module cpu_top (
         ((is_beq_x && (rs1_value_x == rs2_value_x)) ||
          (is_bne_x && (rs1_value_x != rs2_value_x)));
     assign branch_target_x = pc_x + imm_b_x;
+    assign jump_taken_x = valid_x && is_jump_x;
+    assign jump_target_x = is_jal_x ? (pc_x + imm_j_x) :
+                           ((rs1_value_x + imm_x) & 32'hfffffffe);
+    assign redirect_x = branch_taken_x | jump_taken_x;
+    assign redirect_pc_x = jump_taken_x ? jump_target_x : branch_target_x;
 
     assign alu_b_x =
         use_upper_imm_x ? imm_u_x :
@@ -231,7 +248,7 @@ module cpu_top (
         end else begin
             wb_pc   <= pc_x;
             wb_rd   <= rd_addr_x;
-            wb_data <= alu_result_x;
+            wb_data <= is_jump_x ? (pc_x + 32'd4) : alu_result_x;
 
             wb_we <= valid_x &&
                      writes_rd_x &&

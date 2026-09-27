@@ -7,6 +7,7 @@ module decoder (
     output wire [31:0] imm_i,
     output wire [31:0] imm_u,
     output wire [31:0] imm_b,
+    output wire [31:0] imm_j,
 
     output wire        is_addi,
     output wire        is_add,
@@ -32,7 +33,9 @@ module decoder (
     output wire        is_lui,
     output wire        is_auipc,
     output wire        is_beq,
-    output wire        is_bne
+    output wire        is_bne,
+    output wire        is_jal,
+    output wire        is_jalr
 );
 
     wire [6:0] opcode;
@@ -53,6 +56,9 @@ module decoder (
     // B immediate: imm[12|10:5|4:1|11|0]. Bit 0 is always zero.
     assign imm_b = {{19{instr[31]}}, instr[31], instr[7],
                     instr[30:25], instr[11:8], 1'b0};
+    // J immediate: imm[20|10:1|11|19:12|0], sign extended.
+    assign imm_j = {{11{instr[31]}}, instr[31], instr[19:12],
+                    instr[20], instr[30:21], 1'b0};
 
     // I-type arithmetic and logic instructions.
     assign is_addi =
@@ -132,4 +138,6 @@ module decoder (
     assign is_auipc = (opcode == 7'b0010111);
     assign is_beq   = (opcode == 7'b1100011) && (funct3 == 3'b000);
     assign is_bne   = (opcode == 7'b1100011) && (funct3 == 3'b001);
+    assign is_jal   = (opcode == 7'b1101111);
+    assign is_jalr  = (opcode == 7'b1100111) && (funct3 == 3'b000);
 endmodule
