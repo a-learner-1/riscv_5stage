@@ -1,6 +1,8 @@
 module if_stage (
     input  wire        clk,
     input  wire        rst_n,
+    input  wire        redirect_x,
+    input  wire [31:0] redirect_pc_x,
 
     output reg  [31:0] pc_f,
     output reg  [31:0] pc_x,
@@ -111,6 +113,33 @@ module if_stage (
             32'd300: instr_f = 32'h00758613; // addi x12, x11, 7
             32'd304: instr_f = 32'h00b086b3; // add x13, x1, x11
 
+            // BEQ/BNE control-flow regression. Poison instructions must be flushed.
+            32'd308: instr_f = 32'h00300713; // addi x14, x0, 3
+            32'd312: instr_f = 32'h00300793; // addi x15, x0, 3
+            32'd316: instr_f = 32'h00f70463; // beq x14, x15, +8 (taken)
+            32'd320: instr_f = 32'h06300813; // poison: addi x16, x0, 99
+            32'd324: instr_f = 32'h00100893; // addi x17, x0, 1
+            32'd328: instr_f = 32'h00f71463; // bne x14, x15, +8 (not taken)
+            32'd332: instr_f = 32'h00200913; // addi x18, x0, 2
+            32'd336: instr_f = 32'h00400793; // addi x15, x0, 4
+            32'd340: instr_f = 32'h00f71463; // bne x14, x15, +8 (taken)
+            32'd344: instr_f = 32'h06300993; // poison: addi x19, x0, 99
+            32'd348: instr_f = 32'h00100a13; // addi x20, x0, 1
+            32'd352: instr_f = 32'h00f70463; // beq x14, x15, +8 (not taken)
+            32'd356: instr_f = 32'h00500a93; // addi x21, x0, 5
+            32'd360: instr_f = 32'h00300b93; // addi x23, x0, 3
+            32'd364: instr_f = 32'h00000b13; // addi x22, x0, 0
+            32'd368: instr_f = 32'h001b0b13; // addi x22, x22, 1
+            32'd372: instr_f = 32'hff7b1ee3; // bne x22, x23, -4 (loop)
+            32'd376: instr_f = 32'h017b0463; // beq x22, x23, +8 (taken)
+            32'd380: instr_f = 32'h06300c13; // poison: addi x24, x0, 99
+            32'd384: instr_f = 32'h00fb0d33; // add x26, x22, x15
+            32'd388: instr_f = 32'h00900d93; // addi x27, x0, 9
+            32'd392: instr_f = 32'h01bd8463; // beq x27, x27, +8 (taken)
+            32'd396: instr_f = 32'h06300e93; // poison: addi x29, x0, 99
+            32'd400: instr_f = 32'h01bd9463; // bne x27, x27, +8 (not taken)
+            32'd404: instr_f = 32'h00700e13; // addi x28, x0, 7
+
             default:
                 instr_f = 32'h00000013; // NOP
         endcase
@@ -122,6 +151,12 @@ module if_stage (
             pc_x    <= 32'd0;
             instr_x <= 32'h00000013;
             valid_x <= 1'b0;
+        end else if (redirect_x) begin
+            // The sequential instruction at pc_f is wrong-path: insert one bubble.
+            pc_x    <= pc_f;
+            instr_x <= 32'h00000013;
+            valid_x <= 1'b0;
+            pc_f    <= redirect_pc_x;
         end else begin
             pc_x    <= pc_f;
             instr_x <= instr_f;

@@ -30,6 +30,7 @@ module cpu_top (
     wire [4:0] rd_addr_x;
     wire [31:0] imm_x;
     wire [31:0] imm_u_x;
+    wire [31:0] imm_b_x;
 
     wire is_addi_x;
     wire is_add_x;
@@ -48,6 +49,10 @@ module cpu_top (
     wire is_srai_x;
     wire is_slt_x, is_sltu_x, is_slti_x, is_sltiu_x;
     wire is_lui_x, is_auipc_x;
+    wire is_beq_x, is_bne_x;
+    wire is_branch_x;
+    wire branch_taken_x;
+    wire [31:0] branch_target_x;
     wire use_upper_imm_x;
     wire use_shift_imm_x;
     wire [31:0] shamt_imm_x;
@@ -62,6 +67,7 @@ module cpu_top (
 
     wire forward_rs1_x;
     wire forward_rs2_x;
+    wire [31:0] rs1_value_x;
     wire [31:0] rs2_value_x;
 
     wire [31:0] alu_a_x;
@@ -72,6 +78,8 @@ module cpu_top (
     if_stage u_if_stage (
         .clk     (clk),
         .rst_n   (rst_n),
+        .redirect_x (branch_taken_x),
+        .redirect_pc_x (branch_target_x),
         .pc_f    (pc_f),
         .pc_x    (pc_x),
         .instr_x (instr_x),
@@ -85,6 +93,7 @@ module cpu_top (
         .rd_addr  (rd_addr_x),
         .imm_i    (imm_x),
         .imm_u    (imm_u_x),
+        .imm_b    (imm_b_x),
 
         .is_addi  (is_addi_x),
         .is_add   (is_add_x),
@@ -107,7 +116,9 @@ module cpu_top (
         .is_slti  (is_slti_x),
         .is_sltiu (is_sltiu_x),
         .is_lui   (is_lui_x),
-        .is_auipc (is_auipc_x)
+        .is_auipc (is_auipc_x),
+        .is_beq   (is_beq_x),
+        .is_bne   (is_bne_x)
     );
 
     regfile u_regfile (
@@ -127,6 +138,7 @@ module cpu_top (
 
     // U-type immediate bits are not register source addresses.
     assign use_upper_imm_x = is_lui_x | is_auipc_x;
+    assign is_branch_x = is_beq_x | is_bne_x;
 
     // All immediate instructions select the immediate operand path.
     assign use_imm_x =
@@ -148,10 +160,11 @@ module cpu_top (
         is_sll_x |
         is_srl_x |
         is_sra_x |
-        is_slt_x | is_sltu_x;
+        is_slt_x | is_sltu_x |
+        is_branch_x;
 
     assign uses_rs1_x = (use_imm_x | uses_rs2_x) && !use_upper_imm_x;
-    assign writes_rd_x = use_imm_x | uses_rs2_x;
+    assign writes_rd_x = (use_imm_x | uses_rs2_x) && !is_branch_x;
 
     // WB -> EX forwarding for rs1.
     assign forward_rs1_x =
@@ -160,10 +173,12 @@ module cpu_top (
         (wb_rd != 5'd0) &&
         (wb_rd == rs1_addr_x);
 
+    assign rs1_value_x = forward_rs1_x ? wb_data : rs1_data_x;
+
     assign alu_a_x =
         is_lui_x   ? 32'd0 :
         is_auipc_x ? pc_x  :
-        forward_rs1_x ? wb_data : rs1_data_x;
+        rs1_value_x;
 
     // I-type immediate bits must not trigger rs2 forwarding.
     assign forward_rs2_x =
@@ -174,6 +189,12 @@ module cpu_top (
 
     assign rs2_value_x =
         forward_rs2_x ? wb_data : rs2_data_x;
+
+    // Resolve BEQ/BNE in EX with the same forwarded operands as ALU instructions.
+    assign branch_taken_x = valid_x &&
+        ((is_beq_x && (rs1_value_x == rs2_value_x)) ||
+         (is_bne_x && (rs1_value_x != rs2_value_x)));
+    assign branch_target_x = pc_x + imm_b_x;
 
     assign alu_b_x =
         use_upper_imm_x ? imm_u_x :

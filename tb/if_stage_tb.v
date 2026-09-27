@@ -13,6 +13,8 @@ module if_stage_tb;
     if_stage dut (
         .clk     (clk),
         .rst_n   (rst_n),
+        .redirect_x (1'b0),
+        .redirect_pc_x (32'd0),
         .pc_f    (pc_f),
         .pc_x    (pc_x),
         .instr_x (instr_x),
@@ -140,7 +142,7 @@ module if_stage_tb;
         check_fetch(32'd296, 32'h12345597);
         check_fetch(32'd300, 32'h00758613);
         check_fetch(32'd304, 32'h00b086b3);
-        check_fetch(32'd308, 32'h00000013);
+        // The branch program begins at PC 308 and is tested in branch_tb.
 
         $display("PASS: IF stage 77-instruction test passed");
         $stop;
