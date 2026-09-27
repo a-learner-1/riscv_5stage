@@ -163,6 +163,56 @@ module if_stage (
             32'd484: instr_f = 32'h06300c13; // poison x24 = 99
             32'd488: instr_f = 32'h00b606b3; // add x13, x12, x11
 
+            // Signed/unsigned branch regression after the jump segment.
+            32'd500: instr_f = 32'hfff00093; // addi x1, x0, -1
+            32'd504: instr_f = 32'h00100113; // addi x2, x0, 1
+            32'd508: instr_f = 32'h0020c463; // blt x1, x2, +8; taken
+            32'd512: instr_f = 32'h06300813; // poison x16
+            32'd516: instr_f = 32'h0020d463; // bge x1, x2, +8; not taken
+            32'd520: instr_f = 32'h00700193; // addi x3, x0, 7
+            32'd524: instr_f = 32'h0020e463; // bltu x1, x2, +8; not taken
+            32'd528: instr_f = 32'h00800213; // addi x4, x0, 8
+            32'd532: instr_f = 32'h0020f463; // bgeu x1, x2, +8; taken
+            32'd536: instr_f = 32'h06300993; // poison x19
+            32'd540: instr_f = 32'h00000313; // addi x6, x0, 0
+            32'd544: instr_f = 32'hfff00393; // addi x7, x0, -1
+            32'd548: instr_f = 32'h0063c463; // blt x7, x6, +8; forwarded rs1
+            32'd552: instr_f = 32'h06300a13; // poison x20
+            32'd556: instr_f = 32'h00735463; // bge x6, x7, +8; taken
+            32'd560: instr_f = 32'h06300c13; // poison x24
+            32'd564: instr_f = 32'h00736463; // bltu x6, x7, +8; taken
+            32'd568: instr_f = 32'h06300813; // poison x16
+            32'd572: instr_f = 32'h00737463; // bgeu x6, x7, +8; not taken
+            32'd576: instr_f = 32'h00100413; // addi x8, x0, 1
+            32'd580: instr_f = 32'h00300493; // addi x9, x0, 3
+            32'd584: instr_f = 32'h00000513; // addi x10, x0, 0
+            32'd588: instr_f = 32'h00150513; // addi x10, x10, 1
+            32'd592: instr_f = 32'hfe954ee3; // blt x10, x9, -4; loop
+            32'd596: instr_f = 32'h00955463; // bge x10, x9, +8; equal
+            32'd600: instr_f = 32'h06300993; // poison x19
+            32'd604: instr_f = 32'h00956463; // bltu x10, x9, +8; equal
+            32'd608: instr_f = 32'h00957463; // bgeu x10, x9, +8; equal
+            32'd612: instr_f = 32'h06300a13; // poison x20
+            32'd616: instr_f = 32'h02a00593; // addi x11, x0, 42
+            32'd620: instr_f = 32'h00a4c463; // blt x9, x10, +8; equal
+            32'd624: instr_f = 32'h00a4e463; // bltu x9, x10, +8; equal
+            32'd628: instr_f = 32'h00a4d463; // bge x9, x10, +8; equal
+            32'd632: instr_f = 32'h06300c13; // poison x24
+            32'd636: instr_f = 32'h00a4f463; // bgeu x9, x10, +8; equal
+            32'd640: instr_f = 32'h06300813; // poison x16
+            32'd644: instr_f = 32'h00b00613; // addi x12, x0, 11
+            32'd648: instr_f = 32'h800006b7; // lui x13, 0x80000
+            32'd652: instr_f = 32'h80000737; // lui x14, 0x80000
+            32'd656: instr_f = 32'hfff70713; // addi x14, x14, -1
+            32'd660: instr_f = 32'h00e6c463; // blt x13, x14, +8; signed
+            32'd664: instr_f = 32'h06300993; // poison x19
+            32'd668: instr_f = 32'h00e6e463; // bltu x13, x14, +8; unsigned
+            32'd672: instr_f = 32'h00c00793; // addi x15, x0, 12
+            32'd676: instr_f = 32'h00e6f463; // bgeu x13, x14, +8; unsigned
+            32'd680: instr_f = 32'h06300a13; // poison x20
+            32'd684: instr_f = 32'h00e6d463; // bge x13, x14, +8; signed
+            32'd688: instr_f = 32'h00d00913; // addi x18, x0, 13
+
             default:
                 instr_f = 32'h00000013; // NOP
         endcase

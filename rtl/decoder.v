@@ -34,6 +34,10 @@ module decoder (
     output wire        is_auipc,
     output wire        is_beq,
     output wire        is_bne,
+    output wire        is_blt,
+    output wire        is_bge,
+    output wire        is_bltu,
+    output wire        is_bgeu,
     output wire        is_jal,
     output wire        is_jalr
 );
@@ -138,6 +142,10 @@ module decoder (
     assign is_auipc = (opcode == 7'b0010111);
     assign is_beq   = (opcode == 7'b1100011) && (funct3 == 3'b000);
     assign is_bne   = (opcode == 7'b1100011) && (funct3 == 3'b001);
+    assign is_blt   = (opcode == 7'b1100011) && (funct3 == 3'b100);
+    assign is_bge   = (opcode == 7'b1100011) && (funct3 == 3'b101);
+    assign is_bltu  = (opcode == 7'b1100011) && (funct3 == 3'b110);
+    assign is_bgeu  = (opcode == 7'b1100011) && (funct3 == 3'b111);
     assign is_jal   = (opcode == 7'b1101111);
     assign is_jalr  = (opcode == 7'b1100111) && (funct3 == 3'b000);
 endmodule

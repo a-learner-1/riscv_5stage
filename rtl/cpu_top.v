@@ -51,6 +51,7 @@ module cpu_top (
     wire is_slt_x, is_sltu_x, is_slti_x, is_sltiu_x;
     wire is_lui_x, is_auipc_x;
     wire is_beq_x, is_bne_x;
+    wire is_blt_x, is_bge_x, is_bltu_x, is_bgeu_x;
     wire is_jal_x, is_jalr_x, is_jump_x;
     wire is_branch_x;
     wire branch_taken_x;
@@ -126,6 +127,10 @@ module cpu_top (
         .is_auipc (is_auipc_x),
         .is_beq   (is_beq_x),
         .is_bne   (is_bne_x),
+        .is_blt   (is_blt_x),
+        .is_bge   (is_bge_x),
+        .is_bltu  (is_bltu_x),
+        .is_bgeu  (is_bgeu_x),
         .is_jal   (is_jal_x),
         .is_jalr  (is_jalr_x)
     );
@@ -147,7 +152,8 @@ module cpu_top (
 
     // U-type immediate bits are not register source addresses.
     assign use_upper_imm_x = is_lui_x | is_auipc_x;
-    assign is_branch_x = is_beq_x | is_bne_x;
+    assign is_branch_x = is_beq_x | is_bne_x |
+                         is_blt_x | is_bge_x | is_bltu_x | is_bgeu_x;
     assign is_jump_x = is_jal_x | is_jalr_x;
 
     // All immediate instructions select the immediate operand path.
@@ -202,10 +208,14 @@ module cpu_top (
     assign rs2_value_x =
         forward_rs2_x ? wb_data : rs2_data_x;
 
-    // Resolve BEQ/BNE in EX with the same forwarded operands as ALU instructions.
+    // Resolve all six RV32I branches in EX using forwarded operands.
     assign branch_taken_x = valid_x &&
         ((is_beq_x && (rs1_value_x == rs2_value_x)) ||
-         (is_bne_x && (rs1_value_x != rs2_value_x)));
+         (is_bne_x && (rs1_value_x != rs2_value_x)) ||
+         (is_blt_x && ($signed(rs1_value_x) < $signed(rs2_value_x))) ||
+         (is_bge_x && ($signed(rs1_value_x) >= $signed(rs2_value_x))) ||
+         (is_bltu_x && (rs1_value_x < rs2_value_x)) ||
+         (is_bgeu_x && (rs1_value_x >= rs2_value_x)));
     assign branch_target_x = pc_x + imm_b_x;
     assign jump_taken_x = valid_x && is_jump_x;
     assign jump_target_x = is_jal_x ? (pc_x + imm_j_x) :
