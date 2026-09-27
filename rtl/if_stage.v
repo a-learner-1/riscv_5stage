@@ -96,6 +96,21 @@ module if_stage (
             32'd244: instr_f = 32'h7fff2a13; // slti x20, x30, 2047
             32'd248: instr_f = 32'h011eaab3; // slt x21, x29, 17
 
+            32'd252: instr_f = 32'h115a80b7; // lui x1, 0x115a8
+            32'd256: instr_f = 32'h00508113; // addi x2, x1, 5
+            32'd260: instr_f = 32'h00000197; // auipc x3, 0x00000
+            32'd264: instr_f = 32'hefc18213; // addi x4, x3, -260
+            32'd268: instr_f = 32'h800002b7; // lui x5, 0x80000
+            32'd272: instr_f = 32'hfe528317; // auipc x6, 0xfe528
+            32'd276: instr_f = 32'h00630037; // lui x0, 0x00630
+            32'd280: instr_f = 32'h000003b7; // lui x7, 0x00000
+            32'd284: instr_f = 32'h7ffff417; // auipc x8, 0x7ffff
+            32'd288: instr_f = 32'h80000497; // auipc x9, 0x80000
+            32'd292: instr_f = 32'h00000537; // lui x10, 0x00000
+            32'd296: instr_f = 32'h12345597; // auipc x11, 0x12345
+            32'd300: instr_f = 32'h00758613; // addi x12, x11, 7
+            32'd304: instr_f = 32'h00b086b3; // add x13, x1, x11
+
             default:
                 instr_f = 32'h00000013; // NOP
         endcase

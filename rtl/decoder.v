@@ -5,6 +5,7 @@ module decoder (
     output wire [4:0]  rs2_addr,
     output wire [4:0]  rd_addr,
     output wire [31:0] imm_i,
+    output wire [31:0] imm_u,
 
     output wire        is_addi,
     output wire        is_add,
@@ -26,7 +27,9 @@ module decoder (
     output wire        is_slt,
     output wire        is_sltu,
     output wire        is_slti,
-    output wire        is_sltiu
+    output wire        is_sltiu,
+    output wire        is_lui,
+    output wire        is_auipc
 );
 
     wire [6:0] opcode;
@@ -43,6 +46,7 @@ module decoder (
 
     // Sign-extend the 12-bit I-type immediate.
     assign imm_i = {{20{instr[31]}}, instr[31:20]};
+    assign imm_u = {instr[31:12], 12'b0};
 
     // I-type arithmetic and logic instructions.
     assign is_addi =
@@ -118,4 +122,6 @@ module decoder (
                       (funct7 == 7'b0000000);
     assign is_sltu  = (opcode == 7'b0110011) && (funct3 == 3'b011) &&
                       (funct7 == 7'b0000000);
+    assign is_lui   = (opcode == 7'b0110111);
+    assign is_auipc = (opcode == 7'b0010111);
 endmodule

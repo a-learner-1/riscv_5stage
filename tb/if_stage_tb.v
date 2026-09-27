@@ -126,9 +126,23 @@ module if_stage_tb;
         check_fetch(32'd240, 32'hffff3993);
         check_fetch(32'd244, 32'h7fff2a13);
         check_fetch(32'd248, 32'h011eaab3);
-        check_fetch(32'd252, 32'h00000013);
+        check_fetch(32'd252, 32'h115a80b7);
+        check_fetch(32'd256, 32'h00508113);
+        check_fetch(32'd260, 32'h00000197);
+        check_fetch(32'd264, 32'hefc18213);
+        check_fetch(32'd268, 32'h800002b7);
+        check_fetch(32'd272, 32'hfe528317);
+        check_fetch(32'd276, 32'h00630037);
+        check_fetch(32'd280, 32'h000003b7);
+        check_fetch(32'd284, 32'h7ffff417);
+        check_fetch(32'd288, 32'h80000497);
+        check_fetch(32'd292, 32'h00000537);
+        check_fetch(32'd296, 32'h12345597);
+        check_fetch(32'd300, 32'h00758613);
+        check_fetch(32'd304, 32'h00b086b3);
+        check_fetch(32'd308, 32'h00000013);
 
-        $display("PASS: IF stage 63-instruction test passed");
+        $display("PASS: IF stage 77-instruction test passed");
         $stop;
     end
 

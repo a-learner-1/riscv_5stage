@@ -29,6 +29,7 @@ module cpu_top (
     wire [4:0] rs2_addr_x;
     wire [4:0] rd_addr_x;
     wire [31:0] imm_x;
+    wire [31:0] imm_u_x;
 
     wire is_addi_x;
     wire is_add_x;
@@ -46,10 +47,13 @@ module cpu_top (
     wire is_srli_x;
     wire is_srai_x;
     wire is_slt_x, is_sltu_x, is_slti_x, is_sltiu_x;
+    wire is_lui_x, is_auipc_x;
+    wire use_upper_imm_x;
     wire use_shift_imm_x;
     wire [31:0] shamt_imm_x;
 
     wire use_imm_x;
+    wire uses_rs1_x;
     wire uses_rs2_x;
     wire writes_rd_x;
 
@@ -80,6 +84,7 @@ module cpu_top (
         .rs2_addr (rs2_addr_x),
         .rd_addr  (rd_addr_x),
         .imm_i    (imm_x),
+        .imm_u    (imm_u_x),
 
         .is_addi  (is_addi_x),
         .is_add   (is_add_x),
@@ -100,7 +105,9 @@ module cpu_top (
         .is_slt   (is_slt_x),
         .is_sltu  (is_sltu_x),
         .is_slti  (is_slti_x),
-        .is_sltiu (is_sltiu_x)
+        .is_sltiu (is_sltiu_x),
+        .is_lui   (is_lui_x),
+        .is_auipc (is_auipc_x)
     );
 
     regfile u_regfile (
@@ -118,6 +125,9 @@ module cpu_top (
     assign use_shift_imm_x = is_slli_x | is_srli_x | is_srai_x;
     assign shamt_imm_x = {27'd0, instr_x[24:20]};
 
+    // U-type immediate bits are not register source addresses.
+    assign use_upper_imm_x = is_lui_x | is_auipc_x;
+
     // All immediate instructions select the immediate operand path.
     assign use_imm_x =
         is_addi_x |
@@ -125,7 +135,8 @@ module cpu_top (
         is_ori_x  |
         is_xori_x |
         use_shift_imm_x |
-        is_slti_x | is_sltiu_x;
+        is_slti_x | is_sltiu_x |
+        use_upper_imm_x;
 
     // Only these instructions consume a second source register.
     assign uses_rs2_x =
@@ -139,15 +150,19 @@ module cpu_top (
         is_sra_x |
         is_slt_x | is_sltu_x;
 
+    assign uses_rs1_x = (use_imm_x | uses_rs2_x) && !use_upper_imm_x;
     assign writes_rd_x = use_imm_x | uses_rs2_x;
 
     // WB -> EX forwarding for rs1.
     assign forward_rs1_x =
+        uses_rs1_x &&
         wb_we &&
         (wb_rd != 5'd0) &&
         (wb_rd == rs1_addr_x);
 
     assign alu_a_x =
+        is_lui_x   ? 32'd0 :
+        is_auipc_x ? pc_x  :
         forward_rs1_x ? wb_data : rs1_data_x;
 
     // I-type immediate bits must not trigger rs2 forwarding.
@@ -161,6 +176,7 @@ module cpu_top (
         forward_rs2_x ? wb_data : rs2_data_x;
 
     assign alu_b_x =
+        use_upper_imm_x ? imm_u_x :
         use_shift_imm_x ? shamt_imm_x :
         use_imm_x       ? imm_x       : rs2_value_x;
 
