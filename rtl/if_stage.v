@@ -56,6 +56,23 @@ module if_stage (
             32'd92: instr_f = 32'h02000c13; // addi x24, x0, 32
             32'd96: instr_f = 32'h01885cb3; // srl x25, x16, x24
 
+            32'd100: instr_f = 32'h001c9d13; // slli x26, x25, 1
+            32'd104: instr_f = 32'h001d5d93; // srli x27, x26, 1
+            32'd108: instr_f = 32'h401d5e13; // srai x28, x26, 1
+            32'd112: instr_f = 32'h01f51e93; // slli x29, x10, 31
+            32'd116: instr_f = 32'h01fedf13; // srli x30, x29, 31
+            32'd120: instr_f = 32'h41fedf93; // srai x31, x29, 31
+            32'd124: instr_f = 32'h000f9d13; // slli x26, x31, 0
+            32'd128: instr_f = 32'h000d5d93; // srli x27, x26, 0
+            32'd132: instr_f = 32'h400dde13; // srai x28, x27, 0
+            32'd136: instr_f = 32'h01ce1e93; // slli x29, x28, 28
+            32'd140: instr_f = 32'h01dedf13; // srli x30, x29, 29
+            32'd144: instr_f = 32'h41eedf93; // srai x31, x29, 30
+            32'd148: instr_f = 32'h001f9013; // slli x0, x31, 1
+            32'd152: instr_f = 32'h00106d13; // ori x26, x0, 1
+            32'd156: instr_f = 32'h001d5d93; // srli x27, x26, 1
+            32'd160: instr_f = 32'h401d5e13; // srai x28, x26, 1
+
             default:
                 instr_f = 32'h00000013; // NOP
         endcase

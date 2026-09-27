@@ -3,21 +3,25 @@
 module decoder_tb;
 
     // Flag order:
-    // ADDI ADD SUB AND OR XOR ANDI ORI XORI SLL SRL SRA
-    localparam [11:0] DEC_NONE = 12'b000000000000;
-    localparam [11:0] DEC_ADDI = 12'b100000000000;
-    localparam [11:0] DEC_ADD  = 12'b010000000000;
-    localparam [11:0] DEC_SUB  = 12'b001000000000;
-    localparam [11:0] DEC_AND  = 12'b000100000000;
-    localparam [11:0] DEC_OR   = 12'b000010000000;
-    localparam [11:0] DEC_XOR  = 12'b000001000000;
-    localparam [11:0] DEC_ANDI = 12'b000000100000;
-    localparam [11:0] DEC_ORI  = 12'b000000010000;
-    localparam [11:0] DEC_XORI = 12'b000000001000;
-    localparam [11:0] DEC_SLL  = 12'b000000000100;
-    localparam [11:0] DEC_SRL  = 12'b000000000010;
-    localparam [11:0] DEC_SRA  = 12'b000000000001;
+    // ADDI ADD SUB AND OR XOR ANDI ORI XORI SLL SRL SRA SLLI SRLI SRAI
+    localparam [14:0] DEC_NONE = 15'b000000000000000;
+    localparam [14:0] DEC_ADDI = 15'b100000000000000;
+    localparam [14:0] DEC_ADD  = 15'b010000000000000;
+    localparam [14:0] DEC_SUB  = 15'b001000000000000;
+    localparam [14:0] DEC_AND  = 15'b000100000000000;
+    localparam [14:0] DEC_OR   = 15'b000010000000000;
+    localparam [14:0] DEC_XOR  = 15'b000001000000000;
+    localparam [14:0] DEC_ANDI = 15'b000000100000000;
+    localparam [14:0] DEC_ORI  = 15'b000000010000000;
+    localparam [14:0] DEC_XORI = 15'b000000001000000;
+    localparam [14:0] DEC_SLL  = 15'b000000000100000;
+    localparam [14:0] DEC_SRL  = 15'b000000000010000;
+    localparam [14:0] DEC_SRA  = 15'b000000000001000;
 
+    localparam [14:0] DEC_SLLI = 15'b000000000000100;
+    localparam [14:0] DEC_SRLI = 15'b000000000000010;
+    localparam [14:0] DEC_SRAI = 15'b000000000000001;
+    integer sh, upper;
     reg [31:0] instr;
 
     wire [4:0]  rs1_addr;
@@ -37,8 +41,9 @@ module decoder_tb;
     wire is_sll;
     wire is_srl;
     wire is_sra;
+    wire is_slli, is_srli, is_srai;
 
-    wire [11:0] decode_flags;
+    wire [14:0] decode_flags;
 
     integer test_count;
 
@@ -62,7 +67,10 @@ module decoder_tb;
 
         .is_sll   (is_sll),
         .is_srl   (is_srl),
-        .is_sra   (is_sra)
+        .is_sra   (is_sra),
+        .is_slli  (is_slli),
+        .is_srli  (is_srli),
+        .is_srai  (is_srai)
     );
 
     assign decode_flags = {
@@ -77,7 +85,7 @@ module decoder_tb;
         is_xori,
         is_sll,
         is_srl,
-        is_sra
+        is_sra, is_slli, is_srli, is_srai
     };
 
     task check_decode;
@@ -86,7 +94,7 @@ module decoder_tb;
         input [4:0]  expected_rs2;
         input [4:0]  expected_rd;
         input [31:0] expected_imm;
-        input [11:0] expected_flags;
+        input [14:0] expected_flags;
         begin
             instr = test_instr;
             #1;
@@ -115,7 +123,10 @@ module decoder_tb;
             if ((expected_flags == DEC_ADDI) ||
                 (expected_flags == DEC_ANDI) ||
                 (expected_flags == DEC_ORI) ||
-                (expected_flags == DEC_XORI)) begin
+                (expected_flags == DEC_XORI) ||
+                (expected_flags == DEC_SLLI) ||
+                (expected_flags == DEC_SRLI) ||
+                (expected_flags == DEC_SRAI)) begin
 
                 if (imm_i !== expected_imm) begin
                     $display("FAIL: instr=%h imm=%h expected=%h",
@@ -143,7 +154,7 @@ module decoder_tb;
         test_count = 0;
 
         $display(
-            "Flag order: ADDI ADD SUB AND OR XOR ANDI ORI XORI SLL SRL SRA"
+            "Flag order: ADDI ADD SUB AND OR XOR ANDI ORI XORI SLL SRL SRA SLLI SRLI SRAI"
         );
 
         // Arguments:
@@ -339,14 +350,14 @@ module decoder_tb;
             32'h4020c193, 5'd1, 5'd2, 5'd3, 32'd1026, DEC_XORI
         );
 
-        // 42. SLLI: immediate shift is not supported yet.
+        // 42. SLLI is now supported.
         check_decode(
-            32'h00209193, 5'd1, 5'd2, 5'd3, 32'd0, DEC_NONE
+            32'h00209193, 5'd1, 5'd2, 5'd3, 32'd2, DEC_SLLI
         );
 
-        // 43. SRLI: immediate shift is not supported yet.
+        // 43. SRLI is now supported.
         check_decode(
-            32'h0020d193, 5'd1, 5'd2, 5'd3, 32'd0, DEC_NONE
+            32'h0020d193, 5'd1, 5'd2, 5'd3, 32'd2, DEC_SRLI
         );
 
         // 44. Wrong opcode: must not be recognized as ANDI.
@@ -405,22 +416,44 @@ module decoder_tb;
             32'h0220d1b3, 5'd1, 5'd2, 5'd3, 32'd0, DEC_NONE
         );
 
-        // 55. SRAI: different opcode, not supported yet.
+        // 55. SRAI is now supported; imm_i retains its raw I-immediate.
         check_decode(
-            32'h4020d193, 5'd1, 5'd2, 5'd3, 32'd0, DEC_NONE
+            32'h4020d193, 5'd1, 5'd2, 5'd3, 32'd1026, DEC_SRAI
         );
 
-        // 56. SLLI with shamt=31: still not a register shift.
+        // 56. SLLI with shamt=31.
         check_decode(
-            32'h01f09193, 5'd1, 5'd31, 5'd3, 32'd0, DEC_NONE
+            32'h01f09193, 5'd1, 5'd31, 5'd3, 32'd31, DEC_SLLI
         );
 
-        if (test_count != 56) begin
+        // 96 legal cases, including rd=rs1=31 and every shamt 0..31.
+        for (sh = 0; sh < 32; sh = sh + 1) begin
+            check_decode({7'b0000000, sh[4:0], 5'd31, 3'b001, 5'd31, 7'h13},
+                         5'd31, sh[4:0], 5'd31, sh, DEC_SLLI);
+            check_decode({7'b0000000, sh[4:0], 5'd31, 3'b101, 5'd31, 7'h13},
+                         5'd31, sh[4:0], 5'd31, sh, DEC_SRLI);
+            check_decode({7'b0100000, sh[4:0], 5'd31, 3'b101, 5'd31, 7'h13},
+                         5'd31, sh[4:0], 5'd31, 1024+sh, DEC_SRAI);
+        end
+        // 253 unsupported upper encodings: all except the three RV32 forms.
+        for (upper = 0; upper < 128; upper = upper + 1) begin
+            if (upper != 0)
+                check_decode({upper[6:0], 5'd31, 5'd1, 3'b001, 5'd3, 7'h13},
+                             5'd1, 5'd31, 5'd3, 32'd0, DEC_NONE);
+            if ((upper != 0) && (upper != 32))
+                check_decode({upper[6:0], 5'd31, 5'd1, 3'b101, 5'd3, 7'h13},
+                             5'd1, 5'd31, 5'd3, 32'd0, DEC_NONE);
+        end
+        // A shift-like bit pattern with a different opcode is not an OP-IMM.
+        check_decode(32'h00109183, 5'd1, 5'd1, 5'd3, 32'd0, DEC_NONE);
+        check_decode(32'h0010d183, 5'd1, 5'd1, 5'd3, 32'd0, DEC_NONE);
+        check_decode(32'h4010d183, 5'd1, 5'd1, 5'd3, 32'd0, DEC_NONE);
+        if (test_count != 408) begin
             $fatal(1, "Unexpected test count");
         end
 
         $display(
-            "PASS: decoder shift test passed, %0d cases",
+            "PASS: decoder immediate shift test passed, %0d cases",
             test_count
         );
 

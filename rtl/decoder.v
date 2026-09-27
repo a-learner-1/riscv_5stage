@@ -19,7 +19,10 @@ module decoder (
 
     output wire        is_sll,
     output wire        is_srl,
-    output wire        is_sra
+    output wire        is_sra,
+    output wire        is_slli,
+    output wire        is_srli,
+    output wire        is_srai
 );
 
     wire [6:0] opcode;
@@ -96,4 +99,12 @@ module decoder (
         (funct3 == 3'b101) &&
         (funct7 == 7'b0100000);
 
+// RV32 shift immediates have a 5-bit shamt in instr[24:20].
+    // Check all seven upper bits; RV64 shamt[5] is not legal here.
+    assign is_slli = (opcode == 7'b0010011) &&
+                     (funct3 == 3'b001) && (funct7 == 7'b0000000);
+    assign is_srli = (opcode == 7'b0010011) &&
+                     (funct3 == 3'b101) && (funct7 == 7'b0000000);
+    assign is_srai = (opcode == 7'b0010011) &&
+                     (funct3 == 3'b101) && (funct7 == 7'b0100000);
 endmodule

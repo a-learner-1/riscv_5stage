@@ -177,19 +177,27 @@ module alu_tb;
         check_alu(ALU_XOR, 32'd12, 32'd10, 32'd6);
 
         // ----------------------------------------
-        // Unused operation codes return zero.
-        // ----------------------------------------
-
-        // 29-31.
-        check_alu(3'b101, 32'd12, 32'd10, 32'd0);
-        check_alu(3'b110, 32'd12, 32'd10, 32'd0);
-        check_alu(3'b111, 32'd12, 32'd10, 32'd0);
-
-        $display(
-            "PASS: ALU ADD/SUB/AND/OR/XOR test passed, %0d cases",
-            test_count
-        );
+        // Shift operations, including masking of the full B operand.
+        check_alu(3'd5, 32'h00000001, 32'd0, 32'h00000001);
+        check_alu(3'd5, 32'h00000001, 32'd1, 32'h00000002);
+        check_alu(3'd5, 32'h00000001, 32'd31, 32'h80000000);
+        check_alu(3'd5, 32'h00000001, 32'd32, 32'h00000001);
+        check_alu(3'd5, 32'h00000001, 32'd33, 32'h00000002);
+        check_alu(3'd5, 32'hffffffff, 32'd31, 32'h80000000);
+        check_alu(3'd6, 32'h80000000, 32'd0, 32'h80000000);
+        check_alu(3'd6, 32'hfffffffe, 32'd1, 32'h7fffffff);
+        check_alu(3'd6, 32'h80000000, 32'd31, 32'h00000001);
+        check_alu(3'd6, 32'hfffffffe, 32'd32, 32'hfffffffe);
+        check_alu(3'd6, 32'hfffffffe, 32'd33, 32'h7fffffff);
+        check_alu(3'd6, 32'h00000000, 32'd31, 32'h00000000);
+        check_alu(3'd7, 32'hfffffff8, 32'd0, 32'hfffffff8);
+        check_alu(3'd7, 32'hfffffff8, 32'd1, 32'hfffffffc);
+        check_alu(3'd7, 32'h80000000, 32'd31, 32'hffffffff);
+        check_alu(3'd7, 32'hfffffff8, 32'd32, 32'hfffffff8);
+        check_alu(3'd7, 32'hfffffff8, 32'd33, 32'hfffffffc);
+        check_alu(3'd7, 32'h7fffffff, 32'd31, 32'h00000000);
+        if (test_count != 46) $fatal(1, "ALU case count mismatch");
+        $display("PASS: ALU regression passed, %0d cases", test_count);
         $stop;
     end
-
 endmodule

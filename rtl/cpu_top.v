@@ -40,6 +40,11 @@ module cpu_top (
     wire is_sll_x;
     wire is_srl_x;
     wire is_sra_x;
+    wire is_slli_x;
+    wire is_srli_x;
+    wire is_srai_x;
+    wire use_shift_imm_x;
+    wire [31:0] shamt_imm_x;
 
     wire use_imm_x;
     wire uses_rs2_x;
@@ -85,7 +90,10 @@ module cpu_top (
         .is_xori  (is_xori_x),
         .is_sll   (is_sll_x),
         .is_srl   (is_srl_x),
-        .is_sra   (is_sra_x)
+        .is_sra   (is_sra_x),
+        .is_slli  (is_slli_x),
+        .is_srli  (is_srli_x),
+        .is_srai  (is_srai_x)
     );
 
     regfile u_regfile (
@@ -99,12 +107,17 @@ module cpu_top (
         .rs2_data (rs2_data_x)
     );
 
-    // These instructions use a sign-extended immediate.
+    // Shift immediates use ONLY instr[24:20], not the encoded upper bits.
+    assign use_shift_imm_x = is_slli_x | is_srli_x | is_srai_x;
+    assign shamt_imm_x = {27'd0, instr_x[24:20]};
+
+    // All immediate instructions select the immediate operand path.
     assign use_imm_x =
         is_addi_x |
         is_andi_x |
         is_ori_x  |
-        is_xori_x;
+        is_xori_x |
+        use_shift_imm_x;
 
     // Only these instructions consume a second source register.
     assign uses_rs2_x =
@@ -139,13 +152,14 @@ module cpu_top (
         forward_rs2_x ? wb_data : rs2_data_x;
 
     assign alu_b_x =
-        use_imm_x ? imm_x : rs2_value_x;
+        use_shift_imm_x ? shamt_imm_x :
+        use_imm_x       ? imm_x       : rs2_value_x;
 
     // Register and immediate versions share the same ALU operation.
     assign alu_op_x =
-        is_sll_x                 ? ALU_SLL :
-        is_srl_x                 ? ALU_SRL :
-        is_sra_x                 ? ALU_SRA :
+        (is_sll_x | is_slli_x)   ? ALU_SLL :
+        (is_srl_x | is_srli_x)   ? ALU_SRL :
+        (is_sra_x | is_srai_x)   ? ALU_SRA :
         is_sub_x                 ? ALU_SUB :
         (is_and_x | is_andi_x)    ? ALU_AND :
         (is_or_x  | is_ori_x)     ? ALU_OR  :
