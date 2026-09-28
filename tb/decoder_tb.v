@@ -86,7 +86,8 @@ module decoder_tb;
         .is_lui   (is_lui), .is_auipc (is_auipc),
         .imm_b(), .imm_j(), .imm_s(), .is_beq(), .is_bne(),
         .is_blt(), .is_bge(), .is_bltu(), .is_bgeu(),
-        .is_jal(), .is_jalr(), .is_lw(), .is_sw()
+        .is_jal(), .is_jalr(), .is_lw(), .is_sw(),
+        .is_lb(), .is_lbu(), .is_lh(), .is_lhu(), .is_sb(), .is_sh()
     );
 
     assign decode_flags = {
