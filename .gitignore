@@ -1,7 +1,16 @@
-# ModelSim 本机工程与仿真产物
-*.mpf
+# RISC-V GCC 本地构建产物
+build/
+
+# ModelSim 本机配置、工作库、日志和波形
 work/
+modelsim.ini
+transcript
+transcript.*
+*.mpf
 *.wlf
+wlf*
 *.cr.mti
 tcl_stacktrace.txt
+
+# 编辑器备份文件
 *.bak
