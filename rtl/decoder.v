@@ -39,7 +39,10 @@ module decoder (
     output wire        is_bltu,
     output wire        is_bgeu,
     output wire        is_jal,
-    output wire        is_jalr
+    output wire        is_jalr,
+    output wire        is_lw,
+    output wire        is_sw,
+    output wire [31:0] imm_s
 );
 
     wire [6:0] opcode;
@@ -148,4 +151,7 @@ module decoder (
     assign is_bgeu  = (opcode == 7'b1100011) && (funct3 == 3'b111);
     assign is_jal   = (opcode == 7'b1101111);
     assign is_jalr  = (opcode == 7'b1100111) && (funct3 == 3'b000);
+    assign imm_s = {{20{instr[31]}}, instr[31:25], instr[11:7]};
+    assign is_lw = (opcode == 7'b0000011) && (funct3 == 3'b010);
+    assign is_sw = (opcode == 7'b0100011) && (funct3 == 3'b010);
 endmodule

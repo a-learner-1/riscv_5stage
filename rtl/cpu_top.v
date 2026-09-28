@@ -32,6 +32,12 @@ module cpu_top (
     wire [31:0] imm_u_x;
     wire [31:0] imm_b_x;
     wire [31:0] imm_j_x;
+    wire [31:0] imm_s_x;
+    wire is_lw_x, is_sw_x;
+    wire mem_re_x, mem_we_x, mem_access_ok_x;
+    wire [31:0] mem_rdata_x;
+    wire [31:0] mem_addr_x;
+    wire [31:0] mem_wdata_x;
 
     wire is_addi_x;
     wire is_add_x;
@@ -132,7 +138,8 @@ module cpu_top (
         .is_bltu  (is_bltu_x),
         .is_bgeu  (is_bgeu_x),
         .is_jal   (is_jal_x),
-        .is_jalr  (is_jalr_x)
+        .is_jalr  (is_jalr_x),
+        .is_lw (is_lw_x), .is_sw (is_sw_x), .imm_s (imm_s_x)
     );
 
     regfile u_regfile (
@@ -164,7 +171,7 @@ module cpu_top (
         is_xori_x |
         use_shift_imm_x |
         is_slti_x | is_sltiu_x |
-        use_upper_imm_x;
+        use_upper_imm_x | is_lw_x | is_sw_x;
 
     // Only these instructions consume a second source register.
     assign uses_rs2_x =
@@ -177,11 +184,11 @@ module cpu_top (
         is_srl_x |
         is_sra_x |
         is_slt_x | is_sltu_x |
-        is_branch_x;
+        is_branch_x | is_sw_x;
 
     assign uses_rs1_x = ((use_imm_x | uses_rs2_x) && !use_upper_imm_x)
                         | is_jalr_x;
-    assign writes_rd_x = ((use_imm_x | uses_rs2_x) && !is_branch_x)
+    assign writes_rd_x = ((use_imm_x | uses_rs2_x) && !is_branch_x && !is_sw_x)
                          | is_jump_x;
 
     // WB -> EX forwarding for rs1.
@@ -224,6 +231,7 @@ module cpu_top (
     assign redirect_pc_x = jump_taken_x ? jump_target_x : branch_target_x;
 
     assign alu_b_x =
+        is_sw_x        ? imm_s_x :
         use_upper_imm_x ? imm_u_x :
         use_shift_imm_x ? shamt_imm_x :
         use_imm_x       ? imm_x       : rs2_value_x;
@@ -248,6 +256,26 @@ module cpu_top (
         .result (alu_result_x)
     );
 
+    // This teaching RAM has asynchronous reads and synchronous writes.
+    // A future synchronous BRAM needs a different response/stall protocol.
+    assign mem_addr_x = alu_result_x;
+    assign mem_wdata_x = rs2_value_x;
+    assign mem_re_x = rst_n && valid_x && is_lw_x;
+    assign mem_we_x = rst_n && valid_x && is_sw_x;
+    data_mem u_data_mem (
+        .clk(clk), .re(mem_re_x), .we(mem_we_x),
+        .addr(mem_addr_x), .wdata(mem_wdata_x),
+        .rdata(mem_rdata_x), .access_ok(mem_access_ok_x)
+    );
+
+    // Unsupported accesses stop simulation instead of silently aliasing RAM.
+    // synthesis translate_off
+    always @(posedge clk) begin
+        if ((mem_re_x || mem_we_x) && mem_access_ok_x !== 1'b1)
+            $fatal(1, "Unsupported LW/SW address pc=%h addr=%h", pc_x, mem_addr_x);
+    end
+    // synthesis translate_on
+
     // EX/WB pipeline registers.
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -258,10 +286,11 @@ module cpu_top (
         end else begin
             wb_pc   <= pc_x;
             wb_rd   <= rd_addr_x;
-            wb_data <= is_jump_x ? (pc_x + 32'd4) : alu_result_x;
+            wb_data <= is_lw_x ? mem_rdata_x : is_jump_x ? (pc_x + 32'd4) : alu_result_x;
 
             wb_we <= valid_x &&
                      writes_rd_x &&
+                     (!is_lw_x || mem_access_ok_x) &&
                      (rd_addr_x != 5'd0);
         end
     end

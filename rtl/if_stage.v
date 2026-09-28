@@ -213,6 +213,60 @@ module if_stage (
             32'd684: instr_f = 32'h00e6d463; // bge x13, x14, +8; signed
             32'd688: instr_f = 32'h00d00913; // addi x18, x0, 13
 
+
+            // Aligned LW/SW regression, separate data RAM.
+            32'd704: instr_f = 32'h04000093; // addi x1,x0,64
+            32'd708: instr_f = 32'h07b00113; // addi x2,x0,123
+            32'd712: instr_f = 32'h0020a023; // sw x2,0(x1)
+            32'd716: instr_f = 32'h0000a183; // lw x3,0(x1)
+            32'd720: instr_f = 32'h00118213; // addi x4,x3,1
+            32'd724: instr_f = 32'h0040a223; // sw x4,4(x1)
+            32'd728: instr_f = 32'h0040a283; // lw x5,4(x1)
+            32'd732: instr_f = 32'h0050a423; // sw x5,8(x1)
+            32'd736: instr_f = 32'h00408313; // addi x6,x1,4
+            32'd740: instr_f = 32'hffc32383; // lw x7,-4(x6)
+            32'd744: instr_f = 32'h00732423; // sw x7,8(x6)
+            32'd748: instr_f = 32'hfff00413; // addi x8,x0,-1
+            32'd752: instr_f = 32'hfe832e23; // sw x8,-4(x6)
+            32'd756: instr_f = 32'h0000a483; // lw x9,0(x1)
+            32'd760: instr_f = 32'h80000537; // lui x10,0x80000
+            32'd764: instr_f = 32'h00a0a823; // sw x10,16(x1)
+            32'd768: instr_f = 32'h0100a583; // lw x11,16(x1)
+            32'd772: instr_f = 32'h08000613; // addi x12,x0,128
+            32'd776: instr_f = 32'h00c62023; // sw x12,0(x12)
+            32'd780: instr_f = 32'h00062683; // lw x13,0(x12)
+            32'd784: instr_f = 32'h0026a223; // sw x2,4(x13)
+            32'd788: instr_f = 32'h0046a703; // lw x14,4(x13)
+            32'd792: instr_f = 32'h00062783; // lw x15,0(x12)
+            32'd796: instr_f = 32'h0047a803; // lw x16,4(x15)
+            32'd800: instr_f = 32'h0040a003; // lw x0,4(x1)
+            32'd804: instr_f = 32'h00700893; // addi x17,x0,7
+            32'd808: instr_f = 32'h0000aa23; // sw x0,20(x1)
+            32'd812: instr_f = 32'h0140a903; // lw x18,20(x1)
+            32'd816: instr_f = 32'h3fc00993; // addi x19,x0,1020
+            32'd820: instr_f = 32'h0089a023; // sw x8,0(x19)
+            32'd824: instr_f = 32'h0009aa03; // lw x20,0(x19)
+            32'd828: instr_f = 32'h01102023; // sw x17,0(x0)
+            32'd832: instr_f = 32'h00002a83; // lw x21,0(x0)
+            32'd836: instr_f = 32'h0000ac23; // sw x0,24(x1)
+            32'd840: instr_f = 32'h0040ab03; // lw x22,4(x1)
+            32'd844: instr_f = 32'h005b0463; // beq x22,x5,+8
+            32'd848: instr_f = 32'h0080ac23; // wrong-path store: must not execute
+            32'd852: instr_f = 32'h0180ab83; // lw x23,24(x1)
+            32'd856: instr_f = 32'h0080006f; // jal x0,+8
+            32'd860: instr_f = 32'h00202c03; // wrong-path misaligned load: must not execute
+            32'd864: instr_f = 32'h00900c13; // addi x24,x0,9
+            32'd868: instr_f = 32'h0180ae23; // sw x24,28(x1)
+            32'd872: instr_f = 32'h01c0ac83; // lw x25,28(x1)
+            32'd876: instr_f = 32'h001c8c93; // addi x25,x25,1
+            32'd880: instr_f = 32'h0190ae23; // sw x25,28(x1)
+            32'd884: instr_f = 32'h01c0ad03; // lw x26,28(x1)
+            32'd888: instr_f = 32'h7ff00d93; // addi x27,x0,2047
+            32'd892: instr_f = 32'h001d8d93; // addi x27,x27,1
+            32'd896: instr_f = 32'h811da023; // sw x17,-2048(x27)
+            32'd900: instr_f = 32'h800dae03; // lw x28,-2048(x27)
+            32'd904: instr_f = 32'h06300e93; // addi x29,x0,99
+
             default:
                 instr_f = 32'h00000013; // NOP
         endcase
