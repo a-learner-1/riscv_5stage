@@ -12,7 +12,13 @@ module cpu_top #(
     output reg  [31:0] wb_pc,
     output reg  [4:0]  wb_rd,
     output reg  [31:0] wb_data,
-    output reg         wb_we
+    output reg         wb_we,
+
+    // Performance-monitoring signals.  retire_valid marks a supported,
+    // non-squashed instruction at the WB/retirement point.
+    output reg         retire_valid,
+    output reg  [63:0] cycle_count,
+    output reg  [63:0] instret_count
 );
 
     localparam [3:0] ALU_ADD = 4'b000;
@@ -83,6 +89,7 @@ module cpu_top #(
     wire uses_rs1_x;
     wire uses_rs2_x;
     wire writes_rd_x;
+    wire instr_supported_x;
 
     wire [31:0] rs1_data_x;
     wire [31:0] rs2_data_x;
@@ -209,6 +216,20 @@ module cpu_top #(
     assign writes_rd_x = ((use_imm_x | uses_rs2_x) && !is_branch_x && !is_store_x)
                          | is_jump_x;
 
+    // Keep retirement independent of register writeback: stores and branches
+    // are real instructions even though they do not write a GPR.  Restrict the
+    // signal to the RV32I subset implemented by this core so an unsupported
+    // word or an invalid fetch cannot be reported as retired.
+    assign instr_supported_x =
+        is_addi_x | is_add_x | is_sub_x |
+        is_and_x | is_or_x | is_xor_x |
+        is_andi_x | is_ori_x | is_xori_x |
+        is_sll_x | is_srl_x | is_sra_x |
+        is_slli_x | is_srli_x | is_srai_x |
+        is_slt_x | is_sltu_x | is_slti_x | is_sltiu_x |
+        is_lui_x | is_auipc_x |
+        is_branch_x | is_jump_x | is_load_x | is_store_x;
+
     // WB -> EX forwarding for rs1.
     assign forward_rs1_x =
         uses_rs1_x &&
@@ -328,6 +349,34 @@ module cpu_top #(
                      writes_rd_x &&
                      (!is_load_x || mem_access_ok_x) &&
                      (rd_addr_x != 5'd0);
+        end
+    end
+
+    // Performance counters start when the first supported instruction reaches
+    // EX.  cycle_count then includes every cycle through the retirement of the
+    // tohost store, including any future stall or cache-miss cycles.
+    reg counting_started;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            retire_valid    <= 1'b0;
+            cycle_count     <= 64'd0;
+            instret_count   <= 64'd0;
+            counting_started <= 1'b0;
+        end else begin
+            // This register follows the same EX -> WB boundary as wb_pc/data.
+            retire_valid <= valid_x && instr_supported_x;
+
+            if (!counting_started) begin
+                if (valid_x && instr_supported_x) begin
+                    counting_started <= 1'b1;
+                    cycle_count <= 64'd1;
+                end
+            end else begin
+                cycle_count <= cycle_count + 64'd1;
+            end
+
+            if (retire_valid)
+                instret_count <= instret_count + 64'd1;
         end
     end
 

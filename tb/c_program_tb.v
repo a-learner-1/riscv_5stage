@@ -15,7 +15,8 @@ module c_program_tb;
     ) dut (
         .clk(clk), .rst_n(rst_n),
         .pc_x(pc_x), .instr_x(instr_x), .valid_x(valid_x),
-        .wb_pc(wb_pc), .wb_rd(wb_rd), .wb_data(wb_data), .wb_we(wb_we)
+        .wb_pc(wb_pc), .wb_rd(wb_rd), .wb_data(wb_data), .wb_we(wb_we),
+        .retire_valid(), .cycle_count(), .instret_count()
     );
 
     always #5 clk = ~clk;
