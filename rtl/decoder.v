@@ -42,6 +42,12 @@ module decoder (
     output wire        is_jalr,
     output wire        is_lw,
     output wire        is_sw,
+    output wire        is_lb,
+    output wire        is_lbu,
+    output wire        is_lh,
+    output wire        is_lhu,
+    output wire        is_sb,
+    output wire        is_sh,
     output wire [31:0] imm_s
 );
 
@@ -152,6 +158,12 @@ module decoder (
     assign is_jal   = (opcode == 7'b1101111);
     assign is_jalr  = (opcode == 7'b1100111) && (funct3 == 3'b000);
     assign imm_s = {{20{instr[31]}}, instr[31:25], instr[11:7]};
+    assign is_lb = (opcode == 7'b0000011) && (funct3 == 3'b000);
+    assign is_lh = (opcode == 7'b0000011) && (funct3 == 3'b001);
     assign is_lw = (opcode == 7'b0000011) && (funct3 == 3'b010);
+    assign is_lbu = (opcode == 7'b0000011) && (funct3 == 3'b100);
+    assign is_lhu = (opcode == 7'b0000011) && (funct3 == 3'b101);
+    assign is_sb = (opcode == 7'b0100011) && (funct3 == 3'b000);
+    assign is_sh = (opcode == 7'b0100011) && (funct3 == 3'b001);
     assign is_sw = (opcode == 7'b0100011) && (funct3 == 3'b010);
 endmodule

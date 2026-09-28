@@ -1,4 +1,7 @@
-module cpu_top (
+module cpu_top #(
+    parameter PROGRAM_FILE = "programs/rv32i_regression.hex",
+    parameter integer IMEM_WORDS = 1024
+) (
     input  wire        clk,
     input  wire        rst_n,
 
@@ -34,10 +37,16 @@ module cpu_top (
     wire [31:0] imm_j_x;
     wire [31:0] imm_s_x;
     wire is_lw_x, is_sw_x;
+    wire is_lb_x, is_lbu_x, is_lh_x, is_lhu_x, is_sb_x, is_sh_x;
+    wire is_load_x, is_store_x;
     wire mem_re_x, mem_we_x, mem_access_ok_x;
+    wire [1:0] mem_size_x;
+    wire [3:0] mem_wstrb_x;
     wire [31:0] mem_rdata_x;
     wire [31:0] mem_addr_x;
     wire [31:0] mem_wdata_x;
+    wire [31:0] load_shifted_x;
+    wire [31:0] load_data_x;
 
     wire is_addi_x;
     wire is_add_x;
@@ -88,7 +97,10 @@ module cpu_top (
     wire [3:0]  alu_op_x;
     wire [31:0] alu_result_x;
 
-    if_stage u_if_stage (
+    if_stage #(
+        .PROGRAM_FILE(PROGRAM_FILE),
+        .IMEM_WORDS(IMEM_WORDS)
+    ) u_if_stage (
         .clk     (clk),
         .rst_n   (rst_n),
         .redirect_x (redirect_x),
@@ -139,7 +151,11 @@ module cpu_top (
         .is_bgeu  (is_bgeu_x),
         .is_jal   (is_jal_x),
         .is_jalr  (is_jalr_x),
-        .is_lw (is_lw_x), .is_sw (is_sw_x), .imm_s (imm_s_x)
+        .is_lw (is_lw_x), .is_sw (is_sw_x),
+        .is_lb (is_lb_x), .is_lbu (is_lbu_x),
+        .is_lh (is_lh_x), .is_lhu (is_lhu_x),
+        .is_sb (is_sb_x), .is_sh (is_sh_x),
+        .imm_s (imm_s_x)
     );
 
     regfile u_regfile (
@@ -159,6 +175,8 @@ module cpu_top (
 
     // U-type immediate bits are not register source addresses.
     assign use_upper_imm_x = is_lui_x | is_auipc_x;
+    assign is_load_x = is_lb_x | is_lbu_x | is_lh_x | is_lhu_x | is_lw_x;
+    assign is_store_x = is_sb_x | is_sh_x | is_sw_x;
     assign is_branch_x = is_beq_x | is_bne_x |
                          is_blt_x | is_bge_x | is_bltu_x | is_bgeu_x;
     assign is_jump_x = is_jal_x | is_jalr_x;
@@ -171,7 +189,7 @@ module cpu_top (
         is_xori_x |
         use_shift_imm_x |
         is_slti_x | is_sltiu_x |
-        use_upper_imm_x | is_lw_x | is_sw_x;
+        use_upper_imm_x | is_load_x | is_store_x;
 
     // Only these instructions consume a second source register.
     assign uses_rs2_x =
@@ -184,11 +202,11 @@ module cpu_top (
         is_srl_x |
         is_sra_x |
         is_slt_x | is_sltu_x |
-        is_branch_x | is_sw_x;
+        is_branch_x | is_store_x;
 
     assign uses_rs1_x = ((use_imm_x | uses_rs2_x) && !use_upper_imm_x)
                         | is_jalr_x;
-    assign writes_rd_x = ((use_imm_x | uses_rs2_x) && !is_branch_x && !is_sw_x)
+    assign writes_rd_x = ((use_imm_x | uses_rs2_x) && !is_branch_x && !is_store_x)
                          | is_jump_x;
 
     // WB -> EX forwarding for rs1.
@@ -231,7 +249,7 @@ module cpu_top (
     assign redirect_pc_x = jump_taken_x ? jump_target_x : branch_target_x;
 
     assign alu_b_x =
-        is_sw_x        ? imm_s_x :
+        is_store_x     ? imm_s_x :
         use_upper_imm_x ? imm_u_x :
         use_shift_imm_x ? shamt_imm_x :
         use_imm_x       ? imm_x       : rs2_value_x;
@@ -259,20 +277,37 @@ module cpu_top (
     // This teaching RAM has asynchronous reads and synchronous writes.
     // A future synchronous BRAM needs a different response/stall protocol.
     assign mem_addr_x = alu_result_x;
-    assign mem_wdata_x = rs2_value_x;
-    assign mem_re_x = rst_n && valid_x && is_lw_x;
-    assign mem_we_x = rst_n && valid_x && is_sw_x;
+    assign mem_size_x = (is_lb_x | is_lbu_x | is_sb_x) ? 2'd0 :
+                        (is_lh_x | is_lhu_x | is_sh_x) ? 2'd1 : 2'd2;
+    assign mem_wstrb_x = is_sb_x ? (4'b0001 << mem_addr_x[1:0]) :
+                         is_sh_x ? (4'b0011 << mem_addr_x[1:0]) :
+                         is_sw_x ? 4'b1111 : 4'b0000;
+    assign mem_wdata_x = rs2_value_x << {mem_addr_x[1:0], 3'b000};
+    assign mem_re_x = rst_n && valid_x && is_load_x;
+    assign mem_we_x = rst_n && valid_x && is_store_x;
     data_mem u_data_mem (
         .clk(clk), .re(mem_re_x), .we(mem_we_x),
-        .addr(mem_addr_x), .wdata(mem_wdata_x),
+        .addr(mem_addr_x), .size(mem_size_x),
+        .wdata(mem_wdata_x), .wstrb(mem_wstrb_x),
         .rdata(mem_rdata_x), .access_ok(mem_access_ok_x)
     );
+
+    // The RAM returns the containing word. Select the addressed byte/halfword,
+    // then apply the signed or unsigned RV32I extension rule.
+    assign load_shifted_x = mem_rdata_x >> {mem_addr_x[1:0], 3'b000};
+    assign load_data_x =
+        is_lb_x  ? {{24{load_shifted_x[7]}},  load_shifted_x[7:0]}  :
+        is_lbu_x ? {24'd0, load_shifted_x[7:0]}                    :
+        is_lh_x  ? {{16{load_shifted_x[15]}}, load_shifted_x[15:0]} :
+        is_lhu_x ? {16'd0, load_shifted_x[15:0]}                   :
+                   mem_rdata_x;
 
     // Unsupported accesses stop simulation instead of silently aliasing RAM.
     // synthesis translate_off
     always @(posedge clk) begin
         if ((mem_re_x || mem_we_x) && mem_access_ok_x !== 1'b1)
-            $fatal(1, "Unsupported LW/SW address pc=%h addr=%h", pc_x, mem_addr_x);
+            $fatal(1, "Unsupported load/store address pc=%h addr=%h size=%0d",
+                   pc_x, mem_addr_x, mem_size_x);
     end
     // synthesis translate_on
 
@@ -286,11 +321,12 @@ module cpu_top (
         end else begin
             wb_pc   <= pc_x;
             wb_rd   <= rd_addr_x;
-            wb_data <= is_lw_x ? mem_rdata_x : is_jump_x ? (pc_x + 32'd4) : alu_result_x;
+            wb_data <= is_load_x ? load_data_x :
+                       is_jump_x ? (pc_x + 32'd4) : alu_result_x;
 
             wb_we <= valid_x &&
                      writes_rd_x &&
-                     (!is_lw_x || mem_access_ok_x) &&
+                     (!is_load_x || mem_access_ok_x) &&
                      (rd_addr_x != 5'd0);
         end
     end
