@@ -1,6 +1,6 @@
 @echo off
 setlocal
-set CROSS=riscv64-unknown-elf-
+set CROSS=riscv-none-elf-
 
 if not exist build mkdir build
 
