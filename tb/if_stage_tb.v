@@ -36,7 +36,7 @@ module if_stage_tb;
             if (valid_x !== 1'b1 ||
                 pc_x !== expected_pc ||
                 instr_x !== expected_instr ||
-                pc_f !== (expected_pc + 32'd4)) begin
+                pc_f !== (expected_pc + 32'd8)) begin
 
                 $display("FAIL: IF stage at time=%0t", $time);
                 $display("expected pc=%h instr=%h",
@@ -81,8 +81,15 @@ module if_stage_tb;
         #11;
         rst_n = 1'b1;
 
+        // The synchronous instruction RAM needs one request cycle before the
+        // first instruction response can enter the execute stage.
+        @(posedge clk);
+        #1;
+        if (valid_x !== 1'b0)
+            $fatal(1, "first synchronous fetch cycle must be a bubble");
+
         check_fetch(32'd0,  32'h00500093);
-        check_stall(32'd4, 32'd0, 32'h00500093);
+        check_stall(32'd8, 32'd0, 32'h00500093);
         check_fetch(32'd4,  32'h00308113);
         check_fetch(32'd8,  32'h002081b3);
         check_fetch(32'd12, 32'h00318233);

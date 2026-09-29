@@ -1,5 +1,7 @@
 `timescale 1ns/1ps
 module instr_mem_tb;
+    reg clk = 1'b0;
+    reg en = 1'b0;
     reg [31:0] addr;
     wire [31:0] instr;
     wire access_ok;
@@ -11,20 +13,30 @@ module instr_mem_tb;
         .WORDS(16),
         .INIT_FILE("programs/program_load_test.hex")
     ) dut (
+        .clk(clk),
+        .en(en),
         .addr(addr),
         .instr(instr),
         .access_ok(access_ok)
     );
+
+    always #5 clk = ~clk;
 
     task check_fetch;
         input [31:0] a;
         input [31:0] expected_instr;
         input expected_ok;
         begin
-            addr = a; #1;
+            @(negedge clk);
+            addr = a;
+            en = 1'b1;
+            @(posedge clk);
+            #1;
             if (instr !== expected_instr || access_ok !== expected_ok)
                 $fatal(1, "fetch addr=%h instr=%h expected=%h ok=%b",
                        a, instr, expected_instr, access_ok);
+            @(negedge clk);
+            en = 1'b0;
         end
     endtask
 
@@ -60,3 +72,5 @@ module instr_mem_tb;
         $stop;
     end
 endmodule
+
+

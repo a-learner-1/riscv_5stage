@@ -92,6 +92,10 @@ module branch_tb;
 
         #11;
         rst_n = 1'b1;
+        // One startup bubble is introduced by synchronous instruction fetch.
+        tick;
+        if (valid_x !== 1'b0)
+            $fatal(1, "Synchronous instruction fetch startup bubble missing");
         // Keep the original 77-instruction ROM regression intact.
         for (i=0; i<77; i=i+1) begin
             tick;
@@ -147,3 +151,5 @@ module branch_tb;
         $fatal(1, "Branch test timeout");
     end
 endmodule
+
+

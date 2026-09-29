@@ -226,6 +226,11 @@ module cpu_top_tb;
         #11;
         rst_n = 1;
 
+        // One request cycle is required by the synchronous instruction RAM.
+        tick;
+        if (valid_x !== 1'b0)
+            $fatal(1, "Synchronous instruction fetch startup bubble missing");
+
         // At sample cycle i: EX=i, WB=i-1, committed=i-2.
         for (cycle=0; cycle<NUM_INSTR+2; cycle=cycle+1) begin
             tick;
@@ -330,3 +335,5 @@ module cpu_top_tb;
         $fatal(1,"CPU test timeout");
     end
 endmodule
+
+
