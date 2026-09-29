@@ -7,11 +7,14 @@ module c_program_tb;
     wire [4:0] wb_rd;
     integer cycles;
 
-    localparam integer TOHOST_WORD = 255;
+    localparam integer TOHOST_WORD = 4095;
 
     cpu_top #(
         .PROGRAM_FILE("programs/c_demo.hex"),
-        .IMEM_WORDS(1024)
+        .DATA_FILE("programs/c_demo_data.hex"),
+        .IMEM_WORDS(8192),
+        .DMEM_WORDS(4096),
+        .DMEM_BASE_ADDR(32'h00010000)
     ) dut (
         .clk(clk), .rst_n(rst_n),
         .pc_x(pc_x), .instr_x(instr_x), .valid_x(valid_x),
@@ -40,8 +43,12 @@ module c_program_tb;
         if (dut.u_data_mem.mem[TOHOST_WORD] !== 32'd1)
             $fatal(1, "C program reported failure code=%h",
                    dut.u_data_mem.mem[TOHOST_WORD]);
+        if (dut.u_data_mem.mem[0] !== 32'h12345678)
+            $fatal(1, "Initialized .data word was not loaded correctly: %h",
+                   dut.u_data_mem.mem[0]);
 
         $display("PASS: freestanding C program completed through tohost");
+        $display("PASS: separate instruction/data HEX images checked");
         $display("PASS: tohost=1 cycles=%0d", cycles);
         $stop;
     end

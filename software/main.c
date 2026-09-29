@@ -6,6 +6,7 @@ typedef unsigned short uint16_t;
 static volatile uint32_t values[10];
 static volatile uint8_t byte_slot;
 static volatile uint16_t half_slot;
+static volatile uint32_t initialized_word = 0x12345678u;
 
 int main(void)
 {
@@ -26,6 +27,8 @@ int main(void)
         return 3;
     if (half_slot != 0x8123u)
         return 4;
+    if (initialized_word != 0x12345678u)
+        return 5;
 
     return 1;
 }

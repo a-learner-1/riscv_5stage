@@ -1,6 +1,9 @@
 module cpu_top #(
     parameter PROGRAM_FILE = "programs/rv32i_regression.hex",
-    parameter integer IMEM_WORDS = 1024
+    parameter DATA_FILE = "",
+    parameter integer IMEM_WORDS = 8192,
+    parameter integer DMEM_WORDS = 4096,
+    parameter [31:0] DMEM_BASE_ADDR = 32'h00000000
 ) (
     input  wire        clk,
     input  wire        rst_n,
@@ -306,7 +309,11 @@ module cpu_top #(
     assign mem_wdata_x = rs2_value_x << {mem_addr_x[1:0], 3'b000};
     assign mem_re_x = rst_n && valid_x && is_load_x;
     assign mem_we_x = rst_n && valid_x && is_store_x;
-    data_mem u_data_mem (
+    data_mem #(
+        .WORDS(DMEM_WORDS),
+        .BASE_ADDR(DMEM_BASE_ADDR),
+        .INIT_FILE(DATA_FILE)
+    ) u_data_mem (
         .clk(clk), .re(mem_re_x), .we(mem_we_x),
         .addr(mem_addr_x), .size(mem_size_x),
         .wdata(mem_wdata_x), .wstrb(mem_wstrb_x),

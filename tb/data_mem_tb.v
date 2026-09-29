@@ -10,10 +10,29 @@ module data_mem_tb;
     wire [31:0] rdata;
     wire access_ok;
 
-    data_mem dut (
+    reg init_re = 1'b0;
+    reg [31:0] init_addr = 32'h00010000;
+    wire [31:0] init_rdata;
+    wire init_access_ok;
+
+    data_mem #(
+        .WORDS(256),
+        .BASE_ADDR(32'h00000000),
+        .INIT_FILE("")
+    ) dut (
         .clk(clk), .re(re), .we(we), .addr(addr), .size(size),
         .wdata(wdata), .wstrb(wstrb), .rdata(rdata),
         .access_ok(access_ok)
+    );
+
+    data_mem #(
+        .WORDS(4),
+        .BASE_ADDR(32'h00010000),
+        .INIT_FILE("programs/data_mem_init_test.hex")
+    ) init_dut (
+        .clk(clk), .re(init_re), .we(1'b0), .addr(init_addr), .size(2'd2),
+        .wdata(32'd0), .wstrb(4'd0), .rdata(init_rdata),
+        .access_ok(init_access_ok)
     );
 
     always #5 clk = ~clk;
@@ -72,7 +91,24 @@ module data_mem_tb;
 
         re = 1'b0; #1;
         if (rdata !== 32'd0) $fatal(1, "disabled read must return zero");
-        $display("PASS: byte-enable RAM, byte/half/word alignment and 1 KiB boundaries");
+
+        init_re = 1'b1;
+        init_addr = 32'h00010000; #1;
+        if (init_rdata !== 32'h11223344 || init_access_ok !== 1'b1)
+            $fatal(1, "initialized RAM word 0 mismatch");
+        init_addr = 32'h0001000c; #1;
+        if (init_rdata !== 32'hdeadbeef || init_access_ok !== 1'b1)
+            $fatal(1, "initialized RAM last word mismatch");
+        init_addr = 32'h00010010; #1;
+        if (init_rdata !== 32'd0 || init_access_ok !== 1'b0)
+            $fatal(1, "initialized RAM boundary check failed");
+        init_addr = 32'h0000fffc; #1;
+        if (init_rdata !== 32'd0 || init_access_ok !== 1'b0)
+            $fatal(1, "address below BASE_ADDR was accepted");
+        init_re = 1'b0;
+
+        $display("PASS: byte-enable RAM, alignment and parameterized boundaries");
+        $display("PASS: non-zero RAM base address and external data image initialization");
         $stop;
     end
 

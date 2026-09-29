@@ -17,15 +17,18 @@ module performance_tb;
     integer watchdog_cycles;
     reg [63:0] cpi_milli;
 
-    localparam integer TOHOST_WORD = 255;
-    // This fixed c_demo image executes exactly 150 architectural
+    localparam integer TOHOST_WORD = 4095;
+    // This fixed c_demo image executes exactly 155 architectural
     // instructions through the store to tohost.  Checking the exact value
     // catches accidental counting of branch bubbles or squashed instructions.
-    localparam [63:0] EXPECTED_INSTRET = 64'd150;
+    localparam [63:0] EXPECTED_INSTRET = 64'd155;
 
     cpu_top #(
         .PROGRAM_FILE("programs/c_demo.hex"),
-        .IMEM_WORDS(1024)
+        .DATA_FILE("programs/c_demo_data.hex"),
+        .IMEM_WORDS(8192),
+        .DMEM_WORDS(4096),
+        .DMEM_BASE_ADDR(32'h00010000)
     ) dut (
         .clk(clk),
         .rst_n(rst_n),

@@ -2,6 +2,9 @@ quit -sim
 if {![file exists programs/c_demo.hex]} {
     error "programs/c_demo.hex is missing; run make or build_program.bat first"
 }
+if {![file exists programs/c_demo_data.hex]} {
+    error "programs/c_demo_data.hex is missing; run make or build_program.bat first"
+}
 if {[file exists work]} {vdel -lib work -all}
 vlib work
 vmap work work
@@ -23,7 +26,7 @@ add wave -radix unsigned sim:/performance_tb/instret_count
 add wave -radix hexadecimal sim:/performance_tb/dut/mem_addr_x
 add wave -radix hexadecimal sim:/performance_tb/dut/mem_wdata_x
 add wave sim:/performance_tb/dut/mem_we_x
-add wave -radix unsigned sim:/performance_tb/dut/u_data_mem/mem(255)
+add wave -radix unsigned sim:/performance_tb/dut/u_data_mem/mem(4095)
 
 run -all
 wave zoom full

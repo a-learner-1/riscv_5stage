@@ -11,20 +11,26 @@ LDFLAGS = -nostdlib -nostartfiles -static -Wl,-T,software/link.ld \
           -Wl,-Map,build/c_demo.map -Wl,--gc-sections -Wl,--no-relax
 
 .PHONY: all clean
-all: programs/c_demo.hex build/c_demo.dump
+all: programs/c_demo.hex programs/c_demo_data.hex build/c_demo.dump
 
 build/c_demo.elf: software/start.S software/main.c software/link.ld
 	mkdir -p build
 	$(CC) $(CFLAGS) $(LDFLAGS) software/start.S software/main.c -o $@
 
-build/c_demo.bin: build/c_demo.elf
-	$(OBJCOPY) -O binary $< $@
+build/c_demo_text.bin: build/c_demo.elf
+	$(OBJCOPY) -O binary -j .text $< $@
 
-programs/c_demo.hex: build/c_demo.bin tools/bin_to_hex.py
+build/c_demo_data.bin: build/c_demo.elf
+	$(OBJCOPY) -O binary -j .data $< $@
+
+programs/c_demo.hex: build/c_demo_text.bin tools/bin_to_hex.py
+	$(PYTHON) tools/bin_to_hex.py $< $@
+
+programs/c_demo_data.hex: build/c_demo_data.bin tools/bin_to_hex.py
 	$(PYTHON) tools/bin_to_hex.py $< $@
 
 build/c_demo.dump: build/c_demo.elf
 	$(OBJDUMP) -d -S $< > $@
 
 clean:
-	rm -rf build programs/c_demo.hex
+	rm -rf build programs/c_demo.hex programs/c_demo_data.hex

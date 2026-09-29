@@ -24,6 +24,9 @@
 | RISC-V GCC 裸机 C 程序 | 已完成 |
 | `tohost` 结束协议 | 已完成 |
 | 周期、退休指令和 CPI 统计 | 已完成 |
+| 指令/数据存储器参数化与扩容 | 已完成 |
+| 独立指令/数据 HEX 镜像 | 已完成 |
+| `.data`/`.rodata` 预初始化 | 已完成 |
 | 同步 Block RAM 与 load-use stall | 尚未完成 |
 | CoreMark | 尚未完成 |
 | Cache、BTB、AXI、UART、GPIO | 尚未完成 |
@@ -50,8 +53,8 @@
 | ISA | RV32I 子集，共37种指令 |
 | 数据宽度 | 32位 |
 | 流水级 | IF、EX、WB |
-| 指令存储器 | 4 KiB，1024×32位 |
-| 数据存储器 | 1 KiB，256×32位 |
+| 指令存储器 | 32 KiB，8192×32位，可参数化 |
+| 数据存储器 | 16 KiB，4096×32位，可参数化基址 |
 | 字节序 | 小端 |
 | 通用寄存器 | `x0`–`x31`，其中 `x0` 固定为0 |
 | 分支解析 | EX级 |
@@ -106,17 +109,17 @@ CPI 由测试平台计算：
 CPI = cycle_count / instret_count
 ```
 
-当前固定的 `c_demo.hex` 测试结果：
+当前固定的 `c_demo.hex` 与 `c_demo_data.hex` 测试结果：
 
 ```text
 PASS: performance counters and C program completed
 PERF: tohost=1
-PERF: cycles=174
-PERF: retired instructions=150
-PERF: CPI=1.160
+PERF: cycles=179
+PERF: retired instructions=155
+PERF: CPI=1.154
 ```
 
-`performance_tb.v` 会检查精确的150条退休指令，用于发现错误计入气泡或错误路径指令的问题。如果修改并重新编译 `software/main.c`，动态指令数量可能变化，此时需要同步调整测试平台中的 `EXPECTED_INSTRET`。
+`performance_tb.v` 会检查精确的155条退休指令，用于发现错误计入气泡或错误路径指令的问题。如果修改并重新编译 `software/main.c`，动态指令数量可能变化，此时需要同步调整测试平台中的 `EXPECTED_INSTRET`。
 
 ## 工程目录
 
@@ -127,7 +130,7 @@ rtl/
   decoder.v             指令译码和立即数生成
   regfile.v             两读一写寄存器堆
   alu.v                 算术、逻辑、移位和比较
-  data_mem.v            1 KiB 小端数据 RAM
+  data_mem.v            参数化小端数据 RAM、基址和初始化镜像
   cpu_top.v             顶层数据通路、前递、访存和性能计数
 
 tb/
@@ -153,6 +156,8 @@ programs/
   program_load_test.hex 外部程序加载测试
   toolchain_demo.hex    无需GCC即可运行的预生成程序
   c_demo.hex            由当前C程序生成的指令镜像
+  c_demo_data.hex       由当前C程序生成的数据初始化镜像
+  data_mem_init_test.hex 数据RAM初始化回归镜像
 
 tools/
   bin_to_hex.py         BIN转32位小端HEX
@@ -209,9 +214,9 @@ do run_performance.do
 Errors: 0, Warnings: 0
 PASS: performance counters and C program completed
 PERF: tohost=1
-PERF: cycles=174
-PERF: retired instructions=150
-PERF: CPI=1.160
+PERF: cycles=179
+PERF: retired instructions=155
+PERF: CPI=1.154
 ```
 
 最后出现的 `$stop` 和 `Break in Module performance_tb` 表示测试平台主动停止，不是错误。
@@ -239,10 +244,12 @@ make CROSS=riscv-none-elf-
 
 ```text
 build/c_demo.elf     带符号的可执行文件
-build/c_demo.bin     原始小端二进制
-build/c_demo.dump    反汇编文件
-build/c_demo.map     链接内存映射
-programs/c_demo.hex  ModelSim指令镜像
+build/c_demo_text.bin       指令段小端二进制
+build/c_demo_data.bin       初始化数据段小端二进制
+build/c_demo.dump           反汇编文件
+build/c_demo.map            链接内存映射
+programs/c_demo.hex         ModelSim指令镜像
+programs/c_demo_data.hex    ModelSim数据初始化镜像
 ```
 
 随后在 ModelSim 中运行：
@@ -254,12 +261,13 @@ do run_performance.do
 
 ## tohost 程序结束协议
 
-数据 RAM 最后一个字被保留为 `tohost`：
+GCC C 程序配置的数据 RAM 最后一个字被保留为 `tohost`：
 
 ```text
-字节地址：0x000003FC
-RAM字下标：255
-测试平台路径：dut.u_data_mem.mem[255]
+数据RAM基址：0x00010000
+字节地址：0x00013FFC
+RAM字下标：4095
+测试平台路径：dut.u_data_mem.mem[4095]
 ```
 
 | 写入值 | 含义 |
@@ -269,16 +277,18 @@ RAM字下标：255
 
 CPU程序把结果写入 `tohost` 后，测试平台会判断成功或失败并自动停止。该协议后续可以继续用于 CoreMark 和其他裸机基准程序。
 
+旧的预生成汇编回归仍使用低地址兼容配置，其 `tohost` 保持在 `0x000003FC`（字下标255），因此旧测试无需重写。
+
 ## 当前存储器布局
 
 | 地址范围 | 用途 |
 | --- | --- |
-| `0x000–0x1FF` | `.text`、`.rodata`，当前链接脚本限制为512 B |
-| `0x200–0x3DF` | `.data`、`.bss` 和运行时数据 |
-| `0x3E0` | 初始栈顶，栈向低地址增长 |
-| `0x3FC` | `tohost` |
+| `0x00000000–0x00007FFF` | 指令 RAM中的 `.text`，32 KiB |
+| `0x00010000–0x00013FDF` | 数据 RAM中的 `.rodata`、`.data`、`.bss` 和运行时数据 |
+| `0x00013FE0` | 初始栈顶，栈向低地址增长 |
+| `0x00013FFC` | `tohost` |
 
-指令 ROM 实际容量为4 KiB，数据 RAM 为1 KiB。当前链接脚本的较小程序区用于配合现有数据空间；移植 CoreMark 前必须重新规划并扩大存储器。
+程序构建时会把 ELF 分成独立的指令 HEX 和数据 HEX。数据 RAM 启动时先清零，再用 `c_demo_data.hex` 覆盖初始化数据，因此普通 C 全局初始化变量和只读数据不再依赖未实现的数据复制流程。
 
 ## 完整回归测试
 
@@ -290,6 +300,7 @@ do run_branch.do
 do run_compare_branch.do
 do run_jump.do
 do run_load_store.do
+do run_memory_expansion.do
 do run_subword_mem.do
 do run_program.do
 do run_toolchain.do
@@ -304,8 +315,9 @@ do run_performance.do
 - JAL/JALR链接地址、前递、最低位清零和冲刷通过。
 - LW/SW及load-use、存储地址/数据前递通过。
 - LB/LBU/LH/LHU/SB/SH符号扩展、小端字节通道和边界测试通过。
+- 非零数据 RAM 基址、参数化容量和外部数据 HEX 初始化通过。
 - 外部HEX、预生成程序和GCC C程序通过。
-- 性能测试结果为174周期、150条退休指令、CPI 1.160。
+- 性能测试结果为179周期、155条退休指令、CPI 1.154。
 
 ## 波形观察
 
@@ -314,22 +326,22 @@ do run_performance.do
 ```text
 clk、rst_n、pc_x、instr_x、valid_x
 wb_pc、retire_valid、cycle_count、instret_count
-mem_addr_x、mem_wdata_x、mem_we_x、mem[255]
+mem_addr_x、mem_wdata_x、mem_we_x、mem[4095]
 ```
 
 查看程序结束过程时，可以在 Transcript 输入：
 
 ```tcl
-wave zoom range 1650ns 1780ns
+wave zoom range 1700ns 1840ns
 ```
 
 最后一次有效存储应满足：
 
 ```text
 mem_we_x    = 1
-mem_addr_x  = 0x000003FC
+mem_addr_x  = 0x00013FFC
 mem_wdata_x = 0x00000001
-mem[255]    = 1
+mem[4095]   = 1
 ```
 
 ## 已知问题
@@ -346,19 +358,18 @@ mem[255]    = 1
 - 尚未实现 UART、GPIO、Cache、BTB 和 AXI 接口。
 - 指令存储器和数据存储器仍使用组合读取模型，不是最终 FPGA Block RAM 时序。
 - 没有完整的存储器 `stall/ready/valid` 握手接口。
-- 目前的程序和数据空间不足以直接运行 CoreMark。
+- 存储空间已扩展为32 KiB指令区和16 KiB数据区，但尚未完成 CoreMark 实际容量验证与移植。
 - 尚未进行 PDS 综合、资源统计、静态时序分析和盘古 50 上板验证。
 
 ## 后续路线
 
-1. 扩大指令存储器和数据存储器，重新规划链接地址。
-2. 移植 CoreMark，建立 CPU 基准性能数据。
-3. 将组合存储器改造为同步 Block RAM。
-4. 增加 load-use stall 和统一存储器握手。
-5. 实现 UART、GPIO 和板级顶层。
-6. 实现二路组相联 Cache 和 BTB 分支预测器。
-7. 增加 AXI 接口并连接 CNN 加速器。
-8. 进入 PDS 综合、资源分析、时序优化和盘古 50 上板验证。
+1. 移植 CoreMark，验证当前32 KiB/16 KiB容量并建立 CPU 基准性能数据。
+2. 将组合存储器改造为同步 Block RAM。
+3. 增加 load-use stall 和统一存储器握手。
+4. 实现 UART、GPIO 和板级顶层。
+5. 实现二路组相联 Cache 和 BTB 分支预测器。
+6. 增加 AXI 接口并连接 CNN 加速器。
+7. 进入 PDS 综合、资源分析、时序优化和盘古 50 上板验证。
 
 ## 当前性能基线
 
