@@ -41,7 +41,7 @@ module subword_mem_tb;
             if (pc_x == 32'd1120 || pc_x == 32'd1132)
                 $fatal(1, "wrong-path memory instruction executed at pc=%0d", pc_x);
 
-            if (dut.is_load_x) begin
+            if (dut.is_load_x && dut.load_pending) begin
                 loads = loads + 1;
                 if (dut.mem_access_ok_x !== 1'b1)
                     $fatal(1, "legal load rejected at pc=%0d", pc_x);
@@ -155,3 +155,5 @@ module subword_mem_tb;
         $stop;
     end
 endmodule
+
+

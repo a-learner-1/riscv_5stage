@@ -109,15 +109,25 @@ module load_store_tb;
                     $fatal(1,"Address mismatch at PC=%0d addr=%h",pc_x,dut.mem_addr_x);
                 if (kinds[i]==1) begin
                     loads=loads+1;
-                    if (dut.mem_rdata_x !== results[i] || dut.forward_rs2_x !== 0)
-                        $fatal(1,"Load data or false rs2 forwarding at PC=%0d",pc_x);
+                    if (dut.forward_rs2_x !== 0)
+                        $fatal(1,"False rs2 forwarding on load at PC=%0d",pc_x);
                 end else begin
                     stores=stores+1;
                     if (dut.mem_wdata_x !== store_data[i] || dut.writes_rd_x !== 0)
                         $fatal(1,"Store data or register write control at PC=%0d",pc_x);
                 end
             end
-            tick;
+            if (kinds[i]==1) begin
+                tick;
+                if (dut.load_pending !== 1'b1 || pc_x !== pcs[i] ||
+                    dut.mem_re_x !== 1'b0)
+                    $fatal(1,"Load wait cycle mismatch at PC=%0d",pcs[i]);
+                if (dut.mem_rdata_x !== results[i])
+                    $fatal(1,"Synchronous load response mismatch at PC=%0d",pcs[i]);
+                tick;
+            end else begin
+                tick;
+            end
             if (wb_pc !== pcs[i] || wb_we !== (dests[i]!=0))
                 $fatal(1,"WB control mismatch at PC=%0d",pcs[i]);
             if (dests[i]!=0 && (wb_rd !== dests[i] || wb_data !== results[i]))
@@ -138,3 +148,5 @@ module load_store_tb;
     end
     initial begin #4000; $fatal(1,"Memory test timeout"); end
 endmodule
+
+

@@ -4,6 +4,7 @@ module if_stage_tb;
 
     reg clk;
     reg rst_n;
+    reg stall_x;
 
     wire [31:0] pc_f;
     wire [31:0] pc_x;
@@ -15,6 +16,7 @@ module if_stage_tb;
         .rst_n   (rst_n),
         .redirect_x (1'b0),
         .redirect_pc_x (32'd0),
+        .stall_x (stall_x),
         .pc_f    (pc_f),
         .pc_x    (pc_x),
         .instr_x (instr_x),
@@ -49,8 +51,24 @@ module if_stage_tb;
         end
     endtask
 
+    task check_stall;
+        input [31:0] expected_pc_f;
+        input [31:0] expected_pc_x;
+        input [31:0] expected_instr_x;
+        begin
+            stall_x = 1'b1;
+            @(posedge clk);
+            #1;
+            if (pc_f !== expected_pc_f || pc_x !== expected_pc_x ||
+                instr_x !== expected_instr_x || valid_x !== 1'b1)
+                $fatal(1, "IF stall did not hold fetch/execute registers");
+            stall_x = 1'b0;
+        end
+    endtask
+
     initial begin
         rst_n = 1'b0;
+        stall_x = 1'b0;
 
         #1;
         if (pc_f !== 32'd0 ||
@@ -64,6 +82,7 @@ module if_stage_tb;
         rst_n = 1'b1;
 
         check_fetch(32'd0,  32'h00500093);
+        check_stall(32'd4, 32'd0, 32'h00500093);
         check_fetch(32'd4,  32'h00308113);
         check_fetch(32'd8,  32'h002081b3);
         check_fetch(32'd12, 32'h00318233);
@@ -154,4 +173,6 @@ module if_stage_tb;
     end
 
 endmodule
+
+
 

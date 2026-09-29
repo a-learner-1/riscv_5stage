@@ -59,11 +59,21 @@ module data_mem_tb;
         input [1:0] s;
         input [31:0] expected;
         input expected_ok;
+        reg [31:0] previous_rdata;
         begin
+            @(negedge clk);
             addr = a; size = s; re = 1'b1; #1;
-            if (rdata !== expected || access_ok !== expected_ok)
-                $fatal(1, "read mismatch addr=%h size=%0d got=%h expected=%h ok=%b",
-                       a, s, rdata, expected, access_ok);
+            previous_rdata = rdata;
+            if (access_ok !== expected_ok)
+                $fatal(1, "read access_ok mismatch addr=%h size=%0d ok=%b",
+                       a, s, access_ok);
+            @(posedge clk); #1;
+            if (expected_ok && rdata !== expected)
+                $fatal(1, "read data mismatch addr=%h size=%0d got=%h expected=%h",
+                       a, s, rdata, expected);
+            if (!expected_ok && rdata !== previous_rdata)
+                $fatal(1, "invalid read changed registered output addr=%h", a);
+            @(negedge clk);
             re = 1'b0;
         end
     endtask
@@ -90,21 +100,32 @@ module data_mem_tb;
         read_word(32'd1020, 2'd2, 32'h80013344, 1'b1);
 
         re = 1'b0; #1;
-        if (rdata !== 32'd0) $fatal(1, "disabled read must return zero");
+        if (rdata !== 32'h80013344)
+            $fatal(1, "disabled synchronous read must retain the last value");
 
-        init_re = 1'b1;
-        init_addr = 32'h00010000; #1;
+        @(negedge clk); init_re = 1'b1;
+        init_addr = 32'h00010000;
+        @(posedge clk); #1;
         if (init_rdata !== 32'h11223344 || init_access_ok !== 1'b1)
             $fatal(1, "initialized RAM word 0 mismatch");
-        init_addr = 32'h0001000c; #1;
+        @(negedge clk); init_addr = 32'h0001000c;
+        @(posedge clk); #1;
         if (init_rdata !== 32'hdeadbeef || init_access_ok !== 1'b1)
             $fatal(1, "initialized RAM last word mismatch");
-        init_addr = 32'h00010010; #1;
-        if (init_rdata !== 32'd0 || init_access_ok !== 1'b0)
+        @(negedge clk); init_addr = 32'h00010010;
+        #1;
+        if (init_access_ok !== 1'b0)
             $fatal(1, "initialized RAM boundary check failed");
-        init_addr = 32'h0000fffc; #1;
-        if (init_rdata !== 32'd0 || init_access_ok !== 1'b0)
+        @(posedge clk); #1;
+        if (init_rdata !== 32'hdeadbeef)
+            $fatal(1, "invalid initialized-RAM read changed registered output");
+        @(negedge clk); init_addr = 32'h0000fffc;
+        #1;
+        if (init_access_ok !== 1'b0)
             $fatal(1, "address below BASE_ADDR was accepted");
+        @(posedge clk); #1;
+        if (init_rdata !== 32'hdeadbeef)
+            $fatal(1, "below-base read changed registered output");
         init_re = 1'b0;
 
         $display("PASS: byte-enable RAM, alignment and parameterized boundaries");
@@ -114,3 +135,5 @@ module data_mem_tb;
 
     initial begin #800; $fatal(1, "data_mem test timeout"); end
 endmodule
+
+

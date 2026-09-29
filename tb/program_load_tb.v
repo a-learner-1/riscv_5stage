@@ -34,7 +34,7 @@ module program_load_tb;
         if (rst_n && valid_x) begin
             if (pc_x == 32'd28 || pc_x == 32'd36)
                 $fatal(1, "wrong-path instruction executed at pc=%0d", pc_x);
-            if (dut.is_load_x) loads = loads + 1;
+            if (dut.load_issue_x) loads = loads + 1;
             if (dut.is_store_x) stores = stores + 1;
             if (pc_x == 32'd4 && dut.forward_rs1_x !== 1'b1)
                 $fatal(1, "ALU forwarding missing");
@@ -77,3 +77,5 @@ module program_load_tb;
         $stop;
     end
 endmodule
+
+
