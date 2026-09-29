@@ -22,6 +22,10 @@ module cpu_top #(
     output reg [63:0] instret_count
 );
 
+    localparam [31:0] MMIO_CYCLE_ADDR   = 32'h2000_0000;
+    localparam [31:0] MMIO_INSTRET_ADDR = 32'h2000_0004;
+    localparam [31:0] MMIO_PUTCHAR_ADDR = 32'h2000_0010;
+
     localparam [3:0] ALU_ADD  = 4'b0000;
     localparam [3:0] ALU_SUB  = 4'b0001;
     localparam [3:0] ALU_AND  = 4'b0010;
@@ -66,6 +70,21 @@ module cpu_top #(
     wire [31:0] mem_addr_x;
     wire [31:0] mem_wdata_x;
 
+    wire        mmio_region_x;
+    wire        mmio_cycle_addr_x;
+    wire        mmio_instret_addr_x;
+    wire        mmio_counter_addr_x;
+    wire        mmio_load_ok_x;
+    wire        mmio_putchar_write_x;
+    wire [31:0] mmio_read_data_x;
+    wire [31:0] load_raw_data_x;
+
+    // Internal simulation-console event.  Keeping this internal means all
+    // existing cpu_top testbenches remain source-compatible.  A later SoC
+    // wrapper will replace this register with the real UART peripheral.
+    reg         mmio_putchar_valid;
+    reg [7:0]   mmio_putchar_data;
+
     wire [31:0] load_shifted_x;
     wire [31:0] load_data_x;
 
@@ -78,6 +97,8 @@ module cpu_top #(
     reg [4:0]  load_rd_q;
     reg [1:0]  load_addr_lsb_q;
     reg [2:0]  load_funct3_q;
+    reg        load_mmio_q;
+    reg [31:0] load_mmio_data_q;
 
     wire is_addi_x;
     wire is_add_x;
@@ -473,6 +494,45 @@ module cpu_top #(
         rs2_value_x << {mem_addr_x[1:0], 3'b000};
 
     /*
+     * Memory-mapped I/O region used by bare-metal software.
+     *
+     *   0x2000_0000: cycle counter, low 32 bits, read-only
+     *   0x2000_0004: retired-instruction counter, low 32 bits, read-only
+     *   0x2000_0010: simulation/UART character output, write-only
+     */
+    assign mmio_region_x =
+        (mem_addr_x[31:16] == 16'h2000);
+
+    assign mmio_cycle_addr_x =
+        (mem_addr_x == MMIO_CYCLE_ADDR);
+
+    assign mmio_instret_addr_x =
+        (mem_addr_x == MMIO_INSTRET_ADDR);
+
+    assign mmio_counter_addr_x =
+        mmio_cycle_addr_x |
+        mmio_instret_addr_x;
+
+    // Counters are exposed as aligned 32-bit registers.  CoreMark only
+    // needs the low word because elapsed time is computed by subtraction.
+    assign mmio_load_ok_x =
+        mmio_counter_addr_x &&
+        (mem_size_x == 2'd2) &&
+        (mem_addr_x[1:0] == 2'b00);
+
+    assign mmio_read_data_x =
+        mmio_cycle_addr_x ? cycle_count[31:0] :
+                            instret_count[31:0];
+
+    // Accept SB, SH and SW at the character register and use the low byte.
+    assign mmio_putchar_write_x =
+        rst_n &&
+        valid_x &&
+        is_store_x &&
+        (mem_addr_x == MMIO_PUTCHAR_ADDR) &&
+        (mem_size_x != 2'd3);
+
+    /*
      * ????????????
      *
      * ??????
@@ -489,12 +549,17 @@ module cpu_top #(
 
     assign stall_x = load_issue_x;
 
-    assign mem_re_x = load_issue_x;
+    // MMIO accesses bypass the teaching data RAM.  MMIO reads still use the
+    // same one-cycle load_pending path, so the pipeline timing is uniform.
+    assign mem_re_x =
+        load_issue_x &&
+        !mmio_region_x;
 
     assign mem_we_x =
         rst_n &&
         valid_x &&
-        is_store_x;
+        is_store_x &&
+        !mmio_region_x;
 
     data_mem #(
         .WORDS(DMEM_WORDS),
@@ -525,6 +590,8 @@ module cpu_top #(
             load_rd_q       <= 5'd0;
             load_addr_lsb_q <= 2'd0;
             load_funct3_q   <= 3'd0;
+            load_mmio_q     <= 1'b0;
+            load_mmio_data_q <= 32'd0;
         end else begin
             if (load_issue_x) begin
                 load_pending    <= 1'b1;
@@ -532,17 +599,47 @@ module cpu_top #(
                 load_rd_q       <= rd_addr_x;
                 load_addr_lsb_q <= mem_addr_x[1:0];
                 load_funct3_q   <= instr_x[14:12];
+                load_mmio_q     <= mmio_load_ok_x;
+                load_mmio_data_q <= mmio_read_data_x;
             end else if (load_pending) begin
                 load_pending <= 1'b0;
+                load_mmio_q  <= 1'b0;
             end
+        end
+    end
+
+    // Display software output in ModelSim without creating hardware logic.
+    // synthesis translate_off
+    always @(posedge clk) begin
+        if (mmio_putchar_write_x)
+            $write("%c", rs2_value_x[7:0]);
+    end
+    // synthesis translate_on
+
+    /*
+     * One-cycle pulse for every write to MMIO_PUTCHAR_ADDR.  The testbench
+     * prints/checks this byte; a later FPGA top level can feed it to UART TX.
+     */
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            mmio_putchar_valid <= 1'b0;
+            mmio_putchar_data  <= 8'd0;
+        end else begin
+            mmio_putchar_valid <= mmio_putchar_write_x;
+
+            if (mmio_putchar_write_x)
+                mmio_putchar_data <= rs2_value_x[7:0];
         end
     end
 
     /*
      * ?????????
      */
+    assign load_raw_data_x =
+        load_mmio_q ? load_mmio_data_q : mem_rdata_x;
+
     assign load_shifted_x =
-        mem_rdata_x >>
+        load_raw_data_x >>
         {load_addr_lsb_q, 3'b000};
 
     assign load_data_x =
@@ -560,18 +657,55 @@ module cpu_top #(
         (load_funct3_q == 3'b101) ?
             {16'd0, load_shifted_x[15:0]} :
 
-            mem_rdata_x;
+            load_raw_data_x;
 
     /*
      * ?????????????
      */
     // synthesis translate_off
     always @(posedge clk) begin
-        if ((mem_re_x || mem_we_x) &&
+        if (load_issue_x &&
+            !mmio_region_x &&
             mem_access_ok_x !== 1'b1) begin
             $fatal(
                 1,
-                "Unsupported load/store address pc=%h addr=%h size=%0d",
+                "Unsupported load address pc=%h addr=%h size=%0d",
+                pc_x,
+                mem_addr_x,
+                mem_size_x
+            );
+        end
+
+        if (load_issue_x &&
+            mmio_region_x &&
+            !mmio_load_ok_x) begin
+            $fatal(
+                1,
+                "Unsupported MMIO load pc=%h addr=%h size=%0d",
+                pc_x,
+                mem_addr_x,
+                mem_size_x
+            );
+        end
+
+        if (rst_n && valid_x && is_store_x &&
+            !mmio_region_x &&
+            mem_access_ok_x !== 1'b1) begin
+            $fatal(
+                1,
+                "Unsupported store address pc=%h addr=%h size=%0d",
+                pc_x,
+                mem_addr_x,
+                mem_size_x
+            );
+        end
+
+        if (rst_n && valid_x && is_store_x &&
+            mmio_region_x &&
+            !mmio_putchar_write_x) begin
+            $fatal(
+                1,
+                "Unsupported MMIO store pc=%h addr=%h size=%0d",
                 pc_x,
                 mem_addr_x,
                 mem_size_x
