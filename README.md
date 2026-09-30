@@ -6,6 +6,146 @@
 
 项目的长期目标是作为紫光同创盘古 50 开发板上轻量化 CNN 推理系统的 RISC-V 主控。CPU 与平台部分负责处理器、外设和后续加速器接口，CNN 模型与部署由队友负责。后续仍需 UART RX、GPIO、Cache、BTB、AXI 和板级验证。
 
+## 队友快速上手：下载后先看这里
+
+当前仓库是 **CPU RTL、软件示例和仿真测试工程**，不是可以下载后直接烧录的完整板级工程。仓库已包含预生成 HEX 程序镜像，第一次运行不需要先编译 C，也不需要复制原作者电脑上的 ModelSim 工程、工作库或波形。
+
+### 1. 获取完整仓库
+
+推荐使用 Git 克隆，便于后续同步更新。在 Git Bash 中执行：
+
+```bash
+mkdir -p /d/FPGA
+cd /d/FPGA
+git clone https://github.com/a-learner-1/riscv_3stage.git
+cd riscv_3stage
+git log -1 --oneline
+```
+
+上述命令用于第一次下载，目标目录应尚不存在。没有 D 盘时，换成自己的纯英文路径即可；后面的 ModelSim 路径也要对应修改。
+
+也可以在 GitHub 使用 Code → Download ZIP，解压后将目录命名为 `riscv_3stage`。无论采用哪种方式，都应下载整个仓库，不能只下载 `cpu_top.v`，否则会缺少它依赖的 RTL 模块、测试平台和程序镜像。
+
+### 2. 按需要安装工具
+
+| 使用方式 | 所需工具 |
+| --- | --- |
+| 用 Git 下载和同步代码 | Git |
+| 直接运行仓库已有程序的仿真 | ModelSim；不需要 GCC、Python 或 GNU Make |
+| 修改 C/汇编并重新生成 HEX | RISC-V GCC 工具链、Python 3；运行验证时还需要 ModelSim |
+| 使用 Makefile 构建 C 示例 | 在前述构建工具之外，还需要 GNU Make；不是首次仿真的必需工具 |
+
+当前已验证环境为 Windows、ModelSim SE-64 10.6e、RISC-V GCC 15.2.0 和 GNU binutils 2.45。其他工具版本和操作系统尚未完成同等验证；根目录的 `.bat` 构建脚本用于 Windows。
+
+ModelSim 10.6e 对中文工程路径支持不稳定，请使用纯英文目录，例如 `D:\FPGA\riscv_3stage`。不需要另建或下载 `.mpf` 工程文件：根目录的 `.do` 脚本会编译所需模块并启动测试。
+
+### 3. 首次只运行 UART 集成测试
+
+在 ModelSim 的 Transcript 中执行：
+
+```tcl
+cd D:/FPGA/riscv_3stage
+do run_uart.do
+```
+
+预期输出：
+
+```text
+UART received: Hello RISC-V
+UART: baud=115200 clocks_per_bit=868 bytes=13
+PASS: CPU UART transmit test
+```
+
+这个测试运行仓库中的裸机 C 程序，经 CPU 和 MMIO 将字符送入 UART TX，再由独立的仿真接收器从串行线上解码。13字节包含12个可见字符和一个换行。
+
+最后出现 `$stop` 和 `Break in Module` 表示测试平台主动结束，不是错误。波形中的 `received=13`、`uart_busy=0`、`uart_tx=1` 和 `tohost=1` 表示字符全部接收、发送器回到空闲、程序正常结束。
+
+已有 HEX 镜像直接由仓库提供；首次测试不需要执行任何构建脚本，也不必把完整回归逐项重跑一遍。
+
+### 4. 可选：检查 CPU 性能基线
+
+UART 测试通过后，如需核对 CPU 运行和退休计数，再执行：
+
+```tcl
+do run_performance.do
+```
+
+仓库当前固定 C 镜像的预期结果：
+
+```text
+PERF: tohost=1
+PERF: cycles=192
+PERF: retired instructions=155
+PERF: CPI=1.238
+```
+
+CoreMark 使用 `do run_coremark.do`，它是单次算法功能校验，不是正式有效跑分。首次上手不要求运行 CoreMark；有关 CRC、计时区间和十秒规则的说明见下文。
+
+### 5. 修改 C 程序后重新构建
+
+先将自己电脑上 RISC-V 工具链的 `bin` 目录加入 Windows 的 `PATH`，并确认以下命令可用：
+
+```bash
+riscv-none-elf-gcc --version
+python --version
+```
+
+部分构建脚本保留了原作者电脑的 `D:\Tools\...` 工具链后备路径。该路径不是项目要求，也不需要在其他电脑上复刻；队友应优先配置自己的 `PATH`。ModelSim 的路径和许可证配置同样由各自电脑管理，不随仓库分发。
+
+在工程根目录的 Git Bash 中，按修改的程序选择一条构建命令：
+
+| 程序源码 | 构建命令 | 对应 ModelSim 测试 |
+| --- | --- | --- |
+| `software/uart_demo.c` | `cmd.exe //c build_uart.bat` | `do run_uart.do` |
+| `software/main.c` | `cmd.exe //c build_program.bat` | `do run_c_program.do` |
+| CoreMark 算法或裸机适配层 | `cmd.exe //c build_coremark.bat` | `do run_coremark.do` |
+
+Git Bash 中使用 `//c`，避免 MSYS 将 `/c` 转成路径。在 Windows CMD 中，直接执行相应 `.bat` 文件即可。
+
+构建脚本会生成对应的指令 HEX 和数据 HEX，不会自动启动 ModelSim；编译成功后再运行对应测试。保持当前 `-march=rv32i`、`-mabi=ilp32` 等参数，不要改成包含乘除法或压缩指令的 ISA 配置；当前硬件没有这些扩展。
+
+注意测试平台与程序之间的对应关系：
+
+- UART 测试预期固定字符串 `Hello RISC-V\n`。如果改变输出内容，应同步调整 `tb/uart_cpu_tb.v` 的预期字节和长度。
+- 性能测试检查当前 C 示例的155条退休指令。修改程序或更换编译配置后，动态指令数量可能变化；应先确认程序执行正确，再重新建立该程序的性能基线。
+- 启动文件、链接脚本和数据镜像也属于程序运行依赖，不要只替换指令 HEX 而漏掉配套数据 HEX。
+
+### 6. 后续同步更新
+
+对于通过 Git 克隆且没有本地未提交修改的工程，在 Git Bash 中执行：
+
+```bash
+cd /d/FPGA/riscv_3stage
+git status -sb
+git pull --ff-only
+```
+
+如果已有自己的修改或提交，应先保存并处理分支差异，再同步团队代码；不要使用强制覆盖或删除工程的方式更新。通过 ZIP 下载的目录没有 Git 历史，需要重新下载新版本，或改用 Git 克隆。
+
+### 7. 工程文件如何使用
+
+| 位置 | 用途 |
+| --- | --- |
+| `rtl/` | CPU、存储器、UART 等硬件源码，是后续硬件集成的基础 |
+| `tb/` | 仿真测试平台，用于验证，不作为 FPGA 电路参与综合 |
+| `software/` | 裸机 C/汇编、启动文件、链接脚本与 MMIO 辅助函数 |
+| `programs/` | 与测试配套的预生成指令/数据 HEX，便于下载后直接验证 |
+| `benchmarks/coremark/` | CoreMark 原始算法源码、许可证和来源记录 |
+| `tools/` | 二进制转 HEX 等辅助工具 |
+| 根目录 `run_*.do` / `build_*.bat` | 仿真和软件构建入口；目前保持在根目录，避免破坏已有使用方式 |
+
+需要保留并提交源码、测试平台、构建脚本、配套 HEX 和许可证。不需要提交 `build/`、`work/`、`uart_work/`、`uart_unit_work/`、`modelsim.ini`、`transcript`、`*.wlf` 或本机 `.mpf` 工程；这些文件由工具在各自电脑上生成，已由 `.gitignore` 排除。
+
+## CPU 与 CNN 协作边界
+
+CPU 与平台部分负责处理器、存储器、外设和后续加速器接入；CNN 模型与部署由队友负责。双方可以分别开发与验证自己的模块，但当前仓库尚未实现 AXI 总线和 CNN 加速器控制/数据接口，不能把现有 UART TX 或计数器 MMIO 当作已完成的 CNN 接口。
+
+当前 C 示例与 CoreMark 配置使用32 KiB指令区、16 KiB数据区。它们是现阶段的软件运行资源，不代表完整 CNN 权重、音频特征和中间结果都能容纳，也不代表后续最终系统的存储容量。
+
+**CPU 与 CNN 的详细联调约定后续再写，依据实际搭建的 CPU 与系统接口确定，并由双方确认。** 本阶段不预先指定加速器寄存器地址、AXI 类型、数据缓冲区地址或中断号，也不发布一份可能与后续实现不一致的固定接口协议。
+
+待 CPU 总线和加速器接入方式确定后，再文档化实际的控制/状态寄存器、输入输出数据格式、数据传输路径、握手时序、时钟复位和联调测试。后续文档应与 RTL、C 驱动和测试平台一起维护，并明确哪些能力已验证、哪些仍待实现。
+
 ## 当前状态
 
 更新时间：2026-09-30。
@@ -183,10 +323,10 @@ tools/
 
 ## 环境要求
 
-- Windows 10/11。
-- ModelSim SE-64 10.6e。
-- Python 3，用于执行 `tools/bin_to_hex.py`。
-- xPack GNU RISC-V Embedded GCC，命令前缀为 `riscv-none-elf-`。
+- 当前验证平台为 Windows，仿真使用 ModelSim SE-64 10.6e。
+- 直接使用仓库已有 HEX 运行仿真时，不需要 Python 或 RISC-V GCC。
+- 修改软件并重新生成 HEX 时，需要 Python 3 和 xPack GNU RISC-V Embedded GCC，命令前缀为 `riscv-none-elf-`。
+- 构建时先配置自己电脑的工具链 `PATH`，不要把文档中的示例路径当作固定安装要求。
 
 已验证的工具链版本：
 
@@ -241,8 +381,9 @@ PERF: CPI=1.238
 
 ### Windows CMD
 
+先将自己安装的 RISC-V 工具链 `bin` 目录加入 `PATH`，然后从工程根目录执行：
+
 ```bat
-set "PATH=D:\Tools\xpack-riscv-none-elf-gcc-15.2.0-1-win32-x64\xpack-riscv-none-elf-gcc-15.2.0-1\bin;%PATH%"
 cd /d D:\FPGA\riscv_3stage
 build_program.bat
 ```
@@ -312,7 +453,7 @@ CPU程序把结果写入 `tohost` 后，测试平台会判断成功或失败并�
 
 ### 直接运行一次集成测试
 
-包内已经包含 HEX 镜像，第一次验证不需要重新编译 C。将文件复制到英文工程目录后，在 ModelSim Transcript 中执行：
+仓库已经包含 HEX 镜像，第一次验证不需要重新编译 C。将完整仓库下载到英文工程目录后，在 ModelSim Transcript 中执行：
 
 ```tcl
 cd D:/FPGA/riscv_3stage
@@ -346,7 +487,7 @@ cmd.exe //c build_uart.bat
 
 ## CoreMark 功能校验说明
 
-原始 CoreMark 算法源码与许可证保存在 `benchmarks/coremark/`，本次未修改算法源码。适配层改用 UART 忙状态轮询，并在写入 `tohost` 前等待最后一个字符发完。包内的 CoreMark HEX 已按新适配层重新构建，旧的不轮询镜像不能继续用于新 UART。
+原始 CoreMark 算法源码与许可证保存在 `benchmarks/coremark/`，本次未修改算法源码。适配层改用 UART 忙状态轮询，并在写入 `tohost` 前等待最后一个字符发完。仓库的 CoreMark HEX 已按新适配层重新构建，旧的不轮询镜像不能继续用于新 UART。
 
 `run_coremark.do` 配套的测试平台使用100 MHz时钟、5 Mbaud的加速仿真 UART，缩短打印等待时间；UART 集成测试仍按115200 baud执行。加速仿真波特率不代表上板配置。
 
