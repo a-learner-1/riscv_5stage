@@ -243,5 +243,6 @@ void portable_fini(core_portable *portable)
     else
         ee_printf("SMOKE CHECK: algorithm or datatype validation failed.\n");
 
+    mmio_uart_flush();
     TOHOST_REG = (coremark_failed == 0u) ? 1u : 2u;
 }

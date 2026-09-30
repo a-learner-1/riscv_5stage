@@ -25,7 +25,9 @@ module coremark_tb;
         .DATA_FILE("programs/coremark_data.hex"),
         .IMEM_WORDS(8192),
         .DMEM_WORDS(4096),
-        .DMEM_BASE_ADDR(32'h0001_0000)
+        .DMEM_BASE_ADDR(32'h0001_0000),
+        // Faster UART only for this smoke test, not the board baud rate.
+        .UART_CLOCK_HZ(100000000), .UART_BAUD(5000000)
     ) dut (
         .clk(clk),
         .rst_n(rst_n),
@@ -38,7 +40,7 @@ module coremark_tb;
         .wb_we(wb_we),
         .retire_valid(retire_valid),
         .cycle_count(cycle_count),
-        .instret_count(instret_count)
+        .instret_count(instret_count), .uart_tx()
     );
 
     always #5 clk = ~clk;

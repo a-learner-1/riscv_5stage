@@ -3,7 +3,10 @@ module cpu_top #(
     parameter DATA_FILE = "",
     parameter integer IMEM_WORDS = 8192,
     parameter integer DMEM_WORDS = 4096,
-    parameter [31:0] DMEM_BASE_ADDR = 32'h00000000
+    parameter [31:0] DMEM_BASE_ADDR = 32'h00000000,
+    parameter integer UART_CLOCK_HZ = 100000000,
+    parameter integer UART_BAUD = 115200,
+    parameter integer SIM_CONSOLE_ECHO = 1
 ) (
     input wire clk,
     input wire rst_n,
@@ -19,12 +22,14 @@ module cpu_top #(
 
     output reg        retire_valid,
     output reg [63:0] cycle_count,
-    output reg [63:0] instret_count
+    output reg [63:0] instret_count,
+    output wire       uart_tx
 );
 
     localparam [31:0] MMIO_CYCLE_ADDR   = 32'h2000_0000;
     localparam [31:0] MMIO_INSTRET_ADDR = 32'h2000_0004;
     localparam [31:0] MMIO_PUTCHAR_ADDR = 32'h2000_0010;
+    localparam [31:0] MMIO_UART_STATUS_ADDR = 32'h2000_0014;
 
     localparam [3:0] ALU_ADD  = 4'b0000;
     localparam [3:0] ALU_SUB  = 4'b0001;
@@ -76,12 +81,13 @@ module cpu_top #(
     wire        mmio_counter_addr_x;
     wire        mmio_load_ok_x;
     wire        mmio_putchar_write_x;
+    wire        mmio_uart_status_addr_x;
+    wire        uart_busy;
+    wire        uart_write_accept_x;
     wire [31:0] mmio_read_data_x;
     wire [31:0] load_raw_data_x;
 
-    // Internal simulation-console event.  Keeping this internal means all
-    // existing cpu_top testbenches remain source-compatible.  A later SoC
-    // wrapper will replace this register with the real UART peripheral.
+    // Accepted UART character event retained for the existing MMIO monitors.
     reg         mmio_putchar_valid;
     reg [7:0]   mmio_putchar_data;
 
@@ -498,7 +504,8 @@ module cpu_top #(
      *
      *   0x2000_0000: cycle counter, low 32 bits, read-only
      *   0x2000_0004: retired-instruction counter, low 32 bits, read-only
-     *   0x2000_0010: simulation/UART character output, write-only
+     *   0x2000_0010: UART data, write-only (low byte)
+     *   0x2000_0014: UART status, read-only (bit 0: busy)
      */
     assign mmio_region_x =
         (mem_addr_x[31:16] == 16'h2000);
@@ -513,16 +520,20 @@ module cpu_top #(
         mmio_cycle_addr_x |
         mmio_instret_addr_x;
 
+    assign mmio_uart_status_addr_x =
+        (mem_addr_x == MMIO_UART_STATUS_ADDR);
+
     // Counters are exposed as aligned 32-bit registers.  CoreMark only
     // needs the low word because elapsed time is computed by subtraction.
     assign mmio_load_ok_x =
-        mmio_counter_addr_x &&
+        (mmio_counter_addr_x || mmio_uart_status_addr_x) &&
         (mem_size_x == 2'd2) &&
         (mem_addr_x[1:0] == 2'b00);
 
     assign mmio_read_data_x =
-        mmio_cycle_addr_x ? cycle_count[31:0] :
-                            instret_count[31:0];
+        mmio_cycle_addr_x   ? cycle_count[31:0] :
+        mmio_instret_addr_x ? instret_count[31:0] :
+                             {31'd0, uart_busy};
 
     // Accept SB, SH and SW at the character register and use the low byte.
     assign mmio_putchar_write_x =
@@ -531,6 +542,24 @@ module cpu_top #(
         is_store_x &&
         (mem_addr_x == MMIO_PUTCHAR_ADDR) &&
         (mem_size_x != 2'd3);
+
+    assign uart_write_accept_x = mmio_putchar_write_x && !uart_busy;
+
+    // Request and byte reach the UART in the same cycle as the MMIO store.
+    // There is no delayed request whose pending state could be missed by
+    // a following status read.
+    uart_tx #(
+        .CLOCK_HZ(UART_CLOCK_HZ),
+        .BAUD(UART_BAUD)
+    ) u_uart_tx (
+        .clk(clk),
+        .rst_n(rst_n),
+        .valid(mmio_putchar_write_x),
+        .data(rs2_value_x[7:0]),
+        .tx(uart_tx),
+        .busy(uart_busy),
+        .done()
+    );
 
     /*
      * ????????????
@@ -611,23 +640,25 @@ module cpu_top #(
     // Display software output in ModelSim without creating hardware logic.
     // synthesis translate_off
     always @(posedge clk) begin
-        if (mmio_putchar_write_x)
+        if (SIM_CONSOLE_ECHO && uart_write_accept_x)
             $write("%c", rs2_value_x[7:0]);
     end
     // synthesis translate_on
 
     /*
-     * One-cycle pulse for every write to MMIO_PUTCHAR_ADDR.  The testbench
-     * prints/checks this byte; a later FPGA top level can feed it to UART TX.
+     * One-cycle pulse for each accepted write to MMIO_PUTCHAR_ADDR.
+     * Software must poll the busy bit before issuing a new character.
+     * The testbench
+     * checks this byte.  The real serial output is the uart_tx port.
      */
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             mmio_putchar_valid <= 1'b0;
             mmio_putchar_data  <= 8'd0;
         end else begin
-            mmio_putchar_valid <= mmio_putchar_write_x;
+            mmio_putchar_valid <= uart_write_accept_x;
 
-            if (mmio_putchar_write_x)
+            if (uart_write_accept_x)
                 mmio_putchar_data <= rs2_value_x[7:0];
         end
     end
@@ -664,6 +695,9 @@ module cpu_top #(
      */
     // synthesis translate_off
     always @(posedge clk) begin
+        if (mmio_putchar_write_x && uart_busy)
+            $fatal(1, "UART write while busy pc=%h: poll 0x20000014 first", pc_x);
+
         if (load_issue_x &&
             !mmio_region_x &&
             mem_access_ok_x !== 1'b1) begin

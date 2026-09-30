@@ -3,6 +3,8 @@ build/
 
 # ModelSim 本机配置、工作库、日志和波形
 work/
+uart_work/
+uart_unit_work/
 modelsim.ini
 transcript
 transcript.*

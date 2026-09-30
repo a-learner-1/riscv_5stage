@@ -2,13 +2,13 @@
 
 这是一个使用 Verilog 实现的 RV32I 处理器软核，目前采用 **IF → EX → WB** 三级流水线，能够在 ModelSim 中加载外部 HEX 程序、运行裸机 RISC-V 汇编和 C 程序，并通过 `tohost` 协议自动报告运行结果。
 
-当前版本已经完成37种 RV32I 指令、数据前递、分支与跳转冲刷、字及子字访存、RISC-V GCC 软件构建流程，以及周期数、退休指令数和 CPI 性能统计。当前重点仍是功能仿真与软件运行基础设施，暂未进入 PDS 综合和 FPGA 上板阶段。
+当前版本已经完成37种 RV32I 指令、数据前递、分支与跳转冲刷、字及子字访存、同步指令/数据存储器、load-use 停顿、RISC-V GCC 软件构建流程、性能计数器 MMIO、CoreMark 单次功能校验，以及 UART TX 串行发送。当前重点仍是功能仿真与软件运行基础设施，暂未进入 PDS 综合和 FPGA 上板阶段。
 
-项目的长期目标是作为紫光同创盘古 50 开发板上轻量化 CNN 推理系统的 RISC-V 主控，后续将继续加入同步 Block RAM、Cache、BTB、UART、GPIO、AXI 总线和 CNN 加速器控制接口。
+项目的长期目标是作为紫光同创盘古 50 开发板上轻量化 CNN 推理系统的 RISC-V 主控。CPU 与平台部分负责处理器、外设和后续加速器接口，CNN 模型与部署由队友负责。后续仍需 UART RX、GPIO、Cache、BTB、AXI 和板级验证。
 
 ## 当前状态
 
-更新时间：2026-09-29。
+更新时间：2026-09-30。
 
 | 项目 | 状态 |
 | --- | --- |
@@ -27,9 +27,11 @@
 | 指令/数据存储器参数化与扩容 | 已完成 |
 | 独立指令/数据 HEX 镜像 | 已完成 |
 | `.data`/`.rodata` 预初始化 | 已完成 |
-| 同步 Block RAM 与 load-use stall | 尚未完成 |
-| CoreMark | 尚未完成 |
-| Cache、BTB、AXI、UART、GPIO | 尚未完成 |
+| 同步指令/数据 RAM 与 load-use stall | RTL 时序及仿真已完成；实际 BRAM 映射待综合确认 |
+| 性能计数器 MMIO | 已完成 |
+| CoreMark v1.01 | 单次算法/CRC 校验已通过；不是正式跑分 |
+| UART TX | 已完成 RTL 与串行线仿真验证 |
+| UART RX、GPIO、Cache、BTB、AXI | 尚未完成 |
 | PDS 综合与盘古 50 上板 | 尚未完成 |
 
 ## CPU 架构
@@ -58,7 +60,7 @@
 | 字节序 | 小端 |
 | 通用寄存器 | `x0`–`x31`，其中 `x0` 固定为0 |
 | 分支解析 | EX级 |
-| 当前存储器模型 | 组合读取、同步写入的仿真模型 |
+| 当前存储器模型 | 同步读取；数据 RAM 同步写入 |
 
 ### 流水线控制
 
@@ -68,7 +70,7 @@
 - 分支或跳转在 EX 级确定目标地址，错误路径指令会被冲刷。
 - `JALR` 目标地址最低位强制清零。
 - 写入 `x0` 的操作被抑制。
-- 当前数据 RAM 为组合读取，因此加载结果可以进入现有前递路径；改用同步 Block RAM 后需要增加 load-use 停顿。
+- 数据 RAM 同步读取，加载指令通过 `load_issue_x` / `load_pending` 分两步完成，取指与 EX 在发起加载时停顿，返回数据随后进入 WB 前递路径。
 
 ## 已实现指令
 
@@ -114,9 +116,9 @@ CPI = cycle_count / instret_count
 ```text
 PASS: performance counters and C program completed
 PERF: tohost=1
-PERF: cycles=179
+PERF: cycles=192
 PERF: retired instructions=155
-PERF: CPI=1.154
+PERF: CPI=1.238
 ```
 
 `performance_tb.v` 会检查精确的155条退休指令，用于发现错误计入气泡或错误路径指令的问题。如果修改并重新编译 `software/main.c`，动态指令数量可能变化，此时需要同步调整测试平台中的 `EXPECTED_INSTRET`。
@@ -132,6 +134,7 @@ rtl/
   alu.v                 算术、逻辑、移位和比较
   data_mem.v            参数化小端数据 RAM、基址和初始化镜像
   cpu_top.v             顶层数据通路、前递、访存和性能计数
+  uart_tx.v             UART 8N1 发送器、波特率分频和 busy/done
 
 tb/
   cpu_top_tb.v          ALU、比较及U型指令集成回归
@@ -144,12 +147,21 @@ tb/
   toolchain_program_tb.v 预生成独立程序测试
   c_program_tb.v        GCC生成的C程序测试
   performance_tb.v      周期、退休指令和CPI测试
+  mmio_tb.v             性能计数器 MMIO 和字符写入测试
+  coremark_tb.v         CoreMark 单次功能校验
+  uart_tx_tb.v          UART 位时序、字节模式、忙状态及复位测试
+  uart_cpu_tb.v         C 程序经 CPU/MMIO/TX 串行线的端到端测试
 
 software/
   start.S               初始化栈、清零.bss、调用main并写tohost
   main.c                裸机C测试程序
   link.ld               链接脚本和内存布局
   prebuilt_demo.S       预生成程序的汇编源文件
+  mmio.h                计数器读取、UART 忙状态轮询和字符输出
+  uart_demo.c           发送 Hello RISC-V 并等待最后一帧结束
+  coremark_port/        RV32I 裸机计时、格式化输出和结束适配层
+
+benchmarks/coremark/    CoreMark v1.01 原始算法源码与许可证
 
 programs/
   rv32i_regression.hex  指令回归程序
@@ -158,6 +170,10 @@ programs/
   c_demo.hex            由当前C程序生成的指令镜像
   c_demo_data.hex       由当前C程序生成的数据初始化镜像
   data_mem_init_test.hex 数据RAM初始化回归镜像
+  uart_demo.hex         UART C 程序指令镜像
+  uart_demo_data.hex    UART 字符串初始化镜像
+  coremark.hex          已接入 UART 忙状态轮询的 CoreMark 指令镜像
+  coremark_data.hex     CoreMark 初始化数据镜像
 
 tools/
   bin_to_hex.py         BIN转32位小端HEX
@@ -214,9 +230,9 @@ do run_performance.do
 Errors: 0, Warnings: 0
 PASS: performance counters and C program completed
 PERF: tohost=1
-PERF: cycles=179
+PERF: cycles=192
 PERF: retired instructions=155
-PERF: CPI=1.154
+PERF: CPI=1.238
 ```
 
 最后出现的 `$stop` 和 `Break in Module performance_tb` 表示测试平台主动停止，不是错误。
@@ -279,6 +295,74 @@ CPU程序把结果写入 `tohost` 后，测试平台会判断成功或失败并�
 
 旧的预生成汇编回归仍使用低地址兼容配置，其 `tohost` 保持在 `0x000003FC`（字下标255），因此旧测试无需重写。
 
+## UART TX：本次新增功能
+
+本阶段只实现发送端 TX，没有实现 RX、FIFO 或串口接收中断。发送格式为 8N1：一个低电平起始位、八个数据位、一个高电平停止位，低位先发送，空闲电平为高。
+
+| MMIO 地址 | 访问 | 含义 |
+| --- | --- | --- |
+| `0x20000000` | 对齐 LW 读取 | 周期计数器低32位 |
+| `0x20000004` | 对齐 LW 读取 | 退休指令计数器低32位 |
+| `0x20000010` | SB/SH/SW 写入 | 低8位作为一个发送字符 |
+| `0x20000014` | 对齐 LW 读取 | bit0=1 表示 UART 正在发送，0 表示可以写下一字符 |
+
+软件必须先轮询 busy，再写字符。硬件没有发送 FIFO：忙时写入会被忽略；仿真会报错提醒错误用法。`software/mmio.h` 中的 `mmio_putchar()` 已封装轮询，`mmio_uart_flush()` 等待最后一个停止位发完，程序结束前应调用。
+
+`cpu_top` 新增 `uart_tx` 输出端口，以及 `UART_CLOCK_HZ`、`UART_BAUD` 参数，默认分别为100 MHz、115200。分频按最接近的整数取值，这组参数对应每位868个时钟。这里100 MHz是本次仿真的时钟，不是已确认的开发板输入频率；上板时必须按实际 CPU 时钟修改，并添加引脚约束。
+
+### 直接运行一次集成测试
+
+包内已经包含 HEX 镜像，第一次验证不需要重新编译 C。将文件复制到英文工程目录后，在 ModelSim Transcript 中执行：
+
+```tcl
+cd D:/FPGA/riscv_3stage
+do run_uart.do
+```
+
+脚本会编译新增 UART 模块，启动 C 程序并自动检查 TX 串行线。预期输出：
+
+```text
+UART received: Hello RISC-V
+UART: baud=115200 clocks_per_bit=868 bytes=13
+PASS: CPU UART transmit test
+```
+
+这个测试从 TX 引脚的实际位流采样解码，不依赖 CPU 中的 `$write` 调试打印。测试同时检查 busy/idle 读取、字符顺序、停止位、MMIO 不访问普通 RAM、`tohost=1` 和最后一帧发送完成。
+
+可选的独立模块测试为 `do run_uart_unit.do`。本次交付前两项 UART 测试和旧 CPU 回归均已在 ModelSim SE-64 10.6e 中验证；日常验证不必每次重复全套测试。
+
+### 修改 C 程序后重新构建
+
+在 Git Bash 中执行：
+
+```bash
+cd /d/FPGA/riscv_3stage
+cmd.exe //c build_uart.bat
+```
+
+在 Windows CMD 中则直接执行 `build_uart.bat`。Git Bash 中使用 `//c` 是为了避免 MSYS 把 `/c` 转成路径。编译脚本优先使用 PATH 中的 RISC-V GCC，否则尝试本机已安装的 xPack 路径；其他电脑请调整 `UART_CROSS`。
+
+本次还更新了所有使用 CPU 的仿真脚本，加入 `rtl/uart_tx.v` 编译依赖，以及旧测试平台的新增端口连接。不能只替换 `cpu_top.v` 而漏掉 UART 模块和脚本。
+
+## CoreMark 功能校验说明
+
+原始 CoreMark 算法源码与许可证保存在 `benchmarks/coremark/`，本次未修改算法源码。适配层改用 UART 忙状态轮询，并在写入 `tohost` 前等待最后一个字符发完。包内的 CoreMark HEX 已按新适配层重新构建，旧的不轮询镜像不能继续用于新 UART。
+
+`run_coremark.do` 配套的测试平台使用100 MHz时钟、5 Mbaud的加速仿真 UART，缩短打印等待时间；UART 集成测试仍按115200 baud执行。加速仿真波特率不代表上板配置。
+
+本次单次测试的算法计时为936687周期，CRC分别为：
+
+```text
+seedcrc    = 0xe9f5
+crclist    = 0xe714
+crcmatrix  = 0x1fd7
+crcstate   = 0x8e3a
+crcfinal   = 0xe714
+PASS: CoreMark official algorithms validated
+```
+
+从启动到打印结束的整程序统计为1081207周期、826143条退休指令、CPI 1.308；它包含 UART 轮询和格式化输出，不能与仅算法计时混用，也不能作为正式 CoreMark 分数。`ITERATIONS=1` 是功能冒烟测试，未满足官方至少10秒的计时要求，因此原始输出仍会提示十秒规则不满足。正式分数与上板频率、迭代次数、编译参数及完整运行规则需要后续单独验证。
+
 ## 当前存储器布局
 
 | 地址范围 | 用途 |
@@ -306,6 +390,10 @@ do run_program.do
 do run_toolchain.do
 do run_c_program.do
 do run_performance.do
+do run_mmio.do
+do run_uart_unit.do
+do run_uart.do
+do run_coremark.do
 ```
 
 当前版本已经在 ModelSim SE-64 10.6e 下完成上述全部回归：
@@ -317,7 +405,9 @@ do run_performance.do
 - LB/LBU/LH/LHU/SB/SH符号扩展、小端字节通道和边界测试通过。
 - 非零数据 RAM 基址、参数化容量和外部数据 HEX 初始化通过。
 - 外部HEX、预生成程序和GCC C程序通过。
-- 性能测试结果为179周期、155条退休指令、CPI 1.154。
+- 性能测试结果为192周期、155条退休指令、CPI 1.238。
+- UART 位时序、模式字节、复位和 CPU C 程序串行输出通过。
+- CoreMark 单次算法 CRC 校验通过；尚无正式有效分数。
 
 ## 波形观察
 
@@ -332,7 +422,7 @@ mem_addr_x、mem_wdata_x、mem_we_x、mem[4095]
 查看程序结束过程时，可以在 Transcript 输入：
 
 ```tcl
-wave zoom range 1700ns 1840ns
+wave zoom range 1850ns 2000ns
 ```
 
 最后一次有效存储应满足：
@@ -350,26 +440,25 @@ mem[4095]   = 1
 - 如果出现 `Failed to open readmem file`，应检查 ModelSim 当前目录以及 `programs/*.hex` 是否存在。
 - 如果出现 `Unable to remove locked optimized design` 或 WLF 文件被占用，请关闭其他 ModelSim 仿真实例后重试。
 - Git 的 LF/CRLF 提示只是 Windows 换行格式提醒，不是编译错误。
-- 不要提交 `build/`、`work/`、`modelsim.ini`、`transcript` 和 `wlf*` 等本地产物。
+- 不要提交 `build/`、`work/`、`uart_work/`、`uart_unit_work/`、`modelsim.ini`、`transcript` 和 `wlf*` 等本地产物。
 
 ## 当前限制
 
 - 尚未实现异常、中断、CSR和操作系统支持。
-- 尚未实现 UART、GPIO、Cache、BTB 和 AXI 接口。
-- 指令存储器和数据存储器仍使用组合读取模型，不是最终 FPGA Block RAM 时序。
+- 尚未实现 UART RX、GPIO、Cache、BTB 和 AXI 接口；UART TX 无 FIFO，使用软件轮询。
+- 指令存储器和数据存储器已使用同步读取时序，但是否推断为目标器件 BRAM、初始化能否上板生效，需要 PDS 综合验证。
 - 没有完整的存储器 `stall/ready/valid` 握手接口。
-- 存储空间已扩展为32 KiB指令区和16 KiB数据区，但尚未完成 CoreMark 实际容量验证与移植。
+- 32 KiB指令区和16 KiB数据区已运行本阶段的 CoreMark 单次程序，但不代表可以容纳后续完整音频特征提取和 CNN 输入数据。
 - 尚未进行 PDS 综合、资源统计、静态时序分析和盘古 50 上板验证。
 
 ## 后续路线
 
-1. 移植 CoreMark，验证当前32 KiB/16 KiB容量并建立 CPU 基准性能数据。
-2. 将组合存储器改造为同步 Block RAM。
-3. 增加 load-use stall 和统一存储器握手。
-4. 实现 UART、GPIO 和板级顶层。
-5. 实现二路组相联 Cache 和 BTB 分支预测器。
-6. 增加 AXI 接口并连接 CNN 加速器。
-7. 进入 PDS 综合、资源分析、时序优化和盘古 50 上板验证。
+1. 实现 GPIO 和板级顶层，核对实际时钟、复位与 UART TX 引脚。
+2. 在 PDS 中确认 BRAM 推断、程序初始化、资源使用和基本时序，进行首次上板串口输出验证。
+3. 按系统需要补充 UART RX、FIFO 和统一存储器握手。
+4. 实现二路组相联 Cache 和 BTB 分支预测器，使用相同程序比较性能。
+5. 增加 AXI 接口，与队友约定 CNN 加速器控制/状态/数据格式后进行联调。
+6. 建立正式 CoreMark 测试配置和系统端到端验证，评估资源、推理延迟及准确率。
 
 ## 当前性能基线
 

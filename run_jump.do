@@ -2,7 +2,7 @@
 catch {quit -sim}
 if {![file exists work]} {vlib work}
 vmap work work
-vlog -sv -work work rtl/instr_mem.v rtl/if_stage.v rtl/regfile.v rtl/decoder.v rtl/alu.v rtl/data_mem.v rtl/cpu_top.v tb/jump_tb.v
+vlog -sv -work work rtl/instr_mem.v rtl/if_stage.v rtl/regfile.v rtl/decoder.v rtl/alu.v rtl/data_mem.v rtl/uart_tx.v rtl/cpu_top.v tb/jump_tb.v
 vsim -voptargs=+acc -onfinish stop -wlf cpu_jump_run.wlf work.jump_tb
 add wave sim:/jump_tb/clk sim:/jump_tb/rst_n
 add wave sim:/jump_tb/pc_x sim:/jump_tb/instr_x sim:/jump_tb/valid_x

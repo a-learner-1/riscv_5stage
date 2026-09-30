@@ -41,7 +41,7 @@ module mmio_tb;
         .wb_we(wb_we),
         .retire_valid(retire_valid),
         .cycle_count(cycle_count),
-        .instret_count(instret_count)
+        .instret_count(instret_count), .uart_tx()
     );
 
     always #5 clk = ~clk;

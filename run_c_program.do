@@ -11,7 +11,7 @@ vmap work work
 
 vlog -reportprogress 300 -sv -work work \
     rtl/instr_mem.v rtl/if_stage.v rtl/regfile.v rtl/decoder.v \
-    rtl/alu.v rtl/data_mem.v rtl/cpu_top.v tb/c_program_tb.v
+    rtl/alu.v rtl/data_mem.v rtl/uart_tx.v rtl/cpu_top.v tb/c_program_tb.v
 
 vsim -voptargs="+acc" -onfinish stop -wlf c_program_run.wlf work.c_program_tb
 add wave sim:/c_program_tb/clk
