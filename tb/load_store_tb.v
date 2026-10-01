@@ -12,7 +12,7 @@ module load_store_tb;
     reg [1:0] kinds[0:N-1];
     integer forwards[0:N-1];
     integer i, warm, bubbles, loads, stores;
-    cpu_top dut(.clk(clk),.rst_n(rst_n),.pc_x(pc_x),.instr_x(instr_x),
+    cpu_top dut(.clk(clk),.rst_n(rst_n), .uart_rx(1'b1),.pc_x(pc_x),.instr_x(instr_x),
         .valid_x(valid_x),.wb_pc(wb_pc),.wb_rd(wb_rd),
         .wb_data(wb_data),.wb_we(wb_we),
         .retire_valid(),.cycle_count(),.instret_count(), .gpio_in(8'd0), .gpio_out(), .gpio_oe(), .uart_tx());

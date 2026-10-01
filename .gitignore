@@ -7,6 +7,10 @@ __pycache__/
 work/
 uart_work/
 uart_unit_work/
+uart_rx_work/
+uart_rx_unit_work/
+uart_rx_board_work/
+uart_rx_netlist_work/
 gpio_work/
 gpio_unit_work/
 board_work/

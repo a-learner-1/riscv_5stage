@@ -13,7 +13,7 @@ integer i;
 reg [7:0] value;
 reg [7:0] expected [0:13];
 board_top dut(.clk_50m(clk_50m),.key1_n(key1_n),.keys_n(keys_n),
-              .led(led),.uart_tx(uart_tx));
+              .led(led),.uart_tx(uart_tx), .uart_rx(1'b1));
 always #10 clk_50m=~clk_50m;
 initial begin
  expected[0]="H";expected[1]="e";expected[2]="l";expected[3]="l";

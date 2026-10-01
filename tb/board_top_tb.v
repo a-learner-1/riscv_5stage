@@ -22,7 +22,7 @@ module board_top_tb;
         .RESET_HOLD_CYCLES(16)
     ) dut (
         .clk_50m(clk_50m), .key1_n(key1_n), .keys_n(keys_n),
-        .led(led), .uart_tx(uart_tx)
+        .led(led), .uart_tx(uart_tx), .uart_rx(1'b1)
     );
     always #10 clk_50m = ~clk_50m;
 

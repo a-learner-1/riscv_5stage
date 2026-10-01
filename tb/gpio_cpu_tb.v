@@ -24,7 +24,7 @@ module gpio_cpu_tb;
         .IMEM_WORDS(8192), .DMEM_WORDS(4096),
         .DMEM_BASE_ADDR(32'h00010000), .SIM_CONSOLE_ECHO(0)
     ) dut (
-        .clk(clk), .rst_n(rst_n),
+        .clk(clk), .rst_n(rst_n), .uart_rx(1'b1),
         .pc_x(pc_x), .instr_x(instr_x), .valid_x(),
         .wb_pc(), .wb_rd(), .wb_data(), .wb_we(), .retire_valid(),
         .cycle_count(cycle_count), .instret_count(instret_count), .uart_tx(),

@@ -31,7 +31,7 @@ module mmio_tb;
         .DMEM_BASE_ADDR(32'h0001_0000)
     ) dut (
         .clk(clk),
-        .rst_n(rst_n),
+        .rst_n(rst_n), .uart_rx(1'b1),
         .pc_x(pc_x),
         .instr_x(instr_x),
         .valid_x(valid_x),

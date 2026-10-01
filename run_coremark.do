@@ -11,7 +11,7 @@ vmap work work
 
 vlog -reportprogress 300 -sv -work work \
     rtl/instr_mem.v rtl/if_stage.v rtl/regfile.v rtl/decoder.v \
-    rtl/alu.v rtl/data_mem.v rtl/uart_tx.v rtl/gpio_mmio.v rtl/cpu_top.v tb/coremark_tb.v
+    rtl/alu.v rtl/data_mem.v rtl/uart_tx.v rtl/gpio_mmio.v rtl/uart_rx.v rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v rtl/cpu_top.v tb/coremark_tb.v
 
 vsim -voptargs="+acc" -onfinish stop -wlf coremark_run.wlf work.coremark_tb
 add wave sim:/coremark_tb/clk

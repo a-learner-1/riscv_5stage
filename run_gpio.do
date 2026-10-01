@@ -9,7 +9,7 @@ if {![file exists $gpio_lib]} {vlib $gpio_lib}
 vmap $gpio_lib $gpio_lib
 vlog -sv -work $gpio_lib \
     rtl/instr_mem.v rtl/if_stage.v rtl/regfile.v rtl/decoder.v \
-    rtl/alu.v rtl/data_mem.v rtl/uart_tx.v rtl/gpio_mmio.v rtl/cpu_top.v tb/gpio_cpu_tb.v
+    rtl/alu.v rtl/data_mem.v rtl/uart_tx.v rtl/gpio_mmio.v rtl/uart_rx.v rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v rtl/cpu_top.v tb/gpio_cpu_tb.v
 vsim -voptargs="+acc" -onfinish stop -wlf gpio_cpu_run.wlf gpio_work.gpio_cpu_tb
 add wave sim:/gpio_cpu_tb/clk
 add wave sim:/gpio_cpu_tb/rst_n

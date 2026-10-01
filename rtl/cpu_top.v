@@ -6,6 +6,7 @@ module cpu_top #(
     parameter [31:0] DMEM_BASE_ADDR = 32'h00000000,
     parameter integer UART_CLOCK_HZ = 100000000,
     parameter integer UART_BAUD = 115200,
+    parameter integer UART_RX_FIFO_DEPTH = 16,
     parameter integer SIM_CONSOLE_ECHO = 1
 ) (
     input wire clk,
@@ -24,6 +25,7 @@ module cpu_top #(
     output reg [63:0] cycle_count,
     output reg [63:0] instret_count,
     output wire       uart_tx,
+    input  wire       uart_rx,
     input  wire [7:0] gpio_in,
     output wire [7:0] gpio_out,
     output wire [7:0] gpio_oe
@@ -87,6 +89,10 @@ module cpu_top #(
     wire        mmio_uart_status_addr_x;
     wire        uart_busy;
     wire        uart_write_accept_x;
+    wire        uart_rx_read_hit_x;
+    wire        uart_rx_write_hit_x;
+    wire        mmio_uart_rx_write_x;
+    wire [31:0] uart_rx_read_data_x;
     wire        gpio_read_hit_x;
     wire        gpio_write_hit_x;
     wire        mmio_gpio_write_x;
@@ -513,6 +519,8 @@ module cpu_top #(
      *   0x2000_0004: retired-instruction counter, low 32 bits, read-only
      *   0x2000_0010: UART data, write-only (low byte)
      *   0x2000_0014: UART status, read-only (bit 0: busy)
+     *   0x2000_0018: UART RX data, aligned LW pops one byte (empty -> 0)
+     *   0x2000_001c: UART RX status, aligned LW; SW W1C error bits 2/3
      *   0x2000_0020: GPIO output latch, read/write
      *   0x2000_0024: synchronized GPIO input, read-only
      *   0x2000_0028: GPIO output-enable mask, read/write
@@ -538,7 +546,8 @@ module cpu_top #(
     // Counters are exposed as aligned 32-bit registers.  CoreMark only
     // needs the low word because elapsed time is computed by subtraction.
     assign mmio_load_ok_x =
-        (mmio_counter_addr_x || mmio_uart_status_addr_x || gpio_read_hit_x) &&
+        (mmio_counter_addr_x || mmio_uart_status_addr_x ||
+         uart_rx_read_hit_x || gpio_read_hit_x) &&
         (mem_size_x == 2'd2) &&
         (mem_addr_x[1:0] == 2'b00);
 
@@ -546,6 +555,7 @@ module cpu_top #(
         mmio_cycle_addr_x   ? cycle_count[31:0] :
         mmio_instret_addr_x ? instret_count[31:0] :
         mmio_uart_status_addr_x ? {31'd0, uart_busy} :
+        uart_rx_read_hit_x  ? uart_rx_read_data_x :
         gpio_read_hit_x     ? gpio_read_data_x : 32'd0;
 
     // Accept SB, SH and SW at the character register and use the low byte.
@@ -561,6 +571,23 @@ module cpu_top #(
     assign mmio_gpio_write_x =
         rst_n && valid_x && is_store_x && gpio_write_hit_x &&
         (mem_size_x == 2'd2) && (mem_addr_x[1:0] == 2'b00);
+
+    assign mmio_uart_rx_write_x =
+        rst_n && valid_x && is_store_x && uart_rx_write_hit_x &&
+        (mem_size_x == 2'd2) && (mem_addr_x[1:0] == 2'b00);
+
+    // Capture the pre-pop head in load_mmio_data_q on the issue edge.
+    // A held LOAD has load_pending=1 on the next edge and cannot pop again.
+    uart_rx_mmio #(
+        .CLOCK_HZ(UART_CLOCK_HZ), .BAUD(UART_BAUD),
+        .FIFO_DEPTH(UART_RX_FIFO_DEPTH)
+    ) u_uart_rx_mmio (
+        .clk(clk), .rst_n(rst_n), .rx(uart_rx), .addr(mem_addr_x),
+        .read_enable(load_issue_x && mmio_load_ok_x),
+        .write_enable(mmio_uart_rx_write_x), .write_data(rs2_value_x),
+        .read_data(uart_rx_read_data_x),
+        .read_hit(uart_rx_read_hit_x), .write_hit(uart_rx_write_hit_x)
+    );
 
     // Keep the peripheral independent of the pipeline implementation.
     // Output enable is exposed separately; a board wrapper implements IOB
@@ -764,7 +791,7 @@ module cpu_top #(
 
         if (rst_n && valid_x && is_store_x &&
             mmio_region_x &&
-            !(mmio_putchar_write_x || mmio_gpio_write_x)) begin
+            !(mmio_putchar_write_x || mmio_gpio_write_x || mmio_uart_rx_write_x)) begin
             $fatal(
                 1,
                 "Unsupported MMIO store pc=%h addr=%h size=%0d",

@@ -2,9 +2,9 @@
 # Target PGL50H-6IFBG484. Verify the actual board before downloading.
 # KEY1 is a USER IO reset; REPROGRAM is a configuration-reload button.
 create_clock -name clk_50m -period 20.000 [get_ports {clk_50m}]
-# Only asynchronous button/input and unclocked LED/UART pad paths are excluded.
+# Only asynchronous button/RX inputs and unclocked LED/UART pad paths are excluded.
 # CPU/register/memory synchronous paths are still timed at 50MHz.
-set_false_path -from [get_ports {key1_n keys_n[*]}]
+set_false_path -from [get_ports {key1_n keys_n[*] uart_rx}]
 set_false_path -to [get_ports {led[*] uart_tx}]
 
 define_attribute {p:clk_50m} {PAP_IO_DIRECTION} {INPUT}
@@ -26,6 +26,13 @@ define_attribute {p:uart_tx} {PAP_IO_STANDARD} {LVCMOS33}
 define_attribute {p:uart_tx} {PAP_IO_NONE} {TRUE}
 define_attribute {p:uart_tx} {PAP_IO_DRIVE} {4}
 define_attribute {p:uart_tx} {PAP_IO_SLEW} {SLOW}
+
+# FPGA receive input: MES50HP V1.1 manual PDF page 27, table 3-5.
+define_attribute {p:uart_rx} {PAP_IO_DIRECTION} {INPUT}
+define_attribute {p:uart_rx} {PAP_IO_LOC} {R8}
+define_attribute {p:uart_rx} {PAP_IO_VCCIO} {3.3}
+define_attribute {p:uart_rx} {PAP_IO_STANDARD} {LVCMOS33}
+define_attribute {p:uart_rx} {PAP_IO_NONE} {TRUE}
 
 define_attribute {p:keys_n[0]} {PAP_IO_DIRECTION} {INPUT}
 define_attribute {p:keys_n[0]} {PAP_IO_LOC} {L15}

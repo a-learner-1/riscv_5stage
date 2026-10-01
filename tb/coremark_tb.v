@@ -30,7 +30,7 @@ module coremark_tb;
         .UART_CLOCK_HZ(100000000), .UART_BAUD(5000000)
     ) dut (
         .clk(clk),
-        .rst_n(rst_n),
+        .rst_n(rst_n), .uart_rx(1'b1),
         .pc_x(pc_x),
         .instr_x(instr_x),
         .valid_x(valid_x),

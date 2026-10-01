@@ -2,9 +2,9 @@
 
 这是一个使用 Verilog 实现的 RV32I 处理器软核，目前采用 **IF → EX → WB** 三级流水线，能够在 ModelSim 中加载外部 HEX 程序、运行裸机 RISC-V 汇编和 C 程序，并通过 `tohost` 协议自动报告运行结果。
 
-当前版本已经完成37种 RV32I 指令、数据前递、分支与跳转冲刷、字及子字访存、同步指令/数据存储器、load-use 停顿、RISC-V GCC 软件构建流程、性能计数器 MMIO、CoreMark 单次功能校验、UART TX 串行发送，以及8位 GPIO MMIO。新增 MES50HP 板级顶层和 UART/LED/按键演示：RTL 仿真、PDS 综合、布局布线及 50 MHz 静态时序已通过，综合后网表的程序初始化也已验证；开发板实物尚未验证。
+当前版本已经完成37种 RV32I 指令、数据前递、分支与跳转冲刷、字及子字访存、同步指令/数据存储器、load-use 停顿、RISC-V GCC 软件构建流程、性能计数器 MMIO、CoreMark 单次功能校验、UART TX、带16字节接收FIFO的UART RX，以及8位 GPIO MMIO。MES50HP TX/GPIO基线和新增RX回显工程均已有RTL功能、PDS综合/布局布线、50 MHz最终STA及综合后功能网表验证；开发板实物尚未验证。
 
-项目的长期目标是作为紫光同创盘古 50 开发板上轻量化 CNN 推理系统的 RISC-V 主控。CPU 与平台部分负责处理器、外设和后续加速器接口，CNN 模型与部署由队友负责。后续仍需 UART RX、Cache、BTB、AXI 和板级验证。现阶段保持三级流水线，后续再评估五级升级；队友使用的参考 CPU 不替换本仓库的处理器。
+项目的长期目标是作为紫光同创盘古 50 开发板上轻量化 CNN 推理系统的 RISC-V 主控。CPU 与平台部分负责处理器、外设和后续加速器接口，CNN 模型与部署由队友负责。后续仍需完整存储器握手、异常/中断、Cache、BTB、CNN接口和板级实物验证。现阶段保持三级流水线，后续再评估五级升级；队友使用的参考 CPU 不替换本仓库的处理器。
 
 ## 队友快速上手：下载后先看这里
 
@@ -176,7 +176,8 @@ CPU 与平台部分负责处理器、存储器、外设和后续加速器接入�
 | CoreMark v1.01 | 单次算法/CRC 校验已通过；不是正式跑分 |
 | UART TX | 已完成 RTL 与串行线仿真验证 |
 | 8位 GPIO MMIO | 输出、输入同步、输出使能及 SET/CLEAR/TOGGLE；模块和 CPU/C 仿真已通过 |
-| UART RX、Cache、BTB、AXI | 尚未完成 |
+| UART RX＋16字节FIFO | 模块/MMIO、CPU软件回显、50 MHz板级RTL及硬件镜像综合网表通过；无RX中断 |
+| Cache、BTB、AXI | 尚未完成 |
 | MES50HP 最小板级顶层 | UART TX、LED、按键及上电/KEY1 复位仿真通过 |
 | PDS 综合、布局布线与 50 MHz 时序 | PDS 2022.2-SP6.4 验证通过，存在复用引脚等告警，见板级章节 |
 | 盘古 50 实物验证 | 尚未完成；工具通过不等于实物通过 |
@@ -282,6 +283,9 @@ rtl/
   data_mem.v            参数化小端数据 RAM、基址和初始化镜像
   cpu_top.v             顶层数据通路、前递、访存和性能计数
   uart_tx.v             UART 8N1 发送器、波特率分频和 busy/done
+  uart_rx.v             两级同步、中心采样、假起始过滤和帧错误检测
+  uart_rx_fifo.v        可参数化接收队列，默认16字节
+  uart_rx_mmio.v        接收数据、状态、占用数及W1C错误寄存器
   gpio_mmio.v           8位 GPIO 寄存器、输入同步及输出使能
   board_reset.v         KEY1 异步置复位、同步延迟释放及上电初值
   board_top.v           MES50HP 50 MHz 板级封装，不改变三级 CPU
@@ -304,7 +308,8 @@ tb/
   gpio_unit_tb.v        GPIO 寄存器译码、同步延迟及复位测试
   gpio_cpu_tb.v         C 程序经 CPU/MMIO 访问 GPIO 的集成测试
   board_top_tb.v        50 MHz UART、LED 闪烁、按键和复位重启测试
-  board_netlist_tb.v    可选：实际硬件镜像的综合后功能网表检查
+  board_netlist_tb.v    可选：TX/GPIO演示的综合后功能网表检查
+  uart_rx*_tb.v         RX/FIFO/MMIO、CPU回显、板级回显及综合网表测试
 
 software/
   start.S               初始化栈、清零.bss、调用main并写tohost
@@ -313,6 +318,8 @@ software/
   prebuilt_demo.S       预生成程序的汇编源文件
   mmio.h                计数器读取、UART 忙状态轮询和字符输出
   uart_demo.c           发送 Hello RISC-V 并等待最后一帧结束
+  uart_rx.h             接收数据、状态、队列占用及清错辅助函数
+  uart_rx_echo.c        轮询回显：硬件无限模式、仿真有限32字节模式
   gpio.h                GPIO MMIO 地址及读写辅助函数
   gpio_test.c           有限 GPIO 功能自测，不是板级 LED 闪烁程序
   board_demo.c          持续运行的 UART 启动消息、LED 心跳及按键程序
@@ -336,11 +343,13 @@ programs/
   board_demo.hex        满深度8192字的板级指令镜像，余下填充 NOP
   board_demo_data.hex   满深度4096字的板级数据镜像，0.5秒闪烁间隔
   board_demo_sim_data.hex 同一程序的加速仿真数据镜像，仅缩短闪烁间隔
+  uart_rx_echo*.hex     独立的无限回显与有限32字节测试的指令/数据镜像
 
 tools/
   bin_to_hex.py         BIN转32位小端HEX
   build_board_images.py 构建配套板级/仿真镜像并检查指令镜像相同
-  build_pds_board.py    生成 PDS 工程、检查时序、可选生成候选位流
+  build_pds_board.py    按固件生成独立PDS工程，核对路由/最终STA后生成候选位流
+  build_uart_rx_images.py 构建RX回显的硬件和有限测试镜像
 
 pds/
   board_top.fdc         PGL50H-6FBG484 的 MES50HP 引脚及时序约束
@@ -463,9 +472,9 @@ CPU程序把结果写入 `tohost` 后，测试平台会判断成功或失败并�
 
 旧的预生成汇编回归仍使用低地址兼容配置，其 `tohost` 保持在 `0x000003FC`（字下标255），因此旧测试无需重写。
 
-## UART TX：本次新增功能
+## UART TX：发送接口
 
-本阶段只实现发送端 TX，没有实现 RX、FIFO 或串口接收中断。发送格式为 8N1：一个低电平起始位、八个数据位、一个高电平停止位，低位先发送，空闲电平为高。
+TX保持单帧发送、软件轮询，没有发送FIFO。新增接收器和RX FIFO见后面的接收章节；串口接收中断尚未实现。发送格式为 8N1：一个低电平起始位、八个数据位、一个高电平停止位，低位先发送，空闲电平为高。
 
 | MMIO 地址 | 访问 | 含义 |
 | --- | --- | --- |
@@ -564,7 +573,7 @@ do run_uart.do
 do run_coremark.do
 ```
 
-当前版本已经在 ModelSim SE-64 10.6e 下完成上述全部回归：
+以下是此前阶段在 ModelSim SE-64 10.6e 中通过的回归记录。RX增量只重测受MMIO/顶层改动影响的TX、GPIO、MMIO和板级演示；其它算法未重复运行，见接收章节：
 
 - 77条基础 CPU 集成测试通过。
 - 六种条件分支以及有符号、无符号比较通过。
@@ -641,9 +650,88 @@ PASS: CPU GPIO C program, readback, SET/CLEAR/TOGGLE, squash and RAM isolation
 
 2026-10-01 验证：GPIO 模块、GPIO CPU/C、原性能、UART CPU、CPU 指令集、分支、比较分支、跳转、LW/SW、子字访存、MMIO 和独立程序共12项测试通过；所有现有测试平台编译为0错误、0警告。固定 C 基线仍为192周期、155条退休指令、CPI 1.238。CoreMark 本次仅编译测试平台，没有重跑算法；GPIO 实物接线及 PDS 上板尚未验证。
 
+## UART RX、FIFO与CPU软件回显
+
+此增量以 `6f97477` 为基线，保留三级流水线、TX地址及旧程序镜像。新增接收模块接入CPU的MMIO，电脑发送的字节经FIFO暂存，CPU执行C程序读取并交给原TX发送器。UART用于命令和调试，不替代音频I2S采集或CNN接口。
+
+### 接收寄存器与副作用
+
+| 地址 | 访问 | 行为 |
+| --- | --- | --- |
+| `0x20000018` RX_DATA | 对齐LW | 返回队首低8位并弹出一次；空队列返回0且不弹出 |
+| `0x2000001C` RX_STATUS | 对齐LW | bit0非空、bit1满、bit2溢出、bit3帧错、bits15:8占用数 |
+| `0x2000001C` RX_STATUS | 对齐SW | 写bit2/3为1清除对应粘滞错误，其余位忽略；新错误优先 |
+
+两个错误标志保持到软件W1C或复位；清错不清队列。队列满时丢弃新字节并报溢出；若同一时钟沿有效弹出旧队首，则新字节可以入队。空队列同时读和新数据入队时，读返回0，新字节保留供下一次读取。合法字节0x00与空读均返回0，软件必须先检查非空位。
+
+RX_DATA读取沿用 `load_issue_x` 的MMIO快照：发起沿保存弹出前的数据，后续 `load_pending` 停顿沿不再弹出。非法子字/错位访问沿用CPU的仿真检查；硬件访问异常仍未实现。
+
+`uart_rx.v` 使用两级同步、8N1中心单点采样、假起始过滤和停止位检查；坏停止位不入队，持续低电平break只报一次帧错并等待高电平再接收。时钟/波特率参数至少要求4时钟/位，队列支持非二次幂深度，CPU默认16字节，MMIO占用字段允许深度1至255。无16倍过采样、自适应波特率、接收中断或硬件流控。TX也仍无FIFO，连续长突发可能超过回显处理速度，应检查溢出位。
+
+### 软件与入口
+
+`software/uart_rx.h` 包含状态、接收和清错函数；主程序的硬件模式为：
+
+```c
+#include "uart_rx.h"
+int main(void)
+{
+    for (;;)
+        mmio_putchar((char)uart_rx_getchar());
+}
+```
+
+`build_uart_rx.bat` 生成独立的 `uart_rx_echo.hex` / `_data.hex`（无限回显）和 `uart_rx_echo_test.hex` / `_data.hex`（32字节后写tohost）。指令镜像满深度8192字，数据镜像4096字；硬件代码136字节，有限测试188字节，均没有初始化数据负载，数据镜像填0。旧 `board_demo`、TX、GPIO和CoreMark镜像没有重建或覆盖。
+
+需要修改C并重建时，在Git Bash运行：
+
+```bash
+cd /d/FPGA/riscv_3stage
+cmd.exe //c build_uart_rx.bat
+```
+
+工具链支持 `UART_RX_CROSS` 或 `BOARD_CROSS`，保持 `-march=rv32i -mabi=ilp32`。已有随源码提供的HEX时无需先安装GCC。
+
+本次下面的测试均已运行通过，代码不变时无需再跑。修改相关逻辑后的ModelSim入口为：
+
+```tcl
+cd D:/FPGA/riscv_3stage
+do run_uart_rx.do
+```
+
+该入口检查32字节真实串行输入/输出，包含00/FF/55/AA/CR/LF、复位期间输入忽略、32次DATA读取、pending禁止二次读取、RAM隔离和最终tohost=1。`run_uart_rx_unit.do` 检查RX/FIFO/MMIO边界；`run_uart_rx_board.do` 用无限硬件固件检查50 MHz/115200回显16字节及KEY1帧中复位。所有使用CPU的旧脚本已增加RX模块依赖，旧测试将RX明确接空闲高电平。
+
+### 独立板级构建与当前证据
+
+RX接MES50HP R8，TX接R9，LVCMOS33/3.3 V；依据硬件手册V1.1 PDF第27页表3-5。CPU输入为 `uart_rx`，新增参数 `UART_RX_FIFO_DEPTH`；板级顶层也有 `uart_rx` 输入。默认 `board_top` 仍加载原LED演示；选回显固件需运行：
+
+```bash
+cmd.exe //c build_pds_board.bat --firmware uart_rx_echo --stage bitstream
+```
+
+输出在 `build/pds_uart_rx/`，原 `build/pds_board/` 与备份的基线位流保留。脚本分别检查路由器摘要及最终 `report_timing/board_top.rtr`，清单记录二者，全部通过才生成候选位流。
+
+2026-10-01已完成：三个模块单测、CPU回显、板级RTL回显，以及受MMIO/顶层改动影响的旧TX、GPIO、MMIO、板级演示，共9项RTL测试。全部30个测试平台编译为0错误/0警告；回归流程曾遇到已有work库锁定提示，但四项关联测试均完成PASS。没有重跑CoreMark算法、固定性能或其它无关指令回归。
+
+| 新回显工程检查 | 结果 |
+| --- | --- |
+| PDS目标 | Logos / PGL50H / -6 / FBG484，50 MHz |
+| 当前资源 | 1439 LUT、426寄存器、8 DRM18K；RX FIFO使用分布式RAM |
+| 最终STA Slow setup/hold | +4.625 ns / +0.142 ns，0失败端点 |
+| 最终STA Fast setup/hold | +9.237 ns / +0.101 ns，0失败端点 |
+| 最终recovery/removal及pulse width | 两个corner均通过 |
+| 综合后功能网表 | 实际无限硬件镜像回显8字节、KEY1重启通过；无SDF |
+| 候选位流 | `build/pds_uart_rx/generate_bitstream/board_top.sbit`；实物待验证 |
+
+资源仅对应这份136字节回显固件，不能作为完整CNN系统资源或新CoreMark性能。综合网表检查入口 `do run_uart_rx_netlist.do` 引用安装目录的官方仿真模型，不复制模型源码。
+
+配置复用引脚仍有3条critical warning，Persist Pin保持None。异步RX与按键pad路径设为false path；RX同步级间及CPU内部仍计时。PDS忽略通用 `ASYNC_REG` 属性并发告警，综合网表已核对RX两级触发器及串接关系存在；该属性不能当作PDS已完成同步器布局/MTBF验证的依据。外部IO无同步delay模型，工具通过不等于电气与实物通过。
+
+首次实物仍先验收已保存的 `6f97477` TX/GPIO位流，再单独验收此RX候选版本。回显固件不输出Hello，也不执行LED心跳；发送少量字符才有串口回显。未执行下载、Flash烧写或远程平台操作。
+
 ## MES50HP 首次上板：最小 CPU + UART + LED 工程
 
-本增量基于 GPIO 提交 `8fc6459`。保留 IF → EX → WB 三级流水线和原 CPU/MMIO RTL，不引入队友的五级 CPU，也不接 CNN、LCD、振动模块或 AXI。这里的目标是先证明本 CPU 能在实际 FPGA 上启动并运行裸机 C 程序。
+本节保留首次实物验收基线 `6f97477`（其父提交是GPIO版本 `8fc6459`）的程序行为及构建证据。当前RX分支仍采用 IF → EX → WB，并增加了接收器；其独立工程见上一章。本节的资源、时序及旧综合网表记录均属于已保存的TX/GPIO基线。若要重建原基线，使用 `6f97477` 源码快照；在当前分支运行本节构建命令会使用新增RX后的RTL，不等于原候选位流。
 
 ### 1. 目标硬件和引脚
 
@@ -657,7 +745,7 @@ PASS: CPU GPIO C program, readback, SET/CLEAR/TOGGLE, squash and RAM isolation
 | LED1–LED8 | `led[0]`–`led[7]` | B2、A2、B3、A3、C5、A5、F7、F8 | 高电平点亮 |
 | 板载 USB-UART TX | `uart_tx` | R9 | 115200、8N1、无流控 |
 
-这些 IO 使用 LVCMOS33、3.3 V。板载 UART RX 为 R8，但本工程没有接收器，未约束或使用 RX。使用板载 CP2102 的 UART Type-C 接口，不要将 UART 接口与 JTAG 配置接口混淆。
+这些 IO 使用 LVCMOS33、3.3 V。基线 `6f97477` 未使用R8；当前RX分支已增加 `uart_rx` 输入和R8约束。使用板载 CP2102 的 UART Type-C 接口，不要将 UART 接口与 JTAG 配置接口混淆。
 
 **REPROGRAM 按钮用于重新加载 FPGA 配置，不是 CPU 复位。** 按 KEY1 才会重新启动本 CPU 程序。KEY1 复位异步拉低，经过两级同步和50000个50 MHz时钟（约1 ms）后释放；配置时采用寄存器初值保证首次启动也先保持复位。按键回跳会重新延长释放等待。KEY2–KEY8 只有两级同步，没有完整机械消抖，本演示仅显示按下状态，不用于按键事件计数。
 
@@ -672,7 +760,7 @@ LED 输出是 `gpio_out & gpio_oe` 的专用输出门控，不是外部 GPIO 的
 - 按住 KEY2–KEY8 时，相应 LED2–LED8 点亮，松开熄灭。
 - 按 KEY1 时 LED 熄灭、CPU 复位；松开后重新发启动消息并恢复运行。
 
-这个程序一直运行，不返回 `main`，不会写 `tohost=1` 自动结束。UART 只有 TX，没有接收命令功能。CPU 仍使用原来的32 KiB指令地址空间、16 KiB数据 RAM和 MMIO 地址；没有增加操作系统、CSR或中断。
+这个程序一直运行，不返回 `main`，不会写 `tohost=1` 自动结束。这个 `board_demo` 固件只发送启动消息，不读取新增RX寄存器；回显功能由独立的 `uart_rx_echo` 固件提供。CPU 仍使用原来的32 KiB指令地址空间、16 KiB数据 RAM和 MMIO 地址；没有增加操作系统、CSR或中断。
 
 ### 3. 首次只运行新增板级仿真
 
@@ -803,7 +891,7 @@ cmd.exe //c build_pds_board.bat --stage bitstream
 ## 当前限制
 
 - 尚未实现异常、中断、CSR和操作系统支持。
-- 尚未实现 UART RX、Cache、BTB 和 AXI 接口；UART TX 无 FIFO，使用软件轮询。GPIO 已有 RTL/MMIO 和仿真，实际引脚三态及按键消抖仍需板级实现。
+- 尚未实现Cache、BTB和AXI接口；UART TX无FIFO，RX有16字节FIFO，但仍无接收中断、奇偶校验或硬件流控。GPIO已有RTL/MMIO和仿真，实际引脚三态及按键消抖仍需板级实现。
 - 当前板级数据 RAM 已确认映射为 DRM18K、初始化已在综合网表中验证；小指令程序优化为 LUT ROM。其他程序映射和实物初始化行为仍需对应验证。
 - 没有完整的存储器 `stall/ready/valid` 握手接口。
 - 32 KiB指令区和16 KiB数据区已运行本阶段的 CoreMark 单次程序，但不代表可以容纳后续完整音频特征提取和 CNN 输入数据。
@@ -813,10 +901,10 @@ cmd.exe //c build_pds_board.bat --stage bitstream
 
 1. 按板级章节完成 JTAG 临时下载、串口启动消息、LED心跳和按键复位的首次实物验收。
 2. 保存对应 PDS 报告和实物证据，依据真实问题修复并建立板级稳定基线；再接外部屏幕或其他外设。
-3. 按系统需要补充 UART RX、FIFO 和统一存储器握手。
-4. 实现二路组相联 Cache 和 BTB 分支预测器，使用相同程序比较性能。
-5. 增加 AXI 接口，与队友约定 CNN 加速器控制/状态/数据格式后进行联调。
-6. 建立正式 CoreMark 测试配置和系统端到端验证，评估资源、推理延迟及准确率。
+3. 验收新增RX回显：115200、8N1发送少量字符并逐字节核对，单独记录RX版本的实物结果。
+4. 与队友确定CNN控制、状态、缓冲区和数据格式，再实现统一存储器握手与相应互联。
+5. 补齐基础指令边界、异常和中断；建立正式CoreMark基线后实现二路组相联Cache与BTB并比较性能。
+6. 完成CNN及系统端到端验证，评估资源、推理延迟和准确率，再依据关键路径评估五级流水线。
 
 ## 当前性能基线
 
