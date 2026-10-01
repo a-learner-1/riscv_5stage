@@ -32,7 +32,12 @@ module board_top #(
         .wb_pc(), .wb_rd(), .wb_data(), .wb_we(), .retire_valid(),
         .cycle_count(), .instret_count(), .uart_tx(uart_tx), .uart_rx(uart_rx),
         // GPIO bit 0 is KEY1; bits 1..7 are KEY2..KEY8, all active-low.
-        .gpio_in({keys_n, key1_n}), .gpio_out(gpio_out), .gpio_oe(gpio_oe)
+        .gpio_in({keys_n, key1_n}), .gpio_out(gpio_out), .gpio_oe(gpio_oe),
+        // The minimum board demo uses the internal data-bus endpoint.
+        .dmem_req_valid(), .dmem_req_ready(1'b0), .dmem_req_write(),
+        .dmem_req_addr(), .dmem_req_size(), .dmem_req_wdata(), .dmem_req_wstrb(),
+        .dmem_rsp_valid(1'b0), .dmem_rsp_ready(),
+        .dmem_rsp_rdata(32'd0), .dmem_rsp_error(1'b0), .dmem_fault()
     );
     assign led = gpio_out & gpio_oe;
 endmodule

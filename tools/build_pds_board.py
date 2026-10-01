@@ -12,7 +12,7 @@ import time
 
 ROOT = Path(__file__).resolve().parents[1]
 RTL = ["instr_mem.v", "if_stage.v", "regfile.v", "decoder.v", "alu.v",
-       "data_mem.v", "uart_tx.v", "uart_rx.v", "uart_rx_fifo.v", "uart_rx_mmio.v",
+       "data_mem.v", "data_bus_adapter.v", "uart_tx.v", "uart_rx.v", "uart_rx_fifo.v", "uart_rx_mmio.v",
        "gpio_mmio.v", "cpu_top.v", "board_reset.v"]
 
 
@@ -23,6 +23,9 @@ def main():
     parser.add_argument("--firmware", choices=["board_demo", "uart_rx_echo"],
                         default="board_demo",
                         help="UART echo has its own build/pds_uart_rx output directory")
+    parser.add_argument("--variant", choices=["default", "data_handshake"],
+                        default="default",
+                        help="Isolate handshake builds in build/pds_data_handshake")
     args = parser.parse_args()
     if not str(ROOT).isascii():
         raise RuntimeError("Use an ASCII project path, e.g. D:/FPGA/riscv_3stage")
@@ -44,7 +47,9 @@ def main():
                                          for w in contents):
             raise RuntimeError(f"{path.name}: expected {words} complete hex words")
 
-    build = ROOT / "build" / ("pds_board" if args.firmware == "board_demo" else "pds_uart_rx")
+    build_name = ("pds_data_handshake" if args.variant == "data_handshake" else
+                  "pds_board" if args.firmware == "board_demo" else "pds_uart_rx")
+    build = ROOT / "build" / build_name
     build.mkdir(parents=True, exist_ok=True)
     # Generated synthesis-only copy: absolute memory-file paths avoid relying
     # on PDS's working directory. The checked-in RTL stays portable.
@@ -154,6 +159,7 @@ def main():
         "base_target": "PGL50H-6IFBG484", "clock_hz": 50000000,
         "requested_stage": args.stage, "pds_returncode": result.returncode,
         "firmware": args.firmware,
+        "variant": args.variant,
         "hardware_verified": False,
         "post_route_timing_rows": timing_rows,
         "final_sta_report": "report_timing/board_top.rtr",

@@ -7,7 +7,10 @@ module cpu_top #(
     parameter integer UART_CLOCK_HZ = 100000000,
     parameter integer UART_BAUD = 115200,
     parameter integer UART_RX_FIFO_DEPTH = 16,
-    parameter integer SIM_CONSOLE_ECHO = 1
+    parameter integer SIM_CONSOLE_ECHO = 1,
+    parameter integer EXTERNAL_DMEM = 0,
+    parameter integer DMEM_REQ_WAIT_CYCLES = 0,
+    parameter integer DMEM_RSP_WAIT_CYCLES = 0
 ) (
     input wire clk,
     input wire rst_n,
@@ -28,7 +31,22 @@ module cpu_top #(
     input  wire       uart_rx,
     input  wire [7:0] gpio_in,
     output wire [7:0] gpio_out,
-    output wire [7:0] gpio_oe
+    output wire [7:0] gpio_oe,
+
+    // External data RAM bus; ignored completely when EXTERNAL_DMEM=0.
+    // MMIO always stays local. Only one transaction may be outstanding.
+    output wire        dmem_req_valid,
+    input  wire        dmem_req_ready,
+    output wire        dmem_req_write,
+    output wire [31:0] dmem_req_addr,
+    output wire [1:0]  dmem_req_size,
+    output wire [31:0] dmem_req_wdata,
+    output wire [3:0]  dmem_req_wstrb,
+    input  wire        dmem_rsp_valid,
+    output wire        dmem_rsp_ready,
+    input  wire [31:0] dmem_rsp_rdata,
+    input  wire        dmem_rsp_error,
+    output reg         dmem_fault
 );
 
     localparam [31:0] MMIO_CYCLE_ADDR   = 32'h2000_0000;
@@ -110,7 +128,46 @@ module cpu_top #(
     wire load_issue_x;
     wire stall_x;
 
-    // ??RAM??????????
+    // A memory descriptor is captured on its FIRST EX edge, including
+    // operands forwarded from WB. It must not change while ready is low.
+    reg        mem_active;
+    reg        req_sent;
+    reg        mem_write_q;
+    reg        mem_mmio_q;
+    reg [31:0] mem_pc_q;
+    reg [4:0]  mem_rd_q;
+    reg [2:0]  mem_funct3_q;
+    reg [31:0] mem_addr_q;
+    reg [1:0]  mem_size_q;
+    reg [3:0]  mem_wstrb_q;
+    reg [31:0] mem_wdata_q;
+    reg [31:0] mem_rs2_q;
+
+    wire        mem_start_x;
+    wire        mem_req_valid;
+    wire        mem_req_ready;
+    wire        mem_req_fire;
+    wire        mem_req_write;
+    wire        mem_req_mmio;
+    wire        mem_req_access_ok;
+    wire [31:0] mem_store_raw_x;
+    wire        mmio_store_ok_x;
+    wire        mmio_putchar_addr_ok_x;
+    wire        mmio_gpio_store_ok_x;
+    wire        mmio_uart_rx_store_ok_x;
+    wire        mem_external_x;
+    wire        local_req_ready;
+    wire        local_rsp_valid;
+    wire [31:0] local_rsp_rdata;
+    wire        local_rsp_error;
+    wire        mem_rsp_valid;
+    wire        mem_rsp_ready;
+    wire        mem_rsp_fire;
+    wire [31:0] mem_rsp_rdata;
+    wire        mem_rsp_error;
+    wire        mem_rsp_success;
+
+    // Compatibility monitors: accepted load and accepted-load response wait.
     reg        load_pending;
     reg [31:0] load_pc_q;
     reg [4:0]  load_rd_q;
@@ -451,8 +508,8 @@ module cpu_top #(
         ((rs1_value_x + imm_x) & 32'hffff_fffe);
 
     assign redirect_x =
-        branch_taken_x |
-        jump_taken_x;
+        !dmem_fault && !mem_active &&
+        (branch_taken_x | jump_taken_x);
 
     assign redirect_pc_x =
         jump_taken_x ?
@@ -496,21 +553,26 @@ module cpu_top #(
     /*
      * ???????
      */
-    assign mem_addr_x = alu_result_x;
+    assign mem_addr_x = mem_active ? mem_addr_q : alu_result_x;
 
     assign mem_size_x =
+        mem_active ? mem_size_q :
         (is_lb_x | is_lbu_x | is_sb_x) ? 2'd0 :
         (is_lh_x | is_lhu_x | is_sh_x) ? 2'd1 :
                                          2'd2;
 
     assign mem_wstrb_x =
+        mem_active ? mem_wstrb_q :
         is_sb_x ? (4'b0001 << mem_addr_x[1:0]) :
         is_sh_x ? (4'b0011 << mem_addr_x[1:0]) :
         is_sw_x ? 4'b1111 :
                   4'b0000;
 
     assign mem_wdata_x =
-        rs2_value_x << {mem_addr_x[1:0], 3'b000};
+        mem_active ? mem_wdata_q :
+        (rs2_value_x << {mem_addr_x[1:0], 3'b000});
+
+    assign mem_store_raw_x = mem_active ? mem_rs2_q : rs2_value_x;
 
     /*
      * Memory-mapped I/O region used by bare-metal software.
@@ -559,22 +621,31 @@ module cpu_top #(
         gpio_read_hit_x     ? gpio_read_data_x : 32'd0;
 
     // Accept SB, SH and SW at the character register and use the low byte.
-    assign mmio_putchar_write_x =
-        rst_n &&
-        valid_x &&
-        is_store_x &&
+    assign mmio_putchar_addr_ok_x =
         (mem_addr_x == MMIO_PUTCHAR_ADDR) &&
         (mem_size_x != 2'd3);
 
+    assign mmio_gpio_store_ok_x = gpio_write_hit_x &&
+        (mem_size_x == 2'd2) && (mem_addr_x[1:0] == 2'b00);
+
+    assign mmio_uart_rx_store_ok_x = uart_rx_write_hit_x &&
+        (mem_size_x == 2'd2) && (mem_addr_x[1:0] == 2'b00);
+
+    assign mmio_store_ok_x = mmio_putchar_addr_ok_x ||
+        mmio_gpio_store_ok_x || mmio_uart_rx_store_ok_x;
+
+    // Peripheral side effects occur ONCE, at request acceptance, even when
+    // the CPU remains stalled waiting for a delayed completion response.
+    assign mmio_putchar_write_x = mem_req_fire && mem_req_write &&
+        mem_req_mmio && mmio_putchar_addr_ok_x;
+
     assign uart_write_accept_x = mmio_putchar_write_x && !uart_busy;
 
-    assign mmio_gpio_write_x =
-        rst_n && valid_x && is_store_x && gpio_write_hit_x &&
-        (mem_size_x == 2'd2) && (mem_addr_x[1:0] == 2'b00);
+    assign mmio_gpio_write_x = mem_req_fire && mem_req_write &&
+        mem_req_mmio && mmio_gpio_store_ok_x;
 
-    assign mmio_uart_rx_write_x =
-        rst_n && valid_x && is_store_x && uart_rx_write_hit_x &&
-        (mem_size_x == 2'd2) && (mem_addr_x[1:0] == 2'b00);
+    assign mmio_uart_rx_write_x = mem_req_fire && mem_req_write &&
+        mem_req_mmio && mmio_uart_rx_store_ok_x;
 
     // Capture the pre-pop head in load_mmio_data_q on the issue edge.
     // A held LOAD has load_pending=1 on the next edge and cannot pop again.
@@ -584,7 +655,7 @@ module cpu_top #(
     ) u_uart_rx_mmio (
         .clk(clk), .rst_n(rst_n), .rx(uart_rx), .addr(mem_addr_x),
         .read_enable(load_issue_x && mmio_load_ok_x),
-        .write_enable(mmio_uart_rx_write_x), .write_data(rs2_value_x),
+        .write_enable(mmio_uart_rx_write_x), .write_data(mem_store_raw_x),
         .read_data(uart_rx_read_data_x),
         .read_hit(uart_rx_read_hit_x), .write_hit(uart_rx_write_hit_x)
     );
@@ -595,7 +666,7 @@ module cpu_top #(
     gpio_mmio u_gpio (
         .clk(clk), .rst_n(rst_n),
         .addr(mem_addr_x), .write_enable(mmio_gpio_write_x),
-        .write_data(rs2_value_x), .read_data(gpio_read_data_x),
+        .write_data(mem_store_raw_x), .read_data(gpio_read_data_x),
         .read_hit(gpio_read_hit_x), .write_hit(gpio_write_hit_x),
         .gpio_in(gpio_in), .gpio_out(gpio_out), .gpio_oe(gpio_oe)
     );
@@ -610,40 +681,75 @@ module cpu_top #(
         .clk(clk),
         .rst_n(rst_n),
         .valid(mmio_putchar_write_x),
-        .data(rs2_value_x[7:0]),
+        .data(mem_store_raw_x[7:0]),
         .tx(uart_tx),
         .busy(uart_busy),
         .done()
     );
 
-    /*
-     * ????????????
-     *
-     * ??????
-     *   load_issue_x=1?RAM?????IF/EX???
-     *
-     * ??????
-     *   load_pending=1?RAM???????WB??????
-     */
-    assign load_issue_x =
-        rst_n &&
-        valid_x &&
-        is_load_x &&
-        !load_pending;
+    // Unified request/response handshake. A new memory instruction can
+    // present its request in its first EX cycle. The first edge captures
+    // the descriptor whether or not the endpoint is ready on that edge.
+    assign mem_start_x = rst_n && !dmem_fault && !mem_active && valid_x &&
+                         (is_load_x || is_store_x);
+    assign mem_req_valid = rst_n && !dmem_fault && !req_sent &&
+                           (mem_active || mem_start_x);
+    assign mem_req_write = mem_active ? mem_write_q : is_store_x;
+    assign mem_req_mmio = mem_active ? mem_mmio_q : mmio_region_x;
+    assign mem_external_x = (EXTERNAL_DMEM != 0) && !mem_req_mmio;
+    assign mem_req_ready = mem_external_x ? dmem_req_ready : local_req_ready;
+    assign mem_req_fire = mem_req_valid && mem_req_ready;
 
-    assign stall_x = load_issue_x;
+    // These are pure address/size predicates, not side-effect pulses.
+    // External RAM legality is decided by its error response, not by the
+    // internal teaching RAM's address range.
+    assign mem_req_access_ok = mem_req_mmio ?
+        (mem_req_write ? (mmio_store_ok_x &&
+            (!mmio_putchar_addr_ok_x || !uart_busy)) : mmio_load_ok_x) :
+        mem_access_ok_x;
 
-    // MMIO accesses bypass the teaching data RAM.  MMIO reads still use the
-    // same one-cycle load_pending path, so the pipeline timing is uniform.
-    assign mem_re_x =
-        load_issue_x &&
-        !mmio_region_x;
+    assign dmem_req_valid = (EXTERNAL_DMEM != 0) && mem_req_valid &&
+                            !mem_req_mmio;
+    assign dmem_req_write = mem_req_write;
+    assign dmem_req_addr = mem_addr_x;
+    assign dmem_req_size = mem_size_x;
+    assign dmem_req_wdata = mem_wdata_x;
+    assign dmem_req_wstrb = mem_wstrb_x;
 
-    assign mem_we_x =
-        rst_n &&
-        valid_x &&
-        is_store_x &&
-        !mmio_region_x;
+    // req_sent is updated only at an acceptance edge; it prevents consuming
+    // an unsolicited or combinational same-edge external response.
+    assign mem_rsp_ready = rst_n && !dmem_fault && mem_active && req_sent;
+    assign mem_rsp_valid = mem_external_x ? dmem_rsp_valid : local_rsp_valid;
+    assign mem_rsp_rdata = mem_external_x ? dmem_rsp_rdata : local_rsp_rdata;
+    assign mem_rsp_error = mem_external_x ? dmem_rsp_error : local_rsp_error;
+    assign mem_rsp_fire = mem_rsp_valid && mem_rsp_ready;
+    assign mem_rsp_success = mem_rsp_fire && !mem_rsp_error;
+    assign dmem_rsp_ready = (EXTERNAL_DMEM != 0) && !mem_req_mmio &&
+                            mem_rsp_ready;
+
+    assign load_issue_x = mem_req_fire && !mem_req_write;
+    // Both LOAD and STORE wait for successful completion before the next
+    // EX instruction advances. Errors leave the pipeline halted until reset.
+    assign stall_x = dmem_fault ||
+                     ((mem_active || mem_start_x) && !mem_rsp_success);
+    assign mem_re_x = load_issue_x && !mem_req_mmio &&
+                      (EXTERNAL_DMEM == 0);
+    assign mem_we_x = mem_req_fire && mem_req_write && !mem_req_mmio &&
+                      (EXTERNAL_DMEM == 0);
+
+    data_bus_adapter #(
+        .REQ_WAIT_CYCLES(DMEM_REQ_WAIT_CYCLES),
+        .RSP_WAIT_CYCLES(DMEM_RSP_WAIT_CYCLES)
+    ) u_data_bus_adapter (
+        .clk(clk), .rst_n(rst_n),
+        .req_valid(mem_req_valid && !mem_external_x),
+        .req_ready(local_req_ready), .req_write(mem_req_write),
+        .req_mmio(mem_req_mmio), .req_access_ok(mem_req_access_ok),
+        .mmio_rdata(mmio_read_data_x), .ram_rdata(mem_rdata_x),
+        .rsp_valid(local_rsp_valid),
+        .rsp_ready(mem_rsp_ready && !mem_external_x),
+        .rsp_rdata(local_rsp_rdata), .rsp_error(local_rsp_error)
+    );
 
     data_mem #(
         .WORDS(DMEM_WORDS),
@@ -661,14 +767,22 @@ module cpu_top #(
         .access_ok (mem_access_ok_x)
     );
 
-    /*
-     * ?????????
-     *
-     * ????RAM??????????????????instr_x
-     * ??LB/LH/LW??????funct3?rd????????
-     */
+    // Single-outstanding transaction state and immutable descriptor.
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
+            mem_active      <= 1'b0;
+            req_sent        <= 1'b0;
+            mem_write_q     <= 1'b0;
+            mem_mmio_q      <= 1'b0;
+            mem_pc_q        <= 32'd0;
+            mem_rd_q        <= 5'd0;
+            mem_funct3_q    <= 3'd0;
+            mem_addr_q      <= 32'd0;
+            mem_size_q      <= 2'd0;
+            mem_wstrb_q     <= 4'd0;
+            mem_wdata_q     <= 32'd0;
+            mem_rs2_q       <= 32'd0;
+            dmem_fault      <= 1'b0;
             load_pending    <= 1'b0;
             load_pc_q       <= 32'd0;
             load_rd_q       <= 5'd0;
@@ -677,17 +791,37 @@ module cpu_top #(
             load_mmio_q     <= 1'b0;
             load_mmio_data_q <= 32'd0;
         end else begin
-            if (load_issue_x) begin
-                load_pending    <= 1'b1;
+            if (mem_start_x) begin
+                mem_active   <= 1'b1;
+                mem_write_q  <= is_store_x;
+                mem_mmio_q   <= mmio_region_x;
+                mem_pc_q     <= pc_x;
+                mem_rd_q     <= rd_addr_x;
+                mem_funct3_q <= instr_x[14:12];
+                mem_addr_q   <= mem_addr_x;
+                mem_size_q   <= mem_size_x;
+                mem_wstrb_q  <= mem_wstrb_x;
+                mem_wdata_q  <= mem_wdata_x;
+                mem_rs2_q    <= rs2_value_x;
+                // Old load metadata names are retained for existing waves.
                 load_pc_q       <= pc_x;
                 load_rd_q       <= rd_addr_x;
                 load_addr_lsb_q <= mem_addr_x[1:0];
                 load_funct3_q   <= instr_x[14:12];
-                load_mmio_q     <= mmio_load_ok_x;
+                load_mmio_q     <= mmio_region_x;
+            end
+            if (mem_req_fire) begin
+                req_sent <= 1'b1;
+                load_pending <= !mem_req_write;
                 load_mmio_data_q <= mmio_read_data_x;
-            end else if (load_pending) begin
+            end
+            if (mem_rsp_fire) begin
+                mem_active <= 1'b0;
+                req_sent <= 1'b0;
                 load_pending <= 1'b0;
                 load_mmio_q  <= 1'b0;
+                if (mem_rsp_error)
+                    dmem_fault <= 1'b1;
             end
         end
     end
@@ -696,7 +830,7 @@ module cpu_top #(
     // synthesis translate_off
     always @(posedge clk) begin
         if (SIM_CONSOLE_ECHO && uart_write_accept_x)
-            $write("%c", rs2_value_x[7:0]);
+            $write("%c", mem_store_raw_x[7:0]);
     end
     // synthesis translate_on
 
@@ -714,15 +848,14 @@ module cpu_top #(
             mmio_putchar_valid <= uart_write_accept_x;
 
             if (uart_write_accept_x)
-                mmio_putchar_data <= rs2_value_x[7:0];
+                mmio_putchar_data <= mem_store_raw_x[7:0];
         end
     end
 
     /*
      * ?????????
      */
-    assign load_raw_data_x =
-        load_mmio_q ? load_mmio_data_q : mem_rdata_x;
+    assign load_raw_data_x = mem_rsp_rdata;
 
     assign load_shifted_x =
         load_raw_data_x >>
@@ -754,7 +887,7 @@ module cpu_top #(
             $fatal(1, "UART write while busy pc=%h: poll 0x20000014 first", pc_x);
 
         if (load_issue_x &&
-            !mmio_region_x &&
+            !mem_req_mmio && (EXTERNAL_DMEM == 0) &&
             mem_access_ok_x !== 1'b1) begin
             $fatal(
                 1,
@@ -766,7 +899,7 @@ module cpu_top #(
         end
 
         if (load_issue_x &&
-            mmio_region_x &&
+            mem_req_mmio &&
             !mmio_load_ok_x) begin
             $fatal(
                 1,
@@ -777,8 +910,8 @@ module cpu_top #(
             );
         end
 
-        if (rst_n && valid_x && is_store_x &&
-            !mmio_region_x &&
+        if (mem_req_fire && mem_req_write &&
+            !mem_req_mmio && (EXTERNAL_DMEM == 0) &&
             mem_access_ok_x !== 1'b1) begin
             $fatal(
                 1,
@@ -789,9 +922,8 @@ module cpu_top #(
             );
         end
 
-        if (rst_n && valid_x && is_store_x &&
-            mmio_region_x &&
-            !(mmio_putchar_write_x || mmio_gpio_write_x || mmio_uart_rx_write_x)) begin
+        if (mem_req_fire && mem_req_write &&
+            mem_req_mmio && !mmio_store_ok_x) begin
             $fatal(
                 1,
                 "Unsupported MMIO store pc=%h addr=%h size=%0d",
@@ -812,14 +944,13 @@ module cpu_top #(
             wb_rd   <= 5'd0;
             wb_data <= 32'd0;
             wb_we   <= 1'b0;
-        end else if (load_pending) begin
-            // ??RAM???????
-            wb_pc   <= load_pc_q;
-            wb_rd   <= load_rd_q;
+        end else if (mem_rsp_success) begin
+            wb_pc   <= mem_pc_q;
+            wb_rd   <= mem_rd_q;
             wb_data <= load_data_x;
-            wb_we   <= (load_rd_q != 5'd0);
-        end else if (valid_x && !is_load_x) begin
-            // ??ALU????????????
+            wb_we   <= !mem_write_q && (mem_rd_q != 5'd0);
+        end else if (!dmem_fault && !mem_active && valid_x &&
+                     !is_load_x && !is_store_x) begin
             wb_pc <= pc_x;
             wb_rd <= rd_addr_x;
 
@@ -847,11 +978,13 @@ module cpu_top #(
     wire retire_to_wb;
 
     assign retire_to_wb =
-        load_pending ||
+        mem_rsp_success ||
         (
+            !dmem_fault &&
             valid_x &&
-            !load_pending &&
+            !mem_active &&
             !is_load_x &&
+            !is_store_x &&
             instr_supported_x
         );
 

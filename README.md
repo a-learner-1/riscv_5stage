@@ -2,9 +2,9 @@
 
 这是一个使用 Verilog 实现的 RV32I 处理器软核，目前采用 **IF → EX → WB** 三级流水线，能够在 ModelSim 中加载外部 HEX 程序、运行裸机 RISC-V 汇编和 C 程序，并通过 `tohost` 协议自动报告运行结果。
 
-当前版本已经完成37种 RV32I 指令、数据前递、分支与跳转冲刷、字及子字访存、同步指令/数据存储器、load-use 停顿、RISC-V GCC 软件构建流程、性能计数器 MMIO、CoreMark 单次功能校验、UART TX、带16字节接收FIFO的UART RX，以及8位 GPIO MMIO。MES50HP TX/GPIO基线和新增RX回显工程均已有RTL功能、PDS综合/布局布线、50 MHz最终STA及综合后功能网表验证；开发板实物尚未验证。
+当前版本已经完成37种 RV32I 指令、数据前递、分支与跳转冲刷、字及子字访存、同步指令/数据存储器、数据侧单笔请求/响应握手、RISC-V GCC 软件构建流程、性能计数器 MMIO、UART TX、带16字节接收FIFO的UART RX，以及8位 GPIO MMIO。数据握手版本已有RTL功能、PDS综合/布局布线、50 MHz最终STA及综合后功能网表验证；CoreMark单次功能校验保留为此前版本记录；开发板实物尚未验证。
 
-项目的长期目标是作为紫光同创盘古 50 开发板上轻量化 CNN 推理系统的 RISC-V 主控。CPU 与平台部分负责处理器、外设和后续加速器接口，CNN 模型与部署由队友负责。后续仍需完整存储器握手、异常/中断、Cache、BTB、CNN接口和板级实物验证。现阶段保持三级流水线，后续再评估五级升级；队友使用的参考 CPU 不替换本仓库的处理器。
+项目的长期目标是作为紫光同创盘古 50 开发板上轻量化 CNN 推理系统的 RISC-V 主控。CPU 与平台部分负责处理器、外设和后续加速器接口，CNN 模型与部署由队友负责。后续仍需取指可变延迟、实际外部存储器及互联、异常/中断、Cache、BTB、CNN接口和板级实物验证。现阶段保持三级流水线，后续再评估五级升级；队友使用的参考 CPU 不替换本仓库的处理器。
 
 ## 队友快速上手：下载后先看这里
 
@@ -75,9 +75,9 @@ do run_performance.do
 
 ```text
 PERF: tohost=1
-PERF: cycles=192
+PERF: cycles=216
 PERF: retired instructions=155
-PERF: CPI=1.238
+PERF: CPI=1.393
 ```
 
 CoreMark 使用 `do run_coremark.do`，它是单次算法功能校验，不是正式有效跑分。首次上手不要求运行 CoreMark；有关 CRC、计时区间和十秒规则的说明见下文。
@@ -172,6 +172,7 @@ CPU 与平台部分负责处理器、存储器、外设和后续加速器接入�
 | 独立指令/数据 HEX 镜像 | 已完成 |
 | `.data`/`.rodata` 预初始化 | 已完成 |
 | 同步指令/数据 RAM 与 load-use stall | RTL/仿真已完成；板级演示数据 RAM 映射为8个 DRM18K，小指令镜像被优化为 LUT ROM |
+| 数据侧请求/响应握手 | 单笔在途、请求背压、响应等待、外部RAM端口及错误停机；可变延迟/复位/MMIO唯一性测试通过 |
 | 性能计数器 MMIO | 已完成 |
 | CoreMark v1.01 | 单次算法/CRC 校验已通过；不是正式跑分 |
 | UART TX | 已完成 RTL 与串行线仿真验证 |
@@ -218,7 +219,7 @@ CPU 与平台部分负责处理器、存储器、外设和后续加速器接入�
 - 分支或跳转在 EX 级确定目标地址，错误路径指令会被冲刷。
 - `JALR` 目标地址最低位强制清零。
 - 写入 `x0` 的操作被抑制。
-- 数据 RAM 同步读取，加载指令通过 `load_issue_x` / `load_pending` 分两步完成，取指与 EX 在发起加载时停顿，返回数据随后进入 WB 前递路径。
+- 数据侧使用单笔请求/响应握手，LOAD和STORE均等待完成；等待期间IF/EX停顿。LOAD响应写回后进入WB前递路径，MMIO副作用仅在请求接受时执行一次。
 
 ## 已实现指令
 
@@ -264,9 +265,9 @@ CPI = cycle_count / instret_count
 ```text
 PASS: performance counters and C program completed
 PERF: tohost=1
-PERF: cycles=192
+PERF: cycles=216
 PERF: retired instructions=155
-PERF: CPI=1.238
+PERF: CPI=1.393
 ```
 
 `performance_tb.v` 会检查精确的155条退休指令，用于发现错误计入气泡或错误路径指令的问题。如果修改并重新编译 `software/main.c`，动态指令数量可能变化，此时需要同步调整测试平台中的 `EXPECTED_INSTRET`。
@@ -406,9 +407,9 @@ do run_performance.do
 Errors: 0, Warnings: 0
 PASS: performance counters and C program completed
 PERF: tohost=1
-PERF: cycles=192
+PERF: cycles=216
 PERF: retired instructions=155
-PERF: CPI=1.238
+PERF: CPI=1.393
 ```
 
 最后出现的 `$stop` 和 `Break in Module performance_tb` 表示测试平台主动停止，不是错误。
@@ -522,6 +523,8 @@ cmd.exe //c build_uart.bat
 本次还更新了所有使用 CPU 的仿真脚本，加入 `rtl/uart_tx.v` 编译依赖，以及旧测试平台的新增端口连接。不能只替换 `cpu_top.v` 而漏掉 UART 模块和脚本。
 
 ## CoreMark 功能校验说明
+
+本节数据来自数据握手改动前的版本（`621d935`及其历史）。本次没有重复运行CoreMark算法；新增STORE响应等待改变周期数，以下性能值不代表当前握手版本。
 
 原始 CoreMark 算法源码与许可证保存在 `benchmarks/coremark/`，本次未修改算法源码。适配层改用 UART 忙状态轮询，并在写入 `tohost` 前等待最后一个字符发完。仓库的 CoreMark HEX 已按新适配层重新构建，旧的不轮询镜像不能继续用于新 UART。
 
@@ -650,6 +653,73 @@ PASS: CPU GPIO C program, readback, SET/CLEAR/TOGGLE, squash and RAM isolation
 
 2026-10-01 验证：GPIO 模块、GPIO CPU/C、原性能、UART CPU、CPU 指令集、分支、比较分支、跳转、LW/SW、子字访存、MMIO 和独立程序共12项测试通过；所有现有测试平台编译为0错误、0警告。固定 C 基线仍为192周期、155条退休指令、CPI 1.238。CoreMark 本次仅编译测试平台，没有重跑算法；GPIO 实物接线及 PDS 上板尚未验证。
 
+## 数据侧请求与响应握手
+
+本增量从已提交的UART RX版本 `621d935` 开始，仍为 IF → EX → WB，取指仍使用同步指令存储器。数据侧一次最多有一笔在途事务，LOAD和STORE都在完成响应后退休。首次遇到访存指令时锁存地址、字节使能、写入数据及写回信息；请求等待与响应等待期间保持这些信息稳定。
+
+默认继续使用内部RAM和既有MMIO。`data_bus_adapter.v` 接受请求后产生响应；参数 `DMEM_REQ_WAIT_CYCLES` / `DMEM_RSP_WAIT_CYCLES` 分别增加请求接受前与响应可用前的等待周期，默认均为0。默认情况下，请求在一个上升沿接受，响应在接下来一个周期可用，并在下一个上升沿完成。STORE比此前直接在EX完成的版本增加等待周期，旧版CPI不可直接作为当前版本的成绩。
+
+### 外部RAM接口
+
+`cpu_top` 设置 `EXTERNAL_DMEM=1` 时，非MMIO的数据请求交给以下端口；地址位于 `0x2000xxxx` 的MMIO仍由本地外设处理。该接口是单笔事务的项目内部接口，尚未实现AXI或外部DDR控制器。
+
+| 端口 | CPU方向 | 含义 |
+| --- | --- | --- |
+| `dmem_req_valid` / `dmem_req_ready` | 输出 / 输入 | 两者同时为1的上升沿接受一次请求 |
+| `dmem_req_write` | 输出 | 1为写，0为读 |
+| `dmem_req_addr[31:0]` | 输出 | 字节地址 |
+| `dmem_req_size[1:0]` | 输出 | 0/1/2分别为字节、半字、字 |
+| `dmem_req_wdata[31:0]` / `dmem_req_wstrb[3:0]` | 输出 | 数据已移至对应字节通道；使能位选择实际写入通道 |
+| `dmem_rsp_valid` / `dmem_rsp_ready` | 输入 / 输出 | 两者同时为1的上升沿完成请求 |
+| `dmem_rsp_rdata[31:0]` | 输入 | 返回包含目标字节的整个32位字；CPU按地址取位并扩展 |
+| `dmem_rsp_error` | 输入 | 本次事务出错；与响应同时有效 |
+| `dmem_fault` | 输出 | 错误响应锁存后置1，CPU停止推进直到复位 |
+
+请求被接受前必须保持valid及描述符；响应被消费前必须保持valid、数据及error。写请求也需要完成响应。外部设备可以在接受请求后立即准备响应，但CPU从下一周期开始接收它；设备必须保持到握手完成。外部RAM的合法地址范围由响应设备决定，不沿用内部RAM的容量检查。
+
+CPU与响应设备必须使用同一复位，并同时丢弃旧在途事务；接口没有事务ID，不能隔离一个不参与复位的设备在重启后送来的陈旧响应。复位不会清空RAM，也不会撤销已经接受的写操作或MMIO副作用。`dmem_fault` 是停止机制，不是RISC-V异常入口、CSR或可恢复总线异常实现。
+
+### 外设副作用与调试
+
+RAM写、GPIO写、UART发送、RX状态W1C和RX FIFO弹出均由一次 `mem_req_fire` 接受事件触发。MMIO读取在接受沿保存快照，RX保存弹出前的队首；多拍等待期间不会重复弹出。`mem_rsp_fire` 为完成响应事件，LOAD仅此时写回，LOAD/STORE仅此时退休。
+
+波形中优先观察 `mem_active`、`req_sent`、`mem_req_valid`、`mem_req_ready`、`mem_req_fire`、`mem_rsp_valid`、`mem_rsp_ready`、`mem_rsp_fire`、`stall_x` 和 `dmem_fault`。历史监视名 `load_issue_x` 现在表示已接受的LOAD请求，`load_pending` 表示已接受且尚未完成的LOAD。
+
+新测试入口（ModelSim Transcript）：
+
+```tcl
+cd D:/FPGA/riscv_3stage
+do run_data_handshake.do
+```
+
+本次修改CPU控制及退休逻辑，因此需运行新握手测试和受影响的CPU/访存/MMIO/外设检查；RX/FIFO等未修改模块的已通过单测不重复运行。历史CoreMark算法不作为本次增量回归；其数据只能引用为旧版本记录。
+
+新的板级构建使用独立目录，避免覆盖已保存的验收版本：
+
+```bash
+cmd.exe //c build_pds_board.bat --firmware uart_rx_echo --variant data_handshake --stage bitstream
+```
+
+输出位于 `build/pds_data_handshake/`。综合后功能检查入口为 `do run_data_handshake_netlist.do`。板级仍为50 MHz、115200、8N1，默认等待参数为0；外部RAM端口在此最小板级工程中未接入。新版本需要自己的PDS报告和实物验收证据，不能沿用下节RX版本的资源及STA数值。
+
+### 本次验证记录（2026-10-02）
+
+新增适配器单测检查响应背压下的MMIO快照与错误保持，以及请求未接受、已接受待响应、响应有效未消费时的复位。CPU握手测试包括零额外等待、固定等待和确定种子随机等待三种外部RAM场景，每种15次请求/响应、26次唯一退休；并检查字节通道、扩展、前递、LW x0、分支/JAL冲刷、描述符稳定及外部地址范围独立性。另检查本地MMIO请求等待3拍、响应等待7拍时GPIO TOGGLE、TX帧、RX弹出及W1C唯一性；外部LOAD/STORE错误不写回、不退休，复位后恢复。
+
+13项受影响的集成检查通过：基础CPU、分支、跳转、LW/SW、子字访存、MMIO、GPIO、UART TX、UART RX回显、C程序、退休计数、原板级演示和RX板级回显。新增两个测试入口及这13项均通过；旧RX/FIFO/MMIO模块单测和CoreMark算法未重跑。当前固定C示例为216周期、155条退休指令、CPI 1.393，较旧版本的192周期增加24个周期；这仅是同一小程序的控制逻辑基线，不是CNN性能或正式CoreMark分数。
+
+| 握手版本板级检查 | 结果 |
+| --- | --- |
+| PDS目标与固件 | PGL50H / -6 / FBG484，50 MHz；无限UART回显 |
+| 布局布线使用资源 | 1537 LUT、509 FF、8 DRM18K、72分布式RAM、19 IO |
+| 最终Slow setup/hold | +5.050 ns / +0.169 ns，0失败端点 |
+| 最终Fast setup/hold | +9.427 ns / +0.117 ns，0失败端点 |
+| 最终recovery/removal/pulse width | 两个corner全部通过 |
+| 综合后功能网表 | 实际硬件镜像8字节回显及KEY1重启通过；无SDF |
+| 位流 | `build/pds_data_handshake/generate_bitstream/board_top.sbit`；实物尚未验收 |
+
+资源取布局布线实际使用汇总；同一报告的模块归属汇总为1535 LUT。最终STA取独立 `report_timing/board_top.rtr`，不混用路由器摘要。配置复用引脚及通用 `ASYNC_REG` 属性相关告警仍存在，外部异步IO路径的限制与RX版本相同；工具检查不代替实物验证。已提交的RX版本 `621d935` 和首次板级基线 `6f97477` 可单独恢复；本次未执行下载、Flash烧写或远程平台操作。
+
 ## UART RX、FIFO与CPU软件回显
 
 此增量以 `6f97477` 为基线，保留三级流水线、TX地址及旧程序镜像。新增接收模块接入CPU的MMIO，电脑发送的字节经FIFO暂存，CPU执行C程序读取并交给原TX发送器。UART用于命令和调试，不替代音频I2S采集或CNN接口。
@@ -701,7 +771,7 @@ do run_uart_rx.do
 
 该入口检查32字节真实串行输入/输出，包含00/FF/55/AA/CR/LF、复位期间输入忽略、32次DATA读取、pending禁止二次读取、RAM隔离和最终tohost=1。`run_uart_rx_unit.do` 检查RX/FIFO/MMIO边界；`run_uart_rx_board.do` 用无限硬件固件检查50 MHz/115200回显16字节及KEY1帧中复位。所有使用CPU的旧脚本已增加RX模块依赖，旧测试将RX明确接空闲高电平。
 
-### 独立板级构建与当前证据
+### 独立板级构建与历史证据（621d935）
 
 RX接MES50HP R8，TX接R9，LVCMOS33/3.3 V；依据硬件手册V1.1 PDF第27页表3-5。CPU输入为 `uart_rx`，新增参数 `UART_RX_FIFO_DEPTH`；板级顶层也有 `uart_rx` 输入。默认 `board_top` 仍加载原LED演示；选回显固件需运行：
 
@@ -893,7 +963,7 @@ cmd.exe //c build_pds_board.bat --stage bitstream
 - 尚未实现异常、中断、CSR和操作系统支持。
 - 尚未实现Cache、BTB和AXI接口；UART TX无FIFO，RX有16字节FIFO，但仍无接收中断、奇偶校验或硬件流控。GPIO已有RTL/MMIO和仿真，实际引脚三态及按键消抖仍需板级实现。
 - 当前板级数据 RAM 已确认映射为 DRM18K、初始化已在综合网表中验证；小指令程序优化为 LUT ROM。其他程序映射和实物初始化行为仍需对应验证。
-- 没有完整的存储器 `stall/ready/valid` 握手接口。
+- 数据侧已有单笔请求/响应握手及外部RAM端口；取指仍为固定同步延迟，实际外部存储器控制器与互联尚未接入。
 - 32 KiB指令区和16 KiB数据区已运行本阶段的 CoreMark 单次程序，但不代表可以容纳后续完整音频特征提取和 CNN 输入数据。
 - 最小板级工程已完成 PDS 综合、资源统计和50 MHz静态时序分析；尚未完成盘古50实物验收，不代表 CNN 或完整 SoC 已上板。
 
@@ -902,7 +972,7 @@ cmd.exe //c build_pds_board.bat --stage bitstream
 1. 按板级章节完成 JTAG 临时下载、串口启动消息、LED心跳和按键复位的首次实物验收。
 2. 保存对应 PDS 报告和实物证据，依据真实问题修复并建立板级稳定基线；再接外部屏幕或其他外设。
 3. 验收新增RX回显：115200、8N1发送少量字符并逐字节核对，单独记录RX版本的实物结果。
-4. 与队友确定CNN控制、状态、缓冲区和数据格式，再实现统一存储器握手与相应互联。
+4. 与队友确定CNN控制、状态、缓冲区和数据格式，在现有数据握手基础上实现实际响应设备及相应互联；再扩展取指可变延迟。
 5. 补齐基础指令边界、异常和中断；建立正式CoreMark基线后实现二路组相联Cache与BTB并比较性能。
 6. 完成CNN及系统端到端验证，评估资源、推理延迟和准确率，再依据关键路径评估五级流水线。
 

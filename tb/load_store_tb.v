@@ -117,12 +117,12 @@ module load_store_tb;
                         $fatal(1,"Store data or register write control at PC=%0d",pc_x);
                 end
             end
-            if (kinds[i]==1) begin
+            if (kinds[i]!=0) begin
                 tick;
-                if (dut.load_pending !== 1'b1 || pc_x !== pcs[i] ||
-                    dut.mem_re_x !== 1'b0)
-                    $fatal(1,"Load wait cycle mismatch at PC=%0d",pcs[i]);
-                if (dut.mem_rdata_x !== results[i])
+                if (dut.mem_active !== 1'b1 || pc_x !== pcs[i] ||
+                    dut.mem_re_x !== 1'b0 || dut.mem_we_x !== 1'b0)
+                    $fatal(1,"Memory response wait mismatch at PC=%0d",pcs[i]);
+                if (kinds[i]==1 && dut.mem_rdata_x !== results[i])
                     $fatal(1,"Synchronous load response mismatch at PC=%0d",pcs[i]);
                 tick;
             end else begin

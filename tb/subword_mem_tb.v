@@ -71,7 +71,7 @@ module subword_mem_tb;
                 endcase
             end
 
-            if (dut.is_store_x) begin
+            if (dut.mem_we_x) begin
                 stores = stores + 1;
                 if (dut.mem_access_ok_x !== 1'b1)
                     $fatal(1, "legal store rejected at pc=%0d", pc_x);
@@ -83,13 +83,13 @@ module subword_mem_tb;
                     $fatal(1, "SW byte strobe mismatch pc=%0d", pc_x);
             end
 
-            if (pc_x == 32'd940 && dut.forward_rs2_x !== 1'b1)
+            if (!dut.mem_active && pc_x == 32'd940 && dut.forward_rs2_x !== 1'b1)
                 $fatal(1, "SW data forwarding missing");
-            if (pc_x == 32'd1052 && dut.forward_rs1_x !== 1'b1)
+            if (!dut.mem_active && pc_x == 32'd1052 && dut.forward_rs1_x !== 1'b1)
                 $fatal(1, "SB address forwarding missing");
-            if (pc_x == 32'd1060 && dut.forward_rs2_x !== 1'b1)
+            if (!dut.mem_active && pc_x == 32'd1060 && dut.forward_rs2_x !== 1'b1)
                 $fatal(1, "SB data forwarding missing");
-            if (pc_x == 32'd1068 && dut.forward_rs2_x !== 1'b1)
+            if (!dut.mem_active && pc_x == 32'd1068 && dut.forward_rs2_x !== 1'b1)
                 $fatal(1, "load-to-store forwarding missing");
             if (pc_x == 32'd1076 && dut.forward_rs1_x !== 1'b1)
                 $fatal(1, "load-use forwarding missing");

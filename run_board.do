@@ -8,7 +8,7 @@ if {![file exists board_work]} {vlib board_work}
 vmap board_work board_work
 vlog -sv -work board_work \
     rtl/instr_mem.v rtl/if_stage.v rtl/regfile.v rtl/decoder.v rtl/alu.v \
-    rtl/data_mem.v rtl/uart_tx.v rtl/gpio_mmio.v rtl/uart_rx.v rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v rtl/cpu_top.v \
+    rtl/data_mem.v rtl/data_bus_adapter.v rtl/uart_tx.v rtl/gpio_mmio.v rtl/uart_rx.v rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v rtl/cpu_top.v \
     rtl/board_reset.v rtl/board_top.v tb/board_top_tb.v
 vsim -voptargs="+acc" -onfinish stop -wlf board_run.wlf board_work.board_top_tb
 add wave sim:/board_top_tb/clk_50m

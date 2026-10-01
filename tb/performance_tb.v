@@ -55,9 +55,8 @@ module performance_tb;
         @(negedge clk);
         rst_n = 1'b1;
 
-        // The store updates the teaching RAM while it is in EX.  Detect that
-        // update first, then wait one more rising edge for the same store to
-        // retire and be included in instret_count.
+        // The store updates RAM at request acceptance. Wait for its response
+        // and then the retire counter edge before taking this snapshot.
         while ((dut.u_data_mem.mem[TOHOST_WORD] !== 32'd1) &&
                (dut.u_data_mem.mem[TOHOST_WORD] !== 32'd2) &&
                (dut.u_data_mem.mem[TOHOST_WORD] !== 32'd3) &&
@@ -74,8 +73,10 @@ module performance_tb;
             $fatal(1, "C program reported failure code=%h",
                    dut.u_data_mem.mem[TOHOST_WORD]);
 
-        @(posedge clk);
-        #1;
+        repeat (2) begin
+            @(posedge clk);
+            #1;
+        end
 
         if (cycle_count == 64'd0)
             $fatal(1, "cycle_count did not start");
