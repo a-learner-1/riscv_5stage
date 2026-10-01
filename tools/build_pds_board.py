@@ -11,7 +11,7 @@ import sys
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
-RTL = ["instr_mem.v", "if_stage.v", "regfile.v", "decoder.v", "alu.v",
+RTL = ["instr_mem.v", "instr_bus_adapter.v", "if_stage.v", "regfile.v", "decoder.v", "alu.v",
        "data_mem.v", "data_bus_adapter.v", "uart_tx.v", "uart_rx.v", "uart_rx_fifo.v", "uart_rx_mmio.v",
        "gpio_mmio.v", "cpu_top.v", "board_reset.v"]
 
@@ -23,9 +23,9 @@ def main():
     parser.add_argument("--firmware", choices=["board_demo", "uart_rx_echo"],
                         default="board_demo",
                         help="UART echo has its own build/pds_uart_rx output directory")
-    parser.add_argument("--variant", choices=["default", "data_handshake"],
+    parser.add_argument("--variant", choices=["default", "data_handshake", "fetch_handshake"],
                         default="default",
-                        help="Isolate handshake builds in build/pds_data_handshake")
+                        help="Isolate data/fetch handshake builds in their own directories")
     args = parser.parse_args()
     if not str(ROOT).isascii():
         raise RuntimeError("Use an ASCII project path, e.g. D:/FPGA/riscv_3stage")
@@ -47,7 +47,8 @@ def main():
                                          for w in contents):
             raise RuntimeError(f"{path.name}: expected {words} complete hex words")
 
-    build_name = ("pds_data_handshake" if args.variant == "data_handshake" else
+    build_name = ("pds_fetch_handshake" if args.variant == "fetch_handshake" else
+                  "pds_data_handshake" if args.variant == "data_handshake" else
                   "pds_board" if args.firmware == "board_demo" else "pds_uart_rx")
     build = ROOT / "build" / build_name
     build.mkdir(parents=True, exist_ok=True)

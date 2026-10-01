@@ -20,7 +20,14 @@ module branch_tb;
         .clk(clk), .rst_n(rst_n), .uart_rx(1'b1), .pc_x(pc_x), .instr_x(instr_x),
         .valid_x(valid_x), .wb_pc(wb_pc), .wb_rd(wb_rd),
         .wb_data(wb_data), .wb_we(wb_we),
-        .retire_valid(), .cycle_count(), .instret_count(), .gpio_in(8'd0), .gpio_out(), .gpio_oe(), .uart_tx()
+        .retire_valid(), .cycle_count(), .instret_count(), .gpio_in(8'd0), .gpio_out(), .gpio_oe(), .uart_tx(),
+        .imem_req_valid(), .imem_req_ready(1'b0), .imem_req_addr(),
+        .imem_rsp_valid(1'b0), .imem_rsp_ready(), .imem_rsp_rdata(32'd0),
+        .imem_rsp_error(1'b0), .imem_fault(), .imem_fault_pc(),
+        .dmem_req_valid(), .dmem_req_ready(1'b0), .dmem_req_write(),
+        .dmem_req_addr(), .dmem_req_size(), .dmem_req_wdata(), .dmem_req_wstrb(),
+        .dmem_rsp_valid(1'b0), .dmem_rsp_ready(), .dmem_rsp_rdata(32'd0),
+        .dmem_rsp_error(1'b0), .dmem_fault()
     );
 
     initial clk = 1'b0;

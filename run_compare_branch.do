@@ -2,7 +2,7 @@
 catch {quit -sim}
 if {![file exists work]} {vlib work}
 vmap work work
-vlog -sv -work work rtl/instr_mem.v rtl/if_stage.v rtl/regfile.v rtl/decoder.v rtl/alu.v rtl/data_mem.v rtl/data_bus_adapter.v rtl/uart_tx.v rtl/gpio_mmio.v rtl/uart_rx.v rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v rtl/cpu_top.v tb/compare_branch_tb.v
+vlog -sv -work work rtl/instr_mem.v rtl/instr_bus_adapter.v rtl/if_stage.v rtl/regfile.v rtl/decoder.v rtl/alu.v rtl/data_mem.v rtl/data_bus_adapter.v rtl/uart_tx.v rtl/gpio_mmio.v rtl/uart_rx.v rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v rtl/cpu_top.v tb/compare_branch_tb.v
 vsim -voptargs=+acc -onfinish stop -wlf cpu_compare_branch_run.wlf work.compare_branch_tb
 add wave sim:/compare_branch_tb/clk sim:/compare_branch_tb/rst_n
 add wave sim:/compare_branch_tb/pc_x sim:/compare_branch_tb/instr_x sim:/compare_branch_tb/valid_x

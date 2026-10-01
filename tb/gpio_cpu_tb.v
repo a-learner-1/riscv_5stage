@@ -28,7 +28,14 @@ module gpio_cpu_tb;
         .pc_x(pc_x), .instr_x(instr_x), .valid_x(),
         .wb_pc(), .wb_rd(), .wb_data(), .wb_we(), .retire_valid(),
         .cycle_count(cycle_count), .instret_count(instret_count), .uart_tx(),
-        .gpio_in(gpio_in), .gpio_out(gpio_out), .gpio_oe(gpio_oe)
+        .gpio_in(gpio_in), .gpio_out(gpio_out), .gpio_oe(gpio_oe),
+        .imem_req_valid(), .imem_req_ready(1'b0), .imem_req_addr(),
+        .imem_rsp_valid(1'b0), .imem_rsp_ready(), .imem_rsp_rdata(32'd0),
+        .imem_rsp_error(1'b0), .imem_fault(), .imem_fault_pc(),
+        .dmem_req_valid(), .dmem_req_ready(1'b0), .dmem_req_write(),
+        .dmem_req_addr(), .dmem_req_size(), .dmem_req_wdata(), .dmem_req_wstrb(),
+        .dmem_rsp_valid(1'b0), .dmem_rsp_ready(), .dmem_rsp_rdata(32'd0),
+        .dmem_rsp_error(1'b0), .dmem_fault()
     );
     always #5 clk = ~clk;
 

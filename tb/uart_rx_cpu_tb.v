@@ -40,7 +40,14 @@ module uart_rx_cpu_tb;
         .wb_pc(), .wb_rd(), .wb_data(), .wb_we(), .retire_valid(),
         .cycle_count(), .instret_count(),
         .gpio_in(8'd0), .gpio_out(), .gpio_oe(),
-        .uart_rx(rx), .uart_tx(uart_tx)
+        .uart_rx(rx), .uart_tx(uart_tx),
+        .imem_req_valid(), .imem_req_ready(1'b0), .imem_req_addr(),
+        .imem_rsp_valid(1'b0), .imem_rsp_ready(), .imem_rsp_rdata(32'd0),
+        .imem_rsp_error(1'b0), .imem_fault(), .imem_fault_pc(),
+        .dmem_req_valid(), .dmem_req_ready(1'b0), .dmem_req_write(),
+        .dmem_req_addr(), .dmem_req_size(), .dmem_req_wdata(), .dmem_req_wstrb(),
+        .dmem_rsp_valid(1'b0), .dmem_rsp_ready(), .dmem_rsp_rdata(32'd0),
+        .dmem_rsp_error(1'b0), .dmem_fault()
     );
     always #5 clk = ~clk;
 

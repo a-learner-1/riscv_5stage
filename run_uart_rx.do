@@ -10,7 +10,7 @@ if {![file exists $uart_rx_lib]} {vlib $uart_rx_lib}
 vmap $uart_rx_lib $uart_rx_lib
 vlog -sv -work $uart_rx_lib \
     rtl/uart_tx.v rtl/uart_rx.v rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v \
-    rtl/instr_mem.v rtl/if_stage.v rtl/regfile.v rtl/decoder.v rtl/alu.v \
+    rtl/instr_mem.v rtl/instr_bus_adapter.v rtl/if_stage.v rtl/regfile.v rtl/decoder.v rtl/alu.v \
     rtl/data_mem.v rtl/data_bus_adapter.v rtl/gpio_mmio.v rtl/cpu_top.v tb/uart_rx_cpu_tb.v
 
 vsim -voptargs="+acc" -onfinish stop -wlf uart_rx_cpu_run.wlf uart_rx_work.uart_rx_cpu_tb

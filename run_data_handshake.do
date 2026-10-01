@@ -9,7 +9,7 @@ if {![file exists $handshake_lib]} {vlib $handshake_lib}
 vmap $handshake_lib $handshake_lib
 vlog -sv -work $handshake_lib \
     rtl/uart_tx.v rtl/uart_rx.v rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v \
-    rtl/instr_mem.v rtl/if_stage.v rtl/regfile.v rtl/decoder.v rtl/alu.v \
+    rtl/instr_mem.v rtl/instr_bus_adapter.v rtl/if_stage.v rtl/regfile.v rtl/decoder.v rtl/alu.v \
     rtl/data_mem.v rtl/data_bus_adapter.v rtl/gpio_mmio.v rtl/cpu_top.v \
     tb/data_bus_adapter_tb.v tb/data_handshake_tb.v
 vsim -voptargs="+acc" -onfinish stop $handshake_lib.data_bus_adapter_tb

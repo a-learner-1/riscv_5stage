@@ -10,7 +10,10 @@ module cpu_top #(
     parameter integer SIM_CONSOLE_ECHO = 1,
     parameter integer EXTERNAL_DMEM = 0,
     parameter integer DMEM_REQ_WAIT_CYCLES = 0,
-    parameter integer DMEM_RSP_WAIT_CYCLES = 0
+    parameter integer DMEM_RSP_WAIT_CYCLES = 0,
+    parameter integer EXTERNAL_IMEM = 0,
+    parameter integer IMEM_REQ_WAIT_CYCLES = 0,
+    parameter integer IMEM_RSP_WAIT_CYCLES = 0
 ) (
     input wire clk,
     input wire rst_n,
@@ -46,7 +49,19 @@ module cpu_top #(
     output wire        dmem_rsp_ready,
     input  wire [31:0] dmem_rsp_rdata,
     input  wire        dmem_rsp_error,
-    output reg         dmem_fault
+    output reg         dmem_fault,
+
+    // External instruction bus; ignored when EXTERNAL_IMEM=0.
+    // In-order, one outstanding request; endpoint shares CPU reset.
+    output wire        imem_req_valid,
+    input  wire        imem_req_ready,
+    output wire [31:0] imem_req_addr,
+    input  wire        imem_rsp_valid,
+    output wire        imem_rsp_ready,
+    input  wire [31:0] imem_rsp_rdata,
+    input  wire        imem_rsp_error,
+    output wire        imem_fault,
+    output wire [31:0] imem_fault_pc
 );
 
     localparam [31:0] MMIO_CYCLE_ADDR   = 32'h2000_0000;
@@ -252,7 +267,10 @@ module cpu_top #(
      */
     if_stage #(
         .PROGRAM_FILE(PROGRAM_FILE),
-        .IMEM_WORDS(IMEM_WORDS)
+        .IMEM_WORDS(IMEM_WORDS),
+        .EXTERNAL_IMEM(EXTERNAL_IMEM),
+        .IMEM_REQ_WAIT_CYCLES(IMEM_REQ_WAIT_CYCLES),
+        .IMEM_RSP_WAIT_CYCLES(IMEM_RSP_WAIT_CYCLES)
     ) u_if_stage (
         .clk           (clk),
         .rst_n         (rst_n),
@@ -262,7 +280,12 @@ module cpu_top #(
         .pc_f          (pc_f),
         .pc_x          (pc_x),
         .instr_x       (instr_x),
-        .valid_x       (valid_x)
+        .valid_x       (valid_x),
+        .imem_req_valid(imem_req_valid), .imem_req_ready(imem_req_ready),
+        .imem_req_addr(imem_req_addr), .imem_rsp_valid(imem_rsp_valid),
+        .imem_rsp_ready(imem_rsp_ready), .imem_rsp_rdata(imem_rsp_rdata),
+        .imem_rsp_error(imem_rsp_error),
+        .imem_fault(imem_fault), .imem_fault_pc(imem_fault_pc)
     );
 
     /*

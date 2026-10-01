@@ -20,7 +20,10 @@ module if_stage_tb;
         .pc_f    (pc_f),
         .pc_x    (pc_x),
         .instr_x (instr_x),
-        .valid_x (valid_x)
+        .valid_x (valid_x),
+        .imem_req_valid(), .imem_req_ready(1'b0), .imem_req_addr(),
+        .imem_rsp_valid(1'b0), .imem_rsp_ready(), .imem_rsp_rdata(32'd0),
+        .imem_rsp_error(1'b0), .imem_fault(), .imem_fault_pc()
     );
 
     initial clk = 1'b0;

@@ -13,6 +13,8 @@ uart_rx_board_work/
 uart_rx_netlist_work/
 data_handshake_work/
 data_handshake_netlist_work/
+fetch_handshake_work/
+fetch_handshake_netlist_work/
 gpio_work/
 gpio_unit_work/
 board_work/

@@ -4,7 +4,7 @@ vlib work
 vmap work work
 
 vlog -reportprogress 300 -sv -work work \
-    rtl/instr_mem.v rtl/if_stage.v rtl/regfile.v rtl/decoder.v \
+    rtl/instr_mem.v rtl/instr_bus_adapter.v rtl/if_stage.v rtl/regfile.v rtl/decoder.v \
     rtl/alu.v rtl/data_mem.v rtl/data_bus_adapter.v rtl/uart_tx.v rtl/gpio_mmio.v rtl/uart_rx.v rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v rtl/cpu_top.v tb/mmio_tb.v
 
 vsim -voptargs="+acc" -onfinish stop -wlf mmio_run.wlf work.mmio_tb

@@ -68,7 +68,10 @@ module handshake_ram_case #(
         .dmem_req_size(req_size), .dmem_req_wdata(req_wdata),
         .dmem_req_wstrb(req_wstrb), .dmem_rsp_valid(rsp_valid),
         .dmem_rsp_ready(rsp_ready), .dmem_rsp_rdata(rsp_rdata),
-        .dmem_rsp_error(1'b0), .dmem_fault(fault)
+        .dmem_rsp_error(1'b0), .dmem_fault(fault),
+        .imem_req_valid(), .imem_req_ready(1'b0), .imem_req_addr(),
+        .imem_rsp_valid(1'b0), .imem_rsp_ready(), .imem_rsp_rdata(32'd0),
+        .imem_rsp_error(1'b0), .imem_fault(), .imem_fault_pc()
     );
 
     function [31:0] itype;
@@ -305,7 +308,10 @@ module handshake_mmio_case(output reg done = 0);
         .dmem_req_valid(), .dmem_req_ready(1'b0), .dmem_req_write(), .dmem_req_addr(),
         .dmem_req_size(), .dmem_req_wdata(), .dmem_req_wstrb(),
         .dmem_rsp_valid(1'b0), .dmem_rsp_ready(), .dmem_rsp_rdata(32'd0),
-        .dmem_rsp_error(1'b0), .dmem_fault(fault)
+        .dmem_rsp_error(1'b0), .dmem_fault(fault),
+        .imem_req_valid(), .imem_req_ready(1'b0), .imem_req_addr(),
+        .imem_rsp_valid(1'b0), .imem_rsp_ready(), .imem_rsp_rdata(32'd0),
+        .imem_rsp_error(1'b0), .imem_fault(), .imem_fault_pc()
     );
     function [31:0] itype;
         input integer imm; input [4:0] rs1; input [2:0] f3; input [4:0] rd; input [6:0] op;
@@ -461,7 +467,10 @@ module handshake_reset_error_case(output reg done=0);
         .dmem_req_valid(req_valid),.dmem_req_ready(req_ready),.dmem_req_write(req_write),
         .dmem_req_addr(req_addr),.dmem_req_size(req_size),.dmem_req_wdata(req_wdata),
         .dmem_req_wstrb(req_wstrb),.dmem_rsp_valid(rsp_valid),.dmem_rsp_ready(rsp_ready),
-        .dmem_rsp_rdata(rsp_rdata),.dmem_rsp_error(rsp_error),.dmem_fault(fault)
+        .dmem_rsp_rdata(rsp_rdata),.dmem_rsp_error(rsp_error),.dmem_fault(fault),
+        .imem_req_valid(), .imem_req_ready(1'b0), .imem_req_addr(),
+        .imem_rsp_valid(1'b0), .imem_rsp_ready(), .imem_rsp_rdata(32'd0),
+        .imem_rsp_error(1'b0), .imem_fault(), .imem_fault_pc()
     );
     task reset_bus;
         begin
