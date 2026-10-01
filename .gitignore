@@ -1,5 +1,7 @@
 # RISC-V GCC 本地构建产物
 build/
+__pycache__/
+*.pyc
 
 # ModelSim 本机配置、工作库、日志和波形
 work/
@@ -7,6 +9,8 @@ uart_work/
 uart_unit_work/
 gpio_work/
 gpio_unit_work/
+board_work/
+board_netlist_work/
 modelsim.ini
 transcript
 transcript.*

@@ -2,13 +2,13 @@
 
 这是一个使用 Verilog 实现的 RV32I 处理器软核，目前采用 **IF → EX → WB** 三级流水线，能够在 ModelSim 中加载外部 HEX 程序、运行裸机 RISC-V 汇编和 C 程序，并通过 `tohost` 协议自动报告运行结果。
 
-当前版本已经完成37种 RV32I 指令、数据前递、分支与跳转冲刷、字及子字访存、同步指令/数据存储器、load-use 停顿、RISC-V GCC 软件构建流程、性能计数器 MMIO、CoreMark 单次功能校验、UART TX 串行发送，以及8位 GPIO MMIO。当前重点仍是功能仿真与软件运行基础设施，暂未进入 PDS 综合和 FPGA 上板阶段。
+当前版本已经完成37种 RV32I 指令、数据前递、分支与跳转冲刷、字及子字访存、同步指令/数据存储器、load-use 停顿、RISC-V GCC 软件构建流程、性能计数器 MMIO、CoreMark 单次功能校验、UART TX 串行发送，以及8位 GPIO MMIO。新增 MES50HP 板级顶层和 UART/LED/按键演示：RTL 仿真、PDS 综合、布局布线及 50 MHz 静态时序已通过，综合后网表的程序初始化也已验证；开发板实物尚未验证。
 
 项目的长期目标是作为紫光同创盘古 50 开发板上轻量化 CNN 推理系统的 RISC-V 主控。CPU 与平台部分负责处理器、外设和后续加速器接口，CNN 模型与部署由队友负责。后续仍需 UART RX、Cache、BTB、AXI 和板级验证。现阶段保持三级流水线，后续再评估五级升级；队友使用的参考 CPU 不替换本仓库的处理器。
 
 ## 队友快速上手：下载后先看这里
 
-当前仓库是 **CPU RTL、软件示例和仿真测试工程**，不是可以下载后直接烧录的完整板级工程。仓库已包含预生成 HEX 程序镜像，第一次运行不需要先编译 C，也不需要复制原作者电脑上的 ModelSim 工程、工作库或波形。
+当前仓库包含 **CPU RTL、软件示例、仿真测试和最小板级工程生成脚本**。首次上板仅面向 MES50HP 的 PGL50H-6IFBG484，不包含 CNN、LCD、振动模块、外部存储器或 AXI；不能把别的开发板直接套用本仓库的引脚约束。仓库已包含预生成 HEX 程序镜像，第一次运行不需要先编译 C，也不需要复制原作者电脑上的 ModelSim 工程、工作库或波形。
 
 ### 1. 获取完整仓库
 
@@ -34,6 +34,7 @@ git log -1 --oneline
 | 直接运行仓库已有程序的仿真 | ModelSim；不需要 GCC、Python 或 GNU Make |
 | 修改 C/汇编并重新生成 HEX | RISC-V GCC 工具链、Python 3；运行验证时还需要 ModelSim |
 | 使用 Makefile 构建 C 示例 | 在前述构建工具之外，还需要 GNU Make；不是首次仿真的必需工具 |
+| 生成最小板级 FPGA 工程 | Python 3、PDS；已有 HEX 时不需要先安装 GCC |
 
 当前已验证环境为 Windows、ModelSim SE-64 10.6e、RISC-V GCC 15.2.0 和 GNU binutils 2.45。其他工具版本和操作系统尚未完成同等验证；根目录的 `.bat` 构建脚本用于 Windows。
 
@@ -100,6 +101,7 @@ python --version
 | `software/gpio_test.c` | `cmd.exe //c build_gpio.bat` | `do run_gpio.do` |
 | `software/main.c` | `cmd.exe //c build_program.bat` | `do run_c_program.do` |
 | CoreMark 算法或裸机适配层 | `cmd.exe //c build_coremark.bat` | `do run_coremark.do` |
+| `software/board_demo.c` | `cmd.exe //c build_board.bat` | `do run_board.do` |
 
 Git Bash 中使用 `//c`，避免 MSYS 将 `/c` 转成路径。在 Windows CMD 中，直接执行相应 `.bat` 文件即可。
 
@@ -133,6 +135,7 @@ git pull --ff-only
 | `programs/` | 与测试配套的预生成指令/数据 HEX，便于下载后直接验证 |
 | `benchmarks/coremark/` | CoreMark 原始算法源码、许可证和来源记录 |
 | `tools/` | 二进制转 HEX 等辅助工具 |
+| `pds/board_top.fdc` | MES50HP 的 50 MHz 时钟、UART、LED 和按键约束 |
 | 根目录 `run_*.do` / `build_*.bat` | 仿真和软件构建入口；目前保持在根目录，避免破坏已有使用方式 |
 
 需要保留并提交源码、测试平台、构建脚本、配套 HEX 和许可证。不需要提交 `build/`、`work/`、`uart_work/`、`uart_unit_work/`、`gpio_work/`、`gpio_unit_work/`、`modelsim.ini`、`transcript`、`*.wlf` 或本机 `.mpf` 工程；这些文件由工具在各自电脑上生成，已由 `.gitignore` 排除。
@@ -168,13 +171,15 @@ CPU 与平台部分负责处理器、存储器、外设和后续加速器接入�
 | 指令/数据存储器参数化与扩容 | 已完成 |
 | 独立指令/数据 HEX 镜像 | 已完成 |
 | `.data`/`.rodata` 预初始化 | 已完成 |
-| 同步指令/数据 RAM 与 load-use stall | RTL 时序及仿真已完成；实际 BRAM 映射待综合确认 |
+| 同步指令/数据 RAM 与 load-use stall | RTL/仿真已完成；板级演示数据 RAM 映射为8个 DRM18K，小指令镜像被优化为 LUT ROM |
 | 性能计数器 MMIO | 已完成 |
 | CoreMark v1.01 | 单次算法/CRC 校验已通过；不是正式跑分 |
 | UART TX | 已完成 RTL 与串行线仿真验证 |
 | 8位 GPIO MMIO | 输出、输入同步、输出使能及 SET/CLEAR/TOGGLE；模块和 CPU/C 仿真已通过 |
 | UART RX、Cache、BTB、AXI | 尚未完成 |
-| PDS 综合与盘古 50 上板 | 尚未完成 |
+| MES50HP 最小板级顶层 | UART TX、LED、按键及上电/KEY1 复位仿真通过 |
+| PDS 综合、布局布线与 50 MHz 时序 | PDS 2022.2-SP6.4 验证通过，存在复用引脚等告警，见板级章节 |
+| 盘古 50 实物验证 | 尚未完成；工具通过不等于实物通过 |
 
 ## CPU 架构
 
@@ -278,6 +283,8 @@ rtl/
   cpu_top.v             顶层数据通路、前递、访存和性能计数
   uart_tx.v             UART 8N1 发送器、波特率分频和 busy/done
   gpio_mmio.v           8位 GPIO 寄存器、输入同步及输出使能
+  board_reset.v         KEY1 异步置复位、同步延迟释放及上电初值
+  board_top.v           MES50HP 50 MHz 板级封装，不改变三级 CPU
 
 tb/
   cpu_top_tb.v          ALU、比较及U型指令集成回归
@@ -296,6 +303,8 @@ tb/
   uart_cpu_tb.v         C 程序经 CPU/MMIO/TX 串行线的端到端测试
   gpio_unit_tb.v        GPIO 寄存器译码、同步延迟及复位测试
   gpio_cpu_tb.v         C 程序经 CPU/MMIO 访问 GPIO 的集成测试
+  board_top_tb.v        50 MHz UART、LED 闪烁、按键和复位重启测试
+  board_netlist_tb.v    可选：实际硬件镜像的综合后功能网表检查
 
 software/
   start.S               初始化栈、清零.bss、调用main并写tohost
@@ -306,6 +315,7 @@ software/
   uart_demo.c           发送 Hello RISC-V 并等待最后一帧结束
   gpio.h                GPIO MMIO 地址及读写辅助函数
   gpio_test.c           有限 GPIO 功能自测，不是板级 LED 闪烁程序
+  board_demo.c          持续运行的 UART 启动消息、LED 心跳及按键程序
   coremark_port/        RV32I 裸机计时、格式化输出和结束适配层
 
 benchmarks/coremark/    CoreMark v1.01 原始算法源码与许可证
@@ -323,9 +333,17 @@ programs/
   gpio_test_data.hex    GPIO C 自测初始化数据镜像
   coremark.hex          已接入 UART 忙状态轮询的 CoreMark 指令镜像
   coremark_data.hex     CoreMark 初始化数据镜像
+  board_demo.hex        满深度8192字的板级指令镜像，余下填充 NOP
+  board_demo_data.hex   满深度4096字的板级数据镜像，0.5秒闪烁间隔
+  board_demo_sim_data.hex 同一程序的加速仿真数据镜像，仅缩短闪烁间隔
 
 tools/
   bin_to_hex.py         BIN转32位小端HEX
+  build_board_images.py 构建配套板级/仿真镜像并检查指令镜像相同
+  build_pds_board.py    生成 PDS 工程、检查时序、可选生成候选位流
+
+pds/
+  board_top.fdc         PGL50H-6FBG484 的 MES50HP 引脚及时序约束
 ```
 
 根目录中的 `run_*.do` 是各组 ModelSim 一键测试脚本。
@@ -623,6 +641,157 @@ PASS: CPU GPIO C program, readback, SET/CLEAR/TOGGLE, squash and RAM isolation
 
 2026-10-01 验证：GPIO 模块、GPIO CPU/C、原性能、UART CPU、CPU 指令集、分支、比较分支、跳转、LW/SW、子字访存、MMIO 和独立程序共12项测试通过；所有现有测试平台编译为0错误、0警告。固定 C 基线仍为192周期、155条退休指令、CPI 1.238。CoreMark 本次仅编译测试平台，没有重跑算法；GPIO 实物接线及 PDS 上板尚未验证。
 
+## MES50HP 首次上板：最小 CPU + UART + LED 工程
+
+本增量基于 GPIO 提交 `8fc6459`。保留 IF → EX → WB 三级流水线和原 CPU/MMIO RTL，不引入队友的五级 CPU，也不接 CNN、LCD、振动模块或 AXI。这里的目标是先证明本 CPU 能在实际 FPGA 上启动并运行裸机 C 程序。
+
+### 1. 目标硬件和引脚
+
+约束依据《MES50HP开发板硬件使用手册_1V1》，PDF 第10、27、33、34页。目标芯片为 **PGL50H-6IFBG484**，PDS 中选 Logos / PGL50H / -6 / FBG484。下载前必须核对自己开发板的型号、版本、芯片丝印及原理图；不同板卡不要沿用这些引脚。
+
+| 板上资源 | 顶层端口 | FPGA 引脚 | 电平/用途 |
+| --- | --- | --- | --- |
+| 50 MHz 晶振 | `clk_50m` | P20 | 20 ns 主时钟，不使用 PLL |
+| KEY1 | `key1_n` | K18 | 低有效；本工程作为 CPU 复位 |
+| KEY2–KEY8 | `keys_n[0]`–`keys_n[6]` | L15、J17、K16、J16、J19、H20、H17 | 低有效；依次对应 LED2–LED8 |
+| LED1–LED8 | `led[0]`–`led[7]` | B2、A2、B3、A3、C5、A5、F7、F8 | 高电平点亮 |
+| 板载 USB-UART TX | `uart_tx` | R9 | 115200、8N1、无流控 |
+
+这些 IO 使用 LVCMOS33、3.3 V。板载 UART RX 为 R8，但本工程没有接收器，未约束或使用 RX。使用板载 CP2102 的 UART Type-C 接口，不要将 UART 接口与 JTAG 配置接口混淆。
+
+**REPROGRAM 按钮用于重新加载 FPGA 配置，不是 CPU 复位。** 按 KEY1 才会重新启动本 CPU 程序。KEY1 复位异步拉低，经过两级同步和50000个50 MHz时钟（约1 ms）后释放；配置时采用寄存器初值保证首次启动也先保持复位。按键回跳会重新延长释放等待。KEY2–KEY8 只有两级同步，没有完整机械消抖，本演示仅显示按下状态，不用于按键事件计数。
+
+LED 输出是 `gpio_out & gpio_oe` 的专用输出门控，不是外部 GPIO 的双向三态。本工程不需要杜邦线或焊接外部模块，也不会驱动电机、屏幕或其他大电流负载。
+
+### 2. 本程序在板上做什么
+
+配置启动后，CPU 执行 `software/board_demo.c`：
+
+- UART 发送一次 `Hello RISC-V\r\n`，共14字节，随后等待最后一帧发完。
+- LED1 每约0.5秒翻转一次（完整亮灭周期约1秒）；延时由 CPU 读取周期计数器决定，不是独立硬件 LED 闪烁器。
+- 按住 KEY2–KEY8 时，相应 LED2–LED8 点亮，松开熄灭。
+- 按 KEY1 时 LED 熄灭、CPU 复位；松开后重新发启动消息并恢复运行。
+
+这个程序一直运行，不返回 `main`，不会写 `tohost=1` 自动结束。UART 只有 TX，没有接收命令功能。CPU 仍使用原来的32 KiB指令地址空间、16 KiB数据 RAM和 MMIO 地址；没有增加操作系统、CSR或中断。
+
+### 3. 首次只运行新增板级仿真
+
+已有旧测试通过后，不要求重跑全部回归。在 ModelSim Transcript 执行：
+
+```tcl
+cd D:/FPGA/riscv_3stage
+do run_board.do
+```
+
+预期：
+
+```text
+BOARD: boot=1 UART received Hello RISC-V (CR LF)
+BOARD: boot=2 UART received Hello RISC-V (CR LF)
+PASS: board power-on reset, 50MHz UART, CPU-driven LED blink, KEY2 and KEY1 restart
+NOTE: short blink/reset delays used in simulation; physical board not tested
+```
+
+测试用实际 UART 引脚的位流解码，时钟为50 MHz、每位434个时钟，波特率约115207。与旧100 MHz UART 测试的868时钟/位不同，这不是旧串口测试结果发生错误。
+
+为缩短测试，复位等待改为16周期，数据初始化镜像中的闪烁间隔改为2000周期；**指令 HEX 与硬件完全相同**。PDS 使用默认50000周期复位等待和 `board_demo_data.hex` 的25000000周期间隔，绝不使用 `board_demo_sim_data.hex`。测试内有一次有意的 KEY1 复位，因此收到两次启动消息，并非脚本无限重复仿真。最终 `$stop`/`Break` 为正常结束。
+
+### 4. 修改板级 C 程序时才重新编译
+
+在 Git Bash 的工程根目录执行：
+
+```bash
+cmd.exe //c build_board.bat
+```
+
+需要 Python 3 和 RV32I GCC；优先用 PATH 中的 `riscv-none-elf-gcc`，也可设置 `BOARD_CROSS` 工具链前缀。Windows CMD 直接执行 `build_board.bat`。脚本生成三份满深度 HEX，并检查硬件与仿真的指令二进制逐字节一致。
+
+本次固件有效载荷为264字节指令、20字节初始化数据，其余指令填 NOP、数据填0。满深度填充用于明确 FPGA 初始化值，不代表固件已经占满存储器。改程序或编译参数后，指令镜像不一致时脚本会报错，不能继续沿用旧镜像。
+
+### 5. 生成自己的 PDS 工程
+
+将仓库放在纯英文目录。安装 PDS、配置有效许可证和 Python 3；优先使用 PATH 中的 `pds_shell`，也可把环境变量 `PDS_SHELL` 设为安装目录中 `pds_shell.exe` 的完整路径。脚本保留本机 `D:/pango/PDS_2022.2-SP6.4` 后备路径，不要求队友复制该安装路径。
+
+首次可直接执行以下一条命令，完成编译、综合、映射、布局布线和时序分析：
+
+```bash
+cd /d/FPGA/riscv_3stage
+cmd.exe //c build_pds_board.bat --stage timing
+```
+
+如果先只检查综合，使用 `cmd.exe //c build_pds_board.bat`。所有产物生成在 `build/pds_board/`，核心文件为：
+
+```text
+build/pds_board/board_demo.pds
+build/pds_board/board_generated.tcl
+build/pds_board/board_top_init_paths.v
+build/pds_board/compile/board_top_rtl.adf
+build/pds_board/synthesize/board_top_syn.adf
+build/pds_board/synthesize/board_top_syn.vm
+build/pds_board/place_route/board_top.prr
+build/pds_board/place_route/board_top_timing_summary_after_hold_fix.txt
+build/pds_board/build_manifest.json
+```
+
+PDS 2022.2-SP6.4 使用 `compile -top_module board_top -loop_limit 10000` 后再执行 ADS 综合。不要将 `tb/` 文件加入硬件综合。
+
+脚本生成一份仅用于综合的顶层副本，把两份硬件 HEX 默认值改为本机绝对路径，避免 PDS 切换工作目录后加载错文件；仓库中的 `rtl/board_top.v` 仍保持相对路径。**移动工程目录或修改 HEX 后必须重新运行生成脚本，不能复用别人电脑上的 PDS 输出工程或位流。**
+
+生成完成后可以在 PDS 打开 `build/pds_board/board_demo.pds`，检查 Report Summary、管脚表、资源和时序。时钟约束为20 ns；仅异步按键输入和非源同步 LED/UART 输出被设为 false path，CPU、存储器和内部复位释放路径仍进行50 MHz时序检查。外部 IO 没有同步的 input/output delay 模型，工具会给出相关告警，不能宣称“零告警”或所有外部接口时序已验证。
+
+如果助手沙箱运行 PDS 报 `Flow-0189`，应先用一个最小工程区分工具环境/权限问题与 RTL 错误。本次同样错误在最小单寄存器工程中出现；获准在沙箱外运行后最小工程与本工程均编译成功。普通用户本机运行不需要复制任何沙箱配置，不要据此关闭电脑安全设置。
+
+### 6. 本次工具验证结果与告警边界
+
+2026-10-01，PDS 2022.2-SP6.4、PGL50H-6FBG484、50 MHz、当前板级演示固件：
+
+| 检查项 | 结果 |
+| --- | --- |
+| 板级 RTL 仿真 | 0编译错误、0编译警告；UART、LED闪烁、KEY2和KEY1重启通过 |
+| ADS 综合资源 | 1417 LUT、377寄存器、8个 DRM18K；0锁存器、0 APM |
+| 实际存储器映射 | 数据 RAM 为8个 DRM18K；264字节小指令程序优化为 LUT ROM，未强制占用32 KiB BRAM |
+| 布局布线引脚检查 | 18个顶层端口均落在上述指定引脚 |
+| Slow corner setup / hold | WNS +4.840 ns / WHS +0.155 ns，0失败端点 |
+| Fast corner setup / hold | WNS +9.523 ns / WHS +0.111 ns，0失败端点 |
+| 内部 recovery / removal | 两个 corner 均通过；外部异步按键路径不在此保证范围内 |
+| 综合后功能网表 | 用实际硬件镜像检查上电、UART消息、KEY2及KEY1重启，通过 |
+| 候选位流生成 | `board_top.sbit` 和 `board_top.bin` 已生成；未下载或烧写硬件 |
+| 实物串口、LED、按键 | 尚未验证 |
+
+上述裕量来自 `report_timing/board_top.rtr` 的最终独立静态时序分析。`place_route/board_top_timing_summary_after_hold_fix.txt` 与 `build_manifest.json` 中的 +5.092/+0.144 ns、+9.720/+0.099 ns 是路由器摘要；两份报告均通过，报告数值不能混用。
+
+资源仅属于当前小程序和顶层，换 CoreMark/CNN 程序会改变 ROM 推断及资源，必须重新综合；不能把这一结果当作整个 CNN 系统已综合。
+
+约束检查还有3个 `ConstraintEditor-2002` critical warning：K18、J19、H20属于配置复用引脚。布局布线管脚表已确认相应端口仍放在指定位置；PDS 手册说明配置中的 Persist Pin 默认释放这些端口给用户使用。生成位流时必须保持释放设置，不能启用保留配置复用引脚。此告警不是未经核对便可忽略的普通换行提醒。
+
+综合日志还有 fanout 等告警，不能把综合成功理解为告警为0。当前有限演示的判断依据为映射结果、综合网表功能及约束下的布局布线时序；真实上板电气行为仍待检查。综合后网表检查不含 SDF 路由延迟，不能替代静态时序分析和实物验证。
+
+可选的可重复网表检查入口为 `do run_board_netlist.do`，需要先生成 PDS 综合网表，并通过 `PDS_HOME`（安装根目录）或 `PDS_SHELL` 指向本机 PDS 安装。脚本引用安装目录的官方仿真模型，不复制或分发它们。此项已经在交付前检查，不是要求首次再次运行所有测试。
+
+### 7. 生成候选位流与首次实物验收
+
+确认上面的器件、引脚、复用引脚设置及时序后，在 Git Bash 执行：
+
+```bash
+cmd.exe //c build_pds_board.bat --stage bitstream
+```
+
+脚本先重新生成并检查布局布线时序，通过后才生成候选位流；**只生成文件，不自动连接、下载或烧写 FPGA**。配置使用 TCK 启动，适用于首次 JTAG 临时配置验证。本阶段不要改成 Flash 固化、加密或 efuse 操作。
+
+候选文件路径为 `build/pds_board/generate_bitstream/board_top.sbit`（JTAG验收使用）及同目录的 `board_top.bin`。本次已验证生成流程，但代码包不分发本机生成的位流；在自己的英文工程目录重新生成，避免把旧程序或错误器件的文件下载到板上。
+
+首次上板按以下顺序验收：
+
+1. 核对实物确为 MES50HP / PGL50H-6IFBG484，使用开发板规定电源和下载线，先不连接 LCD、振动模块或其他外部负载。
+2. 在 PDS Configuration 中选择本次生成的候选位流，通过 JTAG **仅下载到 FPGA SRAM**；不要选择烧写 Flash。成功仅表示配置完成，不等于程序功能通过。
+3. 打开板载 USB-UART 对应 COM 口，设置115200、8数据位、无校验、1停止位、无流控；先打开终端再按 KEY1，预期收到 `Hello RISC-V`。
+4. 松开 KEY1 后观察 LED1 大约每0.5秒翻转；按住 KEY2–KEY8，相应 LED 点亮；再按 KEY1，应熄灯、重新输出启动消息。
+5. 保存串口截图、LED/按键现象和 PDS 时序报告，再把实物结果写回 README。没收到文字时依次检查 COM口、板载 UART接口、50 MHz时钟、复位、程序镜像和 TX引脚，不要直接跳到 CNN 联调。
+
+当前尚未执行上述实物验收，README 不把“位流生成”写成“上板通过”。程序和硬件采用 JTAG 临时配置，断电后不会保留本次下载的设计。
+
+新增源码、脚本、FDC、三份 HEX 和 README 应提交；`build/`、`board_work/`、综合网表、PDS本机工程、波形、许可证和候选位流不应提交。
+
 ## 已知问题
 
 - 必须尽量在纯英文路径运行 ModelSim，否则可能出现数据库路径乱码或 `vlog-9`。
@@ -635,15 +804,15 @@ PASS: CPU GPIO C program, readback, SET/CLEAR/TOGGLE, squash and RAM isolation
 
 - 尚未实现异常、中断、CSR和操作系统支持。
 - 尚未实现 UART RX、Cache、BTB 和 AXI 接口；UART TX 无 FIFO，使用软件轮询。GPIO 已有 RTL/MMIO 和仿真，实际引脚三态及按键消抖仍需板级实现。
-- 指令存储器和数据存储器已使用同步读取时序，但是否推断为目标器件 BRAM、初始化能否上板生效，需要 PDS 综合验证。
+- 当前板级数据 RAM 已确认映射为 DRM18K、初始化已在综合网表中验证；小指令程序优化为 LUT ROM。其他程序映射和实物初始化行为仍需对应验证。
 - 没有完整的存储器 `stall/ready/valid` 握手接口。
 - 32 KiB指令区和16 KiB数据区已运行本阶段的 CoreMark 单次程序，但不代表可以容纳后续完整音频特征提取和 CNN 输入数据。
-- 尚未进行 PDS 综合、资源统计、静态时序分析和盘古 50 上板验证。
+- 最小板级工程已完成 PDS 综合、资源统计和50 MHz静态时序分析；尚未完成盘古50实物验收，不代表 CNN 或完整 SoC 已上板。
 
 ## 后续路线
 
-1. 基于已验证的 GPIO 和 UART TX 搭建板级顶层，核对实际时钟、复位、LED/按键及 UART 引脚。
-2. 在 PDS 中确认 BRAM 推断、程序初始化、资源使用和基本时序，进行首次上板串口输出验证。
+1. 按板级章节完成 JTAG 临时下载、串口启动消息、LED心跳和按键复位的首次实物验收。
+2. 保存对应 PDS 报告和实物证据，依据真实问题修复并建立板级稳定基线；再接外部屏幕或其他外设。
 3. 按系统需要补充 UART RX、FIFO 和统一存储器握手。
 4. 实现二路组相联 Cache 和 BTB 分支预测器，使用相同程序比较性能。
 5. 增加 AXI 接口，与队友约定 CNN 加速器控制/状态/数据格式后进行联调。
