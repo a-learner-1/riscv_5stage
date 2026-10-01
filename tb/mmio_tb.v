@@ -41,7 +41,7 @@ module mmio_tb;
         .wb_we(wb_we),
         .retire_valid(retire_valid),
         .cycle_count(cycle_count),
-        .instret_count(instret_count), .uart_tx()
+        .instret_count(instret_count), .gpio_in(8'd0), .gpio_out(), .gpio_oe(), .uart_tx()
     );
 
     always #5 clk = ~clk;

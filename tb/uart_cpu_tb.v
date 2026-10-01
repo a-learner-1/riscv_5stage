@@ -33,7 +33,7 @@ module uart_cpu_tb;
         .pc_x(pc_x), .instr_x(instr_x), .valid_x(valid_x),
         .wb_pc(wb_pc), .wb_rd(wb_rd), .wb_data(wb_data), .wb_we(wb_we),
         .retire_valid(retire_valid), .cycle_count(cycle_count),
-        .instret_count(instret_count), .uart_tx(uart_tx)
+        .instret_count(instret_count), .gpio_in(8'd0), .gpio_out(), .gpio_oe(), .uart_tx(uart_tx)
     );
     always #5 clk = ~clk;
 

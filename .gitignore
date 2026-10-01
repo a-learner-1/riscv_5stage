@@ -5,6 +5,8 @@ build/
 work/
 uart_work/
 uart_unit_work/
+gpio_work/
+gpio_unit_work/
 modelsim.ini
 transcript
 transcript.*

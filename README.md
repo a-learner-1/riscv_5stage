@@ -2,9 +2,9 @@
 
 这是一个使用 Verilog 实现的 RV32I 处理器软核，目前采用 **IF → EX → WB** 三级流水线，能够在 ModelSim 中加载外部 HEX 程序、运行裸机 RISC-V 汇编和 C 程序，并通过 `tohost` 协议自动报告运行结果。
 
-当前版本已经完成37种 RV32I 指令、数据前递、分支与跳转冲刷、字及子字访存、同步指令/数据存储器、load-use 停顿、RISC-V GCC 软件构建流程、性能计数器 MMIO、CoreMark 单次功能校验，以及 UART TX 串行发送。当前重点仍是功能仿真与软件运行基础设施，暂未进入 PDS 综合和 FPGA 上板阶段。
+当前版本已经完成37种 RV32I 指令、数据前递、分支与跳转冲刷、字及子字访存、同步指令/数据存储器、load-use 停顿、RISC-V GCC 软件构建流程、性能计数器 MMIO、CoreMark 单次功能校验、UART TX 串行发送，以及8位 GPIO MMIO。当前重点仍是功能仿真与软件运行基础设施，暂未进入 PDS 综合和 FPGA 上板阶段。
 
-项目的长期目标是作为紫光同创盘古 50 开发板上轻量化 CNN 推理系统的 RISC-V 主控。CPU 与平台部分负责处理器、外设和后续加速器接口，CNN 模型与部署由队友负责。后续仍需 UART RX、GPIO、Cache、BTB、AXI 和板级验证。
+项目的长期目标是作为紫光同创盘古 50 开发板上轻量化 CNN 推理系统的 RISC-V 主控。CPU 与平台部分负责处理器、外设和后续加速器接口，CNN 模型与部署由队友负责。后续仍需 UART RX、Cache、BTB、AXI 和板级验证。现阶段保持三级流水线，后续再评估五级升级；队友使用的参考 CPU 不替换本仓库的处理器。
 
 ## 队友快速上手：下载后先看这里
 
@@ -97,6 +97,7 @@ python --version
 | 程序源码 | 构建命令 | 对应 ModelSim 测试 |
 | --- | --- | --- |
 | `software/uart_demo.c` | `cmd.exe //c build_uart.bat` | `do run_uart.do` |
+| `software/gpio_test.c` | `cmd.exe //c build_gpio.bat` | `do run_gpio.do` |
 | `software/main.c` | `cmd.exe //c build_program.bat` | `do run_c_program.do` |
 | CoreMark 算法或裸机适配层 | `cmd.exe //c build_coremark.bat` | `do run_coremark.do` |
 
@@ -134,7 +135,7 @@ git pull --ff-only
 | `tools/` | 二进制转 HEX 等辅助工具 |
 | 根目录 `run_*.do` / `build_*.bat` | 仿真和软件构建入口；目前保持在根目录，避免破坏已有使用方式 |
 
-需要保留并提交源码、测试平台、构建脚本、配套 HEX 和许可证。不需要提交 `build/`、`work/`、`uart_work/`、`uart_unit_work/`、`modelsim.ini`、`transcript`、`*.wlf` 或本机 `.mpf` 工程；这些文件由工具在各自电脑上生成，已由 `.gitignore` 排除。
+需要保留并提交源码、测试平台、构建脚本、配套 HEX 和许可证。不需要提交 `build/`、`work/`、`uart_work/`、`uart_unit_work/`、`gpio_work/`、`gpio_unit_work/`、`modelsim.ini`、`transcript`、`*.wlf` 或本机 `.mpf` 工程；这些文件由工具在各自电脑上生成，已由 `.gitignore` 排除。
 
 ## CPU 与 CNN 协作边界
 
@@ -148,7 +149,7 @@ CPU 与平台部分负责处理器、存储器、外设和后续加速器接入�
 
 ## 当前状态
 
-更新时间：2026-09-30。
+更新时间：2026-10-01。
 
 | 项目 | 状态 |
 | --- | --- |
@@ -171,7 +172,8 @@ CPU 与平台部分负责处理器、存储器、外设和后续加速器接入�
 | 性能计数器 MMIO | 已完成 |
 | CoreMark v1.01 | 单次算法/CRC 校验已通过；不是正式跑分 |
 | UART TX | 已完成 RTL 与串行线仿真验证 |
-| UART RX、GPIO、Cache、BTB、AXI | 尚未完成 |
+| 8位 GPIO MMIO | 输出、输入同步、输出使能及 SET/CLEAR/TOGGLE；模块和 CPU/C 仿真已通过 |
+| UART RX、Cache、BTB、AXI | 尚未完成 |
 | PDS 综合与盘古 50 上板 | 尚未完成 |
 
 ## CPU 架构
@@ -275,6 +277,7 @@ rtl/
   data_mem.v            参数化小端数据 RAM、基址和初始化镜像
   cpu_top.v             顶层数据通路、前递、访存和性能计数
   uart_tx.v             UART 8N1 发送器、波特率分频和 busy/done
+  gpio_mmio.v           8位 GPIO 寄存器、输入同步及输出使能
 
 tb/
   cpu_top_tb.v          ALU、比较及U型指令集成回归
@@ -291,6 +294,8 @@ tb/
   coremark_tb.v         CoreMark 单次功能校验
   uart_tx_tb.v          UART 位时序、字节模式、忙状态及复位测试
   uart_cpu_tb.v         C 程序经 CPU/MMIO/TX 串行线的端到端测试
+  gpio_unit_tb.v        GPIO 寄存器译码、同步延迟及复位测试
+  gpio_cpu_tb.v         C 程序经 CPU/MMIO 访问 GPIO 的集成测试
 
 software/
   start.S               初始化栈、清零.bss、调用main并写tohost
@@ -299,6 +304,8 @@ software/
   prebuilt_demo.S       预生成程序的汇编源文件
   mmio.h                计数器读取、UART 忙状态轮询和字符输出
   uart_demo.c           发送 Hello RISC-V 并等待最后一帧结束
+  gpio.h                GPIO MMIO 地址及读写辅助函数
+  gpio_test.c           有限 GPIO 功能自测，不是板级 LED 闪烁程序
   coremark_port/        RV32I 裸机计时、格式化输出和结束适配层
 
 benchmarks/coremark/    CoreMark v1.01 原始算法源码与许可证
@@ -312,6 +319,8 @@ programs/
   data_mem_init_test.hex 数据RAM初始化回归镜像
   uart_demo.hex         UART C 程序指令镜像
   uart_demo_data.hex    UART 字符串初始化镜像
+  gpio_test.hex         GPIO C 自测指令镜像
+  gpio_test_data.hex    GPIO C 自测初始化数据镜像
   coremark.hex          已接入 UART 忙状态轮询的 CoreMark 指令镜像
   coremark_data.hex     CoreMark 初始化数据镜像
 
@@ -575,18 +584,57 @@ mem_wdata_x = 0x00000001
 mem[4095]   = 1
 ```
 
+## GPIO MMIO：三级 CPU 的本次增量
+
+本次保持 IF → EX → WB 架构、原 UART 地址和计数器地址不变。新增独立外设 `rtl/gpio_mmio.v`；GPIO 读取沿用已有的一拍 load-pending 路径，GPIO 存储在有效 EX 存储事务上接受，不访问普通数据 RAM。
+
+| 地址 | 权限 | 低8位含义 |
+| --- | --- | --- |
+| `0x20000020` | LW/SW | 输出锁存值 OUT |
+| `0x20000024` | LW | 两级同步后的外部输入 IN |
+| `0x20000028` | LW/SW | 输出使能 OE，1=允许对应引脚输出 |
+| `0x2000002C` | SW | SET，掩码为1的输出位置1 |
+| `0x20000030` | SW | CLEAR，掩码为1的输出位清0 |
+| `0x20000034` | SW | TOGGLE，掩码为1的输出位翻转 |
+
+GPIO 仅接受对齐的32位 LW/SW，高24位写入忽略、读取为0。SET/CLEAR/TOGGLE 为只写，不支持读取；IN 为只读。非法访问沿用当前 CPU 的仿真 `$fatal` 检查，并不代表硬件已实现访问异常处理。
+
+CPU 新增 `gpio_in[7:0]`、`gpio_out[7:0]`、`gpio_oe[7:0]` 端口。复位后 OUT=0、OE=0；OUT 锁存器可以在 OE=0 时写入，IN 始终采样外部输入。OE 只是单独输出的掩码，尚不是实际 FPGA 引脚方向控制：板级顶层需要实现 I/O 三态或使用掩码门控专用 LED 引脚。不要将裸电机等负载直接接 GPIO。
+
+输入采用两级同步，适用于低速独立输入，没有按键消抖功能，也不能作为高速多位数据总线的完整跨时钟处理。自定义旧测试平台可连接 `.gpio_in(8'd0), .gpio_out(), .gpio_oe()`；所有实例化 CPU 的编译脚本必须加入 `rtl/gpio_mmio.v`。包内已同步更新原脚本和原测试平台。
+
+在仓库根目录的 ModelSim Transcript 中首次只运行一次：
+
+```tcl
+do run_gpio.do
+```
+
+已包含预生成 HEX，不需要先编译 C。预期输出：
+
+```text
+GPIO: tohost=1 writes=14 reads=17 input=A5->3C
+GPIO: output=AA direction=00 before reset; reset output=00 direction=00
+PASS: CPU GPIO C program, readback, SET/CLEAR/TOGGLE, squash and RAM isolation
+```
+
+测试平台会模拟输入从 A5 变为 3C，检查输出回读、OE、SET/CLEAR/TOGGLE、高位掩码、错误路径存储冲刷、x0 读取、普通 RAM 隔离和复位清零。最终 `$stop` 和 `Break` 是正常结束；结束时测试平台重新拉低复位，所以波形末尾 OUT/OE 为0，复位前最后一个输出锁存值是 AA。
+
+可选模块测试为 `do run_gpio_unit.do`，不要求首次重复运行。修改 C 后，在 Git Bash 中用 `cmd.exe //c build_gpio.bat` 重新生成两份 HEX。构建优先使用 PATH 中的 RISC-V GCC，也可通过 `GPIO_CROSS` 指定工具链前缀。保留 `-march=rv32i -mabi=ilp32`。
+
+2026-10-01 验证：GPIO 模块、GPIO CPU/C、原性能、UART CPU、CPU 指令集、分支、比较分支、跳转、LW/SW、子字访存、MMIO 和独立程序共12项测试通过；所有现有测试平台编译为0错误、0警告。固定 C 基线仍为192周期、155条退休指令、CPI 1.238。CoreMark 本次仅编译测试平台，没有重跑算法；GPIO 实物接线及 PDS 上板尚未验证。
+
 ## 已知问题
 
 - 必须尽量在纯英文路径运行 ModelSim，否则可能出现数据库路径乱码或 `vlog-9`。
 - 如果出现 `Failed to open readmem file`，应检查 ModelSim 当前目录以及 `programs/*.hex` 是否存在。
 - 如果出现 `Unable to remove locked optimized design` 或 WLF 文件被占用，请关闭其他 ModelSim 仿真实例后重试。
 - Git 的 LF/CRLF 提示只是 Windows 换行格式提醒，不是编译错误。
-- 不要提交 `build/`、`work/`、`uart_work/`、`uart_unit_work/`、`modelsim.ini`、`transcript` 和 `wlf*` 等本地产物。
+- 不要提交 `build/`、`work/`、`uart_work/`、`uart_unit_work/`、`gpio_work/`、`gpio_unit_work/`、`modelsim.ini`、`transcript` 和 `wlf*` 等本地产物。
 
 ## 当前限制
 
 - 尚未实现异常、中断、CSR和操作系统支持。
-- 尚未实现 UART RX、GPIO、Cache、BTB 和 AXI 接口；UART TX 无 FIFO，使用软件轮询。
+- 尚未实现 UART RX、Cache、BTB 和 AXI 接口；UART TX 无 FIFO，使用软件轮询。GPIO 已有 RTL/MMIO 和仿真，实际引脚三态及按键消抖仍需板级实现。
 - 指令存储器和数据存储器已使用同步读取时序，但是否推断为目标器件 BRAM、初始化能否上板生效，需要 PDS 综合验证。
 - 没有完整的存储器 `stall/ready/valid` 握手接口。
 - 32 KiB指令区和16 KiB数据区已运行本阶段的 CoreMark 单次程序，但不代表可以容纳后续完整音频特征提取和 CNN 输入数据。
@@ -594,7 +642,7 @@ mem[4095]   = 1
 
 ## 后续路线
 
-1. 实现 GPIO 和板级顶层，核对实际时钟、复位与 UART TX 引脚。
+1. 基于已验证的 GPIO 和 UART TX 搭建板级顶层，核对实际时钟、复位、LED/按键及 UART 引脚。
 2. 在 PDS 中确认 BRAM 推断、程序初始化、资源使用和基本时序，进行首次上板串口输出验证。
 3. 按系统需要补充 UART RX、FIFO 和统一存储器握手。
 4. 实现二路组相联 Cache 和 BTB 分支预测器，使用相同程序比较性能。

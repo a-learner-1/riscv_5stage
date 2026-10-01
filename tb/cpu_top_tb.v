@@ -74,7 +74,7 @@ module cpu_top_tb;
         .wb_rd   (wb_rd),
         .wb_data (wb_data),
         .wb_we   (wb_we),
-        .retire_valid(), .cycle_count(), .instret_count(), .uart_tx()
+        .retire_valid(), .cycle_count(), .instret_count(), .gpio_in(8'd0), .gpio_out(), .gpio_oe(), .uart_tx()
     );
 
     assign decode_flags = {

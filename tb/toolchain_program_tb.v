@@ -16,7 +16,7 @@ module toolchain_program_tb;
         .clk(clk), .rst_n(rst_n),
         .pc_x(pc_x), .instr_x(instr_x), .valid_x(valid_x),
         .wb_pc(wb_pc), .wb_rd(wb_rd), .wb_data(wb_data), .wb_we(wb_we),
-        .retire_valid(), .cycle_count(), .instret_count(), .uart_tx()
+        .retire_valid(), .cycle_count(), .instret_count(), .gpio_in(8'd0), .gpio_out(), .gpio_oe(), .uart_tx()
     );
 
     always #5 clk = ~clk;
