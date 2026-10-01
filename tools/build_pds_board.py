@@ -23,9 +23,9 @@ def main():
     parser.add_argument("--firmware", choices=["board_demo", "uart_rx_echo"],
                         default="board_demo",
                         help="UART echo has its own build/pds_uart_rx output directory")
-    parser.add_argument("--variant", choices=["default", "data_handshake", "fetch_handshake"],
+    parser.add_argument("--variant", choices=["default", "data_handshake", "fetch_handshake", "soc"],
                         default="default",
-                        help="Isolate data/fetch handshake builds in their own directories")
+                        help="Isolate data/fetch handshake and SoC builds in their own directories")
     args = parser.parse_args()
     if not str(ROOT).isascii():
         raise RuntimeError("Use an ASCII project path, e.g. D:/FPGA/riscv_3stage")
@@ -47,14 +47,25 @@ def main():
                                          for w in contents):
             raise RuntimeError(f"{path.name}: expected {words} complete hex words")
 
-    build_name = ("pds_fetch_handshake" if args.variant == "fetch_handshake" else
+    build_name = ("pds_soc" if args.variant == "soc" else
+                  "pds_fetch_handshake" if args.variant == "fetch_handshake" else
                   "pds_data_handshake" if args.variant == "data_handshake" else
                   "pds_board" if args.firmware == "board_demo" else "pds_uart_rx")
     build = ROOT / "build" / build_name
     build.mkdir(parents=True, exist_ok=True)
     # Generated synthesis-only copy: absolute memory-file paths avoid relying
     # on PDS's working directory. The checked-in RTL stays portable.
-    top = (ROOT / "rtl" / "board_top.v").read_text(encoding="utf-8")
+    rtl_names = RTL + (["soc_instr_mem.v", "soc_data_mem.v", "soc_top.v"]
+                       if args.variant == "soc" else [])
+    top_source = ROOT / "rtl" / ("soc_board_top.v" if args.variant == "soc" else "board_top.v")
+    top = top_source.read_text(encoding="utf-8")
+    if args.variant == "soc":
+        # Keep the PDS root/artifact name board_top for existing pin constraints
+        # and the IO-only functional-netlist test. Rename only this build copy.
+        marker = "module soc_board_top #("
+        if top.count(marker) != 1:
+            raise RuntimeError("Unexpected soc_board_top module declaration")
+        top = top.replace(marker, "module board_top #(")
     for original, image in zip(
             ["programs/board_demo.hex", "programs/board_demo_data.hex"], images):
         if top.count(original) != 1:
@@ -67,7 +78,7 @@ def main():
         return '"' + path.as_posix() + '"'
 
     commands = ["set_arch -family Logos -device PGL50H -speedgrade -6 -package FBG484"]
-    commands += ["add_design " + quoted(ROOT / "rtl" / name) for name in RTL]
+    commands += ["add_design " + quoted(ROOT / "rtl" / name) for name in rtl_names]
     commands += ["add_design " + quoted(generated_top),
                  "add_constraint -logic -fdc " + quoted(ROOT / "pds/board_top.fdc"),
                  "compile -top_module board_top -loop_limit 10000",
@@ -161,6 +172,8 @@ def main():
         "requested_stage": args.stage, "pds_returncode": result.returncode,
         "firmware": args.firmware,
         "variant": args.variant,
+        "source_top": top_source.relative_to(ROOT).as_posix(),
+        "generated_top_module": "board_top",
         "hardware_verified": False,
         "post_route_timing_rows": timing_rows,
         "final_sta_report": "report_timing/board_top.rtr",
@@ -171,8 +184,8 @@ def main():
         },
         "sources": {
             p.relative_to(ROOT).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
-            for p in [*[ROOT / "rtl" / name for name in RTL],
-                      ROOT / "rtl/board_top.v", ROOT / "pds/board_top.fdc"]
+            for p in [*[ROOT / "rtl" / name for name in rtl_names],
+                      top_source, ROOT / "pds/board_top.fdc"]
         },
     }
     (build / "build_manifest.json").write_text(

@@ -2,9 +2,78 @@
 
 这是一个使用 Verilog 实现的 RV32I 处理器软核，目前采用 **IF → EX → WB** 三级流水线，能够在 ModelSim 中加载外部 HEX 程序、运行裸机 RISC-V 汇编和 C 程序，并通过 `tohost` 协议自动报告运行结果。
 
-当前版本已经完成37种 RV32I 指令、数据前递、分支与跳转冲刷、字及子字访存、同步指令/数据存储器、取指侧与数据侧单笔请求/响应握手、RISC-V GCC 软件构建流程、性能计数器 MMIO、UART TX、带16字节接收FIFO的UART RX，以及8位 GPIO MMIO。当前取指握手增量已有RTL功能、PDS综合/布局布线、50 MHz最终STA及综合后功能网表验证；CoreMark单次功能校验保留为此前版本记录；开发板实物尚未验证。
+当前版本已经完成37种 RV32I 指令、数据前递、分支与跳转冲刷、字及子字访存、同步指令/数据存储器、取指侧与数据侧单笔请求/响应握手、RISC-V GCC 软件构建流程、性能计数器 MMIO、UART TX、带16字节接收FIFO的UART RX，以及8位 GPIO MMIO。当前最小SoC增量已有RTL功能、PDS综合/布局布线、50 MHz最终STA及综合后功能网表验证；CoreMark单次功能校验保留为此前版本记录；开发板实物尚未验证。
 
-项目的长期目标是作为紫光同创盘古 50 开发板上轻量化 CNN 推理系统的 RISC-V 主控。CPU 与平台部分负责处理器、外设和后续加速器接口，CNN 模型与部署由队友负责。后续仍需实际外部存储器及互联、异常/中断、Cache、BTB、CNN接口和板级实物验证。现阶段保持三级流水线，后续再评估五级升级；队友使用的参考 CPU 不替换本仓库的处理器。
+项目的长期目标是作为紫光同创盘古 50 开发板上轻量化 CNN 推理系统的 RISC-V 主控。CPU 与平台部分负责处理器、外设和后续加速器接口，CNN 模型与部署由队友负责。当前新增了CPU外、FPGA内的独立ROM/RAM与最小SoC顶层；后续仍需外部存储器控制器与互联、异常/中断、Cache、BTB、CNN接口和板级实物验证。现阶段保持三级流水线，后续再评估五级升级；队友使用的参考 CPU 不替换本仓库的处理器。
+
+## 新增：独立片上存储器的最小 SoC
+
+`soc_top.v` 将 `cpu_top` 的 `EXTERNAL_IMEM`、`EXTERNAL_DMEM` 都设为1，实际连接独立的同步ROM/RAM响应模块。这里“外部”指CPU模块之外，ROM/RAM仍由同一片FPGA内部资源实现。取指与数据使用两条独立通道，各允许一笔已接受事务在途，能够并行活动；没有仲裁器、AXI、DDR、DMA或CNN加速器。
+
+```text
+soc_board_top       MES50HP 时钟、KEY1复位、LED与UART引脚
+  └─ soc_top
+       ├─ u_cpu    自研 IF → EX → WB；原UART/GPIO/计数器MMIO
+       ├─ u_imem   soc_instr_mem → 同步指令ROM + 握手端点
+       └─ u_dmem   soc_data_mem  → 同步数据RAM + 握手端点
+```
+
+| 新文件 | 作用 |
+| --- | --- |
+| `rtl/soc_top.v` | 连接CPU的外部取指、数据端口，导出退休/故障/计数调试信号 |
+| `rtl/soc_instr_mem.v` | 请求接受沿读取ROM；支持响应保持、等待和消费响应同拍接受下一笔 |
+| `rtl/soc_data_mem.v` | 请求接受沿执行一次RAM读写；检查范围、size、对齐和写字节使能 |
+| `rtl/soc_board_top.v` | 与原板级入口同引脚的新SoC入口；原 `board_top.v` 保留 |
+| `tb/soc_memory_tb.v` / `tb/soc_top_tb.v` / `tb/soc_board_tb.v` | 新端点、新SoC及新板级连接的验证 |
+| `tb/soc_fault_tb.v` | 新ROM/RAM实际报错后的CPU停机、精确副作用及共同复位恢复 |
+| `run_soc.do` / `run_soc_netlist.do` | 新RTL测试及新综合网表功能检查入口 |
+
+软件仍使用指令区 `0x00000000–0x00007FFF`、数据区 `0x00010000–0x00013FFF`，`tohost=0x00013FFC`。既有C程序和板级固件镜像不变。`0x2000xxxx` 仍在CPU内部译码到UART、GPIO、计数器等外设，不会送入 `u_dmem`；这些地址尚未成为可接CNN的通用外部MMIO总线。
+
+读请求返回包含目标字节的完整32位字，CPU完成LB/LBU/LH/LHU扩展。写数据已经由CPU按地址偏移移位，SB/SH/SW的 `wstrb` 必须与size、偏移匹配；非法请求只返回error，不读写RAM。写响应为0。非法取指响应为error及0数据。复位同时取消CPU与端点的协议状态，不清空RAM，也不撤销已经接受的写入；没有事务超时。
+
+`soc_top` 的四个 `IMEM/DMEM_*_WAIT_CYCLES` 参数默认0，可为独立端点增加请求/响应等待；DMEM等待也作用于原CPU内部MMIO端点。当前均为同一时钟域。更改容量或基址时必须同时调整链接脚本、完整HEX容量和测试；数据RAM不能覆盖CPU保留的 `0x2000xxxx` 区域。
+
+在ModelSim Transcript中查看本次新测试：
+
+```tcl
+cd D:/FPGA/riscv_3stage
+do run_soc.do
+```
+
+脚本依次运行新存储端点、SoC故障、板级测试和SoC程序，最后保留 `soc_top_tb` 的波形。只有各组 `test_pass=1` 才算通过，`$stop` 表示测试主动结束。最后 `done=4'hf`、`test_pass=1`。已通过且相关代码未变的旧CPU、UART/FIFO模块测试与CoreMark无需重复运行。
+
+在Git Bash构建新SoC候选工程：
+
+```bash
+cmd.exe //c build_pds_board.bat --firmware uart_rx_echo --variant soc --stage bitstream
+```
+
+输出只写入 `build/pds_soc/`。脚本读取 `soc_board_top.v`，仅在生成的综合副本中将模块名改为 `board_top` 并将固件路径改为绝对路径，以复用现有引脚约束和仅检查IO的综合网表测试。原板级源码和旧构建目录不变。`do run_soc_netlist.do` 使用本机PDS官方模型检查这份回显固件的综合网表功能，不含SDF时序回标。构建脚本只生成工程、报告和位流，不执行下载或Flash烧写。第一次实物验收仍按原冻结版本的验收文档进行。
+
+SoC两种固件都使用 `build/pds_soc/`，切换 `--firmware` 前需归档其报告和位流；下列构建证据只对应 `uart_rx_echo` 固件。
+
+本次新SoC验证记录（2026-10-02）：
+
+| 检查 | 结果 |
+| --- | --- |
+| 独立存储端点4组 | 零/固定等待、随机发起间隔与响应背压、连续IF消费/重发、非法访问隔离及三阶段复位通过；11470 ns |
+| 新SoC集成4组 | C零/固定等待、字节/半字/字、前递、分支/JAL/JALR、31次精确退休、15次RAM事务及错路MMIO抑制通过；12276 ns |
+| 固定C镜像 | 零额外等待216周期、155条退休，数学CPI约1.394（原性能脚本截断显示1.393）；等待配置1217周期、155条退休，结果一致 |
+| 新板级顶层2组 | 50 MHz/115200串口回显16字节与KEY1帧中复位；原Hello固件、LED心跳、KEY2和KEY1重启通过；2517050 ns |
+| 新SoC故障3组 | 实际RAM越界LOAD/STORE抑制写回/退休；ROM越界错误等待旧STORE完成；粘滞故障与共同复位恢复通过；820 ns |
+| 综合网表功能 | 实际回显固件8字节及KEY1重启通过；3096190 ns；无SDF |
+| 实际布局布线资源 | 1667 LUT、550 FF、8 DRM、72分布式RAM、19 IO、0 APM |
+| 50 MHz最终STA slow setup / hold | 3.034 ns / 0.058 ns，0失败端点 |
+| 50 MHz最终STA fast setup / hold | 8.103 ns / 0.022 ns，0失败端点 |
+| recovery / removal / pulse width | 两个corner全部通过，0失败端点 |
+| 候选位流 | `build/pds_soc/generate_bitstream/board_top.sbit`；未实物验收 |
+
+所有新ModelSim测试的编译/仿真为0错误、0警告。补充IMEM非法响应必须返回0的断言后，只重跑受影响的两个指令端点配置；其余已通过测试不重复运行。CPU、旧存储器/adapter/外设及固件的源码均未改变，未重跑旧CPU回归或CoreMark。
+
+资源取路由后实际使用汇总（模块归属汇总为1663 LUT）。新数据RAM的8个DRM归属于 `u_soc.u_dmem.u_data_mem`；CPU内部旧RAM没有物理RAM资源，少量范围译码逻辑仍被保留。小回显指令镜像在 `u_soc.u_imem` 优化为LUT ROM。仿真仍会初始化CPU原内部存储器实例，但测试确认其读取/写入使能始终关闭。容量参数不能直接等同于这份小固件优化后的物理资源用量。
+
+最终STA取 `report_timing/board_top.rtr`，不混用路由器摘要。PDS复用引脚、忽略通用 `ASYNC_REG` 属性和异步IO约束相关告警仍存在，边界与前述板级版本相同；工具通过不代替实物验收。候选位流SHA-256：`5ddde8bf748446fa71c07d91dadc6465b30b7ea77bda13add472b053edd8c994`。这些检查全部在本机完成。
 
 ## 队友快速上手：下载后先看这里
 
@@ -174,6 +243,7 @@ CPU 与平台部分负责处理器、存储器、外设和后续加速器接入�
 | 同步指令/数据 RAM 与 load-use stall | RTL/仿真已完成；板级演示数据 RAM 映射为8个 DRM18K，小指令镜像被优化为 LUT ROM |
 | 数据侧请求/响应握手 | 单笔在途、请求背压、响应等待、外部RAM端口及错误停机；可变延迟/复位/MMIO唯一性测试通过 |
 | 取指侧请求/响应握手 | 单笔在途、默认每拍吞吐、可变延迟、跳转旧响应丢弃、错误停机与故障PC；7组新增检查通过 |
+| 最小SoC与独立片上ROM/RAM端点 | 新SoC软件/板级RTL、实际错误响应、PDS 50 MHz最终STA及综合网表功能通过 |
 | 性能计数器 MMIO | 已完成 |
 | CoreMark v1.01 | 单次算法/CRC 校验已通过；不是正式跑分 |
 | UART TX | 已完成 RTL 与串行线仿真验证 |
@@ -711,7 +781,7 @@ do run_fetch_handshake.do
 cmd.exe //c build_pds_board.bat --firmware uart_rx_echo --variant fetch_handshake --stage bitstream
 ```
 
-本次输出为 `build/pds_fetch_handshake/`，综合后功能检查入口 `do run_fetch_handshake_netlist.do`。variant只区分输出目录，不选择旧源码；恢复旧构建应先检出对应Git提交。板级继续使用内部指令/数据端点，未连接实际外部存储器或CNN。以前的位流和报告不能作为新RTL版本的证据。
+本次输出为 `build/pds_fetch_handshake/`，综合后功能检查入口 `do run_fetch_handshake_netlist.do`。`data_handshake` / `fetch_handshake` variant只区分输出目录，不选择旧源码；新增的 `soc` variant选择SoC顶层。恢复旧构建应先检出对应Git提交。该取指握手阶段的板级继续使用内部指令/数据端点，未连接实际外部存储器或CNN。以前的位流和报告不能作为新RTL版本的证据。
 
 | 本版检查 | 结果 |
 | --- | --- |
