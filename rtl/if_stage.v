@@ -3,7 +3,8 @@ module if_stage #(
     parameter integer IMEM_WORDS = 1024,
     parameter integer EXTERNAL_IMEM = 0,
     parameter integer IMEM_REQ_WAIT_CYCLES = 0,
-    parameter integer IMEM_RSP_WAIT_CYCLES = 0
+    parameter integer IMEM_RSP_WAIT_CYCLES = 0,
+    parameter integer ENABLE_TRAPS = 0
 ) (
     input  wire        clk,
     input  wire        rst_n,
@@ -52,12 +53,14 @@ module if_stage #(
     assign fetch_rsp_error = (EXTERNAL_IMEM != 0) ? imem_rsp_error : local_rsp_error;
     assign fetch_rsp_drop = fetch_stale_q || redirect_x;
     // Current-path errors wait behind older EX/data instructions too.
-    // This is a frontend fault stop, not an architectural trap handler.
+    // Legacy mode stops here. Trap mode keeps the fault descriptor until
+    // CPU redirect acknowledges it, so older EX/data work finishes first.
     assign fetch_rsp_ready = rst_n && fetch_pending_q &&
                              (fetch_rsp_drop || !stall_x);
     assign fetch_rsp_fire = fetch_rsp_valid && fetch_rsp_ready;
     assign fetch_rsp_fault = fetch_rsp_fire && !fetch_rsp_drop && fetch_rsp_error;
-    assign fetch_req_valid = rst_n && !imem_fault && !fetch_rsp_fault &&
+    assign fetch_req_valid = rst_n &&
+        (!imem_fault || ((ENABLE_TRAPS != 0) && redirect_x)) && !fetch_rsp_fault &&
         (req_hold_q || ((!fetch_pending_q || fetch_rsp_fire) && !stall_x));
     assign fetch_req_addr = req_hold_q ? req_pc_q :
                             redirect_x ? redirect_pc_x : pc_f;
@@ -144,6 +147,11 @@ module if_stage #(
             if (fetch_rsp_fault) begin
                 imem_fault <= 1'b1;
                 imem_fault_pc <= fetch_pc_q;
+            end else if ((ENABLE_TRAPS != 0) && redirect_x) begin
+                // A trap or an older control redirect supersedes this fault.
+                // The accepted-request stale mechanism still drains any
+                // earlier response without admitting wrong-path errors.
+                imem_fault <= 1'b0;
             end
         end
     end

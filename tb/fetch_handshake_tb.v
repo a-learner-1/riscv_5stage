@@ -211,7 +211,8 @@ module fetch_program_case #(
         .imem_req_valid(req_valid), .imem_req_ready(req_ready), .imem_req_addr(req_addr),
         .imem_rsp_valid(rsp_valid), .imem_rsp_ready(rsp_ready),
         .imem_rsp_rdata(rsp_rdata), .imem_rsp_error(rsp_error),
-        .imem_fault(imem_fault), .imem_fault_pc(fault_pc)
+        .imem_fault(imem_fault), .imem_fault_pc(fault_pc),
+        .trap_valid(), .trap_pc(), .trap_cause(), .trap_tval()
     );
 
     function [31:0] itype;
@@ -406,7 +407,8 @@ module fetch_reset_fault_case(output reg done=0);
         .imem_req_valid(req_valid), .imem_req_ready(req_ready), .imem_req_addr(req_addr),
         .imem_rsp_valid(rsp_valid), .imem_rsp_ready(rsp_ready),
         .imem_rsp_rdata(rsp_rdata), .imem_rsp_error(rsp_error),
-        .imem_fault(imem_fault), .imem_fault_pc(fault_pc)
+        .imem_fault(imem_fault), .imem_fault_pc(fault_pc),
+        .trap_valid(), .trap_pc(), .trap_cause(), .trap_tval()
     );
     function [31:0] addi;
         input integer imm; input [4:0] rs1,rd;

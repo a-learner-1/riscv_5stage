@@ -36,3 +36,7 @@ axi_lite_work/
 axi_control_work/
 axi_control_board_work/
 axi_control_board_netlist_work/
+trap_work/
+trap_edges_work/
+trap_c_work/
+trap_affected_work/

@@ -41,7 +41,8 @@ module board_top #(
         // Board firmware still runs from the internal synchronous ROM.
         .imem_req_valid(), .imem_req_ready(1'b0), .imem_req_addr(),
         .imem_rsp_valid(1'b0), .imem_rsp_ready(), .imem_rsp_rdata(32'd0),
-        .imem_rsp_error(1'b0), .imem_fault(), .imem_fault_pc()
+        .imem_rsp_error(1'b0), .imem_fault(), .imem_fault_pc(),
+        .trap_valid(), .trap_pc(), .trap_cause(), .trap_tval()
     );
     assign led = gpio_out & gpio_oe;
 endmodule

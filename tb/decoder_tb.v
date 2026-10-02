@@ -87,7 +87,8 @@ module decoder_tb;
         .imm_b(), .imm_j(), .imm_s(), .is_beq(), .is_bne(),
         .is_blt(), .is_bge(), .is_bltu(), .is_bgeu(),
         .is_jal(), .is_jalr(), .is_lw(), .is_sw(),
-        .is_lb(), .is_lbu(), .is_lh(), .is_lhu(), .is_sb(), .is_sh()
+        .is_lb(), .is_lbu(), .is_lh(), .is_lhu(), .is_sb(), .is_sh(),
+        .is_fence(), .is_ecall(), .is_ebreak(), .is_mret(), .is_csr()
     );
 
     assign decode_flags = {

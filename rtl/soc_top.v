@@ -75,7 +75,8 @@ module soc_top #(
         .dmem_req_size(dmem_req_size), .dmem_req_wdata(dmem_req_wdata),
         .dmem_req_wstrb(dmem_req_wstrb), .dmem_rsp_valid(dmem_rsp_valid),
         .dmem_rsp_ready(dmem_rsp_ready), .dmem_rsp_rdata(dmem_rsp_rdata),
-        .dmem_rsp_error(dmem_rsp_error), .dmem_fault(dmem_fault)
+        .dmem_rsp_error(dmem_rsp_error), .dmem_fault(dmem_fault),
+        .trap_valid(), .trap_pc(), .trap_cause(), .trap_tval()
     );
     soc_instr_mem #(
         .WORDS(IMEM_WORDS), .INIT_FILE(PROGRAM_FILE),

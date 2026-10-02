@@ -48,7 +48,12 @@ module decoder (
     output wire        is_lhu,
     output wire        is_sb,
     output wire        is_sh,
-    output wire [31:0] imm_s
+    output wire [31:0] imm_s,
+    output wire        is_fence,
+    output wire        is_ecall,
+    output wire        is_ebreak,
+    output wire        is_mret,
+    output wire        is_csr
 );
 
     wire [6:0] opcode;
@@ -166,4 +171,18 @@ module decoder (
     assign is_sb = (opcode == 7'b0100011) && (funct3 == 3'b000);
     assign is_sh = (opcode == 7'b0100011) && (funct3 == 3'b001);
     assign is_sw = (opcode == 7'b0100011) && (funct3 == 3'b010);
+
+    // Base FENCE is deliberately conservative: all predecessor/successor
+    // sets, fm values and reserved rs1/rd fields use the same full ordering.
+    // FENCE.I belongs to Zifencei and is not supported by this core.
+    assign is_fence = (opcode == 7'b0001111) && (funct3 == 3'b000);
+    // SYSTEM instructions with funct3=0 require their exact encoding.
+    assign is_ecall  = (instr == 32'h00000073);
+    assign is_ebreak = (instr == 32'h00100073);
+    assign is_mret   = (instr == 32'h30200073);
+    // Register and immediate versions of CSRRW/CSRRS/CSRRC (Zicsr).
+    assign is_csr = (opcode == 7'b1110011) &&
+                    ((funct3 == 3'b001) || (funct3 == 3'b010) ||
+                     (funct3 == 3'b011) || (funct3 == 3'b101) ||
+                     (funct3 == 3'b110) || (funct3 == 3'b111));
 endmodule

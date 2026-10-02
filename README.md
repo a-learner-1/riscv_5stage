@@ -2,9 +2,74 @@
 
 这是一个使用 Verilog 实现的 RV32I 处理器软核，目前采用 **IF → EX → WB** 三级流水线，能够在 ModelSim 中加载外部 HEX 程序、运行裸机 RISC-V 汇编和 C 程序，并通过 `tohost` 协议自动报告运行结果。
 
-当前版本已经完成37种 RV32I 指令、数据前递、分支与跳转冲刷、字及子字访存、同步指令/数据存储器、取指侧与数据侧单笔请求/响应握手、RISC-V GCC 软件构建流程、性能计数器 MMIO、UART TX、带16字节接收FIFO的UART RX，以及8位 GPIO MMIO。AXI路径已有32位AXI4-Lite主桥、RAM从设备、1主2从地址分发器和通用控制寄存器演示设备；C程序通过AXI配置、启动、轮询并读回硬件加法结果。新增AXI板级自检版本已有新RTL测试、PDS综合/布局布线、50 MHz最终STA、综合后功能网表验证与候选位流；CoreMark单次功能校验保留为此前版本记录；开发板实物尚未验证。
+当前已有37种常用RV32I指令及流水线/存储/外设平台；新增 `ENABLE_TRAPS=1` 模式补入FENCE、ECALL、EBREAK、6种Zicsr和MRET，以及最小机器模式同步异常环境。旧顶层默认 `ENABLE_TRAPS=0` 保持原固件和粘滞故障语义。AXI路径已有32位AXI4-Lite主桥、RAM从设备、1主2从地址分发器和通用控制设备；C程序能启动硬件任务。此前AXI板级自检的50 MHz PDS/网表/候选位流属于 `a2bfff0` 基线；本轮新增异常路径已做RTL/C/AXI验证，尚无新PDS时序或实物结果。CoreMark仅保留旧版本单次功能记录。
 
-项目的长期目标是作为紫光同创盘古 50 开发板上轻量化 CNN 推理系统的 RISC-V 主控。CPU 与平台部分负责处理器、外设和后续加速器接口，CNN 模型与部署由队友负责。当前已有CPU外、FPGA内的独立ROM/RAM、最小SoC及AXI4-Lite控制演示闭合系统；后续仍需实际外部存储器控制器、异常/中断、Cache、BTB、正式CNN接口和板级实物验证。现阶段保持三级流水线，后续再评估五级升级；队友使用的参考 CPU 不替换本仓库的处理器。
+项目的长期目标是作为紫光同创盘古 50 开发板上轻量化 CNN 推理系统的 RISC-V 主控。CPU 与平台部分负责处理器、外设和后续加速器接口，CNN 模型与部署由队友负责。当前已有CPU外、FPGA内的独立ROM/RAM、最小SoC及AXI4-Lite控制演示闭合系统；后续仍需实际外部存储器控制器、完整异常/中断、Cache、BTB、正式CNN接口和板级实物验证。现阶段保持三级流水线，后续再评估五级升级；队友使用的参考 CPU 不替换本仓库的处理器。
+
+## 新增：FENCE、CSR与最小机器模式同步异常
+
+本轮以 `a2bfff0` 为基线。在 `cpu_top` 或 `soc_axi_lite_top` 实例中设置 `.ENABLE_TRAPS(1)`，开启以下指令与恢复机制；参数默认0，旧板级程序未安装异常处理函数，因此旧顶层仍保持兼容模式。新能力不是自动启用在旧位流中；首次实物验收继续使用保存的基线位流和对应源码。
+
+- FENCE：支持opcode=0x0f/funct3=0，包括空前驱/后继和保留字段；按保守屏障处理。现有CPU在LOAD/STORE响应完成前不能执行下一条EX指令，所以屏障无需新增总线请求，退休时较早数据事务已完成。
+- ECALL/EBREAK：记录自身PC并进入软件处理程序，异常指令不退休。EBREAK的mtval记录自身PC，ECALL为0。
+- Zicsr：CSRRW/CSRRS/CSRRC与三个立即数形式。读结果走WB前递；写意图依据编码的rs1=x0或zimm=0，不依据寄存器内容是否为0。未知CSR或只读CSR的写入产生非法指令异常。
+- MRET：跳转到mepc，恢复MIE/MPIE；只有机器模式，MPP固定3。
+- 同步异常：较早数据响应错误优先；取指错误等待较早EX和访存完成。异常指令及其年轻指令不产生退休、链接寄存器写入、CSR修改或错误路径RAM/MMIO操作；较早WB和已完成STORE保留。
+
+| CSR | 地址 | 本轮行为 |
+| --- | --- | --- |
+| mstatus | 0x300 | 仅MIE[3]、MPIE[7]可写，MPP[12:11]固定3；其他位为0 |
+| misa | 0x301 | 固定0x40000100；合法WARL写入忽略 |
+| mtvec | 0x305 | 仅Direct模式；写入低2位清零；复位0 |
+| mscratch | 0x340 | 32位读写，复位0 |
+| mepc | 0x341 | 32位读写，IALIGN=32低2位清零 |
+| mcause / mtval | 0x342 / 0x343 | 读写；异常覆盖为当前描述 |
+| mvendorid / marchid / mimpid / mhartid / mconfigptr | 0xf11–0xf15 | 只读0；有写意图则非法 |
+
+异常原因0为取指地址错位，1为取指访问错误，2为非法指令，3为断点，4/5为LOAD错位/访问错误，6/7为STORE错位/访问错误，11为机器模式ECALL。取指和数据地址错误的mtval保存地址，非法指令保存32位指令。取指目标错位归属于导致它的已取到的分支/JAL/JALR，mepc为控制指令PC且不写link；对齐目标访问错误归属于目标PC。数据错位在请求发出前阻止访问。已接受从设备的写不能由CPU回滚；错误响应只阻止该指令退休。
+
+trap入口使用mtvec直接地址；入口时MPIE=MIE、MIE=0，MRET时MIE=MPIE、MPIE=1。新增调试输出 `trap_valid/trap_pc/trap_cause/trap_tval` 给出单拍异常及描述，内部CSR也可添加到ModelSim波形。使能模式的imem_fault是等待接管的前端描述，重定向后清除；数据错误直接转为trap，不再置粘滞dmem_fault。兼容模式原故障灯和复位恢复行为保持原样。
+
+| 新文件 | 用途 |
+| --- | --- |
+| software/trap_entry.S | 保存30个整数寄存器、分配128字节栈帧并保持已有16字节对齐、调用C处理程序、恢复寄存器并MRET |
+| software/trap_demo.c | 真正执行CSR/FENCE和4次异常，校验mepc/mcause/mtval/mstatus与返回后的RAM结果 |
+| tools/build_trap_images.py / build_trap.bat | RV32I_Zicsr/ILP32构建；生成完整指令/数据HEX及基于ELF符号的TB地址宏 |
+| programs/trap_demo.hex / trap_demo_data.hex / trap_demo_symbols.vh | 8192/4096字镜像、符号地址；本次1316字节text、76字节初始化data |
+| tb/cpu_trap_tb.v / run_trap.do | 8组独立指令与精确异常测试 |
+| tb/cpu_trap_edges_tb.v / run_trap_edges.do | 4组额外边界、优先级和握手状态复位测试 |
+| tb/trap_c_tb.v / run_trap_c.do | 3组真实C经实际AXI RAM执行，AW/W不同等待顺序及UART引脚逐字节验证 |
+| run_trap_affected.do | 仅在CPU相关修改后运行受影响集成，不调用旧外设/存储/AXI单测或CoreMark算法 |
+
+新HEX已生成，首次查看无需编译C。修改新软件后执行 `cmd.exe //c build_trap.bat`。旧程序镜像、算法源、UART/FIFO/GPIO/AXI设备和存储模块功能均未改变。CPU、decoder、if_stage修改了功能；soc_axi_lite_top透传使能和debug；旧顶层及测试平台对新增输出补显式空连接，没有改刺激或断言。
+
+ModelSim新入口（各组可独立运行，已通过且源码未改无需重跑）：
+
+```tcl
+cd D:/FPGA/riscv_3stage
+do run_trap.do
+# 8组，done=8'hff，test_pass=1，14600 ns
+```
+
+```tcl
+do run_trap_edges.do
+# 4组，done=4'hf，test_pass=1，4050 ns
+```
+
+```tcl
+do run_trap_c.do
+# 3组，done=3'h7，test_pass=1，173610 ns
+```
+
+C固件通过后UART输出42字节 `TRAP PASS FENCE CSR ECALL EBREAK ILLEGAL` 加CR LF，再经原startup写tohost=1。仿真UART用100 MHz/5 Mbaud（20拍/bit）加快验证，不是板级115200配置。handler仅针对演示的四条32位指令将mepc加4；通用程序必须按异常原因设计恢复，不能盲目跳过所有访存/取指错误。该入口不能直接替换旧板级演示固件，后续新板级顶层需要使能并重新构建/验收。
+
+`trap_entry.S` 使用被打断程序的当前sp，要求进入前已有有效可写、16字节对齐的栈，并预留128字节寄存器帧及C handler自身的栈空间；减128不会修正原先未对齐的sp。本例由startup建立满足条件的栈。入口不提供独立异常栈，不支持入口/handler再次异常或中断嵌套。
+
+2026-10-02新增15组全部通过，最终ModelSim编译/仿真0错误0警告。实际C程序每组4次异常与4次MRET、6CSR/FENCE，AXI RAM写/读217/208，UART42字节；三个配置的轮询量不同，退休指令数不能用来直接比较性能。异常测试覆盖所有本轮原因、RO/WARL、CSR前递与写抑制、错误路径CSR/RAM/GPIO、较早STORE完成、过期错误丢弃和CSR/协议复位。记录在 `build/trap_validation.log`、`trap_edges_validation.log`、`trap_c_validation.log` 及源码SHA清单。
+
+本轮CPU/decoder/前端功能发生变化，因此补查21个受影响旧CPU、SoC、AXI与板级RTL集成顶层，全部功能通过；未重复未改功能的外设/存储/AXI单测或CoreMark算法。首段10组已通过后，脚本读取被优化的test_pass失败；改用+acc并从第11组继续，没有重跑前10组。旧输出空连接导致的警告随后只做连接修正和编译/展开检查，不改变刺激、断言或RTL功能，不再重复功能仿真。两个分段日志及最终编译检查记录在build目录。
+
+本轮没有中断输入、mie/mip、S/U模式、委托、PMP、标准mcycle/minstret CSR、FENCE.I或Cache。本轮可称RV32I的40项基础指令行为及Zicsr/MRET已实现和定向验证，不能称完整特权架构或标准一致性测试通过。旧CoreMark单次记录不作为新模式跑分；本轮没有新PDS/位流/实物验证，旧manifest在源码改变后会拒绝旧网表。规范依据：[RV32I](https://docs.riscv.org/reference/isa/v20260120/unpriv/rv32.html)、[Zicsr](https://docs.riscv.org/reference/isa/v20260120/unpriv/zicsr.html)、[Machine ISA](https://docs.riscv.org/reference/isa/v20240411/priv/machine.html)。
 
 ## 新增：AXI 控制系统的盘古50板级自检
 
@@ -154,7 +219,7 @@ CTRL命令只受WSTRB[0]控制；可写寄存器的零mask成功但无副作用�
 
 分发器按两个半开地址窗口选择目标，不做地址平移；每路独立允许一笔读和一笔写，而原CPU主桥仍只允许一笔总事务。AW/W可任意先后到达，分发器收到两者后才向锁定的目标投递，并分别等待接受；未命中写也必须收到AW/W后才能产生DECERR。未命中读返回DECERR和0，均不触发从设备请求。地址上限使用33位计算，支持窗口结束于4 GiB；窗口需非空、字对齐且不重叠。
 
-本系统使用同一时钟和共同复位。复位清除CPU/桥/分发器/从设备的协议状态，取消控制任务并清控制寄存器；RAM内容保留，已完成的写不回滚。设备读数据在AR接受时快照，B/R响应保持到消费。PROT传递到从设备，但演示设备不实施权限或安全隔离。没有跨时钟、总线超时、架构异常入口或中断；设备返回错误仍使CPU粘滞停止，必须复位恢复。
+本系统使用同一时钟和共同复位。复位清除CPU/桥/分发器/从设备的协议状态，取消控制任务并清控制寄存器；RAM内容保留，已完成的写不回滚。设备读数据在AR接受时快照，B/R响应保持到消费。PROT传递到从设备，但演示设备不实施权限或安全隔离。这个旧控制顶层使用ENABLE_TRAPS=0，没有跨时钟、总线超时、异常入口或中断；设备返回错误仍使CPU粘滞停止，必须复位恢复。新增可选同步异常见首节。
 
 更改基址/容量时需同步修改HDL、链接脚本、HEX和测试。RAM与控制设备都不能覆盖CPU本地 `0x2000xxxx` 窗口；新C镜像固定使用16 KiB数据RAM。仅更改控制基址可用下述构建选项，但仍需同步HDL参数与测试地址。构建器拒绝零基址，避免C命令寄存器访问成为空指针解引用；HDL窗口可配置不代表现有C可直接用于所有地址。
 
@@ -218,7 +283,7 @@ soc_axi_lite_top
 
 CPU端size=0/1/2分别为字节/半字/字，按原字节地址先检查合法尺寸、对齐及精确写mask，再清AXI地址低两位。CPU已经移位WDATA/WSTRB，桥直接转发；AXI读回完整32位字，CPU继续提取与扩展。桥不预设设备地址范围，译码由从设备负责。两条PROT固定000（非特权、Secure、数据访问）；本RAM忽略该属性，未实现安全隔离。
 
-CPU响应只在AXI B/R完成后产生，并保持到CPU接受。仅OKAY成功；其他RESP转 `dmem_rsp_error`，错误读与全部写返回0。原CPU将错误指令停止且不退休，等待复位；没有架构异常处理程序或超时机制。错误响应不保证任意设备没有产生副作用，已经完成的写不能回滚。本RAM对未对齐/越界地址返回DECERR且无RAM读写使能。
+CPU响应只在AXI B/R完成后产生，并保持到CPU接受。仅OKAY成功；其他RESP转 `dmem_rsp_error`，错误读与全部写返回0。ENABLE_TRAPS=0时将错误指令停止且不退休，等待复位；ENABLE_TRAPS=1时进入同步异常，见首节。仍无超时机制。错误响应不保证任意设备没有产生副作用，已经完成的写不能回滚。本RAM对未对齐/越界地址返回DECERR且无RAM读写使能。
 
 CPU、桥、从设备使用同一时钟和共同复位。共同复位取消未配对AW/W、等待AXI响应及等待CPU消费的状态，但不初始化或清空RAM。只复位桥而让从设备保留旧响应不在本阶段支持范围内。RAM允许任意WSTRB（含0000成功no-op）；CPU主桥仅允许与CPU访问尺寸匹配的mask。
 
@@ -521,7 +586,7 @@ CPU 与平台部分负责处理器、存储器、外设和后续加速器接入�
 
 | 参数 | 当前配置 |
 | --- | --- |
-| ISA | RV32I 子集，共37种指令 |
+| ISA | 默认兼容37种；ENABLE_TRAPS=1增加FENCE/ECALL/EBREAK、Zicsr/MRET与同步异常 |
 | 数据宽度 | 32位 |
 | 流水级 | IF、EX、WB |
 | 指令存储器 | 32 KiB，8192×32位，可参数化 |
@@ -555,7 +620,7 @@ CPU 与平台部分负责处理器、存储器、外设和后续加速器接入�
 | 加载 | `LB`、`LBU`、`LH`、`LHU`、`LW` |
 | 存储 | `SB`、`SH`、`SW` |
 
-当前不支持 `FENCE`、`ECALL`、`EBREAK`、CSR、异常、中断、乘除法扩展和压缩指令。
+`ENABLE_TRAPS=1` 新增 `FENCE`、`ECALL`、`EBREAK`、6种Zicsr与MRET及最小同步异常；默认兼容模式不启用。本轮仍无中断、乘除法和压缩指令，具体CSR及限制见首节。
 
 ## 性能计数器
 
@@ -948,7 +1013,7 @@ mem[4095]   = 1
 | `0x20000030` | SW | CLEAR，掩码为1的输出位清0 |
 | `0x20000034` | SW | TOGGLE，掩码为1的输出位翻转 |
 
-GPIO 仅接受对齐的32位 LW/SW，高24位写入忽略、读取为0。SET/CLEAR/TOGGLE 为只写，不支持读取；IN 为只读。非法访问沿用当前 CPU 的仿真 `$fatal` 检查，并不代表硬件已实现访问异常处理。
+GPIO 仅接受对齐的32位 LW/SW，高24位写入忽略、读取为0。SET/CLEAR/TOGGLE 为只写，不支持读取；IN 为只读。兼容模式保留原仿真 `$fatal` 检查；ENABLE_TRAPS=1时非法访问进入同步异常，错位访问在请求前阻止。
 
 CPU 新增 `gpio_in[7:0]`、`gpio_out[7:0]`、`gpio_oe[7:0]` 端口。复位后 OUT=0、OE=0；OUT 锁存器可以在 OE=0 时写入，IN 始终采样外部输入。OE 只是单独输出的掩码，尚不是实际 FPGA 引脚方向控制：板级顶层需要实现 I/O 三态或使用掩码门控专用 LED 引脚。不要将裸电机等负载直接接 GPIO。
 
@@ -1008,7 +1073,7 @@ PASS: CPU GPIO C program, readback, SET/CLEAR/TOGGLE, squash and RAM isolation
 - branch/JAL/JALR重定向丢弃旧路径响应。已经呈现但未接受的请求不会因跳转撤销，会保持到接受、随后接收并丢弃响应，之后继续目标PC；已接受的旧请求同样必须完成。若外部端点永不返回该响应，取指会等待，不包含超时机制。
 - 旧响应中的error也被丢弃，包括redirect与error响应同拍。正常消费旧响应与接受新请求同拍时，使用旧PC输出指令，再保存新PC元数据。
 - 数据等待期间当前路径指令响应由端点保持，不进入EX；错误响应也等较老LOAD/STORE完成后才设置取指fault。较老事务可正常写回和退休。
-- 当前路径error使 `imem_fault` 粘滞置位，准确保存故障PC并停止新取指；出错指令不写回、不退休。内部模式未对齐或越界取指使用此机制。没有trap入口、CSR或异常返回，只有复位解除；已经退休的指令、寄存器写入及外设副作用不回滚。
+- ENABLE_TRAPS=0时，当前路径error使 `imem_fault` 粘滞置位，准确保存故障PC并停止新取指；出错指令不写回、不退休。内部模式未对齐或越界取指使用此机制，只有复位解除。新增ENABLE_TRAPS=1时的CSR/trap/MRET见首节；已经退休的指令、寄存器写入及外设副作用不回滚。
 - 复位取消未接受请求、已接受响应等待及未消费响应。**外部端点必须同时复位并丢弃复位前事务**，接口没有跨复位的事务识别机制。复位也不清数据RAM或回滚已接受写入。
 
 ### 新增验证与运行入口
@@ -1068,7 +1133,7 @@ cmd.exe //c build_pds_board.bat --firmware uart_rx_echo --variant fetch_handshak
 
 请求被接受前必须保持valid及描述符；响应被消费前必须保持valid、数据及error。写请求也需要完成响应。外部设备可以在接受请求后立即准备响应，但CPU从下一周期开始接收它；设备必须保持到握手完成。外部RAM的合法地址范围由响应设备决定，不沿用内部RAM的容量检查。
 
-CPU与响应设备必须使用同一复位，并同时丢弃旧在途事务；接口没有事务ID，不能隔离一个不参与复位的设备在重启后送来的陈旧响应。复位不会清空RAM，也不会撤销已经接受的写操作或MMIO副作用。`dmem_fault` 是停止机制，不是RISC-V异常入口、CSR或可恢复总线异常实现。
+CPU与响应设备必须使用同一复位，并同时丢弃旧在途事务；接口没有事务ID，不能隔离一个不参与复位的设备在重启后送来的陈旧响应。复位不会清空RAM，也不会撤销已经接受的写操作或MMIO副作用。兼容模式的 `dmem_fault` 是停止机制；新增ENABLE_TRAPS=1将数据错误转为同步异常，见首节。
 
 ### 外设副作用与调试
 
@@ -1125,7 +1190,7 @@ cmd.exe //c build_pds_board.bat --firmware uart_rx_echo --variant data_handshake
 
 两个错误标志保持到软件W1C或复位；清错不清队列。队列满时丢弃新字节并报溢出；若同一时钟沿有效弹出旧队首，则新字节可以入队。空队列同时读和新数据入队时，读返回0，新字节保留供下一次读取。合法字节0x00与空读均返回0，软件必须先检查非空位。
 
-RX_DATA读取沿用 `load_issue_x` 的MMIO快照：发起沿保存弹出前的数据，后续 `load_pending` 停顿沿不再弹出。非法子字/错位访问沿用CPU的仿真检查；硬件访问异常仍未实现。
+RX_DATA读取沿用 `load_issue_x` 的MMIO快照：发起沿保存弹出前的数据，后续 `load_pending` 停顿沿不再弹出。兼容模式非法子字/错位访问保留原仿真检查；ENABLE_TRAPS=1时进入同步异常。RX中断仍未实现。
 
 `uart_rx.v` 使用两级同步、8N1中心单点采样、假起始过滤和停止位检查；坏停止位不入队，持续低电平break只报一次帧错并等待高电平再接收。时钟/波特率参数至少要求4时钟/位，队列支持非二次幂深度，CPU默认16字节，MMIO占用字段允许深度1至255。无16倍过采样、自适应波特率、接收中断或硬件流控。TX也仍无FIFO，连续长突发可能超过回显处理速度，应检查溢出位。
 
@@ -1221,7 +1286,7 @@ LED 输出是 `gpio_out & gpio_oe` 的专用输出门控，不是外部 GPIO 的
 - 按住 KEY2–KEY8 时，相应 LED2–LED8 点亮，松开熄灭。
 - 按 KEY1 时 LED 熄灭、CPU 复位；松开后重新发启动消息并恢复运行。
 
-这个程序一直运行，不返回 `main`，不会写 `tohost=1` 自动结束。这个 `board_demo` 固件只发送启动消息，不读取新增RX寄存器；回显功能由独立的 `uart_rx_echo` 固件提供。CPU 仍使用原来的32 KiB指令地址空间、16 KiB数据 RAM和 MMIO 地址；没有增加操作系统、CSR或中断。
+这个程序一直运行，不返回 `main`，不会写 `tohost=1` 自动结束。这个 `board_demo` 固件只发送启动消息，不读取新增RX寄存器；回显功能由独立的 `uart_rx_echo` 固件提供。CPU仍使用原来的32 KiB指令地址空间、16 KiB数据RAM和MMIO地址；这个旧板级顶层未启用新增同步异常/CSR，没有操作系统或中断。
 
 ### 3. 首次只运行新增板级仿真
 
@@ -1351,10 +1416,10 @@ cmd.exe //c build_pds_board.bat --stage bitstream
 
 ## 当前限制
 
-- 尚未实现异常、中断、CSR和操作系统支持。
+- 已有可选最小M模式同步异常和有限CSR；完整特权架构、中断和操作系统支持尚未实现。
 - 尚未实现Cache、BTB和AXI4 DDR/DMA；AXI4-Lite已有板级自检/PDS入口，尚未接CNN或完成实物验收。UART TX无FIFO，RX有16字节FIFO，但仍无接收中断、奇偶校验或硬件流控。GPIO已有RTL/MMIO和仿真，实际引脚三态及按键消抖仍需板级实现。
 - 当前板级数据 RAM 已确认映射为 DRM18K、初始化已在综合网表中验证；小指令程序优化为 LUT ROM。其他程序映射和实物初始化行为仍需对应验证。
-- 取指与数据侧均已有单笔请求/响应握手及外部端口；AXI4-Lite已有RAM与控制演示设备的1主2从分发，实际DDR等外部存储器控制器尚未接入。取指故障只提供粘滞停止与PC记录，尚无异常入口或超时机制。
+- 取指与数据侧均已有单笔请求/响应握手及外部端口；AXI4-Lite已有RAM与控制演示设备的1主2从分发，实际DDR等外部存储器控制器尚未接入。兼容模式取指故障粘滞停止，新模式进入同步异常处理；仍无总线超时机制。
 - 32 KiB指令区和16 KiB数据区已运行本阶段的 CoreMark 单次程序，但不代表可以容纳后续完整音频特征提取和 CNN 输入数据。
 - 最小板级工程已完成 PDS 综合、资源统计和50 MHz静态时序分析；尚未完成盘古50实物验收，不代表 CNN 或完整 SoC 已上板。
 
@@ -1364,7 +1429,7 @@ cmd.exe //c build_pds_board.bat --stage bitstream
 2. 保存对应 PDS 报告和实物证据，依据真实问题修复并建立板级稳定基线；再接外部屏幕或其他外设。
 3. 验收新增RX回显：115200、8N1发送少量字符并逐字节核对，单独记录RX版本的实物结果。
 4. 完成新增AXI板级自检的实物验收，与队友确定CNN控制、状态、缓冲区和数据格式，依据已验证的AXI4-Lite流程接入正式设备，并更新对应板级/PDS验证。
-5. 补齐基础指令边界、异常和中断；建立正式CoreMark基线后实现二路组相联Cache与BTB并比较性能。
+5. 完善基础指令与同步异常的标准一致性覆盖，扩展完整异常/中断；建立正式CoreMark基线后实现二路组相联Cache与BTB并比较性能。
 6. 完成CNN及系统端到端验证，评估资源、推理延迟和准确率，再依据关键路径评估五级流水线。
 
 ## 当前性能基线

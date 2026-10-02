@@ -262,7 +262,8 @@ module axi_cpu_system #(
         .m_axi_rdata(rdata),
         .m_axi_rresp(rresp),
         .m_axi_rvalid(rvalid),
-        .m_axi_rready(rready)
+        .m_axi_rready(rready),
+        .trap_valid(), .trap_pc(), .trap_cause(), .trap_tval()
     );
     axi_lite_ram #(.WORDS(DMEM_WORDS),.BASE_ADDR(DMEM_BASE_ADDR),.INIT_FILE(DATA_FILE),
         .AW_WAIT_CYCLES(AW_WAIT_CYCLES),.W_WAIT_CYCLES(W_WAIT_CYCLES),

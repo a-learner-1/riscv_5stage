@@ -81,7 +81,8 @@ module cpu_top_tb;
         .dmem_req_valid(), .dmem_req_ready(1'b0), .dmem_req_write(),
         .dmem_req_addr(), .dmem_req_size(), .dmem_req_wdata(), .dmem_req_wstrb(),
         .dmem_rsp_valid(1'b0), .dmem_rsp_ready(), .dmem_rsp_rdata(32'd0),
-        .dmem_rsp_error(1'b0), .dmem_fault()
+        .dmem_rsp_error(1'b0), .dmem_fault(),
+        .trap_valid(), .trap_pc(), .trap_cause(), .trap_tval()
     );
 
     assign decode_flags = {

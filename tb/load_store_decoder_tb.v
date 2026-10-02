@@ -19,7 +19,8 @@ module load_store_decoder_tb;
         .is_jal(), .is_jalr(),
         .is_lb(is_lb), .is_lh(is_lh), .is_lw(is_lw),
         .is_lbu(is_lbu), .is_lhu(is_lhu),
-        .is_sb(is_sb), .is_sh(is_sh), .is_sw(is_sw)
+        .is_sb(is_sb), .is_sh(is_sh), .is_sw(is_sw),
+        .is_fence(), .is_ecall(), .is_ebreak(), .is_mret(), .is_csr()
     );
 
     task check_load;

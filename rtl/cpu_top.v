@@ -13,7 +13,9 @@ module cpu_top #(
     parameter integer DMEM_RSP_WAIT_CYCLES = 0,
     parameter integer EXTERNAL_IMEM = 0,
     parameter integer IMEM_REQ_WAIT_CYCLES = 0,
-    parameter integer IMEM_RSP_WAIT_CYCLES = 0
+    parameter integer IMEM_RSP_WAIT_CYCLES = 0,
+    // Opt in explicitly. Existing boards retain their fault-stop behavior.
+    parameter integer ENABLE_TRAPS = 0
 ) (
     input wire clk,
     input wire rst_n,
@@ -61,7 +63,12 @@ module cpu_top #(
     input  wire [31:0] imem_rsp_rdata,
     input  wire        imem_rsp_error,
     output wire        imem_fault,
-    output wire [31:0] imem_fault_pc
+    output wire [31:0] imem_fault_pc,
+    // One-cycle trap-entry pulse and the most recent synchronous descriptor.
+    output reg         trap_valid,
+    output reg  [31:0] trap_pc,
+    output reg  [31:0] trap_cause,
+    output reg  [31:0] trap_tval
 );
 
     localparam [31:0] MMIO_CYCLE_ADDR   = 32'h2000_0000;
@@ -249,6 +256,47 @@ module cpu_top #(
     wire writes_rd_x;
     wire instr_supported_x;
 
+    wire is_fence_x;
+    wire is_ecall_x;
+    wire is_ebreak_x;
+    wire is_mret_x;
+    wire is_csr_x;
+    wire system_enabled_x;
+    wire csr_write_intent_x;
+    wire csr_commit_x;
+    wire mret_commit_x;
+    wire [11:0] csr_addr_x;
+    wire [31:0] csr_operand_x;
+    reg  [31:0] csr_read_data_x;
+    wire [31:0] csr_write_data_x;
+    reg         csr_known_x;
+    reg         csr_read_only_x;
+    wire        csr_legal_x;
+
+    // Minimal M-mode synchronous trap CSRs. There is no interrupt input,
+    // delegation, U/S mode, PMP, or counter CSR implementation in this step.
+    // MPP is WARL M (3); mstatus implements only MIE and MPIE besides MPP.
+    reg [31:0] csr_mstatus;
+    reg [31:0] csr_mtvec;
+    reg [31:0] csr_mscratch;
+    reg [31:0] csr_mepc;
+    reg [31:0] csr_mcause;
+    reg [31:0] csr_mtval;
+
+    wire        control_misaligned_x;
+    wire        data_misaligned_x;
+    wire        illegal_instruction_x;
+    wire        ex_exception_x;
+    wire [31:0] ex_exception_cause_x;
+    wire [31:0] ex_exception_tval_x;
+    wire        data_exception;
+    wire        fetch_exception;
+    wire        trap_event;
+    wire [31:0] trap_event_pc;
+    wire [31:0] trap_event_cause;
+    wire [31:0] trap_event_tval;
+    wire        normal_redirect_x;
+
     wire [31:0] rs1_data_x;
     wire [31:0] rs2_data_x;
 
@@ -270,7 +318,8 @@ module cpu_top #(
         .IMEM_WORDS(IMEM_WORDS),
         .EXTERNAL_IMEM(EXTERNAL_IMEM),
         .IMEM_REQ_WAIT_CYCLES(IMEM_REQ_WAIT_CYCLES),
-        .IMEM_RSP_WAIT_CYCLES(IMEM_RSP_WAIT_CYCLES)
+        .IMEM_RSP_WAIT_CYCLES(IMEM_RSP_WAIT_CYCLES),
+        .ENABLE_TRAPS(ENABLE_TRAPS)
     ) u_if_stage (
         .clk           (clk),
         .rst_n         (rst_n),
@@ -349,7 +398,12 @@ module cpu_top #(
         .is_lh    (is_lh_x),
         .is_lhu   (is_lhu_x),
         .is_sb    (is_sb_x),
-        .is_sh    (is_sh_x)
+        .is_sh    (is_sh_x),
+        .is_fence (is_fence_x),
+        .is_ecall (is_ecall_x),
+        .is_ebreak(is_ebreak_x),
+        .is_mret  (is_mret_x),
+        .is_csr   (is_csr_x)
     );
 
     /*
@@ -436,13 +490,15 @@ module cpu_top #(
 
     assign uses_rs1_x =
         (((use_imm_x | uses_rs2_x) && !use_upper_imm_x) |
-         is_jalr_x);
+         is_jalr_x |
+         ((ENABLE_TRAPS != 0) && is_csr_x && !instr_x[14]));
 
     assign writes_rd_x =
         (((use_imm_x | uses_rs2_x) &&
           !is_branch_x &&
           !is_store_x) |
-         is_jump_x);
+         is_jump_x |
+         ((ENABLE_TRAPS != 0) && is_csr_x));
 
     assign instr_supported_x =
         is_addi_x |
@@ -476,7 +532,50 @@ module cpu_top #(
         is_branch_x |
         is_jump_x |
         is_load_x |
-        is_store_x;
+        is_store_x |
+        system_enabled_x;
+
+    assign system_enabled_x = (ENABLE_TRAPS != 0) &&
+        (is_fence_x || is_ecall_x || is_ebreak_x || is_mret_x || is_csr_x);
+
+    assign csr_addr_x = instr_x[31:20];
+    assign csr_operand_x = instr_x[14] ? {27'd0, instr_x[19:15]} : rs1_value_x;
+    // CSRRS/CSRRC suppress the write only for the encoded x0/zimm=0, even
+    // when a nonzero source register happens to contain zero. CSRRW always
+    // writes; rd=x0 suppresses the architectural read/result (no CSR here
+    // has a read side effect, and normal WB masks x0).
+    assign csr_write_intent_x = is_csr_x &&
+        ((instr_x[13:12] == 2'b01) || (instr_x[19:15] != 5'd0));
+    assign csr_write_data_x = (instr_x[13:12] == 2'b01) ? csr_operand_x :
+                             (instr_x[13:12] == 2'b10) ?
+                                 (csr_read_data_x | csr_operand_x) :
+                                 (csr_read_data_x & ~csr_operand_x);
+    assign csr_legal_x = csr_known_x &&
+                         !(csr_read_only_x && csr_write_intent_x);
+
+    always @* begin
+        csr_known_x = 1'b1;
+        csr_read_only_x = 1'b0;
+        csr_read_data_x = 32'd0;
+        case (csr_addr_x)
+            12'h300: csr_read_data_x = csr_mstatus;
+            12'h301: begin
+                // Fixed RV32I WARL value. Writes are legal and ignored;
+                // Zicsr and M privilege are not ISA extension letter bits.
+                csr_read_data_x = 32'h40000100;
+            end
+            12'h305: csr_read_data_x = csr_mtvec;
+            12'h340: csr_read_data_x = csr_mscratch;
+            12'h341: csr_read_data_x = csr_mepc;
+            12'h342: csr_read_data_x = csr_mcause;
+            12'h343: csr_read_data_x = csr_mtval;
+            12'hf11, 12'hf12, 12'hf13, 12'hf14, 12'hf15: begin
+                csr_read_data_x = 32'd0;
+                csr_read_only_x = 1'b1;
+            end
+            default: csr_known_x = 1'b0;
+        endcase
+    end
 
     /*
      * WB -> EX ????
@@ -530,14 +629,105 @@ module cpu_top #(
         (pc_x + imm_j_x) :
         ((rs1_value_x + imm_x) & 32'hffff_fffe);
 
-    assign redirect_x =
+    assign normal_redirect_x =
         !dmem_fault && !mem_active &&
         (branch_taken_x | jump_taken_x);
 
-    assign redirect_pc_x =
-        jump_taken_x ?
-        jump_target_x :
-        branch_target_x;
+    // IALIGN=32: only a taken branch/jump checks its destination. JALR
+    // clears bit 0 first. The exception belongs to the control instruction,
+    // so its link register must not be written on a misaligned target.
+    assign control_misaligned_x =
+        (jump_taken_x && (jump_target_x[1:0] != 2'b00)) ||
+        (branch_taken_x && (branch_target_x[1:0] != 2'b00));
+    assign data_misaligned_x = (is_load_x || is_store_x) &&
+        (((mem_size_x == 2'd1) && mem_addr_x[0]) ||
+         ((mem_size_x == 2'd2) && (mem_addr_x[1:0] != 2'b00)));
+    assign illegal_instruction_x = !instr_supported_x ||
+                                    (is_csr_x && !csr_legal_x);
+    assign ex_exception_x = (ENABLE_TRAPS != 0) && rst_n &&
+        !dmem_fault && !mem_active && valid_x &&
+        (illegal_instruction_x || is_ecall_x || is_ebreak_x ||
+         control_misaligned_x || data_misaligned_x);
+    assign ex_exception_cause_x = illegal_instruction_x ? 32'd2 :
+                                 is_ecall_x ? 32'd11 :
+                                 is_ebreak_x ? 32'd3 :
+                                 control_misaligned_x ? 32'd0 :
+                                 is_store_x ? 32'd6 : 32'd4;
+    assign ex_exception_tval_x = illegal_instruction_x ? instr_x :
+                                is_ecall_x ? 32'd0 :
+                                is_ebreak_x ? pc_x :
+                                control_misaligned_x ?
+                                    (jump_taken_x ? jump_target_x : branch_target_x) :
+                                mem_addr_x;
+
+    // A data response is for the older captured instruction. A frontend
+    // error is acknowledged only after the older EX slot has drained. This
+    // extra edge also makes an older mtvec write visible to the fetch trap.
+    assign data_exception = (ENABLE_TRAPS != 0) && mem_rsp_fire && mem_rsp_error;
+    assign fetch_exception = (ENABLE_TRAPS != 0) && rst_n && imem_fault &&
+                              !dmem_fault && !mem_active && !valid_x;
+    assign trap_event = data_exception || ex_exception_x || fetch_exception;
+    assign trap_event_pc = data_exception ? mem_pc_q :
+                           ex_exception_x ? pc_x : imem_fault_pc;
+    assign trap_event_cause = data_exception ? (mem_write_q ? 32'd7 : 32'd5) :
+                              ex_exception_x ? ex_exception_cause_x :
+                              (imem_fault_pc[1:0] != 2'b00) ? 32'd0 : 32'd1;
+    assign trap_event_tval = data_exception ? mem_addr_q :
+                             ex_exception_x ? ex_exception_tval_x : imem_fault_pc;
+    assign mret_commit_x = (ENABLE_TRAPS != 0) && rst_n && valid_x &&
+                           !dmem_fault && !mem_active && is_mret_x && !trap_event;
+    assign csr_commit_x = (ENABLE_TRAPS != 0) && rst_n && valid_x &&
+                          !dmem_fault && !mem_active && is_csr_x &&
+                          csr_legal_x && csr_write_intent_x && !trap_event;
+
+    assign redirect_x = trap_event || mret_commit_x ||
+                         (normal_redirect_x && !ex_exception_x);
+    assign redirect_pc_x = trap_event ? csr_mtvec :
+                           mret_commit_x ? csr_mepc :
+                           jump_taken_x ? jump_target_x : branch_target_x;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            csr_mstatus <= 32'h00001800;
+            csr_mtvec <= 32'd0;
+            csr_mscratch <= 32'd0;
+            csr_mepc <= 32'd0;
+            csr_mcause <= 32'd0;
+            csr_mtval <= 32'd0;
+            trap_valid <= 1'b0;
+            trap_pc <= 32'd0;
+            trap_cause <= 32'd0;
+            trap_tval <= 32'd0;
+        end else begin
+            trap_valid <= trap_event;
+            if (trap_event) begin
+                trap_pc <= trap_event_pc;
+                trap_cause <= trap_event_cause;
+                trap_tval <= trap_event_tval;
+                csr_mepc <= {trap_event_pc[31:2], 2'b00};
+                csr_mcause <= trap_event_cause;
+                csr_mtval <= trap_event_tval;
+                csr_mstatus <= 32'h00001800 |
+                               (csr_mstatus[3] ? 32'h00000080 : 32'd0);
+            end else if (mret_commit_x) begin
+                csr_mstatus <= 32'h00001880 |
+                               (csr_mstatus[7] ? 32'h00000008 : 32'd0);
+            end else if (csr_commit_x) begin
+                case (csr_addr_x)
+                    12'h300: csr_mstatus <= 32'h00001800 |
+                                           (csr_write_data_x & 32'h00000088);
+                    // Only direct mtvec and IALIGN=32 addresses are WARL.
+                    12'h305: csr_mtvec <= {csr_write_data_x[31:2], 2'b00};
+                    12'h340: csr_mscratch <= csr_write_data_x;
+                    12'h341: csr_mepc <= {csr_write_data_x[31:2], 2'b00};
+                    12'h342: csr_mcause <= csr_write_data_x;
+                    12'h343: csr_mtval <= csr_write_data_x;
+                    // Fixed misa WARL writes intentionally have no effect.
+                    default: begin end
+                endcase
+            end
+        end
+    end
 
     /*
      * ALU????
@@ -714,7 +904,7 @@ module cpu_top #(
     // present its request in its first EX cycle. The first edge captures
     // the descriptor whether or not the endpoint is ready on that edge.
     assign mem_start_x = rst_n && !dmem_fault && !mem_active && valid_x &&
-                         (is_load_x || is_store_x);
+                         (is_load_x || is_store_x) && !ex_exception_x;
     assign mem_req_valid = rst_n && !dmem_fault && !req_sent &&
                            (mem_active || mem_start_x);
     assign mem_req_write = mem_active ? mem_write_q : is_store_x;
@@ -751,8 +941,10 @@ module cpu_top #(
                             mem_rsp_ready;
 
     assign load_issue_x = mem_req_fire && !mem_req_write;
-    // Both LOAD and STORE wait for successful completion before the next
-    // EX instruction advances. Errors leave the pipeline halted until reset.
+    // Both LOAD and STORE wait for completion before the next EX advances.
+    // Legacy errors halt; trap-mode errors drain and redirect on this edge.
+    // FENCE can only enter EX after the older data response completed, so
+    // its conservative full ordering requires no additional bus request.
     assign stall_x = dmem_fault ||
                      ((mem_active || mem_start_x) && !mem_rsp_success);
     assign mem_re_x = load_issue_x && !mem_req_mmio &&
@@ -843,7 +1035,7 @@ module cpu_top #(
                 req_sent <= 1'b0;
                 load_pending <= 1'b0;
                 load_mmio_q  <= 1'b0;
-                if (mem_rsp_error)
+                if (mem_rsp_error && (ENABLE_TRAPS == 0))
                     dmem_fault <= 1'b1;
             end
         end
@@ -906,10 +1098,10 @@ module cpu_top #(
      */
     // synthesis translate_off
     always @(posedge clk) begin
-        if (mmio_putchar_write_x && uart_busy)
+        if ((ENABLE_TRAPS == 0) && mmio_putchar_write_x && uart_busy)
             $fatal(1, "UART write while busy pc=%h: poll 0x20000014 first", pc_x);
 
-        if (load_issue_x &&
+        if ((ENABLE_TRAPS == 0) && load_issue_x &&
             !mem_req_mmio && (EXTERNAL_DMEM == 0) &&
             mem_access_ok_x !== 1'b1) begin
             $fatal(
@@ -921,7 +1113,7 @@ module cpu_top #(
             );
         end
 
-        if (load_issue_x &&
+        if ((ENABLE_TRAPS == 0) && load_issue_x &&
             mem_req_mmio &&
             !mmio_load_ok_x) begin
             $fatal(
@@ -933,7 +1125,7 @@ module cpu_top #(
             );
         end
 
-        if (mem_req_fire && mem_req_write &&
+        if ((ENABLE_TRAPS == 0) && mem_req_fire && mem_req_write &&
             !mem_req_mmio && (EXTERNAL_DMEM == 0) &&
             mem_access_ok_x !== 1'b1) begin
             $fatal(
@@ -945,7 +1137,7 @@ module cpu_top #(
             );
         end
 
-        if (mem_req_fire && mem_req_write &&
+        if ((ENABLE_TRAPS == 0) && mem_req_fire && mem_req_write &&
             mem_req_mmio && !mmio_store_ok_x) begin
             $fatal(
                 1,
@@ -972,12 +1164,13 @@ module cpu_top #(
             wb_rd   <= mem_rd_q;
             wb_data <= load_data_x;
             wb_we   <= !mem_write_q && (mem_rd_q != 5'd0);
-        end else if (!dmem_fault && !mem_active && valid_x &&
+        end else if (!dmem_fault && !mem_active && valid_x && !trap_event &&
                      !is_load_x && !is_store_x) begin
             wb_pc <= pc_x;
             wb_rd <= rd_addr_x;
 
             wb_data <=
+                ((ENABLE_TRAPS != 0) && is_csr_x) ? csr_read_data_x :
                 is_jump_x ?
                 (pc_x + 32'd4) :
                 alu_result_x;
@@ -1006,6 +1199,7 @@ module cpu_top #(
             !dmem_fault &&
             valid_x &&
             !mem_active &&
+            !trap_event &&
             !is_load_x &&
             !is_store_x &&
             instr_supported_x

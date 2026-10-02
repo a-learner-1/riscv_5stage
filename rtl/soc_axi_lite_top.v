@@ -14,7 +14,8 @@ module soc_axi_lite_top #(
     parameter integer IMEM_REQ_WAIT_CYCLES = 0,
     parameter integer IMEM_RSP_WAIT_CYCLES = 0,
     parameter integer MMIO_REQ_WAIT_CYCLES = 0,
-    parameter integer MMIO_RSP_WAIT_CYCLES = 0
+    parameter integer MMIO_RSP_WAIT_CYCLES = 0,
+    parameter integer ENABLE_TRAPS = 0
 ) (
     input  wire        clk,
     input  wire        rst_n,
@@ -54,7 +55,11 @@ module soc_axi_lite_top #(
     input wire [31:0] m_axi_rdata,
     input wire [1:0] m_axi_rresp,
     input wire m_axi_rvalid,
-    output wire m_axi_rready
+    output wire m_axi_rready,
+    output wire trap_valid,
+    output wire [31:0] trap_pc,
+    output wire [31:0] trap_cause,
+    output wire [31:0] trap_tval
 );
     wire imem_req_valid, imem_req_ready;
     wire [31:0] imem_req_addr;
@@ -75,6 +80,7 @@ module soc_axi_lite_top #(
         .UART_RX_FIFO_DEPTH(UART_RX_FIFO_DEPTH),
         .SIM_CONSOLE_ECHO(SIM_CONSOLE_ECHO),
         .EXTERNAL_IMEM(1), .EXTERNAL_DMEM(1),
+        .ENABLE_TRAPS(ENABLE_TRAPS),
         // These still control the existing local MMIO endpoint.
         .DMEM_REQ_WAIT_CYCLES(MMIO_REQ_WAIT_CYCLES),
         .DMEM_RSP_WAIT_CYCLES(MMIO_RSP_WAIT_CYCLES)
@@ -94,7 +100,9 @@ module soc_axi_lite_top #(
         .dmem_req_size(dmem_req_size), .dmem_req_wdata(dmem_req_wdata),
         .dmem_req_wstrb(dmem_req_wstrb), .dmem_rsp_valid(dmem_rsp_valid),
         .dmem_rsp_ready(dmem_rsp_ready), .dmem_rsp_rdata(dmem_rsp_rdata),
-        .dmem_rsp_error(dmem_rsp_error), .dmem_fault(dmem_fault)
+        .dmem_rsp_error(dmem_rsp_error), .dmem_fault(dmem_fault),
+        .trap_valid(trap_valid), .trap_pc(trap_pc),
+        .trap_cause(trap_cause), .trap_tval(trap_tval)
     );
     soc_instr_mem #(
         .WORDS(IMEM_WORDS), .INIT_FILE(PROGRAM_FILE),

@@ -73,7 +73,8 @@ module soc_axi_control_top #(
         .m_axi_rdata(axi_rdata),
         .m_axi_rresp(axi_rresp),
         .m_axi_rvalid(axi_rvalid),
-        .m_axi_rready(axi_rready)
+        .m_axi_rready(axi_rready),
+        .trap_valid(), .trap_pc(), .trap_cause(), .trap_tval()
     );
     axi_lite_1x2 #(.M0_BASE_ADDR(DMEM_BASE_ADDR),.M0_SIZE_BYTES(DMEM_WORDS*4),
         .M1_BASE_ADDR(CTRL_BASE_ADDR),.M1_SIZE_BYTES(32'h100)
