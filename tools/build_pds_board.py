@@ -20,13 +20,17 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--stage", choices=["synth", "timing", "bitstream"],
                         default="synth")
-    parser.add_argument("--firmware", choices=["board_demo", "uart_rx_echo"],
-                        default="board_demo",
-                        help="UART echo has its own build/pds_uart_rx output directory")
-    parser.add_argument("--variant", choices=["default", "data_handshake", "fetch_handshake", "soc"],
+    parser.add_argument("--firmware", choices=["board_demo", "uart_rx_echo", "axi_control_board"],
+                        default=None,
+                        help="Default board_demo; axi_control_board variant selects its matching firmware")
+    parser.add_argument("--variant", choices=["default", "data_handshake", "fetch_handshake", "soc", "axi_control_board"],
                         default="default",
-                        help="Isolate data/fetch handshake and SoC builds in their own directories")
+                        help="Isolate data/fetch handshake, SoC and AXI control board builds")
     args = parser.parse_args()
+    if args.firmware is None:
+        args.firmware = "axi_control_board" if args.variant == "axi_control_board" else "board_demo"
+    if (args.variant == "axi_control_board") != (args.firmware == "axi_control_board"):
+        parser.error("axi_control_board firmware and variant must be selected together")
     if not str(ROOT).isascii():
         raise RuntimeError("Use an ASCII project path, e.g. D:/FPGA/riscv_3stage")
     configured = os.environ.get("PDS_SHELL")
@@ -40,14 +44,16 @@ def main():
               [args.firmware + ".hex", args.firmware + "_data.hex"]]
     for path, words in zip(images, [8192, 4096]):
         if not path.is_file():
-            builder = "build_board.bat" if args.firmware == "board_demo" else "build_uart_rx.bat"
+            builder = ("build_axi_control_board.bat" if args.firmware == "axi_control_board" else
+                       "build_board.bat" if args.firmware == "board_demo" else "build_uart_rx.bat")
             raise RuntimeError(f"Missing {path.name}; run {builder}")
         contents = path.read_text(encoding="ascii").splitlines()
         if len(contents) != words or any(not re.fullmatch("[0-9a-fA-F]{8}", w)
                                          for w in contents):
             raise RuntimeError(f"{path.name}: expected {words} complete hex words")
 
-    build_name = ("pds_soc" if args.variant == "soc" else
+    build_name = ("pds_axi_control_board" if args.variant == "axi_control_board" else
+                  "pds_soc" if args.variant == "soc" else
                   "pds_fetch_handshake" if args.variant == "fetch_handshake" else
                   "pds_data_handshake" if args.variant == "data_handshake" else
                   "pds_board" if args.firmware == "board_demo" else "pds_uart_rx")
@@ -57,17 +63,24 @@ def main():
     # on PDS's working directory. The checked-in RTL stays portable.
     rtl_names = RTL + (["soc_instr_mem.v", "soc_data_mem.v", "soc_top.v"]
                        if args.variant == "soc" else [])
-    top_source = ROOT / "rtl" / ("soc_board_top.v" if args.variant == "soc" else "board_top.v")
+    if args.variant == "axi_control_board":
+        rtl_names += ["soc_instr_mem.v", "dmem_axi_lite_bridge.v", "axi_lite_ram.v",
+                      "soc_axi_lite_top.v", "axi_lite_1x2.v", "axi_lite_ctrl.v",
+                      "soc_axi_control_top.v"]
+    top_name = ("axi_control_board_top" if args.variant == "axi_control_board" else
+                "soc_board_top" if args.variant == "soc" else "board_top")
+    top_source = ROOT / "rtl" / (top_name + ".v")
     top = top_source.read_text(encoding="utf-8")
-    if args.variant == "soc":
+    if top_name != "board_top":
         # Keep the PDS root/artifact name board_top for existing pin constraints
         # and the IO-only functional-netlist test. Rename only this build copy.
-        marker = "module soc_board_top #("
+        marker = "module " + top_name + " #("
         if top.count(marker) != 1:
-            raise RuntimeError("Unexpected soc_board_top module declaration")
+            raise RuntimeError("Unexpected " + top_name + " module declaration")
         top = top.replace(marker, "module board_top #(")
+    source_firmware = "axi_control_board" if args.variant == "axi_control_board" else "board_demo"
     for original, image in zip(
-            ["programs/board_demo.hex", "programs/board_demo_data.hex"], images):
+            ["programs/" + source_firmware + ".hex", "programs/" + source_firmware + "_data.hex"], images):
         if top.count(original) != 1:
             raise RuntimeError("Unexpected board_top initialization-file default")
         top = top.replace(original, image.as_posix())

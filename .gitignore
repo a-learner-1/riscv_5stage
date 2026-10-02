@@ -34,3 +34,5 @@ tcl_stacktrace.txt
 *.bak
 axi_lite_work/
 axi_control_work/
+axi_control_board_work/
+axi_control_board_netlist_work/

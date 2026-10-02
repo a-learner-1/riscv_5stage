@@ -2,9 +2,109 @@
 
 这是一个使用 Verilog 实现的 RV32I 处理器软核，目前采用 **IF → EX → WB** 三级流水线，能够在 ModelSim 中加载外部 HEX 程序、运行裸机 RISC-V 汇编和 C 程序，并通过 `tohost` 协议自动报告运行结果。
 
-当前版本已经完成37种 RV32I 指令、数据前递、分支与跳转冲刷、字及子字访存、同步指令/数据存储器、取指侧与数据侧单笔请求/响应握手、RISC-V GCC 软件构建流程、性能计数器 MMIO、UART TX、带16字节接收FIFO的UART RX，以及8位 GPIO MMIO。AXI路径已有32位AXI4-Lite主桥、RAM从设备、1主2从地址分发器和通用控制寄存器演示设备；新C程序通过AXI配置、启动、轮询并读回硬件加法结果。原直连RAM最小SoC增量已有RTL功能、PDS综合/布局布线、50 MHz最终STA及综合后功能网表验证；CoreMark单次功能校验保留为此前版本记录；开发板实物尚未验证。
+当前版本已经完成37种 RV32I 指令、数据前递、分支与跳转冲刷、字及子字访存、同步指令/数据存储器、取指侧与数据侧单笔请求/响应握手、RISC-V GCC 软件构建流程、性能计数器 MMIO、UART TX、带16字节接收FIFO的UART RX，以及8位 GPIO MMIO。AXI路径已有32位AXI4-Lite主桥、RAM从设备、1主2从地址分发器和通用控制寄存器演示设备；C程序通过AXI配置、启动、轮询并读回硬件加法结果。新增AXI板级自检版本已有新RTL测试、PDS综合/布局布线、50 MHz最终STA、综合后功能网表验证与候选位流；CoreMark单次功能校验保留为此前版本记录；开发板实物尚未验证。
 
 项目的长期目标是作为紫光同创盘古 50 开发板上轻量化 CNN 推理系统的 RISC-V 主控。CPU 与平台部分负责处理器、外设和后续加速器接口，CNN 模型与部署由队友负责。当前已有CPU外、FPGA内的独立ROM/RAM、最小SoC及AXI4-Lite控制演示闭合系统；后续仍需实际外部存储器控制器、异常/中断、Cache、BTB、正式CNN接口和板级实物验证。现阶段保持三级流水线，后续再评估五级升级；队友使用的参考 CPU 不替换本仓库的处理器。
+
+## 新增：AXI 控制系统的盘古50板级自检
+
+`axi_control_board_top.v` 将当前AXI控制系统接入MES50HP的50 MHz时钟、KEY1复位、UART与LED；新C固件把计算结果变为实物可以观察的串口文字和状态灯。本版本仍是通用加法控制演示，没有CNN推理或音频输入。本节的工具验证仅属于这一新增顶层和固件，不沿用其他版本的位流或时序结果。
+
+```text
+axi_control_board_top     MES50HP引脚；50MHz / UART115200
+  ├─ board_reset         KEY1，默认上电/松键延迟50000拍
+  ├─ soc_axi_control_top 自研三级CPU + 独立ROM + AXI主桥
+  │                       └─ 1主2从分发器 → AXI RAM / 加法控制设备
+  └─ LED状态             正常由CPU GPIO输出；CPU故障由顶层显示
+```
+
+新程序不返回 `main`，不使用 `tohost` 作为实物提示。初始化数据、3次任务、DONE保持/清除和RAM读回全部校验成功后，在板载串口输出以下55字节（两行末尾均CR LF）：
+
+```text
+AXI RESULTS 0000002A 00000001 80000000
+AXI CTRL PASS
+```
+
+三项结果来自CPU实际读回并保存到RAM的值。UART为115200、8N1、无流控；50 MHz整数分频每位434拍。软件自检失败时输出 `AXI CTRL FAIL XXXXXXXX` 加CR LF，XXXXXXXX为8位大写十六进制错误码；CPU总线/取指故障会停止软件执行，由顶层点亮对应故障灯，不能期待停机后的CPU继续打印FAIL。
+
+| LED状态 | 含义 |
+| --- | --- |
+| 全灭 | 复位或自检尚未完成 |
+| LED2常亮，LED1每约0.5秒翻转 | 自检通过；完整心跳周期约1秒 |
+| LED3常亮（0x04） | 软件自检失败，串口提供错误码 |
+| LED7常亮（0x40） | 数据访问故障，CPU粘滞停止 |
+| LED8常亮（0x80） | 取指故障，优先于数据故障显示 |
+
+错误码2为启动RAM guard不符，3为控制设备初态异常，4为任务轮询超限或完成时仍BUSY，5为结果不符，6为重复读取/DONE/启动计数异常，7为CLEAR_DONE后状态异常，8为最终RAM校验不符。软件只启用GPIO低3位；本固件不将KEY2–KEY8作为LED按键演示。LED高电平点亮，引脚和电平复用原 `pds/board_top.fdc`，19个物理管脚已与本地MES50HP V1.1手册核对。
+
+KEY1使整个CPU/AXI互联/从设备共同复位，控制任务和寄存器清零，协议状态清除，RAM物理内容保留。重新运行的 `start.S` 会清除 `.bss`，因此软件启动后的所有RAM变量不保证保持原值；测试使用栈顶以上的保留字检查RAM保留。按KEY1后应重新输出完整结果和PASS；这仍待实物验收。
+
+| 新增或修改文件 | 作用 |
+| --- | --- |
+| `rtl/axi_control_board_top.v` | 新板级连接、50 MHz UART参数、复位与独立故障灯 |
+| `software/axi_control_board.c` | 永不返回的板级自检、串口结果/错误码、心跳 |
+| `tools/build_axi_control_board_images.py` / `build_axi_control_board.bat` | 只生成新板级指令、硬件数据和加速仿真数据 |
+| `programs/axi_control_board.hex` / `axi_control_board_data.hex` / `axi_control_board_sim_data.hex` | 一份共同指令镜像及两份数据镜像 |
+| `tb/axi_control_board_tb.v` / `run_axi_control_board.do` | 新板级5组RTL测试，使用独立工作库 |
+| `tb/axi_control_board_netlist_tb.v` / `run_axi_control_board_netlist.do` | 本次实际硬件镜像的综合后功能检查 |
+| `tools/build_pds_board.py` | 增加专用axi_control_board variant；旧入口保留 |
+
+新固件有效载荷944字节指令、100字节初始化数据，满深度8192/4096个32位字。构建器使用RV32I/ILP32、O2和Werror，比较硬件/仿真指令bin逐字节一致；RAM镜像仅 `blink_cycles` 一个字不同（硬件25000000、仿真2000），UART和任务时钟不加速。当前 `ram_guard=0x1005c`、`blink_cycles=0x10060`、`observed=0x10064`；改固件布局后需同步检查FAIL注入测试的guard地址。
+
+仓库已有新HEX，首次检查无需编译C。仅修改新固件后在Git Bash执行：
+
+```bash
+cd /d/FPGA/riscv_3stage
+cmd.exe //c build_axi_control_board.bat
+```
+
+构建日志、ELF/map/dump/symbols与镜像一致性报告在 `build/axi_control_board_firmware/`。工具链选择与上一阶段相同。
+
+修改相关新路径后的ModelSim入口：
+
+```tcl
+cd D:/FPGA/riscv_3stage
+do run_axi_control_board.do
+```
+
+最后应为 `done=5'h1f`、`test_pass=1`；已保存波形可用 `vsim -view axi_control_board_run.wlf` 查看。脚本只运行新板级测试，不调用旧CPU/AXI/外设/CoreMark回归。原相关代码未改且已通过时无需重复测试。
+
+专用PDS构建入口在Git Bash执行：
+
+```bash
+cmd.exe //c build_pds_board.bat --variant axi_control_board --stage bitstream
+```
+
+该variant自动选 `axi_control_board` 固件；显式混用其他固件会报错。输出只写 `build/pds_axi_control_board/`，仅综合副本改名为board_top并使用硬件HEX绝对路径，仍复用原引脚约束。脚本先核对路由器摘要及最终独立STA，全部通过后生成 `generate_bitstream/board_top.sbit` 和 `.bin`，**不连接、不下载、不烧写Flash**。只检查时序可选 `--stage timing`。其他variant仍是各自原顶层，不包含本AXI板级版本。
+
+完成本variant构建后，可运行本次新综合网表功能入口：
+
+```tcl
+do run_axi_control_board_netlist.do
+```
+
+脚本检查manifest的RTL/初始化文件SHA256，拒绝源码或镜像已变的旧网表；使用本机PDS官方模型，不分发模型。综合网表采用硬件数据和默认50000拍复位延迟，检查两次完整串口、PASS灯、KEY1重启；未缩短硬件镜像的心跳等待，也未在此测试模拟完整0.5秒翻转。心跳逻辑由同指令镜像、仅改变blink数据的RTL测试验证。综合网表无SDF，不能代替STA或实物验证。
+
+本次本机验证（2026-10-02，PDS 2022.2-SP6.4，PGL50H-6IFBG484）：
+
+| 检查 | 结果 |
+| --- | --- |
+| 新板级RTL 5组 | 两组正常/忙时复位、软件FAIL、真实数据/取指故障及恢复通过；55字节PASS/24字节FAIL、心跳、KEY1与RAM保留；9703470 ns；done=5'h1f/test_pass=1 |
+| 本次硬件综合网表 | 真实硬件ROM/RAM初始化、三项结果、115200 UART、PASS灯、KEY1重启通过；11807570 ns；test_pass=1 |
+| ModelSim最终编译/仿真 | 两个新入口均0错误、0警告；首次新RTL测试的CR字符串期望值表示已修正，仅复查该尚未通过的测试；未重跑旧测试 |
+| ADS综合资源 | 2510 LUT、1509寄存器、72个分布式RAM单元、31个DRM18K；0锁存器、0 APM |
+| 实际内存归属 | 外部取指ROM 15 DRM18K；实际AXI RAM 8 DRM18K；工具保留的CPU内部未用RAM 8 DRM18K |
+| 最终STA Slow setup / hold | WNS +1.471 ns / WHS +0.029 ns，0失败端点 |
+| 最终STA Fast setup / hold | WNS +7.088 ns / WHS +0.023 ns，0失败端点 |
+| recovery / removal / pulse width | 两个corner均通过 |
+| 管脚/位流 | 19管脚与FDC一致；本次sbit/bin已生成，未下载 |
+| 实物/CNN | 尚未验收；没有CNN推理或端到端音频结果 |
+
+STA来自 `report_timing/board_top.rtr`；路由器摘要的Slow +1.797/+0.018 ns、Fast +7.346/+0.014 ns另行记录，不能与最终报告混用。资源表属于当前固件和顶层，换程序后需要重新检查映射。原CPU内部RAM使能始终为0，RTL验证确认CPU实际经外部RAM路径访问，但PDS仍保留该8个DRM18K实例；本阶段未修改CPU来消除这部分资源。
+
+PDS仍有三种配置复用管脚告警（K18/J19/H20，在约束与映射阶段各出现一次）、5条未识别 `ASYNC_REG` 属性告警及fanout等告警；不能称PDS零告警。布局布线管脚已核对，配置必须保持复用引脚释放。约束排除异步KEY/RX输入与非源同步LED/TX输出，未建立外部IO延迟模型；内部CPU/AXI/存储器/复位释放仍按50 MHz检查。
+
+本次日志为 `build/axi_control_board_validation_final.log`、`build/axi_control_board_netlist_validation.log`，PDS证据在本variant目录。旧源码、主桥/分发器/设备、旧固件和旧测试入口保持不变。本轮不执行硬件下载；首次实物验收仍需实物器件、供电与下载线匹配后进行。板级自检版本的串口/LED预期以本节为准，不使用旧Hello或RX回显标准。
 
 ## 新增：AXI 地址分发与硬件控制流程
 
@@ -89,7 +189,7 @@ do run_axi_control.do
 | 编译及最终仿真 | 0错误、0警告；补充四个故障组的复位恢复后只复查system，补充固定覆盖数量断言后只复查router；未改的ctrl独立测试不重跑 |
 | 原有CPU/主桥/RAM/外设/SoC/CoreMark | 相关源码未变，本轮未重复运行旧测试 |
 
-记录保存在 `build/axi_control_validation.log`（首次三组）、`build/axi_control_system_validation.log`（补充故障恢复）和 `build/axi_control_router_validation.log`（补充覆盖数量断言）。新系统尚未进行PDS综合/布局布线、位流生成或实物验收；既有板级/PDS脚本仍构建原版本，不包含本控制系统。通用加法设备的通过不等于CNN已接入。
+记录保存在 `build/axi_control_validation.log`（首次三组）、`build/axi_control_system_validation.log`（补充故障恢复）和 `build/axi_control_router_validation.log`（补充覆盖数量断言）。本节保存该功能阶段的记录；后续新增板级自检/PDS证据见上方章节和专用variant，实物尚未验收。通用加法设备的通过不等于CNN已接入。
 
 ## 新增：32位 AXI4-Lite 数据主桥
 
@@ -149,7 +249,7 @@ do run_axi_lite.do
 
 日志为 `build/axi_lite_validation.log`（首次三组）及 `build/axi_lite_cpu_validation.log`（修正输出连接后的CPU组）。本阶段不把仿真RAM当作已连接的CNN或实物板卡。
 
-新增路径尚未进行PDS综合/布局布线、生成对应位流或实物验收。既有 `build_pds_board.bat --variant soc` 仍构建原直连RAM版本，不包含本AXI顶层；此前位流和50 MHz报告不能作为AXI版本的硬件证据。后续需要专门的AXI板级连接与PDS构建入口。
+本节保存主桥功能阶段记录。后续新增AXI板级/PDS证据见上方 `axi_control_board` 章节；实物尚未验收。`build_pds_board.bat --variant soc` 仍构建原直连RAM版本，不包含AXI顶层；此前直连版本位流和50 MHz报告不能作为AXI版本证据。
 
 CNN从设备、寄存器地址与数据格式尚待共同确定；`0x2000xxxx`仍不会经过主桥。此阶段只证明CPU通过AXI正确访存，尚未连接CNN、AXI4 DDR、DMA或AXI4-Stream数据通路。
 
@@ -396,8 +496,8 @@ CPU 与平台部分负责处理器、存储器、外设和后续加速器接入�
 | UART TX | 已完成 RTL 与串行线仿真验证 |
 | 8位 GPIO MMIO | 输出、输入同步、输出使能及 SET/CLEAR/TOGGLE；模块和 CPU/C 仿真已通过 |
 | UART RX＋16字节FIFO | 模块/MMIO、CPU软件回显、50 MHz板级RTL及硬件镜像综合网表通过；无RX中断 |
-| AXI4-Lite主桥 | 新增独立CPU/AXI RAM验证入口；尚未接CNN或板级入口 |
-| AXI4-Lite地址分发与控制设备 | 1主2从、RAM与通用加法任务控制的新C程序/协议测试通过；尚未接CNN或板级入口 |
+| AXI4-Lite主桥 | 独立协议/CPU/AXI RAM验证通过，并已接入新增板级自检/PDS入口；实物和CNN待验证 |
+| AXI4-Lite地址分发与控制设备 | 1主2从、新C程序/协议及新增板级自检/PDS 50 MHz验证通过；实物和CNN待验证 |
 | Cache、BTB、AXI4 DDR/DMA | 尚未完成 |
 | MES50HP 最小板级顶层 | UART TX、LED、按键及上电/KEY1 复位仿真通过 |
 | PDS 综合、布局布线与 50 MHz 时序 | PDS 2022.2-SP6.4 验证通过，存在复用引脚等告警，见板级章节 |
@@ -1252,7 +1352,7 @@ cmd.exe //c build_pds_board.bat --stage bitstream
 ## 当前限制
 
 - 尚未实现异常、中断、CSR和操作系统支持。
-- 尚未实现Cache、BTB和AXI4 DDR/DMA；独立AXI4-Lite主桥入口尚未接CNN或板级顶层。UART TX无FIFO，RX有16字节FIFO，但仍无接收中断、奇偶校验或硬件流控。GPIO已有RTL/MMIO和仿真，实际引脚三态及按键消抖仍需板级实现。
+- 尚未实现Cache、BTB和AXI4 DDR/DMA；AXI4-Lite已有板级自检/PDS入口，尚未接CNN或完成实物验收。UART TX无FIFO，RX有16字节FIFO，但仍无接收中断、奇偶校验或硬件流控。GPIO已有RTL/MMIO和仿真，实际引脚三态及按键消抖仍需板级实现。
 - 当前板级数据 RAM 已确认映射为 DRM18K、初始化已在综合网表中验证；小指令程序优化为 LUT ROM。其他程序映射和实物初始化行为仍需对应验证。
 - 取指与数据侧均已有单笔请求/响应握手及外部端口；AXI4-Lite已有RAM与控制演示设备的1主2从分发，实际DDR等外部存储器控制器尚未接入。取指故障只提供粘滞停止与PC记录，尚无异常入口或超时机制。
 - 32 KiB指令区和16 KiB数据区已运行本阶段的 CoreMark 单次程序，但不代表可以容纳后续完整音频特征提取和 CNN 输入数据。
@@ -1263,7 +1363,7 @@ cmd.exe //c build_pds_board.bat --stage bitstream
 1. 按板级章节完成 JTAG 临时下载、串口启动消息、LED心跳和按键复位的首次实物验收。
 2. 保存对应 PDS 报告和实物证据，依据真实问题修复并建立板级稳定基线；再接外部屏幕或其他外设。
 3. 验收新增RX回显：115200、8N1发送少量字符并逐字节核对，单独记录RX版本的实物结果。
-4. 与队友确定CNN控制、状态、缓冲区和数据格式，依据已验证的AXI4-Lite配置/启动/查询/结果流程接入正式设备，并增加对应板级/PDS入口。
+4. 完成新增AXI板级自检的实物验收，与队友确定CNN控制、状态、缓冲区和数据格式，依据已验证的AXI4-Lite流程接入正式设备，并更新对应板级/PDS验证。
 5. 补齐基础指令边界、异常和中断；建立正式CoreMark基线后实现二路组相联Cache与BTB并比较性能。
 6. 完成CNN及系统端到端验证，评估资源、推理延迟和准确率，再依据关键路径评估五级流水线。
 
