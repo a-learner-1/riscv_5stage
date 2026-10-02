@@ -2,9 +2,71 @@
 
 这是一个使用 Verilog 实现的 RV32I 处理器软核，目前采用 **IF → EX → WB** 三级流水线，能够在 ModelSim 中加载外部 HEX 程序、运行裸机 RISC-V 汇编和 C 程序，并通过 `tohost` 协议自动报告运行结果。
 
-当前版本已经完成37种 RV32I 指令、数据前递、分支与跳转冲刷、字及子字访存、同步指令/数据存储器、取指侧与数据侧单笔请求/响应握手、RISC-V GCC 软件构建流程、性能计数器 MMIO、UART TX、带16字节接收FIFO的UART RX，以及8位 GPIO MMIO。当前最小SoC增量已有RTL功能、PDS综合/布局布线、50 MHz最终STA及综合后功能网表验证；CoreMark单次功能校验保留为此前版本记录；开发板实物尚未验证。
+当前版本已经完成37种 RV32I 指令、数据前递、分支与跳转冲刷、字及子字访存、同步指令/数据存储器、取指侧与数据侧单笔请求/响应握手、RISC-V GCC 软件构建流程、性能计数器 MMIO、UART TX、带16字节接收FIFO的UART RX，以及8位 GPIO MMIO，并新增32位AXI4-Lite主桥与独立AXI RAM程序验证入口。原直连RAM最小SoC增量已有RTL功能、PDS综合/布局布线、50 MHz最终STA及综合后功能网表验证；CoreMark单次功能校验保留为此前版本记录；开发板实物尚未验证。
 
 项目的长期目标是作为紫光同创盘古 50 开发板上轻量化 CNN 推理系统的 RISC-V 主控。CPU 与平台部分负责处理器、外设和后续加速器接口，CNN 模型与部署由队友负责。当前新增了CPU外、FPGA内的独立ROM/RAM与最小SoC顶层；后续仍需外部存储器控制器与互联、异常/中断、Cache、BTB、CNN接口和板级实物验证。现阶段保持三级流水线，后续再评估五级升级；队友使用的参考 CPU 不替换本仓库的处理器。
+
+## 新增：32位 AXI4-Lite 数据主桥
+
+`soc_axi_lite_top.v` 连接自研CPU、原独立取指ROM与新数据主桥，并导出32位AXI4-Lite主设备端口。测试中接入可综合的 `axi_lite_ram.v`，让既有C镜像真实执行的LOAD/STORE经过AW/W/B/AR/R通道。CPU、既有SoC、外设、固件与旧测试入口均保持原代码；本阶段只运行新增路径的测试。
+
+```text
+soc_axi_lite_top
+  ├─ u_cpu       原IF → EX → WB；0x2000xxxx仍为本地MMIO
+  ├─ u_imem      原soc_instr_mem取指ROM
+  └─ u_bridge    CPU数据握手 → 32位AXI4-Lite主设备端口
+                       │
+                 axi_lite_ram → data_mem
+```
+
+| 文件 | 作用 |
+| --- | --- |
+| `rtl/dmem_axi_lite_bridge.v` | 单笔CPU请求转AXI读写；AW/W独立握手、响应保持、本地非法请求与总线错误返回 |
+| `rtl/soc_axi_lite_top.v` | CPU、取指ROM和主桥的独立联调入口；AXI端口供外部从设备连接 |
+| `rtl/axi_lite_ram.v` | 同步RAM的AXI从设备；分别缓存AW/W、按WSTRB一次写入、读快照与稳定响应 |
+| `tb/axi_lite_bridge_tb.v` | 独立BFM检查主桥协议、字节通道、错误、背压和共同复位 |
+| `tb/axi_lite_ram_tb.v` | 检查真实RAM从设备的独立通道、任意掩码、响应快照、端口仲裁及复位 |
+| `tb/axi_lite_cpu_tb.v` | 三组真实C、两组定向指令、两组CPU总线故障与复位恢复；公开握手事务scoreboard |
+| `run_axi_lite.do` | 只编译/运行上述新测试，独立 `axi_lite_work` 库与WLF |
+
+主桥每次只处理一笔CPU事务，不做burst、ID、独占访问、缓存或时钟跨域。五条AXI通道以VALID与READY同沿握手，VALID及payload保持到接受；AW和W同时发起并分别记账，不要求READY同时出现。[Arm AMBA AXI协议规范](https://developer.arm.com/-/media/Arm%20Developer%20Community/PDF/IHI0022H_amba_axi_protocol_spec.pdf)
+
+CPU端size=0/1/2分别为字节/半字/字，按原字节地址先检查合法尺寸、对齐及精确写mask，再清AXI地址低两位。CPU已经移位WDATA/WSTRB，桥直接转发；AXI读回完整32位字，CPU继续提取与扩展。桥不预设设备地址范围，译码由从设备负责。两条PROT固定000（非特权、Secure、数据访问）；本RAM忽略该属性，未实现安全隔离。
+
+CPU响应只在AXI B/R完成后产生，并保持到CPU接受。仅OKAY成功；其他RESP转 `dmem_rsp_error`，错误读与全部写返回0。原CPU将错误指令停止且不退休，等待复位；没有架构异常处理程序或超时机制。错误响应不保证任意设备没有产生副作用，已经完成的写不能回滚。本RAM对未对齐/越界地址返回DECERR且无RAM读写使能。
+
+CPU、桥、从设备使用同一时钟和共同复位。共同复位取消未配对AW/W、等待AXI响应及等待CPU消费的状态，但不初始化或清空RAM。只复位桥而让从设备保留旧响应不在本阶段支持范围内。RAM允许任意WSTRB（含0000成功no-op）；CPU主桥仅允许与CPU访问尺寸匹配的mask。
+
+C程序仍使用 `0x00010000–0x00013FFF`，`tohost=0x00013FFC`，固件无需重新编译。RAM的AW/W/AR/B/R等待参数用于分别制造各通道等待；参数为0也仍有同步读捕获和响应状态机延迟，并非零周期访问。`soc_axi_lite_top` 的MMIO等待只控制CPU本地外设，不能当作AXI通道等待。
+
+新增测试在ModelSim Transcript执行一次：
+
+```tcl
+cd D:/FPGA/riscv_3stage
+do run_axi_lite.do
+```
+
+脚本依次运行桥、RAM从设备、CPU集成，三个 `test_pass=1` 才通过。最后停留在 `axi_lite_cpu_tb`，预期 `done=7'h7f`、`test_pass=1`。`$stop`/Break为测试主动结束，密集时钟及完成后CPU的结尾自循环不代表重新开始测试。C性能以第一次程序完成且最后访存响应消费后的日志为准，不能读取其等待其他case结束时继续累加的原始计数器，也不沿用原直连RAM的216周期断言。
+
+需要修复某组新测试时，可先设置 `set axi_tests {bridge}`、`{ram}` 或 `{cpu}` 再 `do run_axi_lite.do`，只执行受影响的一组；已经通过且相关代码未变时不重复运行。已保存WLF时，可在ModelSim中用 `vsim -view axi_lite_cpu_run.wlf` 查看记录，无需再次 `run -all`。
+
+本次本机ModelSim验证记录（2026-10-02）：
+
+| 检查 | 结果 |
+| --- | --- |
+| 主桥独立测试 | CPU接受36/完成30/错误13/复位取消6；9种非法请求不发AXI；AW先/W先/同时、字节通道、SLVERR/DECERR和背压通过；5236 ns |
+| 实际AXI RAM从设备 | 全16种WSTRB、B/R稳定、同步读快照、共享端口竞争、DECERR隔离和复位保留通过；3840 ns |
+| CPU集成7组 | 三组C、两组定向指令、两组实际RAM总线错误及复位恢复通过；14126 ns；done=7'h7f、test_pass=1 |
+| 固定C镜像结果 | 三组均tohost=1、初始化值12345678、155条退休；24次AXI写、13次AXI读，各通道恰好一次完成 |
+| C程序完成周期快照 | 零额外等待364周期；AW先和W先的延迟配置均1402周期；仿真时钟100 MHz，不代表硬件最高频率 |
+| 编译与最终仿真 | 0错误、0警告；首次CPU组有24个未连接调试输出告警，补齐连接后只复查CPU组，已通过桥/RAM不重跑 |
+| 原CPU/外设/SoC/CoreMark | 相关代码未改变，本轮未重复运行旧测试 |
+
+日志为 `build/axi_lite_validation.log`（首次三组）及 `build/axi_lite_cpu_validation.log`（修正输出连接后的CPU组）。本阶段不把仿真RAM当作已连接的CNN或实物板卡。
+
+新增路径尚未进行PDS综合/布局布线、生成对应位流或实物验收。既有 `build_pds_board.bat --variant soc` 仍构建原直连RAM版本，不包含本AXI顶层；此前位流和50 MHz报告不能作为AXI版本的硬件证据。后续需要专门的AXI板级连接与PDS构建入口。
+
+CNN从设备、寄存器地址与数据格式尚待共同确定；`0x2000xxxx`仍不会经过主桥。此阶段只证明CPU通过AXI正确访存，尚未连接CNN、AXI4 DDR、DMA或AXI4-Stream数据通路。
 
 ## 新增：独立片上存储器的最小 SoC
 
@@ -211,7 +273,7 @@ git pull --ff-only
 
 ## CPU 与 CNN 协作边界
 
-CPU 与平台部分负责处理器、存储器、外设和后续加速器接入；CNN 模型与部署由队友负责。双方可以分别开发与验证自己的模块，但当前仓库尚未实现 AXI 总线和 CNN 加速器控制/数据接口，不能把现有 UART TX 或计数器 MMIO 当作已完成的 CNN 接口。
+CPU 与平台部分负责处理器、存储器、外设和后续加速器接入；CNN 模型与部署由队友负责。双方可以分别开发与验证自己的模块，但当前仓库已有独立32位AXI4-Lite主桥验证入口，尚未接入CNN加速器控制/数据接口，不能把现有 UART TX 或计数器 MMIO 当作已完成的 CNN 接口。
 
 当前 C 示例与 CoreMark 配置使用32 KiB指令区、16 KiB数据区。它们是现阶段的软件运行资源，不代表完整 CNN 权重、音频特征和中间结果都能容纳，也不代表后续最终系统的存储容量。
 
@@ -249,7 +311,8 @@ CPU 与平台部分负责处理器、存储器、外设和后续加速器接入�
 | UART TX | 已完成 RTL 与串行线仿真验证 |
 | 8位 GPIO MMIO | 输出、输入同步、输出使能及 SET/CLEAR/TOGGLE；模块和 CPU/C 仿真已通过 |
 | UART RX＋16字节FIFO | 模块/MMIO、CPU软件回显、50 MHz板级RTL及硬件镜像综合网表通过；无RX中断 |
-| Cache、BTB、AXI | 尚未完成 |
+| AXI4-Lite主桥 | 新增独立CPU/AXI RAM验证入口；尚未接CNN或板级入口 |
+| Cache、BTB、AXI4 DDR/DMA | 尚未完成 |
 | MES50HP 最小板级顶层 | UART TX、LED、按键及上电/KEY1 复位仿真通过 |
 | PDS 综合、布局布线与 50 MHz 时序 | PDS 2022.2-SP6.4 验证通过，存在复用引脚等告警，见板级章节 |
 | 盘古 50 实物验证 | 尚未完成；工具通过不等于实物通过 |
@@ -803,7 +866,7 @@ cmd.exe //c build_pds_board.bat --firmware uart_rx_echo --variant fetch_handshak
 
 ### 外部RAM接口
 
-`cpu_top` 设置 `EXTERNAL_DMEM=1` 时，非MMIO的数据请求交给以下端口；地址位于 `0x2000xxxx` 的MMIO仍由本地外设处理。该接口是单笔事务的项目内部接口，尚未实现AXI或外部DDR控制器。
+`cpu_top` 设置 `EXTERNAL_DMEM=1` 时，非MMIO的数据请求交给以下端口；地址位于 `0x2000xxxx` 的MMIO仍由本地外设处理。该接口是单笔事务的项目内部接口；新增主桥可把它转换成AXI4-Lite，外部DDR控制器尚未接入。
 
 | 端口 | CPU方向 | 含义 |
 | --- | --- | --- |
@@ -1103,7 +1166,7 @@ cmd.exe //c build_pds_board.bat --stage bitstream
 ## 当前限制
 
 - 尚未实现异常、中断、CSR和操作系统支持。
-- 尚未实现Cache、BTB和AXI接口；UART TX无FIFO，RX有16字节FIFO，但仍无接收中断、奇偶校验或硬件流控。GPIO已有RTL/MMIO和仿真，实际引脚三态及按键消抖仍需板级实现。
+- 尚未实现Cache、BTB和AXI4 DDR/DMA；独立AXI4-Lite主桥入口尚未接CNN或板级顶层。UART TX无FIFO，RX有16字节FIFO，但仍无接收中断、奇偶校验或硬件流控。GPIO已有RTL/MMIO和仿真，实际引脚三态及按键消抖仍需板级实现。
 - 当前板级数据 RAM 已确认映射为 DRM18K、初始化已在综合网表中验证；小指令程序优化为 LUT ROM。其他程序映射和实物初始化行为仍需对应验证。
 - 取指与数据侧均已有单笔请求/响应握手及外部端口；实际外部存储器控制器与互联尚未接入。取指故障只提供粘滞停止与PC记录，尚无异常入口或超时机制。
 - 32 KiB指令区和16 KiB数据区已运行本阶段的 CoreMark 单次程序，但不代表可以容纳后续完整音频特征提取和 CNN 输入数据。
