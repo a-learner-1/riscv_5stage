@@ -2,9 +2,94 @@
 
 这是一个使用 Verilog 实现的 RV32I 处理器软核，目前采用 **IF → EX → WB** 三级流水线，能够在 ModelSim 中加载外部 HEX 程序、运行裸机 RISC-V 汇编和 C 程序，并通过 `tohost` 协议自动报告运行结果。
 
-当前版本已经完成37种 RV32I 指令、数据前递、分支与跳转冲刷、字及子字访存、同步指令/数据存储器、取指侧与数据侧单笔请求/响应握手、RISC-V GCC 软件构建流程、性能计数器 MMIO、UART TX、带16字节接收FIFO的UART RX，以及8位 GPIO MMIO，并新增32位AXI4-Lite主桥与独立AXI RAM程序验证入口。原直连RAM最小SoC增量已有RTL功能、PDS综合/布局布线、50 MHz最终STA及综合后功能网表验证；CoreMark单次功能校验保留为此前版本记录；开发板实物尚未验证。
+当前版本已经完成37种 RV32I 指令、数据前递、分支与跳转冲刷、字及子字访存、同步指令/数据存储器、取指侧与数据侧单笔请求/响应握手、RISC-V GCC 软件构建流程、性能计数器 MMIO、UART TX、带16字节接收FIFO的UART RX，以及8位 GPIO MMIO。AXI路径已有32位AXI4-Lite主桥、RAM从设备、1主2从地址分发器和通用控制寄存器演示设备；新C程序通过AXI配置、启动、轮询并读回硬件加法结果。原直连RAM最小SoC增量已有RTL功能、PDS综合/布局布线、50 MHz最终STA及综合后功能网表验证；CoreMark单次功能校验保留为此前版本记录；开发板实物尚未验证。
 
-项目的长期目标是作为紫光同创盘古 50 开发板上轻量化 CNN 推理系统的 RISC-V 主控。CPU 与平台部分负责处理器、外设和后续加速器接口，CNN 模型与部署由队友负责。当前新增了CPU外、FPGA内的独立ROM/RAM与最小SoC顶层；后续仍需外部存储器控制器与互联、异常/中断、Cache、BTB、CNN接口和板级实物验证。现阶段保持三级流水线，后续再评估五级升级；队友使用的参考 CPU 不替换本仓库的处理器。
+项目的长期目标是作为紫光同创盘古 50 开发板上轻量化 CNN 推理系统的 RISC-V 主控。CPU 与平台部分负责处理器、外设和后续加速器接口，CNN 模型与部署由队友负责。当前已有CPU外、FPGA内的独立ROM/RAM、最小SoC及AXI4-Lite控制演示闭合系统；后续仍需实际外部存储器控制器、异常/中断、Cache、BTB、正式CNN接口和板级实物验证。现阶段保持三级流水线，后续再评估五级升级；队友使用的参考 CPU 不替换本仓库的处理器。
+
+## 新增：AXI 地址分发与硬件控制流程
+
+`soc_axi_control_top.v` 将上一阶段的CPU/主桥、真实RAM从设备与新增控制设备连接起来。CPU执行新的RV32I C镜像，配置两个操作数，写START，轮询STATUS，再读取RESULT。加法由 `axi_lite_ctrl.v` 在设定时钟数后完成。该设备用于验证控制流程，临时地址和寄存器不是正式CNN联调协议；当前没有CNN推理、音频输入、DDR或DMA。
+
+```text
+soc_axi_control_top
+  └─ u_core: soc_axi_lite_top
+       ├─ 自研 IF → EX → WB CPU + 独立取指ROM
+       └─ CPU数据握手 → dmem_axi_lite_bridge
+                         │ 32位 AXI4-Lite
+                     u_router: axi_lite_1x2
+                         ├─ m0 → u_ram: axi_lite_ram → data_mem
+                         └─ m1 → u_ctrl: axi_lite_ctrl
+```
+
+取指仍使用独立ROM握手，只有数据访问经过本AXI路径。CPU内的 `0x2000xxxx` UART/GPIO/计数器MMIO继续在主桥之前译码。
+
+| 新文件 | 作用 |
+| --- | --- |
+| `rtl/axi_lite_1x2.v` | 1主2从地址分发；独立AW/W缓存、目标锁定、B/R保持、未命中DECERR |
+| `rtl/axi_lite_ctrl.v` | 可综合的通用控制设备；配置、START、BUSY/DONE、结果及启动计数 |
+| `rtl/soc_axi_control_top.v` | 新闭合系统，连接原CPU/主桥、分发器、RAM与控制设备 |
+| `software/axi_control.h` | 临时寄存器定义和volatile读写函数 |
+| `software/axi_control_demo.c` | 真实C程序；3次配置/启动/查询/读结果，同时校验普通RAM |
+| `tools/build_axi_control_images.py` / `build_axi_control.bat` | 只构建新固件与两份新HEX |
+| `programs/axi_control_demo.hex` / `axi_control_demo_data.hex` | 已生成的满深度指令与初始化数据镜像 |
+| `tb/axi_lite_1x2_tb.v` / `tb/axi_lite_ctrl_tb.v` | 新分发器和控制设备的独立协议/功能测试 |
+| `tb/axi_control_system_tb.v` / `run_axi_control.do` | 新系统9组集成测试及本阶段独立入口 |
+
+默认指令区为 `0x00000000–0x00007FFF`；AXI数据RAM为 `0x00010000–0x00013FFF`，`tohost=0x00013FFC`；控制设备窗口为 `0x30000000–0x300000FF`。最后一个窗口只为演示分配，可在HDL和软件同时修改。
+
+控制设备寄存器均按32位字访问：
+
+| 偏移 | 名称 | 访问 | 行为 |
+| --- | --- | --- | --- |
+| `0x00` | CTRL | RW | 读0；写bit0=START、bit1=CLEAR_DONE |
+| `0x04` | STATUS | RO | bit0=BUSY，bit1=DONE |
+| `0x08` | OPERAND_A | RW | 第一个32位操作数，WSTRB逐字节更新 |
+| `0x0C` | OPERAND_B | RW | 第二个32位操作数，WSTRB逐字节更新 |
+| `0x10` | RESULT | RO | 最近一次完成任务的32位结果 |
+| `0x14` | START_COUNT | RO | 成功接受的START次数 |
+
+成功START快照A/B、清DONE、置BUSY并将计数加1；经过 `JOB_CYCLES` 个时钟产生模2^32加法结果，清BUSY、置DONE。设备默认64拍，新系统默认256拍，便于CPU实际观察BUSY。任务进行中更新A/B只影响下一次任务；结果和DONE的读操作没有清除副作用。CLEAR_DONE不取消进行中的任务，同拍任务完成优先于清除。
+
+CTRL命令只受WSTRB[0]控制；可写寄存器的零mask成功但无副作用。BUSY期间START返回SLVERR，整条命令不生效，包括同一条命令中的CLEAR_DONE。只读寄存器写入、未知偏移、从设备直接收到的未对齐/越界访问返回SLVERR，错误读数据为0。CPU主桥会先将合法子字地址对齐到32位字，AXI4-Lite没有size信号，设备无法从读地址区分CPU的LW与LB；软件控制接口因此使用32位读写。
+
+分发器按两个半开地址窗口选择目标，不做地址平移；每路独立允许一笔读和一笔写，而原CPU主桥仍只允许一笔总事务。AW/W可任意先后到达，分发器收到两者后才向锁定的目标投递，并分别等待接受；未命中写也必须收到AW/W后才能产生DECERR。未命中读返回DECERR和0，均不触发从设备请求。地址上限使用33位计算，支持窗口结束于4 GiB；窗口需非空、字对齐且不重叠。
+
+本系统使用同一时钟和共同复位。复位清除CPU/桥/分发器/从设备的协议状态，取消控制任务并清控制寄存器；RAM内容保留，已完成的写不回滚。设备读数据在AR接受时快照，B/R响应保持到消费。PROT传递到从设备，但演示设备不实施权限或安全隔离。没有跨时钟、总线超时、架构异常入口或中断；设备返回错误仍使CPU粘滞停止，必须复位恢复。
+
+更改基址/容量时需同步修改HDL、链接脚本、HEX和测试。RAM与控制设备都不能覆盖CPU本地 `0x2000xxxx` 窗口；新C镜像固定使用16 KiB数据RAM。仅更改控制基址可用下述构建选项，但仍需同步HDL参数与测试地址。构建器拒绝零基址，避免C命令寄存器访问成为空指针解引用；HDL窗口可配置不代表现有C可直接用于所有地址。
+
+仓库已提供新HEX，首次检查不需要编译C。仅在修改新软件后，在Git Bash执行：
+
+```bash
+cd /d/FPGA/riscv_3stage
+cmd.exe //c build_axi_control.bat
+# 更改演示基址时：cmd.exe //c build_axi_control.bat --ctrl-base 0x30001000
+```
+
+构建器使用RV32I/ILP32、O2、裸机链接、Wall/Wextra/Werror；工具链由 `AXI_CONTROL_CROSS`、`BOARD_CROSS`、PATH或本机后备路径查找。新镜像有效载荷444字节指令、40字节初始化数据，分别填充至8192/4096个32位字。只更新两份 `axi_control_demo*` HEX，原程序镜像不变。
+
+新增测试入口在ModelSim Transcript中执行：
+
+```tcl
+cd D:/FPGA/riscv_3stage
+do run_axi_control.do
+```
+
+脚本只运行本阶段分发器、控制设备、闭合系统三组新测试，使用 `axi_control_work` 库。每组必须 `test_pass=1`；最后系统 `done=9'h1ff`、`test_pass=1`。`$stop`/Break为主动结束。已保存波形可用 `vsim -view axi_control_system_run.wlf` 查看，不再 `run -all`。修复某一组时先设置 `set axi_control_tests {router}`、`{ctrl}` 或 `{system}`，只执行受影响的组；源码不变且已经通过时无需重复仿真。
+
+本次本机验证记录（2026-10-02）：
+
+| 检查 | 结果 |
+| --- | --- |
+| 分发器两组 | 普通窗口及结束于4 GiB窗口；AW/W顺序、背压、错误传递、未命中、并行读写和复位通过；每组B=12/R=21、实际写11、写取消6/读取消2；5730 ns |
+| 控制设备两组 | 34完整写/34完整读，7写错误/3读错误；4启动/3完成/1复位取消；五种复位、忙时拒绝、快照、部分写及JOB_CYCLES=1边界通过；9317 ns |
+| 闭合系统9组 | 三组新C、四组实际DECERR/SLVERR及复位恢复、错路START抑制、忙时共同复位取消通过；20536 ns；done=9'h1ff/test_pass=1 |
+| 新C程序结果 | 三组均tohost=1；任务结果42、1、80000000；START恰3次、RESULT读6次、控制写12次；RAM写8/读15 |
+| 新C完成快照 | 无额外等待1281周期/523退休；AW先、W先延迟配置均2045周期/298退休；状态轮询次数不同，不能视为同指令数性能比较或硬件频率证明 |
+| 编译及最终仿真 | 0错误、0警告；补充四个故障组的复位恢复后只复查system，补充固定覆盖数量断言后只复查router；未改的ctrl独立测试不重跑 |
+| 原有CPU/主桥/RAM/外设/SoC/CoreMark | 相关源码未变，本轮未重复运行旧测试 |
+
+记录保存在 `build/axi_control_validation.log`（首次三组）、`build/axi_control_system_validation.log`（补充故障恢复）和 `build/axi_control_router_validation.log`（补充覆盖数量断言）。新系统尚未进行PDS综合/布局布线、位流生成或实物验收；既有板级/PDS脚本仍构建原版本，不包含本控制系统。通用加法设备的通过不等于CNN已接入。
 
 ## 新增：32位 AXI4-Lite 数据主桥
 
@@ -312,6 +397,7 @@ CPU 与平台部分负责处理器、存储器、外设和后续加速器接入�
 | 8位 GPIO MMIO | 输出、输入同步、输出使能及 SET/CLEAR/TOGGLE；模块和 CPU/C 仿真已通过 |
 | UART RX＋16字节FIFO | 模块/MMIO、CPU软件回显、50 MHz板级RTL及硬件镜像综合网表通过；无RX中断 |
 | AXI4-Lite主桥 | 新增独立CPU/AXI RAM验证入口；尚未接CNN或板级入口 |
+| AXI4-Lite地址分发与控制设备 | 1主2从、RAM与通用加法任务控制的新C程序/协议测试通过；尚未接CNN或板级入口 |
 | Cache、BTB、AXI4 DDR/DMA | 尚未完成 |
 | MES50HP 最小板级顶层 | UART TX、LED、按键及上电/KEY1 复位仿真通过 |
 | PDS 综合、布局布线与 50 MHz 时序 | PDS 2022.2-SP6.4 验证通过，存在复用引脚等告警，见板级章节 |
@@ -1168,7 +1254,7 @@ cmd.exe //c build_pds_board.bat --stage bitstream
 - 尚未实现异常、中断、CSR和操作系统支持。
 - 尚未实现Cache、BTB和AXI4 DDR/DMA；独立AXI4-Lite主桥入口尚未接CNN或板级顶层。UART TX无FIFO，RX有16字节FIFO，但仍无接收中断、奇偶校验或硬件流控。GPIO已有RTL/MMIO和仿真，实际引脚三态及按键消抖仍需板级实现。
 - 当前板级数据 RAM 已确认映射为 DRM18K、初始化已在综合网表中验证；小指令程序优化为 LUT ROM。其他程序映射和实物初始化行为仍需对应验证。
-- 取指与数据侧均已有单笔请求/响应握手及外部端口；实际外部存储器控制器与互联尚未接入。取指故障只提供粘滞停止与PC记录，尚无异常入口或超时机制。
+- 取指与数据侧均已有单笔请求/响应握手及外部端口；AXI4-Lite已有RAM与控制演示设备的1主2从分发，实际DDR等外部存储器控制器尚未接入。取指故障只提供粘滞停止与PC记录，尚无异常入口或超时机制。
 - 32 KiB指令区和16 KiB数据区已运行本阶段的 CoreMark 单次程序，但不代表可以容纳后续完整音频特征提取和 CNN 输入数据。
 - 最小板级工程已完成 PDS 综合、资源统计和50 MHz静态时序分析；尚未完成盘古50实物验收，不代表 CNN 或完整 SoC 已上板。
 
@@ -1177,7 +1263,7 @@ cmd.exe //c build_pds_board.bat --stage bitstream
 1. 按板级章节完成 JTAG 临时下载、串口启动消息、LED心跳和按键复位的首次实物验收。
 2. 保存对应 PDS 报告和实物证据，依据真实问题修复并建立板级稳定基线；再接外部屏幕或其他外设。
 3. 验收新增RX回显：115200、8N1发送少量字符并逐字节核对，单独记录RX版本的实物结果。
-4. 与队友确定CNN控制、状态、缓冲区和数据格式，在现有双侧握手基础上实现实际响应设备及相应互联。
+4. 与队友确定CNN控制、状态、缓冲区和数据格式，依据已验证的AXI4-Lite配置/启动/查询/结果流程接入正式设备，并增加对应板级/PDS入口。
 5. 补齐基础指令边界、异常和中断；建立正式CoreMark基线后实现二路组相联Cache与BTB并比较性能。
 6. 完成CNN及系统端到端验证，评估资源、推理延迟和准确率，再依据关键路径评估五级流水线。
 

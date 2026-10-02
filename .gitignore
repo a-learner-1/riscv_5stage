@@ -33,3 +33,4 @@ tcl_stacktrace.txt
 # 编辑器备份文件
 *.bak
 axi_lite_work/
+axi_control_work/
