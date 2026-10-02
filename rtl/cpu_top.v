@@ -15,7 +15,9 @@ module cpu_top #(
     parameter integer IMEM_REQ_WAIT_CYCLES = 0,
     parameter integer IMEM_RSP_WAIT_CYCLES = 0,
     // Opt in explicitly. Existing boards retain their fault-stop behavior.
-    parameter integer ENABLE_TRAPS = 0
+    parameter integer ENABLE_TRAPS = 0,
+    // Timer interrupts require the M-mode exception environment above.
+    parameter integer ENABLE_TIMER_IRQ = 0
 ) (
     input wire clk,
     input wire rst_n,
@@ -64,7 +66,8 @@ module cpu_top #(
     input  wire        imem_rsp_error,
     output wire        imem_fault,
     output wire [31:0] imem_fault_pc,
-    // One-cycle trap-entry pulse and the most recent synchronous descriptor.
+    // One-cycle trap-entry pulse and the most recent trap descriptor
+    // (synchronous exception or optional machine timer interrupt).
     output reg         trap_valid,
     output reg  [31:0] trap_pc,
     output reg  [31:0] trap_cause,
@@ -75,6 +78,8 @@ module cpu_top #(
     localparam [31:0] MMIO_INSTRET_ADDR = 32'h2000_0004;
     localparam [31:0] MMIO_PUTCHAR_ADDR = 32'h2000_0010;
     localparam [31:0] MMIO_UART_STATUS_ADDR = 32'h2000_0014;
+    localparam integer TIMER_IRQ_ENABLED =
+        (ENABLE_TRAPS != 0) && (ENABLE_TIMER_IRQ != 0);
 
     localparam [3:0] ALU_ADD  = 4'b0000;
     localparam [3:0] ALU_SUB  = 4'b0001;
@@ -137,6 +142,14 @@ module cpu_top #(
     wire        gpio_write_hit_x;
     wire        mmio_gpio_write_x;
     wire [31:0] gpio_read_data_x;
+    wire        timer_read_hit_x;
+    wire        timer_write_hit_x;
+    wire        mmio_timer_store_ok_x;
+    wire        mmio_timer_write_x;
+    wire [31:0] timer_read_data_x;
+    wire [63:0] timer_mtime;
+    wire [63:0] timer_mtimecmp;
+    wire        timer_mtip;
     wire [31:0] mmio_read_data_x;
     wire [31:0] load_raw_data_x;
 
@@ -188,6 +201,7 @@ module cpu_top #(
     wire [31:0] mem_rsp_rdata;
     wire        mem_rsp_error;
     wire        mem_rsp_success;
+    wire        retire_to_wb;
 
     // Compatibility monitors: accepted load and accepted-load response wait.
     reg        load_pending;
@@ -273,8 +287,9 @@ module cpu_top #(
     reg         csr_read_only_x;
     wire        csr_legal_x;
 
-    // Minimal M-mode synchronous trap CSRs. There is no interrupt input,
-    // delegation, U/S mode, PMP, or counter CSR implementation in this step.
+    // Minimal M-mode trap CSRs, plus optional MTIE/MTIP for the local timer.
+    // There is no external interrupt input, delegation, U/S mode, PMP,
+    // or counter CSR implementation in this step.
     // MPP is WARL M (3); mstatus implements only MIE and MPIE besides MPP.
     reg [31:0] csr_mstatus;
     reg [31:0] csr_mtvec;
@@ -282,6 +297,7 @@ module cpu_top #(
     reg [31:0] csr_mepc;
     reg [31:0] csr_mcause;
     reg [31:0] csr_mtval;
+    reg [31:0] csr_mie;
 
     wire        control_misaligned_x;
     wire        data_misaligned_x;
@@ -291,6 +307,12 @@ module cpu_top #(
     wire [31:0] ex_exception_tval_x;
     wire        data_exception;
     wire        fetch_exception;
+    wire        sync_trap_event;
+    wire        irq_pending;
+    wire        irq_event;
+    // Architectural boundary after all previously completed instructions;
+    // unlike pc_f, this never tracks a speculative fetch or held request.
+    reg  [31:0] arch_next_pc;
     wire        trap_event;
     wire [31:0] trap_event_pc;
     wire [31:0] trap_event_cause;
@@ -564,11 +586,20 @@ module cpu_top #(
                 // Zicsr and M privilege are not ISA extension letter bits.
                 csr_read_data_x = 32'h40000100;
             end
+            12'h304: begin
+                csr_known_x = (TIMER_IRQ_ENABLED != 0);
+                csr_read_data_x = csr_mie;
+            end
             12'h305: csr_read_data_x = csr_mtvec;
             12'h340: csr_read_data_x = csr_mscratch;
             12'h341: csr_read_data_x = csr_mepc;
             12'h342: csr_read_data_x = csr_mcause;
             12'h343: csr_read_data_x = csr_mtval;
+            12'h344: begin
+                csr_known_x = (TIMER_IRQ_ENABLED != 0);
+                csr_read_data_x = timer_mtip ? 32'h00000080 : 32'd0;
+                // Hardware-owned MTIP. CSR writes are legal but ignored.
+            end
             12'hf11, 12'hf12, 12'hf13, 12'hf14, 12'hf15: begin
                 csr_read_data_x = 32'd0;
                 csr_read_only_x = 1'b1;
@@ -666,14 +697,29 @@ module cpu_top #(
     assign data_exception = (ENABLE_TRAPS != 0) && mem_rsp_fire && mem_rsp_error;
     assign fetch_exception = (ENABLE_TRAPS != 0) && rst_n && imem_fault &&
                               !dmem_fault && !mem_active && !valid_x;
-    assign trap_event = data_exception || ex_exception_x || fetch_exception;
+    assign sync_trap_event = data_exception || ex_exception_x || fetch_exception;
+    assign irq_pending = (TIMER_IRQ_ENABLED != 0) && timer_mtip &&
+                          csr_mie[7] && csr_mstatus[3];
+    // Once a memory descriptor has started, even an unaccepted request or
+    // held response must drain. Its STORE/MMIO effect is never replayed.
+    // Only recognized synchronous exceptions outrank this interrupt. A raw
+    // younger IF response not yet in EX can be discarded as stale by redirect;
+    // MRET refetches the architectural next PC and redetects any access fault.
+    assign irq_event = rst_n && irq_pending && !dmem_fault && !mem_active &&
+                       !sync_trap_event;
+    assign trap_event = sync_trap_event || irq_event;
     assign trap_event_pc = data_exception ? mem_pc_q :
-                           ex_exception_x ? pc_x : imem_fault_pc;
+                           ex_exception_x ? pc_x :
+                           fetch_exception ? imem_fault_pc :
+                           valid_x ? pc_x : arch_next_pc;
     assign trap_event_cause = data_exception ? (mem_write_q ? 32'd7 : 32'd5) :
                               ex_exception_x ? ex_exception_cause_x :
-                              (imem_fault_pc[1:0] != 2'b00) ? 32'd0 : 32'd1;
+                              fetch_exception ?
+                                  ((imem_fault_pc[1:0] != 2'b00) ? 32'd0 : 32'd1) :
+                              32'h80000007;
     assign trap_event_tval = data_exception ? mem_addr_q :
-                             ex_exception_x ? ex_exception_tval_x : imem_fault_pc;
+                             ex_exception_x ? ex_exception_tval_x :
+                             fetch_exception ? imem_fault_pc : 32'd0;
     assign mret_commit_x = (ENABLE_TRAPS != 0) && rst_n && valid_x &&
                            !dmem_fault && !mem_active && is_mret_x && !trap_event;
     assign csr_commit_x = (ENABLE_TRAPS != 0) && rst_n && valid_x &&
@@ -694,6 +740,7 @@ module cpu_top #(
             csr_mepc <= 32'd0;
             csr_mcause <= 32'd0;
             csr_mtval <= 32'd0;
+            csr_mie <= 32'd0;
             trap_valid <= 1'b0;
             trap_pc <= 32'd0;
             trap_cause <= 32'd0;
@@ -716,16 +763,39 @@ module cpu_top #(
                 case (csr_addr_x)
                     12'h300: csr_mstatus <= 32'h00001800 |
                                            (csr_write_data_x & 32'h00000088);
+                    12'h304: csr_mie <= csr_write_data_x & 32'h00000080;
                     // Only direct mtvec and IALIGN=32 addresses are WARL.
                     12'h305: csr_mtvec <= {csr_write_data_x[31:2], 2'b00};
                     12'h340: csr_mscratch <= csr_write_data_x;
                     12'h341: csr_mepc <= {csr_write_data_x[31:2], 2'b00};
                     12'h342: csr_mcause <= csr_write_data_x;
                     12'h343: csr_mtval <= csr_write_data_x;
-                    // Fixed misa WARL writes intentionally have no effect.
+                    // Fixed misa and hardware-owned mip writes have no effect.
                     default: begin end
                 endcase
             end
+        end
+    end
+
+    // This tracker advances only at architectural completion, including a
+    // successfully drained memory response. It is valid even when IF waits
+    // for request acceptance/response and no EX instruction is available.
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            arch_next_pc <= 32'd0;
+        else if (trap_event)
+            arch_next_pc <= csr_mtvec;
+        else if (mem_rsp_success)
+            arch_next_pc <= mem_pc_q + 32'd4;
+        else if (retire_to_wb) begin
+            if (mret_commit_x)
+                arch_next_pc <= csr_mepc;
+            else if (jump_taken_x)
+                arch_next_pc <= jump_target_x;
+            else if (branch_taken_x)
+                arch_next_pc <= branch_target_x;
+            else
+                arch_next_pc <= pc_x + 32'd4;
         end
     end
 
@@ -800,7 +870,10 @@ module cpu_top #(
      *   0x2000_0024: synchronized GPIO input, read-only
      *   0x2000_0028: GPIO output-enable mask, read/write
      *   0x2000_002c/0030/0034: output SET/CLEAR/TOGGLE, write-only
+     *   0x2000_0040/0044: optional mtime low/high, read/write
+     *   0x2000_0048/004c: optional mtimecmp low/high, read/write
      * GPIO registers accept aligned LW/SW only.
+     * Timer registers accept aligned LW/SW only when TIMER_IRQ_ENABLED.
      */
     assign mmio_region_x =
         (mem_addr_x[31:16] == 16'h2000);
@@ -822,7 +895,7 @@ module cpu_top #(
     // needs the low word because elapsed time is computed by subtraction.
     assign mmio_load_ok_x =
         (mmio_counter_addr_x || mmio_uart_status_addr_x ||
-         uart_rx_read_hit_x || gpio_read_hit_x) &&
+         uart_rx_read_hit_x || gpio_read_hit_x || timer_read_hit_x) &&
         (mem_size_x == 2'd2) &&
         (mem_addr_x[1:0] == 2'b00);
 
@@ -831,7 +904,8 @@ module cpu_top #(
         mmio_instret_addr_x ? instret_count[31:0] :
         mmio_uart_status_addr_x ? {31'd0, uart_busy} :
         uart_rx_read_hit_x  ? uart_rx_read_data_x :
-        gpio_read_hit_x     ? gpio_read_data_x : 32'd0;
+        gpio_read_hit_x     ? gpio_read_data_x :
+        timer_read_hit_x    ? timer_read_data_x : 32'd0;
 
     // Accept SB, SH and SW at the character register and use the low byte.
     assign mmio_putchar_addr_ok_x =
@@ -844,8 +918,11 @@ module cpu_top #(
     assign mmio_uart_rx_store_ok_x = uart_rx_write_hit_x &&
         (mem_size_x == 2'd2) && (mem_addr_x[1:0] == 2'b00);
 
+    assign mmio_timer_store_ok_x = timer_write_hit_x &&
+        (mem_size_x == 2'd2) && (mem_addr_x[1:0] == 2'b00);
+
     assign mmio_store_ok_x = mmio_putchar_addr_ok_x ||
-        mmio_gpio_store_ok_x || mmio_uart_rx_store_ok_x;
+        mmio_gpio_store_ok_x || mmio_uart_rx_store_ok_x || mmio_timer_store_ok_x;
 
     // Peripheral side effects occur ONCE, at request acceptance, even when
     // the CPU remains stalled waiting for a delayed completion response.
@@ -859,6 +936,9 @@ module cpu_top #(
 
     assign mmio_uart_rx_write_x = mem_req_fire && mem_req_write &&
         mem_req_mmio && mmio_uart_rx_store_ok_x;
+
+    assign mmio_timer_write_x = mem_req_fire && mem_req_write &&
+        mem_req_mmio && mmio_timer_store_ok_x;
 
     // Capture the pre-pop head in load_mmio_data_q on the issue edge.
     // A held LOAD has load_pending=1 on the next edge and cannot pop again.
@@ -884,6 +964,27 @@ module cpu_top #(
         .gpio_in(gpio_in), .gpio_out(gpio_out), .gpio_oe(gpio_oe)
     );
 
+    generate
+        if (TIMER_IRQ_ENABLED != 0) begin : g_machine_timer
+            machine_timer u_timer (
+                .clk(clk), .rst_n(rst_n), .addr(mem_addr_x),
+                .write_enable(mmio_timer_write_x), .write_data(mem_store_raw_x),
+                .read_data(timer_read_data_x), .read_hit(timer_read_hit_x),
+                .write_hit(timer_write_hit_x), .mtime(timer_mtime),
+                .mtimecmp(timer_mtimecmp), .mtip(timer_mtip)
+            );
+        end else begin : g_no_machine_timer
+            // A disabled generate branch has no timer module dependency;
+            // existing standalone compile scripts remain compatible.
+            assign timer_read_data_x = 32'd0;
+            assign timer_read_hit_x = 1'b0;
+            assign timer_write_hit_x = 1'b0;
+            assign timer_mtime = 64'd0;
+            assign timer_mtimecmp = 64'hffffffffffffffff;
+            assign timer_mtip = 1'b0;
+        end
+    endgenerate
+
     // Request and byte reach the UART in the same cycle as the MMIO store.
     // There is no delayed request whose pending state could be missed by
     // a following status read.
@@ -904,7 +1005,7 @@ module cpu_top #(
     // present its request in its first EX cycle. The first edge captures
     // the descriptor whether or not the endpoint is ready on that edge.
     assign mem_start_x = rst_n && !dmem_fault && !mem_active && valid_x &&
-                         (is_load_x || is_store_x) && !ex_exception_x;
+                         (is_load_x || is_store_x) && !ex_exception_x && !irq_event;
     assign mem_req_valid = rst_n && !dmem_fault && !req_sent &&
                            (mem_active || mem_start_x);
     assign mem_req_write = mem_active ? mem_write_q : is_store_x;
@@ -1191,7 +1292,6 @@ module cpu_top #(
      * ????????RAM????????
      */
     reg counting_started;
-    wire retire_to_wb;
 
     assign retire_to_wb =
         mem_rsp_success ||

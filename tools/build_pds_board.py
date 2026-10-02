@@ -13,7 +13,7 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 RTL = ["instr_mem.v", "instr_bus_adapter.v", "if_stage.v", "regfile.v", "decoder.v", "alu.v",
        "data_mem.v", "data_bus_adapter.v", "uart_tx.v", "uart_rx.v", "uart_rx_fifo.v", "uart_rx_mmio.v",
-       "gpio_mmio.v", "cpu_top.v", "board_reset.v"]
+       "gpio_mmio.v", "machine_timer.v", "cpu_top.v", "board_reset.v"]
 
 
 def main():

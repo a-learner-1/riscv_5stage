@@ -15,7 +15,8 @@ module soc_axi_lite_top #(
     parameter integer IMEM_RSP_WAIT_CYCLES = 0,
     parameter integer MMIO_REQ_WAIT_CYCLES = 0,
     parameter integer MMIO_RSP_WAIT_CYCLES = 0,
-    parameter integer ENABLE_TRAPS = 0
+    parameter integer ENABLE_TRAPS = 0,
+    parameter integer ENABLE_TIMER_IRQ = 0
 ) (
     input  wire        clk,
     input  wire        rst_n,
@@ -81,6 +82,7 @@ module soc_axi_lite_top #(
         .SIM_CONSOLE_ECHO(SIM_CONSOLE_ECHO),
         .EXTERNAL_IMEM(1), .EXTERNAL_DMEM(1),
         .ENABLE_TRAPS(ENABLE_TRAPS),
+        .ENABLE_TIMER_IRQ(ENABLE_TIMER_IRQ),
         // These still control the existing local MMIO endpoint.
         .DMEM_REQ_WAIT_CYCLES(MMIO_REQ_WAIT_CYCLES),
         .DMEM_RSP_WAIT_CYCLES(MMIO_RSP_WAIT_CYCLES)

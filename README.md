@@ -4,7 +4,72 @@
 
 当前已有37种常用RV32I指令及流水线/存储/外设平台；`ENABLE_TRAPS=1` 模式补入FENCE、ECALL、EBREAK、6种Zicsr和MRET，以及最小机器模式同步异常环境。旧顶层默认 `ENABLE_TRAPS=0` 保持原固件和粘滞故障语义。AXI路径已有32位AXI4-Lite主桥、RAM从设备、1主2从地址分发器和通用控制设备；C程序能启动硬件任务。新增 `trap_board_top` 开启异常并提供50 MHz/115200串口、GPIO板级自检；已通过新板级RTL和本地PDS综合/布局布线时序，综合网表检查与实物验收状态见下节。旧AXI控制板级验收基线仍保留。CoreMark仅保留旧版本单次功能记录。
 
-项目的长期目标是作为紫光同创盘古 50 开发板上轻量化 CNN 推理系统的 RISC-V 主控。CPU 与平台部分负责处理器、外设和后续加速器接口，CNN 模型与部署由队友负责。当前已有CPU外、FPGA内的独立ROM/RAM、最小SoC及AXI4-Lite控制演示闭合系统；后续仍需实际外部存储器控制器、完整异常/中断、Cache、BTB、正式CNN接口和板级实物验证。现阶段保持三级流水线，后续再评估五级升级；队友使用的参考 CPU 不替换本仓库的处理器。
+项目的长期目标是作为紫光同创盘古 50 开发板上轻量化 CNN 推理系统的 RISC-V 主控。CPU 与平台部分负责处理器、外设和后续加速器接口，CNN 模型与部署由队友负责。当前已有CPU外、FPGA内的独立ROM/RAM、最小SoC及AXI4-Lite控制演示闭合系统，以及可选的最小M模式同步异常和定时器中断；后续仍需实际外部存储器控制器、外部中断、Cache、BTB、正式CNN接口和板级实物验证。现阶段保持三级流水线，后续再评估五级升级；队友使用的参考 CPU 不替换本仓库的处理器。
+
+## 新增：最小机器模式定时器中断
+
+本轮以 `3f94f29` 为基线，在 `cpu_top` 和 `soc_axi_lite_top` 新增默认0的 `ENABLE_TIMER_IRQ`。同时设置 `.ENABLE_TRAPS(1), .ENABLE_TIMER_IRQ(1)` 才启用定时器和机器模式定时器中断。原有板级顶层没有开启此参数，旧软件与镜像保持原样。本轮不生成新的PDS位流；下节的已通过报告和候选位流对应 `3f94f29` 的源码，不能作为本轮新增中断的硬件验证。源码哈希改变后，旧网表脚本按设计拒绝重复使用其manifest。
+
+```text
+clk → 64位mtime → 与mtimecmp比较 → mip.MTIP
+                                    │
+                         mie.MTIE && mstatus.MIE
+                                    │
+                  完成在途访存 → 保存mepc/mcause → mtvec
+                                    │
+                     汇编保存寄存器 → C处理函数 → MRET
+                                    │
+                              恢复被打断的PC
+```
+
+| 本地MMIO地址 | 32位寄存器 | 读写规则 |
+| --- | --- | --- |
+| 0x20000040 / 0x20000044 | mtime低32位 / 高32位 | 只接受对齐LW/SW；复位0 |
+| 0x20000048 / 0x2000004c | mtimecmp低32位 / 高32位 | 只接受对齐LW/SW；复位全1 |
+
+mtime在每个clk上升沿加1，CPU取指/访存停顿时继续运行；本例100 MHz仿真时钟对应10 ns/tick，实际系统必须公布其固定时钟。写mtime的一拍以写入优先，另一半保留写前值；没有显式写入时正常进位/回绕。MMIO读在请求接受时取快照，写也只在请求接受时发生一次。`software/timer.h` 提供高—低—高重读的一致64位时间读取，以及低字全1—高字—最终低字的安全比较值更新。
+
+CSR `mie(0x304)` 只实现MTIE(bit7)，其他位读0；`mip(0x344)` 只反映硬件MTIP(bit7)。写mip合法但不改变MTIP，软件通过把mtimecmp移到mtime之后清除pending。中断原因为 `mcause=0x80000007`、`mtval=0`。进入时MIE转存MPIE并清MIE，MRET恢复。返回地址是尚未执行的指令PC，不能像跳过ECALL那样给mepc加4。
+
+处理器在开始下一条EX指令前接管中断，并阻止该指令的写回、退休、CSR和RAM/MMIO副作用。已经开始的LOAD/STORE必须先完成，成功响应后较早WB保留；当前同步异常优先。即使IF等待且EX为空，也通过记录架构下一PC响应中断，重定向时丢弃旧取指响应。MRET和mie/mstatus更新后的下一周期重新检查pending，未解除的level中断会再次进入。这里只支持单M模式、直接mtvec、单定时器；未增加外部IRQ、PLIC、WFI、嵌套、U/S模式或标准计数器CSR。
+
+| 文件 | 用途 |
+| --- | --- |
+| rtl/machine_timer.v | 64位定时器、比较器和四个MMIO字 |
+| rtl/cpu_top.v / soc_axi_lite_top.v | 精确中断接管、架构下一PC、mie/mip及使能透传 |
+| software/timer.h / timer_entry.S / timer_irq.c | RV32时间访问、保存30个整数寄存器的128字节入口、真实C处理函数 |
+| tools/build_timer_images.py / build_timer.bat | 新固件构建和ELF/map/dump、满深度镜像与符号宏 |
+| tb/machine_timer_tb.v / timer_irq_tb.v / timer_irq_c_tb.v | 定时器单测、CPU精确性定向测试、三种AXI等待下的真实C |
+| run_timer_irq.do | 本轮新增测试入口 |
+| run_timer_affected.do | CPU修改后才运行的受影响集成检查 |
+
+C程序先在屏蔽状态制造pending，开启MTIE/MIE后处理3次中断，期间执行2048步checksum计算。ISR记录原因、返回PC和时间，前两次重排20000 ticks，第三次关闭比较；检查结果 `0x569ea33c`、计数、RAM日志和CSR后，实际TX引脚输出16字节 `TIMER IRQ PASS\r\n`，main返回1，经startup写tohost。仿真使用100 MHz/5 Mbaud，尚未接到50 MHz板级顶层。入口沿用有效的16字节对齐可写栈，并预留128字节寄存器帧和C函数栈；不处理入口/handler再次异常或中断嵌套。
+
+镜像已提供，只有修改新软件后才执行：
+
+```bash
+cd /d/FPGA/riscv_3stage
+cmd.exe //c build_timer.bat
+```
+
+本轮ModelSim入口：
+
+```tcl
+cd D:/FPGA/riscv_3stage
+do run_timer_irq.do
+```
+
+本轮新增17组已通过：定时器单测结束570 ns，13组CPU定向结束8350 ns，3组真实C结束1742740 ns；三个顶层test_pass均为1，编译/仿真0错误0警告。C三组均3次IRQ/3次MRET、完整x1..x31恢复、2048个实际checksum/work写入和UART16，AXI RAM写/读为4236/197。fast配置47218 cycles/21598 retired，AW先与W先配置174263 cycles/20110 retired；轮询和等待不同，这些是功能记录，不能当CoreMark分数。CPU定向覆盖直接抢占branch/SW/GPIO、旧STORE背压/响应等待、IF空槽和陈旧错误、同步优先、MRET未解pending立即再入、默认关闭，以及timer非法子字/错位和读快照。
+
+CPU功能改变后的25个受影响集成顶层也全部通过，0错误0警告，包含原有21个CPU/存储握手/SoC/AXI/板级集成和同步异常CPU、边界、C、板级四个顶层。原同步异常与板级镜像未变，只检查它们在新CPU上的兼容性；没有重跑旧PDS、综合网表、外设/RAM/AXI单测或CoreMark算法。
+
+本轮日志为 `build/timer_validation.log`、`build/timer_affected_validation.log`，构建与镜像证据在 `build/timer_firmware/build_report.json`，对应输入SHA在 `build/timer_validation_sources.json`。查看已保存的新C波形，无需重新仿真：
+
+```bash
+vsim -view D:/FPGA/riscv_3stage/build/timer_new_timer_irq_c_tb.wlf
+```
+
+本轮只在CPU功能变化后检查受影响的集成，不重跑未改的UART/FIFO/GPIO、RAM、AXI单测或CoreMark算法。已通过且源码未改时，查看保存的WLF即可，不再重复运行。规范依据：[RISC-V Machine ISA：中断与机器定时器](https://docs.riscv.org/reference/isa/v20240411/priv/machine.html)。
 
 ## 新增：开启同步异常的盘古50板级验收版本
 
@@ -142,7 +207,7 @@ C固件通过后UART输出42字节 `TRAP PASS FENCE CSR ECALL EBREAK ILLEGAL` �
 
 本轮CPU/decoder/前端功能发生变化，因此补查21个受影响旧CPU、SoC、AXI与板级RTL集成顶层，全部功能通过；未重复未改功能的外设/存储/AXI单测或CoreMark算法。首段10组已通过后，脚本读取被优化的test_pass失败；改用+acc并从第11组继续，没有重跑前10组。旧输出空连接导致的警告随后只做连接修正和编译/展开检查，不改变刺激、断言或RTL功能，不再重复功能仿真。两个分段日志及最终编译检查记录在build目录。
 
-仍没有中断输入、mie/mip、S/U模式、委托、PMP、标准mcycle/minstret CSR、FENCE.I或Cache。CPU同步异常里程碑可称RV32I的40项基础指令行为及Zicsr/MRET已实现和定向验证，不能称完整特权架构或标准一致性测试通过。旧CoreMark单次记录不作为新模式跑分。该里程碑当时没有PDS/位流/实物验证；随后trap_board的本地工具验证见上一节，实物仍未验收。manifest在其源码改变后会拒绝旧网表。规范依据：[RV32I](https://docs.riscv.org/reference/isa/v20260120/unpriv/rv32.html)、[Zicsr](https://docs.riscv.org/reference/isa/v20260120/unpriv/zicsr.html)、[Machine ISA](https://docs.riscv.org/reference/isa/v20240411/priv/machine.html)。
+该同步异常里程碑当时没有中断输入或mie/mip；后续新增的可选定时器中断与mie/mip见首节。仍无S/U模式、委托、PMP、标准mcycle/minstret CSR、FENCE.I或Cache。CPU同步异常里程碑可称RV32I的40项基础指令行为及Zicsr/MRET已实现和定向验证，不能称完整特权架构或标准一致性测试通过。旧CoreMark单次记录不作为新模式跑分。该里程碑当时没有PDS/位流/实物验证；随后trap_board的本地工具验证见上一节，实物仍未验收。manifest在其源码改变后会拒绝旧网表。规范依据：[RV32I](https://docs.riscv.org/reference/isa/v20260120/unpriv/rv32.html)、[Zicsr](https://docs.riscv.org/reference/isa/v20260120/unpriv/zicsr.html)、[Machine ISA](https://docs.riscv.org/reference/isa/v20240411/priv/machine.html)。
 
 ## 新增：AXI 控制系统的盘古50板级自检
 
@@ -630,6 +695,8 @@ CPU 与平台部分负责处理器、存储器、外设和后续加速器接入�
 | 取指侧请求/响应握手 | 单笔在途、默认每拍吞吐、可变延迟、跳转旧响应丢弃、错误停机与故障PC；7组新增检查通过 |
 | 最小SoC与独立片上ROM/RAM端点 | 新SoC软件/板级RTL、实际错误响应、PDS 50 MHz最终STA及综合网表功能通过 |
 | 性能计数器 MMIO | 已完成 |
+| 最小M模式同步异常/CSR | ENABLE_TRAPS=1时开启；基础异常、FENCE/Zicsr/MRET定向验证通过 |
+| 最小M模式定时器中断 | ENABLE_TRAPS=1且ENABLE_TIMER_IRQ=1时开启；当前新增范围见首节 |
 | CoreMark v1.01 | 单次算法/CRC 校验已通过；不是正式跑分 |
 | UART TX | 已完成 RTL 与串行线仿真验证 |
 | 8位 GPIO MMIO | 输出、输入同步、输出使能及 SET/CLEAR/TOGGLE；模块和 CPU/C 仿真已通过 |
@@ -694,7 +761,7 @@ CPU 与平台部分负责处理器、存储器、外设和后续加速器接入�
 | 加载 | `LB`、`LBU`、`LH`、`LHU`、`LW` |
 | 存储 | `SB`、`SH`、`SW` |
 
-`ENABLE_TRAPS=1` 新增 `FENCE`、`ECALL`、`EBREAK`、6种Zicsr与MRET及最小同步异常；默认兼容模式不启用。本轮仍无中断、乘除法和压缩指令，具体CSR及限制见首节。
+`ENABLE_TRAPS=1` 新增 `FENCE`、`ECALL`、`EBREAK`、6种Zicsr与MRET及最小同步异常；默认兼容模式不启用。另可选择ENABLE_TIMER_IRQ开启机器定时器中断；仍无外部中断、乘除法和压缩指令，具体CSR及限制见首节。
 
 ## 性能计数器
 
@@ -1490,7 +1557,7 @@ cmd.exe //c build_pds_board.bat --stage bitstream
 
 ## 当前限制
 
-- 已有可选最小M模式同步异常和有限CSR；完整特权架构、中断和操作系统支持尚未实现。
+- 已有可选最小M模式同步异常、定时器中断和有限CSR；完整特权架构、外部中断和操作系统支持尚未实现。
 - 尚未实现Cache、BTB和AXI4 DDR/DMA；AXI4-Lite已有板级自检/PDS入口，尚未接CNN或完成实物验收。UART TX无FIFO，RX有16字节FIFO，但仍无接收中断、奇偶校验或硬件流控。GPIO已有RTL/MMIO和仿真，实际引脚三态及按键消抖仍需板级实现。
 - 板级数据RAM映射为DRM18K，初始化已在对应综合网表中验证；旧小指令程序可优化为LUT ROM，trap_board指令镜像映射为15块DRM18K。其他镜像须单独检查映射，实物初始化尚待验收。
 - 取指与数据侧均已有单笔请求/响应握手及外部端口；AXI4-Lite已有RAM与控制演示设备的1主2从分发，实际DDR等外部存储器控制器尚未接入。兼容模式取指故障粘滞停止，新模式进入同步异常处理；仍无总线超时机制。

@@ -42,3 +42,5 @@ trap_c_work/
 trap_affected_work/
 trap_board_work/
 trap_board_netlist_work/
+timer_irq_work/
+timer_affected_work/
