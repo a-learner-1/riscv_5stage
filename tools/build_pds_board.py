@@ -20,17 +20,18 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--stage", choices=["synth", "timing", "bitstream"],
                         default="synth")
-    parser.add_argument("--firmware", choices=["board_demo", "uart_rx_echo", "axi_control_board"],
+    parser.add_argument("--firmware", choices=["board_demo", "uart_rx_echo", "axi_control_board", "trap_board"],
                         default=None,
-                        help="Default board_demo; axi_control_board variant selects its matching firmware")
-    parser.add_argument("--variant", choices=["default", "data_handshake", "fetch_handshake", "soc", "axi_control_board"],
+                        help="Default board_demo; dedicated variants select matching firmware")
+    parser.add_argument("--variant", choices=["default", "data_handshake", "fetch_handshake", "soc", "axi_control_board", "trap_board"],
                         default="default",
-                        help="Isolate data/fetch handshake, SoC and AXI control board builds")
+                        help="Isolate data/fetch handshake, SoC, AXI control and trap board builds")
     args = parser.parse_args()
     if args.firmware is None:
-        args.firmware = "axi_control_board" if args.variant == "axi_control_board" else "board_demo"
-    if (args.variant == "axi_control_board") != (args.firmware == "axi_control_board"):
-        parser.error("axi_control_board firmware and variant must be selected together")
+        args.firmware = args.variant if args.variant in {"axi_control_board", "trap_board"} else "board_demo"
+    for dedicated in ("axi_control_board", "trap_board"):
+        if (args.variant == dedicated) != (args.firmware == dedicated):
+            parser.error(dedicated + " firmware and variant must be selected together")
     if not str(ROOT).isascii():
         raise RuntimeError("Use an ASCII project path, e.g. D:/FPGA/riscv_3stage")
     configured = os.environ.get("PDS_SHELL")
@@ -44,7 +45,8 @@ def main():
               [args.firmware + ".hex", args.firmware + "_data.hex"]]
     for path, words in zip(images, [8192, 4096]):
         if not path.is_file():
-            builder = ("build_axi_control_board.bat" if args.firmware == "axi_control_board" else
+            builder = ("build_trap_board.bat" if args.firmware == "trap_board" else
+                       "build_axi_control_board.bat" if args.firmware == "axi_control_board" else
                        "build_board.bat" if args.firmware == "board_demo" else "build_uart_rx.bat")
             raise RuntimeError(f"Missing {path.name}; run {builder}")
         contents = path.read_text(encoding="ascii").splitlines()
@@ -52,7 +54,8 @@ def main():
                                          for w in contents):
             raise RuntimeError(f"{path.name}: expected {words} complete hex words")
 
-    build_name = ("pds_axi_control_board" if args.variant == "axi_control_board" else
+    build_name = ("pds_trap_board" if args.variant == "trap_board" else
+                  "pds_axi_control_board" if args.variant == "axi_control_board" else
                   "pds_soc" if args.variant == "soc" else
                   "pds_fetch_handshake" if args.variant == "fetch_handshake" else
                   "pds_data_handshake" if args.variant == "data_handshake" else
@@ -67,7 +70,11 @@ def main():
         rtl_names += ["soc_instr_mem.v", "dmem_axi_lite_bridge.v", "axi_lite_ram.v",
                       "soc_axi_lite_top.v", "axi_lite_1x2.v", "axi_lite_ctrl.v",
                       "soc_axi_control_top.v"]
-    top_name = ("axi_control_board_top" if args.variant == "axi_control_board" else
+    if args.variant == "trap_board":
+        rtl_names += ["soc_instr_mem.v", "dmem_axi_lite_bridge.v", "axi_lite_ram.v",
+                      "soc_axi_lite_top.v"]
+    top_name = ("trap_board_top" if args.variant == "trap_board" else
+                "axi_control_board_top" if args.variant == "axi_control_board" else
                 "soc_board_top" if args.variant == "soc" else "board_top")
     top_source = ROOT / "rtl" / (top_name + ".v")
     top = top_source.read_text(encoding="utf-8")
@@ -78,7 +85,7 @@ def main():
         if top.count(marker) != 1:
             raise RuntimeError("Unexpected " + top_name + " module declaration")
         top = top.replace(marker, "module board_top #(")
-    source_firmware = "axi_control_board" if args.variant == "axi_control_board" else "board_demo"
+    source_firmware = args.variant if args.variant in {"axi_control_board", "trap_board"} else "board_demo"
     for original, image in zip(
             ["programs/" + source_firmware + ".hex", "programs/" + source_firmware + "_data.hex"], images):
         if top.count(original) != 1:
@@ -201,6 +208,17 @@ def main():
                       top_source, ROOT / "pds/board_top.fdc"]
         },
     }
+    if args.variant == "trap_board":
+        manifest.update({
+            "enable_traps": 1,
+            "pds_shell": str(exe.resolve()),
+            "build_script_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+            "bitstreams": {
+                p.relative_to(build).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+                for p in sorted((build / "generate_bitstream").glob("board_top.*"))
+                if p.suffix in {".sbit", ".bin"} and args.stage == "bitstream"
+            },
+        })
     (build / "build_manifest.json").write_text(
         json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     print("PDS project: " + str(project))

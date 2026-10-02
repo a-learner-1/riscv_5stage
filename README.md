@@ -2,13 +2,86 @@
 
 这是一个使用 Verilog 实现的 RV32I 处理器软核，目前采用 **IF → EX → WB** 三级流水线，能够在 ModelSim 中加载外部 HEX 程序、运行裸机 RISC-V 汇编和 C 程序，并通过 `tohost` 协议自动报告运行结果。
 
-当前已有37种常用RV32I指令及流水线/存储/外设平台；新增 `ENABLE_TRAPS=1` 模式补入FENCE、ECALL、EBREAK、6种Zicsr和MRET，以及最小机器模式同步异常环境。旧顶层默认 `ENABLE_TRAPS=0` 保持原固件和粘滞故障语义。AXI路径已有32位AXI4-Lite主桥、RAM从设备、1主2从地址分发器和通用控制设备；C程序能启动硬件任务。此前AXI板级自检的50 MHz PDS/网表/候选位流属于 `a2bfff0` 基线；本轮新增异常路径已做RTL/C/AXI验证，尚无新PDS时序或实物结果。CoreMark仅保留旧版本单次功能记录。
+当前已有37种常用RV32I指令及流水线/存储/外设平台；`ENABLE_TRAPS=1` 模式补入FENCE、ECALL、EBREAK、6种Zicsr和MRET，以及最小机器模式同步异常环境。旧顶层默认 `ENABLE_TRAPS=0` 保持原固件和粘滞故障语义。AXI路径已有32位AXI4-Lite主桥、RAM从设备、1主2从地址分发器和通用控制设备；C程序能启动硬件任务。新增 `trap_board_top` 开启异常并提供50 MHz/115200串口、GPIO板级自检；已通过新板级RTL和本地PDS综合/布局布线时序，综合网表检查与实物验收状态见下节。旧AXI控制板级验收基线仍保留。CoreMark仅保留旧版本单次功能记录。
 
 项目的长期目标是作为紫光同创盘古 50 开发板上轻量化 CNN 推理系统的 RISC-V 主控。CPU 与平台部分负责处理器、外设和后续加速器接口，CNN 模型与部署由队友负责。当前已有CPU外、FPGA内的独立ROM/RAM、最小SoC及AXI4-Lite控制演示闭合系统；后续仍需实际外部存储器控制器、完整异常/中断、Cache、BTB、正式CNN接口和板级实物验证。现阶段保持三级流水线，后续再评估五级升级；队友使用的参考 CPU 不替换本仓库的处理器。
 
+## 新增：开启同步异常的盘古50板级验收版本
+
+本轮以 `322eb66` 为基线，不修改CPU、decoder、前端、AXI桥/从设备、UART或GPIO模块。新增 `trap_board_top.v` 将原本仅在新测试中启用的同步异常模式接到MES50HP，并使用独立输出目录；其他板级顶层和固件保留各自的版本。
+
+```text
+trap_board_top       MES50HP / PGL50H-6IFBG484，50 MHz，UART115200
+  ├─ board_reset    KEY1共同复位；上电/松键默认50000拍等待（约1ms）
+  ├─ soc_axi_lite_top 三级CPU，ENABLE_TRAPS=1，独立指令ROM，AXI主桥
+  │                     └─ axi_lite_ram：CPU外、同一FPGA内的16KiB RAM
+  └─ LED            CPU软件GPIO输出；复位时全灭
+```
+
+新固件安装mtvec和有效栈，执行六种CSR、FENCE及四次异常：ECALL、EBREAK、非法指令0xffffffff、未知CSR0x77702073。每次检查mcause/mepc/mtval/mstatus，保存RAM日志，经MRET返回后继续执行。全部校验通过后打印17字节（包含CR LF）：
+
+```text
+TRAP BOARD PASS
+```
+
+LED2常亮，LED1每约0.5秒翻转（完整周期约1秒）。软件失败时LED3常亮并输出26字节 `TRAP BOARD FAIL XXXXXXXX` 加CR LF。错误码1为RAM guard不符或blink_cycles为0，2为mtvec不符，3–7为CSR读写校验失败，8为misa/mhartid不符，9为FENCE后RAM不符，10为异常返回后的最终状态不符；0x10+slot为异常描述不符，0x20+slot为RAM日志不符。KEY2–KEY8不控制本固件的LED。可恢复的imem_fault是前端待接管状态，因此新顶层不把它直接当成粘滞故障灯。
+
+程序永不返回main、不写tohost；KEY1重新清除CSR、流水线、AXI和外设协议状态，然后重新运行并输出完整PASS。AXI RAM的物理内容保持，startup会再次清除自己的BSS，异常计数/日志将重新开始；已接受的写不能回滚。本例仍是单机器模式、无中断/嵌套的同步异常验收，入口使用当前有效的16字节对齐栈，详见下一节的入口限制。
+
+| 新增文件 | 用途 |
+| --- | --- |
+| rtl/trap_board_top.v | 固定开启异常、50 MHz/115200、共同复位和LED |
+| software/trap_board.c | 板级异常自检、PASS/FAIL和持续心跳；复用原trap_entry.S |
+| tools/build_trap_board_images.py / build_trap_board.bat | RV32I_Zicsr/ILP32/O2/Werror构建，ELF/map/dump及源码/镜像SHA |
+| programs/trap_board.hex / trap_board_data.hex / trap_board_sim_data.hex / trap_board_symbols.vh | 满深度硬件/仿真镜像与ELF地址宏 |
+| tb/trap_board_tb.v / run_trap_board.do | 3组真实50 MHz/115200板级RTL测试 |
+| tb/trap_board_netlist_tb.v / run_trap_board_netlist.do | 同一硬件镜像的综合网表功能验收，带源码/镜像/构建器过期检查 |
+
+固件有效代码1764字节，初始化data68字节；ROM8192字、RAM4096字。硬件与仿真指令bin及所有符号地址逐字一致，RAM仅blink_cycles一个字不同：硬件25000000，仿真2000。当前blink_cycles=0x1003c、ram_guard=0x10040；异常标签/变量地址从ELF生成，不要求手工同步TB。串口和50 MHz时钟不加速。仓库已提供镜像，只有改新软件后才需要在Git Bash重新构建：
+
+```bash
+cd /d/FPGA/riscv_3stage
+cmd.exe //c build_trap_board.bat
+```
+
+相关新配置修改后的ModelSim入口：
+
+```tcl
+cd D:/FPGA/riscv_3stage
+do run_trap_board.do
+```
+
+3组RTL已通过，done=3'h7/test_pass=1，结束3812072 ns，0错误0警告。测试逐字节验证实际115200 TX引脚、每次启动4trap/4MRET/1FENCE、软件RAM/CSR结果、完整加速心跳周期、普通KEY1重启、handler进行中复位，以及guard注入FAIL/修正RAM后KEY1恢复；共同复位保留独立RAM标记。没有重复上一阶段已通过且未改代码的15组异常测试和21个旧CPU集成。
+
+专用本地PDS入口（生成文件，不下载或烧写Flash）：
+
+```bash
+cmd.exe //c build_pds_board.bat --variant trap_board --stage bitstream
+```
+
+这个variant自动选择trap_board硬件固件，混用旧固件会拒绝；输出为 `build/pds_trap_board/`。器件PGL50H/-6/FBG484，复用未修改的19个物理管脚及50 MHz FDC。仅合成副本改名board_top并替换硬件HEX绝对路径；不使用sim_data。路由器摘要及最终独立STA均须通过全部setup/hold/recovery/removal和脉宽检查，才生成 `generate_bitstream/board_top.sbit` / `.bin`；manifest记录source/image/builder/bitstream SHA和enable_traps=1、hardware_verified=false。
+
+2026-10-02本次综合资源为2552 LUT（5.96%）、1148寄存器（1.79%）、31 DRM18K（23.13%）、19 IO、0 APM、0 latch。DRM中15块为独立指令ROM、8块为AXI RAM；另8块为仍被综合器保留的CPU内部RAM，在外部数据模式不提供本程序的数据访问。本轮不改核心移除此资源，不能将它计作额外可用程序RAM。最终50 MHz STA慢角setup/hold为+2.434/+0.146 ns，快角+7.717/+0.102 ns；recovery/removal和脉宽也全部通过。约56.928 MHz是该实现的工具估计，不是实测Fmax或CoreMark结果，也不能直接与其他顶层/固件的资源比较。
+
+PDS仍有告警：K18/J19/H20是配置复用管脚（KEY1/KEY6/KEY7），constraint_check列为3项critical warning，实物须核对配置模式与手册；5处通用ASYNC_REG属性被PDS忽略，不能声称工具自动完成了CDC标注。18项Timing-4086/4087针对异步按钮/RX及LED/TX外部IO，本设计按既有FDC排除这些外部时序路径；内部50 MHz时序仍接受上述检查。同步器RTL保留，未发现内部时钟未约束或锁存器。本次工具通过仍须结合实物复位、串口和LED验收。
+
+同一硬件镜像的综合网表入口：
+
+```tcl
+do run_trap_board_netlist.do
+```
+
+综合网表功能测试已通过，两次启动均逐字节收到完整17字节PASS，验证默认1ms上电/松键等待、PASS灯和KEY1重启；test_pass=1，结束5277130 ns，0错误0警告。ROM/RAM使用综合时嵌入的硬件初始化内容，没有修改网表存储器或加速串口。本检查不含SDF回标，50 MHz时序证据来自上述最终STA；硬件0.5秒心跳未在网表中跑满，其完整周期由RTL的单字数据缩短测试覆盖。
+
+本次日志为 `build/trap_board_validation.log`、`build/trap_board_netlist_validation.log`，固件ELF/map/dump及镜像检查在 `build/trap_board_firmware/`，PDS候选及manifest在 `build/pds_trap_board/`。候选sbit的SHA-256为 `a7d7f407800f4994d157fc15eab27d393cc6607b0825f3d20ba8ef137d7f23b7`。本次功能源码与镜像冻结后未重复旧回归。
+
+本次ModelSim/PDS在本机英文路径快照运行，按SHA核对对应源码后回存构建产物。PDS工程和报告记录该快照绝对路径；移机或改路径后应使用上述构建入口生成自己的工程。源码包不包含厂商模型、工具或许可证，综合网表脚本从本机PDS安装读取官方模型。
+
+等板子在身边，核对MES50HP/PGL50H-6IFBG484和下载线后，仅将对应候选sbit临时下载到SRAM；UART115200、8N1、无流控，按KEY1后核对PASS、LED2和LED1心跳，再按KEY1确认完整重启。尚未做实物下载验收，本节工具通过不代表实物或CNN系统完成。旧AXI控制验收章节仍对应旧配置。
+
 ## 新增：FENCE、CSR与最小机器模式同步异常
 
-本轮以 `a2bfff0` 为基线。在 `cpu_top` 或 `soc_axi_lite_top` 实例中设置 `.ENABLE_TRAPS(1)`，开启以下指令与恢复机制；参数默认0，旧板级程序未安装异常处理函数，因此旧顶层仍保持兼容模式。新能力不是自动启用在旧位流中；首次实物验收继续使用保存的基线位流和对应源码。
+本节记录以 `a2bfff0` 为基线的CPU同步异常里程碑。在 `cpu_top` 或 `soc_axi_lite_top` 实例中设置 `.ENABLE_TRAPS(1)`，开启以下指令与恢复机制；参数默认0，旧板级程序未安装异常处理函数，因此旧顶层仍保持兼容模式。新能力不是自动启用在旧位流中；本节之后新增的trap_board显式开启它并使用自己的源码/固件/候选位流，见上一节。
 
 - FENCE：支持opcode=0x0f/funct3=0，包括空前驱/后继和保留字段；按保守屏障处理。现有CPU在LOAD/STORE响应完成前不能执行下一条EX指令，所以屏障无需新增总线请求，退休时较早数据事务已完成。
 - ECALL/EBREAK：记录自身PC并进入软件处理程序，异常指令不退休。EBREAK的mtval记录自身PC，ECALL为0。
@@ -69,7 +142,7 @@ C固件通过后UART输出42字节 `TRAP PASS FENCE CSR ECALL EBREAK ILLEGAL` �
 
 本轮CPU/decoder/前端功能发生变化，因此补查21个受影响旧CPU、SoC、AXI与板级RTL集成顶层，全部功能通过；未重复未改功能的外设/存储/AXI单测或CoreMark算法。首段10组已通过后，脚本读取被优化的test_pass失败；改用+acc并从第11组继续，没有重跑前10组。旧输出空连接导致的警告随后只做连接修正和编译/展开检查，不改变刺激、断言或RTL功能，不再重复功能仿真。两个分段日志及最终编译检查记录在build目录。
 
-本轮没有中断输入、mie/mip、S/U模式、委托、PMP、标准mcycle/minstret CSR、FENCE.I或Cache。本轮可称RV32I的40项基础指令行为及Zicsr/MRET已实现和定向验证，不能称完整特权架构或标准一致性测试通过。旧CoreMark单次记录不作为新模式跑分；本轮没有新PDS/位流/实物验证，旧manifest在源码改变后会拒绝旧网表。规范依据：[RV32I](https://docs.riscv.org/reference/isa/v20260120/unpriv/rv32.html)、[Zicsr](https://docs.riscv.org/reference/isa/v20260120/unpriv/zicsr.html)、[Machine ISA](https://docs.riscv.org/reference/isa/v20240411/priv/machine.html)。
+仍没有中断输入、mie/mip、S/U模式、委托、PMP、标准mcycle/minstret CSR、FENCE.I或Cache。CPU同步异常里程碑可称RV32I的40项基础指令行为及Zicsr/MRET已实现和定向验证，不能称完整特权架构或标准一致性测试通过。旧CoreMark单次记录不作为新模式跑分。该里程碑当时没有PDS/位流/实物验证；随后trap_board的本地工具验证见上一节，实物仍未验收。manifest在其源码改变后会拒绝旧网表。规范依据：[RV32I](https://docs.riscv.org/reference/isa/v20260120/unpriv/rv32.html)、[Zicsr](https://docs.riscv.org/reference/isa/v20260120/unpriv/zicsr.html)、[Machine ISA](https://docs.riscv.org/reference/isa/v20240411/priv/machine.html)。
 
 ## 新增：AXI 控制系统的盘古50板级自检
 
@@ -389,7 +462,7 @@ SoC两种固件都使用 `build/pds_soc/`，切换 `--firmware` 前需归档其�
 
 ## 队友快速上手：下载后先看这里
 
-当前仓库包含 **CPU RTL、软件示例、仿真测试和最小板级工程生成脚本**。首次上板仅面向 MES50HP 的 PGL50H-6IFBG484，不包含 CNN、LCD、振动模块、外部存储器或 AXI；不能把别的开发板直接套用本仓库的引脚约束。仓库已包含预生成 HEX 程序镜像，第一次运行不需要先编译 C，也不需要复制原作者电脑上的 ModelSim 工程、工作库或波形。
+当前仓库包含 **CPU RTL、软件示例、仿真测试和板级工程生成脚本**。下面快速上手使用原 `board_demo` 最小配置；新增SoC、AXI控制和同步异常版本须选择各自章节的固件/variant。板级引脚仅面向MES50HP的PGL50H-6IFBG484，CNN、LCD、振动模块和外部存储器尚未接入；不能把别的开发板直接套用本仓库的引脚约束。仓库已包含预生成HEX，第一次运行不需要先编译C，也不需要复制本机ModelSim工作库或波形。
 
 ### 1. 获取完整仓库
 
@@ -552,7 +625,7 @@ CPU 与平台部分负责处理器、存储器、外设和后续加速器接入�
 | 指令/数据存储器参数化与扩容 | 已完成 |
 | 独立指令/数据 HEX 镜像 | 已完成 |
 | `.data`/`.rodata` 预初始化 | 已完成 |
-| 同步指令/数据 RAM 与 load-use stall | RTL/仿真已完成；板级演示数据 RAM 映射为8个 DRM18K，小指令镜像被优化为 LUT ROM |
+| 同步指令/数据 RAM 与 load-use stall | RTL/仿真已完成；存储映射取决于顶层和镜像，trap_board独立ROM/RAM为15/8个DRM18K |
 | 数据侧请求/响应握手 | 单笔在途、请求背压、响应等待、外部RAM端口及错误停机；可变延迟/复位/MMIO唯一性测试通过 |
 | 取指侧请求/响应握手 | 单笔在途、默认每拍吞吐、可变延迟、跳转旧响应丢弃、错误停机与故障PC；7组新增检查通过 |
 | 最小SoC与独立片上ROM/RAM端点 | 新SoC软件/板级RTL、实际错误响应、PDS 50 MHz最终STA及综合网表功能通过 |
@@ -565,6 +638,7 @@ CPU 与平台部分负责处理器、存储器、外设和后续加速器接入�
 | AXI4-Lite地址分发与控制设备 | 1主2从、新C程序/协议及新增板级自检/PDS 50 MHz验证通过；实物和CNN待验证 |
 | Cache、BTB、AXI4 DDR/DMA | 尚未完成 |
 | MES50HP 最小板级顶层 | UART TX、LED、按键及上电/KEY1 复位仿真通过 |
+| MES50HP 同步异常板级版本 | 开启ENABLE_TRAPS=1；4次异常/MRET、CSR/FENCE、PASS/FAIL、心跳与KEY1通过新RTL及硬件镜像网表检查 |
 | PDS 综合、布局布线与 50 MHz 时序 | PDS 2022.2-SP6.4 验证通过，存在复用引脚等告警，见板级章节 |
 | 盘古 50 实物验证 | 尚未完成；工具通过不等于实物通过 |
 
@@ -1418,7 +1492,7 @@ cmd.exe //c build_pds_board.bat --stage bitstream
 
 - 已有可选最小M模式同步异常和有限CSR；完整特权架构、中断和操作系统支持尚未实现。
 - 尚未实现Cache、BTB和AXI4 DDR/DMA；AXI4-Lite已有板级自检/PDS入口，尚未接CNN或完成实物验收。UART TX无FIFO，RX有16字节FIFO，但仍无接收中断、奇偶校验或硬件流控。GPIO已有RTL/MMIO和仿真，实际引脚三态及按键消抖仍需板级实现。
-- 当前板级数据 RAM 已确认映射为 DRM18K、初始化已在综合网表中验证；小指令程序优化为 LUT ROM。其他程序映射和实物初始化行为仍需对应验证。
+- 板级数据RAM映射为DRM18K，初始化已在对应综合网表中验证；旧小指令程序可优化为LUT ROM，trap_board指令镜像映射为15块DRM18K。其他镜像须单独检查映射，实物初始化尚待验收。
 - 取指与数据侧均已有单笔请求/响应握手及外部端口；AXI4-Lite已有RAM与控制演示设备的1主2从分发，实际DDR等外部存储器控制器尚未接入。兼容模式取指故障粘滞停止，新模式进入同步异常处理；仍无总线超时机制。
 - 32 KiB指令区和16 KiB数据区已运行本阶段的 CoreMark 单次程序，但不代表可以容纳后续完整音频特征提取和 CNN 输入数据。
 - 最小板级工程已完成 PDS 综合、资源统计和50 MHz静态时序分析；尚未完成盘古50实物验收，不代表 CNN 或完整 SoC 已上板。
