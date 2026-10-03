@@ -16,22 +16,67 @@ RTL = ["instr_mem.v", "instr_bus_adapter.v", "if_stage.v", "regfile.v", "decoder
        "gpio_mmio.v", "machine_timer.v", "cpu_top.v", "board_reset.v"]
 
 
+def validate_coremark_board_firmware(firmware, root=ROOT):
+    """Check clock/mode metadata and bind ROM, RAM and config to one ELF build."""
+    profile = firmware.removeprefix("coremark_")
+    if profile not in {"performance", "validation"}:
+        raise RuntimeError("CoreMark board requires a formal performance/validation image")
+    config = root / "programs" / (firmware + "_config.vh")
+    report_path = root / "build/coremark" / profile / "build_report.json"
+    if not config.is_file() or not report_path.is_file():
+        raise RuntimeError("Missing CoreMark build metadata; run build_coremark.bat --profile " + profile)
+    config_text = config.read_text(encoding="ascii")
+    for macro, expected in (("COREMARK_CLOCK_HZ", 50000000),
+                            ("COREMARK_UART_BAUD", 115200), ("COREMARK_FORMAL", 1)):
+        match = re.search(r"`define\s+" + macro + r"\s+(?:32'd)?(\d+)\b", config_text)
+        if not match or int(match.group(1)) != expected:
+            raise RuntimeError("CoreMark board requires " + macro + "=" + str(expected))
+    try:
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+    except (ValueError, UnicodeError) as error:
+        raise RuntimeError("Invalid CoreMark build report") from error
+    required = {"profile": profile, "output_name": profile, "formal": True,
+                "clock_hz": 50000000, "tick_hz": 50000000, "uart_baud": 115200,
+                "seed_profile": profile, "rom_bytes": 32768, "ram_bytes": 16384,
+                "march": "rv32i", "mabi": "ilp32"}
+    if not isinstance(report, dict) or any(report.get(k) != v for k, v in required.items()):
+        raise RuntimeError("CoreMark board build report has incompatible clock/mode/memory/profile")
+    hashes = report.get("images_sha256", {})
+    if not isinstance(hashes, dict):
+        raise RuntimeError("CoreMark build report is missing image hashes")
+    for path in [root / "programs" / (firmware + suffix) for suffix in (".hex", "_data.hex", "_config.vh")]:
+        expected_hash = hashes.get(path.relative_to(root).as_posix())
+        if not path.is_file() or not isinstance(expected_hash, str) or \
+                hashlib.sha256(path.read_bytes()).hexdigest() != expected_hash:
+            raise RuntimeError("CoreMark image/config does not match its ELF build report: " + path.name)
+    return config, report_path
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--stage", choices=["synth", "timing", "bitstream"],
                         default="synth")
-    parser.add_argument("--firmware", choices=["board_demo", "uart_rx_echo", "axi_control_board", "trap_board"],
+    parser.add_argument("--firmware", choices=["board_demo", "uart_rx_echo", "axi_control_board", "trap_board",
+                                              "coremark_performance", "coremark_validation"],
                         default=None,
                         help="Default board_demo; dedicated variants select matching firmware")
-    parser.add_argument("--variant", choices=["default", "data_handshake", "fetch_handshake", "soc", "axi_control_board", "trap_board"],
+    parser.add_argument("--variant", choices=["default", "data_handshake", "fetch_handshake", "soc", "axi_control_board", "trap_board", "coremark_board"],
                         default="default",
                         help="Isolate data/fetch handshake, SoC, AXI control and trap board builds")
     args = parser.parse_args()
     if args.firmware is None:
-        args.firmware = args.variant if args.variant in {"axi_control_board", "trap_board"} else "board_demo"
+        args.firmware = ("coremark_performance" if args.variant == "coremark_board" else
+                         args.variant if args.variant in {"axi_control_board", "trap_board"} else "board_demo")
     for dedicated in ("axi_control_board", "trap_board"):
         if (args.variant == dedicated) != (args.firmware == dedicated):
             parser.error(dedicated + " firmware and variant must be selected together")
+    if (args.variant == "coremark_board") != args.firmware.startswith("coremark_"):
+        parser.error("CoreMark firmware requires --variant coremark_board and a formal performance/validation image")
+    coremark_config = None
+    coremark_report = None
+    if args.variant == "coremark_board":
+        # Prevent loading a 100 MHz simulation image into the fixed 50 MHz top.
+        coremark_config, coremark_report = validate_coremark_board_firmware(args.firmware)
     if not str(ROOT).isascii():
         raise RuntimeError("Use an ASCII project path, e.g. D:/FPGA/riscv_3stage")
     configured = os.environ.get("PDS_SHELL")
@@ -45,7 +90,9 @@ def main():
               [args.firmware + ".hex", args.firmware + "_data.hex"]]
     for path, words in zip(images, [8192, 4096]):
         if not path.is_file():
-            builder = ("build_trap_board.bat" if args.firmware == "trap_board" else
+            builder = ("build_coremark.bat --profile " + args.firmware.removeprefix("coremark_")
+                       if args.variant == "coremark_board" else
+                       "build_trap_board.bat" if args.firmware == "trap_board" else
                        "build_axi_control_board.bat" if args.firmware == "axi_control_board" else
                        "build_board.bat" if args.firmware == "board_demo" else "build_uart_rx.bat")
             raise RuntimeError(f"Missing {path.name}; run {builder}")
@@ -54,7 +101,8 @@ def main():
                                          for w in contents):
             raise RuntimeError(f"{path.name}: expected {words} complete hex words")
 
-    build_name = ("pds_trap_board" if args.variant == "trap_board" else
+    build_name = ("pds_" + args.firmware if args.variant == "coremark_board" else
+                  "pds_trap_board" if args.variant == "trap_board" else
                   "pds_axi_control_board" if args.variant == "axi_control_board" else
                   "pds_soc" if args.variant == "soc" else
                   "pds_fetch_handshake" if args.variant == "fetch_handshake" else
@@ -73,7 +121,8 @@ def main():
     if args.variant == "trap_board":
         rtl_names += ["soc_instr_mem.v", "dmem_axi_lite_bridge.v", "axi_lite_ram.v",
                       "soc_axi_lite_top.v"]
-    top_name = ("trap_board_top" if args.variant == "trap_board" else
+    top_name = ("coremark_board_top" if args.variant == "coremark_board" else
+                "trap_board_top" if args.variant == "trap_board" else
                 "axi_control_board_top" if args.variant == "axi_control_board" else
                 "soc_board_top" if args.variant == "soc" else "board_top")
     top_source = ROOT / "rtl" / (top_name + ".v")
@@ -85,7 +134,8 @@ def main():
         if top.count(marker) != 1:
             raise RuntimeError("Unexpected " + top_name + " module declaration")
         top = top.replace(marker, "module board_top #(")
-    source_firmware = args.variant if args.variant in {"axi_control_board", "trap_board"} else "board_demo"
+    source_firmware = ("coremark_performance" if args.variant == "coremark_board" else
+                       args.variant if args.variant in {"axi_control_board", "trap_board"} else "board_demo")
     for original, image in zip(
             ["programs/" + source_firmware + ".hex", "programs/" + source_firmware + "_data.hex"], images):
         if top.count(original) != 1:
@@ -217,6 +267,20 @@ def main():
                 p.relative_to(build).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
                 for p in sorted((build / "generate_bitstream").glob("board_top.*"))
                 if p.suffix in {".sbit", ".bin"} and args.stage == "bitstream"
+            },
+        })
+    if args.variant == "coremark_board":
+        manifest.update({
+            "enable_traps": 1, "enable_timer_irq": 1, "software_irq_masked": True,
+            "uart_baud": 115200, "timer_tick_hz": 50000000,
+            "instruction_memory_bytes": 32768, "data_memory_bytes": 16384,
+            "external_imem": 0, "external_dmem": 0,
+            "formal_score_measured": False,
+            "firmware_config": {
+                coremark_config.name: hashlib.sha256(coremark_config.read_bytes()).hexdigest()
+            },
+            "firmware_build_report": {
+                coremark_report.relative_to(ROOT).as_posix(): hashlib.sha256(coremark_report.read_bytes()).hexdigest()
             },
         })
     (build / "build_manifest.json").write_text(

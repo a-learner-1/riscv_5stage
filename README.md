@@ -1576,3 +1576,7 @@ cmd.exe //c build_pds_board.bat --stage bitstream
 ## 当前性能基线
 
 本阶段的 C 示例主要用于验证工具链、访存、分支、流水线冲刷和性能计数器，并不代表最终 CPU 或 CNN 性能。当前基线的价值在于：后续加入同步存储器、Cache、BTB 或 CNN 加速器后，可以使用相同的计数方法进行可重复比较。
+
+## CoreMark 测评准备（2026-10-03）
+
+新增独立的 smoke、smoke-validation、formal-short、performance 和 validation 构建；移植层使用 64 位 mtime 与小数秒，正式模式严格校验时长、种子和 CRC。专用顶层接通 timer，官方算法文件保持原样。详见 [CoreMark 配置、命令与验证边界](docs/coremark.md)。本轮只做测评准备与新增短程验证，正式分数和对应 PDS/实物验收尚未完成。

@@ -44,3 +44,12 @@ trap_board_work/
 trap_board_netlist_work/
 timer_irq_work/
 timer_affected_work/
+
+# CoreMark focused validation libraries and generated mock fixtures
+coremark_work/
+coremark_prepare_work/
+coremark_port_math_work/
+programs/coremark_math_*.hex
+programs/coremark_math_symbols.vh
+coremark_board_work/
+coremark_*_work/
