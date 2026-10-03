@@ -1580,3 +1580,11 @@ cmd.exe //c build_pds_board.bat --stage bitstream
 ## CoreMark 测评准备（2026-10-03）
 
 新增独立的 smoke、smoke-validation、formal-short、performance 和 validation 构建；移植层使用 64 位 mtime 与小数秒，正式模式严格校验时长、种子和 CRC。专用顶层接通 timer，官方算法文件保持原样。详见 [CoreMark 配置、命令与验证边界](docs/coremark.md)。本轮只做测评准备与新增短程验证，正式分数和对应 PDS/实物验收尚未完成。
+
+## 定时器中断板级自检（timer_irq_board）
+
+新增独立的 50 MHz/115200 定时器中断自检版本，检查三次 IRQ/MRET、屏蔽挂起、
+主程序运算恢复、串口 PASS/FAIL、LED 心跳和 KEY1。固件构建、三组 RTL、
+PDS 时序/位流及硬件镜像综合网表功能测试已通过。2026-10-03 用户上板确认正常，
+串口三次输出 TIMER IRQ PASS（接收 48 字节），LED 与 KEY1 复位现象正常。
+命令、现象和验证证据见 [操作说明](docs/timer_irq_board.md)。

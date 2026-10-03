@@ -80,7 +80,7 @@ def image(payload, target, words, fill):
     target.write_text("".join(f"{word:08x}\n" for word in data), encoding="ascii")
 
 
-def build(tool, name, log):
+def build(tool, name, log, c_source="software/timer_irq.c", extra_flags=()):
     stem = BUILD / name
     elf = Path(str(stem) + ".elf")
     flags = ["-march=rv32i_zicsr", "-mabi=ilp32", "-O2", "-ffreestanding",
@@ -90,8 +90,8 @@ def build(tool, name, log):
              "-nostartfiles", "-static", "-Wl,-T,software/link.ld",
              "-Wl,--gc-sections", "-Wl,--no-relax",
              "-Wl,-Map," + rel(Path(str(stem) + ".map"))]
-    run([tool + "gcc", *flags, "software/start.S", "software/timer_entry.S",
-         "software/timer_irq.c", "-lgcc", "-o", rel(elf)], log)
+    run([tool + "gcc", *flags, *extra_flags, "software/start.S", "software/timer_entry.S",
+         c_source, "-lgcc", "-o", rel(elf)], log)
     binaries = {}
     for section in ("text", "data"):
         binary = Path(str(stem) + "_" + section + ".bin")

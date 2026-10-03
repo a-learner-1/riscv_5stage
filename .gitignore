@@ -44,6 +44,8 @@ trap_board_work/
 trap_board_netlist_work/
 timer_irq_work/
 timer_affected_work/
+timer_irq_board_work/
+timer_irq_board_netlist_work/
 
 # CoreMark focused validation libraries and generated mock fixtures
 coremark_work/

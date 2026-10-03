@@ -52,22 +52,52 @@ def validate_coremark_board_firmware(firmware, root=ROOT):
     return config, report_path
 
 
+def validate_timer_irq_board_firmware(root=ROOT):
+    """Reject simulation RAM, wrong opt-in metadata and stale compiled sources."""
+    report_path = root / "build/timer_irq_board_firmware/build_report.json"
+    if not report_path.is_file():
+        raise RuntimeError("Missing timer IRQ board metadata; run build_timer_irq_board.bat")
+    try:
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+    except (ValueError, UnicodeError) as error:
+        raise RuntimeError("Invalid timer IRQ board build report") from error
+    required = {"image_kind": "MES50HP timer IRQ board", "clock_hz": 50000000,
+                "uart_baud": 115200, "requires_ENABLE_TRAPS": 1,
+                "requires_ENABLE_TIMER_IRQ": 1, "rom_words": 8192, "ram_words": 4096,
+                "hardware_blink_cycles": 25000000, "march": "rv32i_zicsr", "mabi": "ilp32"}
+    if not isinstance(report, dict) or any(report.get(k) != v for k, v in required.items()):
+        raise RuntimeError("Timer IRQ board report has incompatible clock/mode/memory")
+    hashes = report.get("images_sha256", {})
+    sources = report.get("sources_sha256", {})
+    if not isinstance(hashes, dict) or not isinstance(sources, dict) or not sources:
+        raise RuntimeError("Timer IRQ board report is missing image/source hashes")
+    for name in ("programs/timer_irq_board.hex", "programs/timer_irq_board_data.hex"):
+        path = root / name
+        if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != hashes.get(name):
+            raise RuntimeError("Timer IRQ board image does not match its ELF build: " + name)
+    for name, digest in sources.items():
+        path = root / name
+        if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != digest:
+            raise RuntimeError("Stale timer IRQ board firmware source: " + name)
+    return report_path
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--stage", choices=["synth", "timing", "bitstream"],
                         default="synth")
-    parser.add_argument("--firmware", choices=["board_demo", "uart_rx_echo", "axi_control_board", "trap_board",
+    parser.add_argument("--firmware", choices=["board_demo", "uart_rx_echo", "axi_control_board", "trap_board", "timer_irq_board",
                                               "coremark_performance", "coremark_validation"],
                         default=None,
                         help="Default board_demo; dedicated variants select matching firmware")
-    parser.add_argument("--variant", choices=["default", "data_handshake", "fetch_handshake", "soc", "axi_control_board", "trap_board", "coremark_board"],
+    parser.add_argument("--variant", choices=["default", "data_handshake", "fetch_handshake", "soc", "axi_control_board", "trap_board", "timer_irq_board", "coremark_board"],
                         default="default",
-                        help="Isolate data/fetch handshake, SoC, AXI control and trap board builds")
+                        help="Isolate data/fetch handshake, SoC, AXI control, trap and timer IRQ board builds")
     args = parser.parse_args()
     if args.firmware is None:
         args.firmware = ("coremark_performance" if args.variant == "coremark_board" else
-                         args.variant if args.variant in {"axi_control_board", "trap_board"} else "board_demo")
-    for dedicated in ("axi_control_board", "trap_board"):
+                         args.variant if args.variant in {"axi_control_board", "trap_board", "timer_irq_board"} else "board_demo")
+    for dedicated in ("axi_control_board", "trap_board", "timer_irq_board"):
         if (args.variant == dedicated) != (args.firmware == dedicated):
             parser.error(dedicated + " firmware and variant must be selected together")
     if (args.variant == "coremark_board") != args.firmware.startswith("coremark_"):
@@ -77,6 +107,8 @@ def main():
     if args.variant == "coremark_board":
         # Prevent loading a 100 MHz simulation image into the fixed 50 MHz top.
         coremark_config, coremark_report = validate_coremark_board_firmware(args.firmware)
+    timer_irq_report = (validate_timer_irq_board_firmware()
+                        if args.variant == "timer_irq_board" else None)
     if not str(ROOT).isascii():
         raise RuntimeError("Use an ASCII project path, e.g. D:/FPGA/riscv_3stage")
     configured = os.environ.get("PDS_SHELL")
@@ -92,6 +124,7 @@ def main():
         if not path.is_file():
             builder = ("build_coremark.bat --profile " + args.firmware.removeprefix("coremark_")
                        if args.variant == "coremark_board" else
+                       "build_timer_irq_board.bat" if args.firmware == "timer_irq_board" else
                        "build_trap_board.bat" if args.firmware == "trap_board" else
                        "build_axi_control_board.bat" if args.firmware == "axi_control_board" else
                        "build_board.bat" if args.firmware == "board_demo" else "build_uart_rx.bat")
@@ -102,6 +135,7 @@ def main():
             raise RuntimeError(f"{path.name}: expected {words} complete hex words")
 
     build_name = ("pds_" + args.firmware if args.variant == "coremark_board" else
+                  "pds_timer_irq_board" if args.variant == "timer_irq_board" else
                   "pds_trap_board" if args.variant == "trap_board" else
                   "pds_axi_control_board" if args.variant == "axi_control_board" else
                   "pds_soc" if args.variant == "soc" else
@@ -118,10 +152,11 @@ def main():
         rtl_names += ["soc_instr_mem.v", "dmem_axi_lite_bridge.v", "axi_lite_ram.v",
                       "soc_axi_lite_top.v", "axi_lite_1x2.v", "axi_lite_ctrl.v",
                       "soc_axi_control_top.v"]
-    if args.variant == "trap_board":
+    if args.variant in {"trap_board", "timer_irq_board"}:
         rtl_names += ["soc_instr_mem.v", "dmem_axi_lite_bridge.v", "axi_lite_ram.v",
                       "soc_axi_lite_top.v"]
     top_name = ("coremark_board_top" if args.variant == "coremark_board" else
+                "timer_irq_board_top" if args.variant == "timer_irq_board" else
                 "trap_board_top" if args.variant == "trap_board" else
                 "axi_control_board_top" if args.variant == "axi_control_board" else
                 "soc_board_top" if args.variant == "soc" else "board_top")
@@ -135,7 +170,7 @@ def main():
             raise RuntimeError("Unexpected " + top_name + " module declaration")
         top = top.replace(marker, "module board_top #(")
     source_firmware = ("coremark_performance" if args.variant == "coremark_board" else
-                       args.variant if args.variant in {"axi_control_board", "trap_board"} else "board_demo")
+                       args.variant if args.variant in {"axi_control_board", "trap_board", "timer_irq_board"} else "board_demo")
     for original, image in zip(
             ["programs/" + source_firmware + ".hex", "programs/" + source_firmware + "_data.hex"], images):
         if top.count(original) != 1:
@@ -258,7 +293,7 @@ def main():
                       top_source, ROOT / "pds/board_top.fdc"]
         },
     }
-    if args.variant == "trap_board":
+    if args.variant in {"trap_board", "timer_irq_board"}:
         manifest.update({
             "enable_traps": 1,
             "pds_shell": str(exe.resolve()),
@@ -267,6 +302,16 @@ def main():
                 p.relative_to(build).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
                 for p in sorted((build / "generate_bitstream").glob("board_top.*"))
                 if p.suffix in {".sbit", ".bin"} and args.stage == "bitstream"
+            },
+        })
+    if args.variant == "timer_irq_board":
+        manifest.update({
+            "enable_timer_irq": 1, "uart_baud": 115200, "timer_tick_hz": 50000000,
+            "instruction_memory_bytes": 32768, "data_memory_bytes": 16384,
+            "expected_irqs": 3, "expected_MRET": 3,
+            "firmware_build_report": {
+                timer_irq_report.relative_to(ROOT).as_posix():
+                    hashlib.sha256(timer_irq_report.read_bytes()).hexdigest()
             },
         })
     if args.variant == "coremark_board":
