@@ -263,6 +263,8 @@ module axi_cpu_system #(
         .m_axi_rresp(rresp),
         .m_axi_rvalid(rvalid),
         .m_axi_rready(rready),
+        .icache_access_count(),.icache_hit_count(),.icache_miss_count(),
+        .icache_refill_word_count(),.icache_error_count(),
         .trap_valid(), .trap_pc(), .trap_cause(), .trap_tval()
     );
     axi_lite_ram #(.WORDS(DMEM_WORDS),.BASE_ADDR(DMEM_BASE_ADDR),.INIT_FILE(DATA_FILE),

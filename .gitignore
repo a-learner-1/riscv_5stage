@@ -55,3 +55,7 @@ programs/coremark_math_*.hex
 programs/coremark_math_symbols.vh
 coremark_board_work/
 coremark_*_work/
+
+# Two-way instruction cache validation
+icache_work/
+icache_board_netlist_work/

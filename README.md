@@ -1588,3 +1588,9 @@ cmd.exe //c build_pds_board.bat --stage bitstream
 PDS 时序/位流及硬件镜像综合网表功能测试已通过。2026-10-03 用户上板确认正常，
 串口三次输出 TIMER IRQ PASS（接收 48 字节），LED 与 KEY1 复位现象正常。
 命令、现象和验证证据见 [操作说明](docs/timer_irq_board.md)。
+
+## Two-way instruction cache (opt-in board step)
+
+The independent `icache_board` version adds a 2 KiB, two-way, 64-set, 16-byte-line LRU instruction cache. Existing SoC instances default to cache disabled. Build with `build_icache_board.bat`, then `build_pds_board.bat --variant icache_board --firmware icache_board --stage bitstream`; simulate with `do run_icache.do` and `do run_icache_board_netlist.do`. UART prints `ICACHE PASS` after conflicting calls, cache counter checks and three timer IRQ/MRET checks. Physical board verification passed on 2026-10-04: the user provided a complete 13-byte `ICACHE PASS` and confirmed normal LEDs, heartbeat and KEY1 restart. See [the verification record](docs/icache_verification_20261003.md).
+
+See [docs/icache.md](docs/icache.md) for the protocol, read-only-ROM limits, counter map and board steps. Data cache and dynamic branch prediction remain unimplemented; this version does not change or remeasure the existing no-cache CoreMark score.

@@ -82,22 +82,42 @@ def validate_timer_irq_board_firmware(root=ROOT):
     return report_path
 
 
+def validate_icache_board_firmware(root=ROOT):
+    from build_icache_board_images import SOURCES
+    path=root/'build/icache_board_firmware/build_report.json'
+    if not path.is_file():
+        raise RuntimeError('Run build_icache_board.bat first')
+    report=json.loads(path.read_text(encoding='utf-8'))
+    required={'image_kind':'MES50HP instruction cache board','clock_hz':50000000,
+              'uart_baud':115200,'requires_ENABLE_ICACHE':1,'requires_ENABLE_TRAPS':1,
+              'requires_ENABLE_TIMER_IRQ':1,'icache_ways':2,'icache_sets':64,'icache_line_bytes':16,
+              'rom_words':8192,'ram_words':4096,'hardware_blink_cycles':25000000,
+              'march':'rv32i_zicsr','mabi':'ilp32'}
+    if any(report.get(k)!=v for k,v in required.items()):
+        raise RuntimeError('Incompatible I-cache board firmware metadata')
+    for name in [*SOURCES,'programs/icache_board.hex','programs/icache_board_data.hex',
+                 'programs/icache_board_sim_data.hex','programs/icache_board_symbols.vh']:
+        digest=report.get('sources_sha256' if name in SOURCES else 'images_sha256',{}).get(name)
+        if not digest or not (root/name).is_file() or hashlib.sha256((root/name).read_bytes()).hexdigest()!=digest:
+            raise RuntimeError('Stale I-cache firmware source/image: '+name)
+    return path
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--stage", choices=["synth", "timing", "bitstream"],
                         default="synth")
-    parser.add_argument("--firmware", choices=["board_demo", "uart_rx_echo", "axi_control_board", "trap_board", "timer_irq_board",
+    parser.add_argument("--firmware", choices=["board_demo", "uart_rx_echo", "axi_control_board", "trap_board", "timer_irq_board", "icache_board",
                                               "coremark_performance", "coremark_validation"],
                         default=None,
                         help="Default board_demo; dedicated variants select matching firmware")
-    parser.add_argument("--variant", choices=["default", "data_handshake", "fetch_handshake", "soc", "axi_control_board", "trap_board", "timer_irq_board", "coremark_board"],
+    parser.add_argument("--variant", choices=["default", "data_handshake", "fetch_handshake", "soc", "axi_control_board", "trap_board", "timer_irq_board", "icache_board", "coremark_board"],
                         default="default",
                         help="Isolate data/fetch handshake, SoC, AXI control, trap and timer IRQ board builds")
     args = parser.parse_args()
     if args.firmware is None:
         args.firmware = ("coremark_performance" if args.variant == "coremark_board" else
-                         args.variant if args.variant in {"axi_control_board", "trap_board", "timer_irq_board"} else "board_demo")
-    for dedicated in ("axi_control_board", "trap_board", "timer_irq_board"):
+                         args.variant if args.variant in {"axi_control_board", "trap_board", "timer_irq_board", "icache_board"} else "board_demo")
+    for dedicated in ("axi_control_board", "trap_board", "timer_irq_board", "icache_board"):
         if (args.variant == dedicated) != (args.firmware == dedicated):
             parser.error(dedicated + " firmware and variant must be selected together")
     if (args.variant == "coremark_board") != args.firmware.startswith("coremark_"):
@@ -109,6 +129,7 @@ def main():
         coremark_config, coremark_report = validate_coremark_board_firmware(args.firmware)
     timer_irq_report = (validate_timer_irq_board_firmware()
                         if args.variant == "timer_irq_board" else None)
+    icache_report = validate_icache_board_firmware() if args.variant == "icache_board" else None
     if not str(ROOT).isascii():
         raise RuntimeError("Use an ASCII project path, e.g. D:/FPGA/riscv_3stage")
     configured = os.environ.get("PDS_SHELL")
@@ -124,6 +145,7 @@ def main():
         if not path.is_file():
             builder = ("build_coremark.bat --profile " + args.firmware.removeprefix("coremark_")
                        if args.variant == "coremark_board" else
+                       "build_icache_board.bat" if args.firmware == "icache_board" else
                        "build_timer_irq_board.bat" if args.firmware == "timer_irq_board" else
                        "build_trap_board.bat" if args.firmware == "trap_board" else
                        "build_axi_control_board.bat" if args.firmware == "axi_control_board" else
@@ -135,6 +157,7 @@ def main():
             raise RuntimeError(f"{path.name}: expected {words} complete hex words")
 
     build_name = ("pds_" + args.firmware if args.variant == "coremark_board" else
+                  "pds_icache_board" if args.variant == "icache_board" else
                   "pds_timer_irq_board" if args.variant == "timer_irq_board" else
                   "pds_trap_board" if args.variant == "trap_board" else
                   "pds_axi_control_board" if args.variant == "axi_control_board" else
@@ -152,10 +175,13 @@ def main():
         rtl_names += ["soc_instr_mem.v", "dmem_axi_lite_bridge.v", "axi_lite_ram.v",
                       "soc_axi_lite_top.v", "axi_lite_1x2.v", "axi_lite_ctrl.v",
                       "soc_axi_control_top.v"]
-    if args.variant in {"trap_board", "timer_irq_board"}:
+    if args.variant in {"trap_board", "timer_irq_board", "icache_board"}:
         rtl_names += ["soc_instr_mem.v", "dmem_axi_lite_bridge.v", "axi_lite_ram.v",
                       "soc_axi_lite_top.v"]
+    if args.variant == "icache_board":
+        rtl_names += ["instr_cache.v", "axi_lite_icache_stats.v", "axi_lite_1x2.v", "soc_icache_stats_top.v"]
     top_name = ("coremark_board_top" if args.variant == "coremark_board" else
+                "icache_board_top" if args.variant == "icache_board" else
                 "timer_irq_board_top" if args.variant == "timer_irq_board" else
                 "trap_board_top" if args.variant == "trap_board" else
                 "axi_control_board_top" if args.variant == "axi_control_board" else
@@ -170,7 +196,7 @@ def main():
             raise RuntimeError("Unexpected " + top_name + " module declaration")
         top = top.replace(marker, "module board_top #(")
     source_firmware = ("coremark_performance" if args.variant == "coremark_board" else
-                       args.variant if args.variant in {"axi_control_board", "trap_board", "timer_irq_board"} else "board_demo")
+                       args.variant if args.variant in {"axi_control_board", "trap_board", "timer_irq_board", "icache_board"} else "board_demo")
     for original, image in zip(
             ["programs/" + source_firmware + ".hex", "programs/" + source_firmware + "_data.hex"], images):
         if top.count(original) != 1:
@@ -293,7 +319,7 @@ def main():
                       top_source, ROOT / "pds/board_top.fdc"]
         },
     }
-    if args.variant in {"trap_board", "timer_irq_board"}:
+    if args.variant in {"trap_board", "timer_irq_board", "icache_board"}:
         manifest.update({
             "enable_traps": 1,
             "pds_shell": str(exe.resolve()),
@@ -313,6 +339,14 @@ def main():
                 timer_irq_report.relative_to(ROOT).as_posix():
                     hashlib.sha256(timer_irq_report.read_bytes()).hexdigest()
             },
+        })
+    if args.variant == "icache_board":
+        manifest.update({
+            "enable_timer_irq":1,"enable_icache":1,"uart_baud":115200,
+            "icache_ways":2,"icache_sets":64,"icache_line_bytes":16,"icache_bytes":2048,
+            "instruction_memory_bytes":32768,"data_memory_bytes":16384,
+            "firmware_build_report":{icache_report.relative_to(ROOT).as_posix():
+                                      hashlib.sha256(icache_report.read_bytes()).hexdigest()},
         })
     if args.variant == "coremark_board":
         manifest.update({

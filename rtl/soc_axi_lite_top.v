@@ -16,7 +16,9 @@ module soc_axi_lite_top #(
     parameter integer MMIO_REQ_WAIT_CYCLES = 0,
     parameter integer MMIO_RSP_WAIT_CYCLES = 0,
     parameter integer ENABLE_TRAPS = 0,
-    parameter integer ENABLE_TIMER_IRQ = 0
+    parameter integer ENABLE_TIMER_IRQ = 0,
+    parameter integer ENABLE_ICACHE = 0,
+    parameter integer ICACHE_SETS = 64, ICACHE_LINE_WORDS = 4
 ) (
     input  wire        clk,
     input  wire        rst_n,
@@ -60,7 +62,9 @@ module soc_axi_lite_top #(
     output wire trap_valid,
     output wire [31:0] trap_pc,
     output wire [31:0] trap_cause,
-    output wire [31:0] trap_tval
+    output wire [31:0] trap_tval,
+    output wire [31:0] icache_access_count, icache_hit_count, icache_miss_count,
+    output wire [31:0] icache_refill_word_count, icache_error_count
 );
     wire imem_req_valid, imem_req_ready;
     wire [31:0] imem_req_addr;
@@ -106,14 +110,33 @@ module soc_axi_lite_top #(
         .trap_valid(trap_valid), .trap_pc(trap_pc),
         .trap_cause(trap_cause), .trap_tval(trap_tval)
     );
+    wire rom_req_valid, rom_req_ready, rom_rsp_valid, rom_rsp_ready, rom_rsp_error;
+    wire [31:0] rom_req_addr, rom_rsp_rdata;
+    generate if(ENABLE_ICACHE) begin : g_icache
+        instr_cache #(.SETS(ICACHE_SETS),.LINE_WORDS(ICACHE_LINE_WORDS),.MEM_WORDS(IMEM_WORDS)) u_cache (
+            .clk(clk),.rst_n(rst_n),
+            .req_valid(imem_req_valid),.req_ready(imem_req_ready),.req_addr(imem_req_addr),
+            .rsp_valid(imem_rsp_valid),.rsp_ready(imem_rsp_ready),.rsp_rdata(imem_rsp_rdata),.rsp_error(imem_rsp_error),
+            .mem_req_valid(rom_req_valid),.mem_req_ready(rom_req_ready),.mem_req_addr(rom_req_addr),
+            .mem_rsp_valid(rom_rsp_valid),.mem_rsp_ready(rom_rsp_ready),.mem_rsp_rdata(rom_rsp_rdata),.mem_rsp_error(rom_rsp_error),
+            .access_count(icache_access_count),.hit_count(icache_hit_count),.miss_count(icache_miss_count),
+            .refill_word_count(icache_refill_word_count),.error_count(icache_error_count)
+        );
+    end else begin : g_no_icache
+        assign rom_req_valid=imem_req_valid, imem_req_ready=rom_req_ready, rom_req_addr=imem_req_addr;
+        assign imem_rsp_valid=rom_rsp_valid, rom_rsp_ready=imem_rsp_ready;
+        assign imem_rsp_rdata=rom_rsp_rdata, imem_rsp_error=rom_rsp_error;
+        assign icache_access_count=0, icache_hit_count=0, icache_miss_count=0;
+        assign icache_refill_word_count=0, icache_error_count=0;
+    end endgenerate
     soc_instr_mem #(
         .WORDS(IMEM_WORDS), .INIT_FILE(PROGRAM_FILE),
         .REQ_WAIT_CYCLES(IMEM_REQ_WAIT_CYCLES), .RSP_WAIT_CYCLES(IMEM_RSP_WAIT_CYCLES)
     ) u_imem (
-        .clk(clk), .rst_n(rst_n), .req_valid(imem_req_valid),
-        .req_ready(imem_req_ready), .req_addr(imem_req_addr),
-        .rsp_valid(imem_rsp_valid), .rsp_ready(imem_rsp_ready),
-        .rsp_rdata(imem_rsp_rdata), .rsp_error(imem_rsp_error)
+        .clk(clk), .rst_n(rst_n), .req_valid(rom_req_valid),
+        .req_ready(rom_req_ready), .req_addr(rom_req_addr),
+        .rsp_valid(rom_rsp_valid), .rsp_ready(rom_rsp_ready),
+        .rsp_rdata(rom_rsp_rdata), .rsp_error(rom_rsp_error)
     );
     dmem_axi_lite_bridge u_bridge (
         .clk(clk), .rst_n(rst_n),

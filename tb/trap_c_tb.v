@@ -48,6 +48,8 @@ module trap_c_case #(parameter integer MODE=0)(output reg done=0);
         .m_axi_bresp(bresp),.m_axi_bvalid(bvalid),.m_axi_bready(bready),
         .m_axi_araddr(araddr),.m_axi_arprot(arprot),.m_axi_arvalid(arvalid),.m_axi_arready(arready),
         .m_axi_rdata(rdata),.m_axi_rresp(rresp),.m_axi_rvalid(rvalid),.m_axi_rready(rready),
+        .icache_access_count(),.icache_hit_count(),.icache_miss_count(),
+        .icache_refill_word_count(),.icache_error_count(),
         .trap_valid(trap_valid),.trap_pc(trap_pc),.trap_cause(trap_cause),.trap_tval(trap_tval)
     );
     axi_lite_ram #(
