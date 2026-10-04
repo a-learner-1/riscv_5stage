@@ -1,6 +1,30 @@
-# CoreMark 测评准备（2026-10-03）
+# CoreMark 配置、板级基线与验证
 
-本阶段保持自研 RV32I 的 IF → EX → WB，以及原来的 `main`。官方 `benchmarks/coremark/` 算法与框架文件保持原样，计时和输出改动仅在移植层。正式成绩尚未测得；本轮不下载 FPGA、不烧写 Flash、不使用远程平台。
+更新时间：2026-10-04。CoreMark 使用自研 RV32I 的 IF → EX → WB。官方 `benchmarks/coremark/` 算法与框架文件保持原样，计时和输出改动仅在移植层。用户已在 MES50HP 的 50 MHz 无 Cache 配置上完成 performance、validation 两次正式模式运行，两次均输出 `COREMARK RESULT: FORMAL PASS`。以下记录板级基线，并保留配置与短程验证方法。
+
+## 已取得的板级基线
+
+以下数值来自用户提供的完整 UART 文本（2026-10-03）。固件的正式模式检查通过；此处未声明已经向 EEMBC 注册或获得认证。
+
+| 项目 | performance（性能种子） | validation（校验种子） |
+| --- | --- | --- |
+| CPU 时钟 | 50,000,000 Hz | 50,000,000 Hz |
+| 实际迭代数 | 1100 | 600 |
+| 完整计时 ticks | 1,046,129,783 | 610,559,442 |
+| 算法耗时 | 20.922595660 s | 12.211188840 s |
+| 迭代速度 | 52.574738712 次/s | 49.135265031 次/s |
+| 每 MHz 迭代速度 | 1.051494774 | 0.982705301 |
+| seed1 / seed2 / seed3 | `0x0000 / 0x0000 / 0x0066` | `0x3415 / 0x3415 / 0x0066` |
+| seedcrc | `0xe9f5` | `0x18f2` |
+| list / matrix / state CRC | `0xe714 / 0x1fd7 / 0x8e3a` | `0xe3c1 / 0x0747 / 0x8d84` |
+| 最终 CRC | `0x33ff` | `0xb8a0` |
+| 结果 | `FORMAL PASS` | `FORMAL PASS` |
+
+**当前性能基线：52.574739 CoreMark、1.051494774 CoreMark/MHz。** validation 用于验证另一组种子下的正确性，其速度不与 performance 求平均。
+
+两次运行均使用 xPack GNU RISC-V Embedded GCC 15.2.0、`-march=rv32i -mabi=ilp32 -O2`，静态分配 2000 字节测试数据，ROM 32 KiB、RAM 16 KiB，无 Cache，核心与存储时钟为 1:1。编译器完整参数由构建报告和 UART 输出记录。`coremark_board_top` 尚未接入新增指令 Cache，因此该基线不代表带 Cache 的性能。后续比较必须记录各自的硬件配置并重新运行两种正式 profile。
+
+计时以板上 64 位 `mtime` 为准；串口接收时间戳与分包间隔不参与计分。PDS 时序报告只能证明对应时钟约束下的工具检查结果，不能替代实测计时。
 
 ## 配置和构建
 
@@ -39,7 +63,7 @@ CLI 支持 `--iterations N --clock-hz HZ --uart-baud BAUD`、`--cross` 工具链
 
 官方依据：[EEMBC CoreMark Run/Reporting rules](https://github.com/eembc/coremark#run-rules)。要求至少 10 秒、2000 字节总数据、性能和校验种子均验证通过，以及统一编译选项。当前短程仿真与工具估算频率不构成正式成绩。
 
-## 本轮新增验证
+## 短程仿真与移植层验证
 
 ```powershell
 cmd.exe /c build_coremark.bat --profile performance
@@ -55,22 +79,22 @@ do run_coremark_prepare.do
 
 只运行新增的真实 CoreMark 性能/校验种子短程、正式短时拒绝、专用板顶层启动/复位，以及 50/100 MHz 和 smoke/formal 四种移植层 fixture。各组独立保存 WLF；运行结束必须有 `test_pass=1`。fixture 复用真实的 `timer_read_time()`，仅将 MMIO 读取替换为受控序列，覆盖低字回卷重试、超过 32 位的耗时、小数秒、格式输出及失败路径。**fixture 的模拟 ticks 不用于性能计分**。
 
-已验证且相关代码未变化的旧 CPU、timer IRQ、AXI、外设仿真不重复运行；也不运行完整 10 秒 HDL 测评。看已有波形可直接 `vsim -view build/coremark_smoke.wlf`（以脚本保存的文件名为准）。
+上述脚本覆盖短程验证，不运行完整 10 秒 HDL 测评。若修改 CPU、timer IRQ、AXI 或外设，还需运行受影响的回归；只重读既有结果时无需重复仿真。看已有波形可直接 `vsim -view build/coremark_smoke.wlf`（以脚本保存的文件名为准）。
 
-## 板级后续入口
+## 板级构建和运行
 
-板子可用后先构建同一硬件配置的正式镜像：
+重新测量时，先构建同一硬件配置的正式镜像：
 
 ```powershell
 cmd.exe /c build_coremark.bat --profile performance
 cmd.exe /c build_coremark.bat --profile validation
 ```
 
-新增 `coremark_board_top` 使用 MES50HP 的 50 MHz、115200、原引脚与 KEY1 复位，内部 32 KiB ROM / 16 KiB RAM，无 Cache，存储时钟与核心 1:1。默认加载 performance 镜像；通过专用 PDS variant 选择匹配的正式 profile。本轮仅验证接入与构建配置，不执行 PDS，未生成对应新位流，未实物验收。不要使用旧 trap_board 位流宣称完成本轮 CoreMark。
+`coremark_board_top` 使用 MES50HP 的 50 MHz、115200、原引脚与 KEY1 复位，内部 32 KiB ROM / 16 KiB RAM，无 Cache，存储时钟与核心 1:1。默认加载 performance 镜像；通过专用 PDS variant 选择匹配的正式 profile。用户已分别下载 performance、validation 版本，并取得上表的完整正式模式结果。重测时仍需使用与本次 profile 匹配的新位流。
 
 正式自动校准和运行需要时间；板上应等完整结果。报告同时保存源码与固件哈希、编译器/完整参数、实际时钟与存储配置、性能及校验 UART 日志；再据此建立 Cache、BTB 等后续改动的基线。
 
-未来的 PDS 入口（本轮未执行）：
+对应的 PDS 构建入口：
 
 ```powershell
 cmd.exe /c build_pds_board.bat --variant coremark_board --firmware coremark_performance --stage bitstream
@@ -79,7 +103,7 @@ cmd.exe /c build_pds_board.bat --variant coremark_board --firmware coremark_vali
 
 两次位流分属 `build/pds_coremark_performance/` 和 `build/pds_coremark_validation/`。构建入口核对正式 profile、50 MHz/115200 和镜像/配置的 SHA-256，拒绝使用错误或过期固件。固件正式构建报告需要保留，或从源码重新生成。
 
-## 已完成的本轮验证
+## 2026-10-03 短程验证记录
 
 | 项目 | 结果 | 仿真结束 |
 | --- | --- | --- |

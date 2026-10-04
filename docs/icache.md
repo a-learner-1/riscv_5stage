@@ -1,114 +1,76 @@
-# Two-way instruction cache, first implementation
+# 两路组相联指令 Cache
 
-This step implements the **instruction** half of the two-way cache requirement.
-The data cache and dynamic branch predictor remain future work. It preserves the
-RV32I instruction set and the IF/EX/WB pipeline. Existing SoC instantiations have
-`ENABLE_ICACHE=0` by default; `icache_board_top` explicitly enables it.
+更新时间：2026-10-04。本步骤实现两路 Cache 要求中的**指令 Cache**部分，保留 RV32I 指令集和 IF → EX → WB 三级流水线。数据 Cache 和动态分支预测尚未实现。既有 SoC 的 `ENABLE_ICACHE` 默认为 0，`icache_board_top` 显式启用。
 
-## Organization and interface
+## 组织结构与接口
 
-| Item | Board configuration |
+| 项目 | 板级配置 |
 | --- | --- |
-| Capacity | 2 KiB of instruction data, plus tags/valid/LRU metadata |
-| Associativity | 2 ways |
-| Sets | 64 |
-| Line size | 16 bytes, four 32-bit instructions |
-| Replacement | Invalid way first, then least recently used way |
-| Hit | Registered one-cycle response; response consumption and next request overlap |
-| Miss | Blocking, four sequential ready/valid ROM reads, full-line refill |
-| ROM | 32 KiB at `0x00000000`, fixed read-only initialization image |
-| RAM | 16 KiB at `0x00010000`, accessed through the existing AXI4-Lite bridge |
-| Clock / serial | 50 MHz / 115200 baud, 8N1 |
+| 容量 | 2 KiB 指令数据，另有标签、有效位和 LRU 元数据 |
+| 相联度 | 两路 |
+| 组数 | 64 |
+| 行大小 | 16 字节，即四条 32 位指令 |
+| 替换策略 | 优先使用无效路，否则替换最近最少使用的路 |
+| 命中 | 寄存一拍后响应；消费响应与接受下一请求可重叠 |
+| 缺失 | 阻塞当前请求，依次进行四次 ready/valid ROM 读取并填充整行 |
+| ROM | `0x00000000` 起的 32 KiB 固定只读初始化镜像 |
+| RAM | `0x00010000` 起的 16 KiB，经原有 AXI4-Lite 主桥访问 |
+| 时钟／串口 | 50 MHz／115200，8N1 |
 
-`instr_cache` goes between the SoC's existing instruction request/response wires
-and `soc_instr_mem`. The CPU pipeline and decoder do not change. The ROM instance
-stays at `soc_axi_lite_top.u_imem`, preserving existing testbench hierarchy.
-Both ways' data arrays use synchronous reads and are not reset; only valid/LRU
-bits, protocol state and counters reset. Tags store only the useful ROM address
-bits; the complete 32-bit address is checked before any lookup result is used.
+`instr_cache` 接在 SoC 原有取指请求／响应接口与 `soc_instr_mem` 之间，不修改 CPU 流水线和译码器。ROM 实例仍位于 `soc_axi_lite_top.u_imem`，保留原有测试平台层级。
 
-The cache accepts one outstanding CPU request. Request addresses and CPU
-responses stay stable under backpressure. Reset must be shared with the ROM
-responder; it cancels the transaction and invalidates both ways. A refill error
-leaves the selected victim invalid, returns an error for the originally requested
-PC, and preserves the other way. Redirects do not cancel a refill: the existing
-IF stage drains and discards stale responses, including stale errors.
+两路数据数组采用同步读取，不进行复位清零；复位清除有效位、LRU、协议状态和计数器。标签仅保存有效 ROM 地址所需的位数，但使用命中结果前仍检查完整 32 位地址。
 
-This version serves immutable instruction ROM. It does not implement self
-modifying code, cache coherence, `FENCE.I`, AXI bursts, nonblocking misses, or a
-data cache. Replacing the ROM image requires a shared reset. The optional cache
-has not been added to `coremark_board_top`: the old 52.574739 CoreMark result
-remains the no-cache baseline, and this step establishes no new performance score.
+Cache 同时仅接受一笔在途 CPU 请求。背压期间，请求地址及 CPU 响应保持稳定。Cache 必须与 ROM 响应端共享复位；复位取消当前事务并使两路失效。填充出错时，所选替换路保持无效，对原请求 PC 返回错误，另一条路不受影响。
 
-## Counter snapshot device
+跳转重定向不会取消已经开始的填充。原 IF 级负责消费并丢弃旧路径响应，也会丢弃旧路径错误。当前路径错误按已有精确异常流程处理。
 
-`soc_icache_stats_top` routes the data master to AXI RAM and a read-only statistics
-device at `0x30000000`. This address belongs to the diagnostic board version;
-it does not define the CNN teammate's register map.
+本版本服务于固定只读指令 ROM，不支持自修改代码、缓存一致性、FENCE.I、AXI 突发或非阻塞缺失。更换 ROM 镜像需要共享复位。`coremark_board_top` 尚未接入该 Cache，原 **52.574739 CoreMark** 仍是无 Cache 基线，本步骤没有产生新的性能成绩。
 
-| Offset | Value |
+## 计数器快照设备
+
+`soc_icache_stats_top` 将数据主接口分发到 AXI RAM，以及 `0x30000000` 处的只读统计设备。该地址属于 Cache 自检版本，不代表 CNN 队友的最终寄存器映射。
+
+| 偏移 | 含义 |
 | --- | --- |
-| `0x00` | ID `0x49433241` (`IC2A`); an accepted read snapshots all five counters |
-| `0x04` | Geometry: ways `[31:24]`, sets `[23:16]`, line bytes `[15:0]`; `0x02400010` |
-| `0x08` | Snapshot of accepted instruction requests |
-| `0x0C` | Snapshot of hits |
-| `0x10` | Snapshot of misses |
-| `0x14` | Snapshot of successful refill words |
-| `0x18` | Snapshot of invalid requests / failed refills |
+| `0x00` | ID：`0x49433241`（`IC2A`）；接受此读请求时同时快照五个计数器 |
+| `0x04` | 结构：路数 `[31:24]`、组数 `[23:16]`、行字节数 `[15:0]`；本版为 `0x02400010` |
+| `0x08` | 已接受取指请求数的快照 |
+| `0x0C` | 命中数的快照 |
+| `0x10` | 缺失数的快照 |
+| `0x14` | 成功填充字数的快照 |
+| `0x18` | 非法请求／填充错误数的快照 |
 
-Read ID before sampling the other registers. Reads stay frozen until another
-ID read, regardless of instructions executed by the sampling routine. Counters
-wrap modulo 2^32 and reset with the cache. Statistics events have a uniform
-one-clock delay to keep counter carry chains off the redirect/lookup path.
-Invalid/misaligned requests increment
-access/error only; valid requests increment access and exactly one of hit/miss.
-The requested address must be within ROM and four-byte aligned.
+读取其他计数器前，先读 ID 建立快照。随后读取的值保持不变，直到再次读 ID；采样代码自身的取指不会改变该组快照。计数器为 32 位，按模 2^32 回卷，并随 Cache 复位。统计事件统一延迟一拍更新，避免计数器进位链进入重定向／查找关键路径。
 
-At a snapshot, a refill may still be in progress: without errors, successful
-refill words can trail `misses * 4` by zero through four words. A read of an
-unimplemented/misaligned offset returns SLVERR. Every write returns SLVERR; AW
-and W are accepted independently, and R/B responses remain stable until accepted.
+非法或未对齐请求只增加请求数与错误数；有效请求增加请求数，并且只增加命中或缺失中的一个。请求地址必须位于 ROM 范围并按四字节对齐。
 
-## Firmware and validation
+快照时填充可能仍在进行。无错误情况下，成功填充字数可能比 `缺失数 × 4` 少 0–4 个字。读取未实现或未对齐偏移返回 SLVERR；任何写入也返回 SLVERR。AW 与 W 独立接受，R／B 响应在对方接受前保持稳定。
 
-`software/icache_board.c` reuses the existing timer handler's ABI and verifies:
+## 固件与验证范围
 
-1. Globally masked and locally masked timer interrupt behavior.
-2. Three precise timer IRQ/MRET returns while a 2048-step checksum runs.
-3. Calls A/B/A/C/A/B, repeated 64 times, produce the expected result 704.
-4. Functions A/B/C are each aligned to 1024 bytes, share cache set indices, and
-   have distinct tags. The builder checks this in the linked ELF symbols.
-5. The hardware cache ID/geometry, nonzero hits/misses, zero errors and coherent
-   counter snapshot. PASS is printed only after all checks succeed.
+`software/icache_board.c` 复用现有定时器异常入口 ABI，检查：
 
-Hardware and simulation use identical instruction bytes. Their initialized RAM
-differs only in the heartbeat period: 25,000,000 cycles for the board and 2,000
-cycles for RTL simulation. ELF, disassembly, map, symbols, build log, source/image
-hashes and build report are saved under `build/icache_board_firmware/`.
+1. 全局和局部定时器中断屏蔽行为。
+2. 2048 步前台 checksum 运算期间，三次精确定时器 IRQ／MRET 返回。
+3. A／B／A／C／A／B 调用重复 64 次，结果应为 704。
+4. A／B／C 函数分别按 1024 字节对齐，映射到相同 Cache 组、不同标签；构建器检查链接后的 ELF 符号。
+5. 硬件 ID／结构、非零命中与缺失、零错误及一致计数器快照。所有检查通过后才打印 PASS。
 
-`run_icache.do` runs these self-checking tests:
+硬件与仿真使用相同指令字节，初始化 RAM 只在心跳周期上不同：硬件为 25,000,000 拍，RTL 仿真为 2,000 拍。ELF、反汇编、MAP、符号、构建日志、源码／镜像哈希及报告保存在 `build/icache_board_firmware/`。
 
-- Fast and delayed ROM models, independent two-way LRU reference model, all line
-  offsets, conflicts, 160 repeatable random accesses, every refill error beat,
-  invalid requests, backpressure, shared reset during requests/refills/responses,
-  and sustained one warm hit per clock.
-- Atomic AXI counter snapshots, invalid reads/writes, AW-first/W-first/simultaneous
-  writes, held R/B responses and reset of partially accepted transactions.
-- Real IF stage plus cache: same-edge redirect/error, blocked miss redirects,
-  stale error discard, current-path precise faults and EX-stall recovery.
-- Real linked firmware at 50 MHz / physical UART rate, including delayed ROM,
-  exact foreground checksum writes, x1..x31 preservation across three MRETs,
-  reset inside an ISR, actual software FAIL recovery, heartbeat and two boots.
+`run_icache.do` 包含以下自动自检：
 
-The PDS builder rejects wrong variants, stale firmware images or sources and
-does not generate a bitstream if either router timing or final independent STA
-fails. The netlist test uses only board pins, hardware ROM/RAM initialization,
-50 MHz and the physical UART rate; it checks two PASS messages and KEY1 restart.
-Functional netlist simulation does not use SDF.
+- 快速和延迟 ROM、独立两路 LRU 参考模型、所有行内偏移、冲突、160 次可重复随机访问、所有填充错误位置、非法请求、背压、请求／填充／响应期间共享复位，以及预热后每拍一次命中。
+- AXI 计数器原子快照、非法读写、AW 先到／W 先到／同时到达、R／B 背压及部分事务复位。
+- 真实 IF 级与 Cache：重定向和错误同拍、阻塞缺失期间跳转、旧路径错误丢弃、当前路径精确故障及 EX 停顿恢复。
+- 真实固件在 50 MHz／实际 UART 波特率下运行：延迟 ROM、逐步前台运算、三次 MRET 前后 x1–x31 保存恢复、ISR 内复位、真实软件 FAIL 后恢复、心跳和两次启动。
 
-## Commands and physical board check
+PDS 构建器拒绝错误版本、过期固件或源码；布局布线时序或独立最终 STA 不通过时不生成位流。网表测试仅使用板级引脚、硬件 ROM／RAM 镜像、50 MHz 和实际 UART 速率，检查两次 PASS 与 KEY1 重启。该测试为综合网表功能仿真，不加载 SDF。
 
-In Git Bash:
+## 构建、仿真与上板
+
+在 Git Bash 执行：
 
 ```bash
 cd /d/FPGA/riscv_3stage
@@ -116,29 +78,22 @@ cmd.exe //c build_icache_board.bat
 cmd.exe //c build_pds_board.bat --variant icache_board --firmware icache_board --stage bitstream
 ```
 
-Optional ModelSim GUI checks from the project directory:
+在 ModelSim Transcript 中可分别执行：
 
 ```tcl
+cd D:/FPGA/riscv_3stage
 do run_icache.do
 do run_icache_board_netlist.do
 ```
 
-Open `build/pds_icache_board/board_demo.pds` in PDS and select
-`build/pds_icache_board/generate_bitstream/board_top.sbit` for JTAG SRAM download.
-Keep the existing USB/UART connection and SSCOM at 115200, 8N1, text receive.
-After boot, expect exactly `ICACHE PASS`, then LED2 on and LED1 toggling roughly
-every 0.5 seconds. Press and release KEY1: LEDs clear during reset, then another
-PASS appears and the heartbeat resumes. No serial command needs to be sent.
-`ICACHE FAIL XXXXXXXX` / LED3 indicates a failed software assertion; preserve
-the complete received line and build log to diagnose it.
+第二条需要已有对应 PDS 生成的网表。PDS 打开 `build/pds_icache_board/board_demo.pds`，下载器选择 `build/pds_icache_board/generate_bitstream/board_top.sbit`，手动进行 JTAG SRAM 下载。
 
-Physical board verification passed on 2026-10-04: the user supplied a COM8
-115200/8N1 screenshot with one complete 13-byte `ICACHE PASS` and confirmed
-normal status LEDs, heartbeat and KEY1 restart. Next, implement a two-way data
-cache with a defined RAM/MMIO policy, then run a controlled CoreMark comparison
-and add dynamic branch prediction.
+沿用板载 USB-UART 连接，SSCOM 设置 115200、8N1、文本接收。启动后应收到 `ICACHE PASS`，随后 LED2 常亮、LED1 约每 0.5 秒切换。按下并释放 KEY1：复位期间 LED 清零，之后再次输出 PASS、恢复心跳。无需发送串口命令。
 
-The implemented step has passed RTL/baseline regressions, 50 MHz final STA and
-two-boot functional netlist simulation. See
-[the verification record](icache_verification_20261003.md) for measured timing,
-artifact hashes and the vendor RAM-model warning explanation.
+出现 `ICACHE FAIL XXXXXXXX` 或 LED3 常亮，表示软件断言失败，应保存完整错误行与构建日志用于定位。
+
+## 已完成的验证与后续工作
+
+RTL、关闭 Cache 的基线回归、50 MHz 最终 STA 和两次启动的综合网表功能仿真均已通过。实物验证于 **2026-10-04** 通过：用户提供 COM8、115200／8N1 的串口截图，完整收到 13 字节 `ICACHE PASS`，并确认状态 LED、心跳和 KEY1 重启现象正常。
+
+详细时序、镜像哈希及厂商 RAM 模型告警说明见[验证记录](icache_verification_20261003.md)。下一步实现两路数据 Cache，确定普通 RAM 与 MMIO 策略，再重测 CoreMark 并增加动态分支预测。
