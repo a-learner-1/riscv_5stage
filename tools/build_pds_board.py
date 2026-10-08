@@ -11,9 +11,59 @@ import sys
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
-RTL = ["instr_mem.v", "instr_bus_adapter.v", "if_stage.v", "regfile.v", "decoder.v", "alu.v",
+RTL = ["instr_mem.v", "instr_bus_adapter.v", "branch_predictor.v", "if_stage.v", "regfile.v", "decoder.v", "alu.v",
        "data_mem.v", "data_bus_adapter.v", "uart_tx.v", "uart_rx.v", "uart_rx_fifo.v", "uart_rx_mmio.v",
        "gpio_mmio.v", "machine_timer.v", "cpu_top.v", "board_reset.v"]
+COREMARK_AXI_VARIANTS = {"coremark_axi_off": "off", "coremark_axi_on": "on"}
+COREMARK_AXI_FIRMWARE = {
+    "coremark_axi_cache_" + mode + "_" + profile
+    for mode in ("off", "on") for profile in ("performance", "validation")
+}
+
+
+def bind_coremark_axi_board_parameters(top, cache_mode):
+    """Fix the generated hardware to the verified firmware contract.
+
+    The portable source keeps parameters for simulation. The synthesis copy
+    uses localparams so a later PDS parameter override cannot silently turn an
+    off/on comparison into a different clock, cache or AXI wait configuration.
+    """
+    if cache_mode not in {"off", "on"}:
+        raise RuntimeError("Unknown CoreMark AXI cache mode: " + str(cache_mode))
+    match = re.search(r"module board_top #\(\n(.*?)\n\) \(\n", top, re.S)
+    if not match:
+        raise RuntimeError("Unexpected CoreMark AXI board parameter declaration")
+    parameters = match.group(1)
+    expected = {
+        "ENABLE_ICACHE": 1, "ENABLE_DCACHE": 1,
+        "UART_CLOCK_HZ": 50000000, "UART_BAUD": 115200,
+        "RESET_HOLD_CYCLES": 50000,
+        "IMEM_REQ_WAIT_CYCLES": 0, "IMEM_RSP_WAIT_CYCLES": 0,
+        "MMIO_REQ_WAIT_CYCLES": 0, "MMIO_RSP_WAIT_CYCLES": 0,
+        "RAM_AW_WAIT_CYCLES": 0, "RAM_W_WAIT_CYCLES": 0,
+        "RAM_AR_WAIT_CYCLES": 0, "RAM_B_WAIT_CYCLES": 0,
+        "RAM_R_WAIT_CYCLES": 0,
+    }
+    for name, default in expected.items():
+        value = re.search(r"\b" + name + r"\s*=\s*(\d+)\b", parameters)
+        if not value or int(value.group(1)) != default:
+            raise RuntimeError("Unexpected CoreMark AXI board default: " + name)
+    enable = 1 if cache_mode == "on" else 0
+    for name in ("ENABLE_ICACHE", "ENABLE_DCACHE"):
+        parameters, count = re.subn(r"(\b" + name + r"\s*=\s*)1\b",
+                                   lambda m: m.group(1) + str(enable), parameters)
+        if count != 1:
+            raise RuntimeError("Could not bind CoreMark AXI cache mode: " + name)
+    # Original header declarations are comma-separated parameter groups.
+    # Local declarations require semicolons between those groups.
+    parameters = re.sub(r",\n(?=\s*parameter\b)", ";\n", parameters)
+    parameters = re.sub(r"\bparameter\b", "localparam", parameters) + ";"
+    top = top[:match.start()] + "module board_top (\n" + top[match.end():]
+    port_end = top.find("\n);\n", match.start())
+    if port_end < 0:
+        raise RuntimeError("Unexpected CoreMark AXI board port declaration")
+    port_end += len("\n);\n")
+    return top[:port_end] + parameters + "\n" + top[port_end:]
 
 
 def validate_coremark_board_firmware(firmware, root=ROOT):
@@ -125,35 +175,75 @@ def validate_dcache_board_firmware(root=ROOT):
             raise RuntimeError('Stale D-cache firmware source/image: '+name)
     return path
 
+def validate_btb_board_firmware(root=ROOT):
+    from build_btb_board_images import SOURCES
+    path = root / "build/btb_board_firmware/build_report.json"
+    if not path.is_file():
+        raise RuntimeError("Run build_btb_board.bat first")
+    report = json.loads(path.read_text(encoding="utf-8"))
+    required = {
+        "image_kind": "MES50HP BTB board", "clock_hz": 50000000, "uart_baud": 115200,
+        "requires_ENABLE_BRANCH_PRED": 1, "btb_entries": 64,
+        "requires_ENABLE_TRAPS": 1, "requires_ENABLE_TIMER_IRQ": 1,
+        "rom_words": 8192, "ram_words": 4096, "hardware_blink_cycles": 25000000,
+        "march": "rv32i_zicsr", "mabi": "ilp32",
+    }
+    if not isinstance(report, dict) or any(report.get(k) != v for k, v in required.items()):
+        raise RuntimeError("Incompatible BTB board firmware metadata")
+    for name in [*SOURCES, "programs/btb_board.hex", "programs/btb_board_data.hex",
+                 "programs/btb_board_sim_data.hex", "programs/btb_board_symbols.vh"]:
+        mapping = report.get("sources_sha256" if name in SOURCES else "images_sha256", {})
+        if not isinstance(mapping, dict):
+            raise RuntimeError("BTB board report is missing source/image hashes")
+        source = root / name
+        if not source.is_file() or hashlib.sha256(source.read_bytes()).hexdigest() != mapping.get(name):
+            raise RuntimeError("Stale BTB board source/image: " + name)
+    return path
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--stage", choices=["synth", "timing", "bitstream"],
                         default="synth")
-    parser.add_argument("--firmware", choices=["board_demo", "uart_rx_echo", "axi_control_board", "trap_board", "timer_irq_board", "icache_board", "dcache_board",
-                                              "coremark_performance", "coremark_validation"],
+    parser.add_argument("--firmware", choices=["board_demo", "uart_rx_echo", "axi_control_board", "trap_board", "timer_irq_board", "icache_board", "dcache_board", "btb_board",
+                                              "coremark_performance", "coremark_validation",
+                                              *sorted(COREMARK_AXI_FIRMWARE)],
                         default=None,
                         help="Default board_demo; dedicated variants select matching firmware")
-    parser.add_argument("--variant", choices=["default", "data_handshake", "fetch_handshake", "soc", "axi_control_board", "trap_board", "timer_irq_board", "icache_board", "dcache_board", "coremark_board"],
+    parser.add_argument("--variant", choices=["default", "data_handshake", "fetch_handshake", "soc", "axi_control_board", "trap_board", "timer_irq_board", "icache_board", "dcache_board", "btb_board", "coremark_board",
+                                             *COREMARK_AXI_VARIANTS],
                         default="default",
                         help="Isolate data/fetch handshake, SoC, AXI control, trap and timer IRQ board builds")
     args = parser.parse_args()
     if args.firmware is None:
-        args.firmware = ("coremark_performance" if args.variant == "coremark_board" else
-                         args.variant if args.variant in {"axi_control_board", "trap_board", "timer_irq_board", "icache_board", "dcache_board"} else "board_demo")
-    for dedicated in ("axi_control_board", "trap_board", "timer_irq_board", "icache_board", "dcache_board"):
+        args.firmware = ("coremark_axi_cache_" + COREMARK_AXI_VARIANTS[args.variant] + "_performance"
+                         if args.variant in COREMARK_AXI_VARIANTS else
+                         "coremark_performance" if args.variant == "coremark_board" else
+                         args.variant if args.variant in {"axi_control_board", "trap_board", "timer_irq_board", "icache_board", "dcache_board", "btb_board"} else "board_demo")
+    for dedicated in ("axi_control_board", "trap_board", "timer_irq_board", "icache_board", "dcache_board", "btb_board"):
         if (args.variant == dedicated) != (args.firmware == dedicated):
             parser.error(dedicated + " firmware and variant must be selected together")
-    if (args.variant == "coremark_board") != args.firmware.startswith("coremark_"):
+    if (args.variant == "coremark_board") != (args.firmware in {"coremark_performance", "coremark_validation"}):
         parser.error("CoreMark firmware requires --variant coremark_board and a formal performance/validation image")
+    if (args.variant in COREMARK_AXI_VARIANTS) != (args.firmware in COREMARK_AXI_FIRMWARE):
+        parser.error("CoreMark AXI firmware requires --variant coremark_axi_off/on and matching formal firmware")
+    if args.variant in COREMARK_AXI_VARIANTS and not args.firmware.startswith(
+            "coremark_axi_cache_" + COREMARK_AXI_VARIANTS[args.variant] + "_"):
+        parser.error("CoreMark AXI cache mode does not match the selected firmware")
     coremark_config = None
     coremark_report = None
     if args.variant == "coremark_board":
         # Prevent loading a 100 MHz simulation image into the fixed 50 MHz top.
         coremark_config, coremark_report = validate_coremark_board_firmware(args.firmware)
+    if args.variant in COREMARK_AXI_VARIANTS:
+        from coremark_axi_contract import validate_coremark_axi_firmware
+        coremark_config, coremark_report = validate_coremark_axi_firmware(
+            args.firmware, COREMARK_AXI_VARIANTS[args.variant], root=ROOT)
     timer_irq_report = (validate_timer_irq_board_firmware()
                         if args.variant == "timer_irq_board" else None)
     icache_report = validate_icache_board_firmware() if args.variant == "icache_board" else None
     dcache_report = validate_dcache_board_firmware() if args.variant == "dcache_board" else None
+    btb_report = validate_btb_board_firmware() if args.variant == "btb_board" else None
     if not str(ROOT).isascii():
         raise RuntimeError("Use an ASCII project path, e.g. D:/FPGA/riscv_3stage")
     configured = os.environ.get("PDS_SHELL")
@@ -167,8 +257,12 @@ def main():
               [args.firmware + ".hex", args.firmware + "_data.hex"]]
     for path, words in zip(images, [8192, 4096]):
         if not path.is_file():
-            builder = ("build_coremark.bat --profile " + args.firmware.removeprefix("coremark_")
+            builder = ("build_coremark_axi.bat --cache " + COREMARK_AXI_VARIANTS[args.variant] +
+                       " --profile " + args.firmware.rsplit("_", 1)[1]
+                       if args.variant in COREMARK_AXI_VARIANTS else
+                       "build_coremark.bat --profile " + args.firmware.removeprefix("coremark_")
                        if args.variant == "coremark_board" else
+                       "build_btb_board.bat" if args.firmware == "btb_board" else
                        "build_dcache_board.bat" if args.firmware == "dcache_board" else
                        "build_icache_board.bat" if args.firmware == "icache_board" else
                        "build_timer_irq_board.bat" if args.firmware == "timer_irq_board" else
@@ -181,7 +275,8 @@ def main():
                                          for w in contents):
             raise RuntimeError(f"{path.name}: expected {words} complete hex words")
 
-    build_name = ("pds_" + args.firmware if args.variant == "coremark_board" else
+    build_name = ("pds_" + args.firmware if args.variant == "coremark_board" or args.variant in COREMARK_AXI_VARIANTS else
+                  "pds_btb_board" if args.variant == "btb_board" else
                   "pds_dcache_board" if args.variant == "dcache_board" else
                   "pds_icache_board" if args.variant == "icache_board" else
                   "pds_timer_irq_board" if args.variant == "timer_irq_board" else
@@ -201,14 +296,19 @@ def main():
         rtl_names += ["soc_instr_mem.v", "dmem_axi_lite_bridge.v", "axi_lite_ram.v",
                       "soc_axi_lite_top.v", "axi_lite_1x2.v", "axi_lite_ctrl.v",
                       "soc_axi_control_top.v"]
-    if args.variant in {"trap_board", "timer_irq_board", "icache_board", "dcache_board"}:
+    if args.variant in {"trap_board", "timer_irq_board", "icache_board", "dcache_board"} or args.variant in COREMARK_AXI_VARIANTS:
         rtl_names += ["soc_instr_mem.v", "dmem_axi_lite_bridge.v", "axi_lite_ram.v",
                       "soc_axi_lite_top.v"]
     if args.variant == "icache_board":
         rtl_names += ["instr_cache.v", "axi_lite_icache_stats.v", "axi_lite_1x2.v", "soc_icache_stats_top.v"]
     if args.variant == "dcache_board":
         rtl_names += ["instr_cache.v", "data_cache.v", "axi_lite_dcache_stats.v", "axi_lite_1x2.v", "soc_dcache_stats_top.v"]
-    top_name = ("coremark_board_top" if args.variant == "coremark_board" else
+    if args.variant in COREMARK_AXI_VARIANTS:
+        rtl_names += ["instr_cache.v", "data_cache.v", "axi_lite_coremark_stats.v",
+                      "axi_lite_1x2.v", "soc_coremark_axi_top.v"]
+    top_name = ("coremark_axi_board_top" if args.variant in COREMARK_AXI_VARIANTS else
+                "coremark_board_top" if args.variant == "coremark_board" else
+                "btb_board_top" if args.variant == "btb_board" else
                 "dcache_board_top" if args.variant == "dcache_board" else
                 "icache_board_top" if args.variant == "icache_board" else
                 "timer_irq_board_top" if args.variant == "timer_irq_board" else
@@ -224,8 +324,11 @@ def main():
         if top.count(marker) != 1:
             raise RuntimeError("Unexpected " + top_name + " module declaration")
         top = top.replace(marker, "module board_top #(")
-    source_firmware = ("coremark_performance" if args.variant == "coremark_board" else
-                       args.variant if args.variant in {"axi_control_board", "trap_board", "timer_irq_board", "icache_board", "dcache_board"} else "board_demo")
+    if args.variant in COREMARK_AXI_VARIANTS:
+        top = bind_coremark_axi_board_parameters(top, COREMARK_AXI_VARIANTS[args.variant])
+    source_firmware = ("coremark_axi_cache_on_performance" if args.variant in COREMARK_AXI_VARIANTS else
+                       "coremark_performance" if args.variant == "coremark_board" else
+                       args.variant if args.variant in {"axi_control_board", "trap_board", "timer_irq_board", "icache_board", "dcache_board", "btb_board"} else "board_demo")
     for original, image in zip(
             ["programs/" + source_firmware + ".hex", "programs/" + source_firmware + "_data.hex"], images):
         if top.count(original) != 1:
@@ -332,6 +435,7 @@ def main():
         "requested_stage": args.stage, "pds_returncode": result.returncode,
         "firmware": args.firmware,
         "variant": args.variant,
+        "enable_branch_pred": 1 if args.variant == "btb_board" else 0,
         "source_top": top_source.relative_to(ROOT).as_posix(),
         "generated_top_module": "board_top",
         "hardware_verified": False,
@@ -348,7 +452,7 @@ def main():
                       top_source, ROOT / "pds/board_top.fdc"]
         },
     }
-    if args.variant in {"trap_board", "timer_irq_board", "icache_board", "dcache_board"}:
+    if args.variant in {"trap_board", "timer_irq_board", "icache_board", "dcache_board", "btb_board"} or args.variant in COREMARK_AXI_VARIANTS:
         manifest.update({
             "enable_traps": 1,
             "pds_shell": str(exe.resolve()),
@@ -357,6 +461,21 @@ def main():
                 p.relative_to(build).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
                 for p in sorted((build / "generate_bitstream").glob("board_top.*"))
                 if p.suffix in {".sbit", ".bin"} and args.stage == "bitstream"
+            },
+        })
+    if args.variant == "btb_board":
+        manifest.update({
+            "enable_branch_pred": 1, "btb_entries": 64, "direction_counter_bits": 2,
+            "predicted_controls": ["conditional branch", "JAL"], "jalr_predicted": False,
+            "enable_timer_irq": 1, "software_irq_masked": True,
+            "uart_baud": 115200, "timer_tick_hz": 50000000,
+            "instruction_memory_bytes": 32768, "data_memory_bytes": 16384,
+            "external_imem": 0, "external_dmem": 0, "enable_icache": 0, "enable_dcache": 0,
+            "predictor_stats_base": "0x20000070", "predictor_stats_counter_bits": 32,
+            "formal_score_measured": False,
+            "generated_top_sha256": hashlib.sha256(generated_top.read_bytes()).hexdigest(),
+            "firmware_build_report": {
+                btb_report.relative_to(ROOT).as_posix(): hashlib.sha256(btb_report.read_bytes()).hexdigest()
             },
         })
     if args.variant == "timer_irq_board":
@@ -399,6 +518,37 @@ def main():
             "firmware_build_report": {
                 coremark_report.relative_to(ROOT).as_posix(): hashlib.sha256(coremark_report.read_bytes()).hexdigest()
             },
+        })
+    if args.variant in COREMARK_AXI_VARIANTS:
+        enable = 1 if COREMARK_AXI_VARIANTS[args.variant] == "on" else 0
+        manifest.update({
+            "coremark_platform": "axi-cache-" + COREMARK_AXI_VARIANTS[args.variant],
+            "enable_timer_irq": 1, "software_irq_masked": True,
+            "uart_baud": 115200, "timer_tick_hz": 50000000,
+            "instruction_memory_bytes": 32768, "data_memory_bytes": 16384,
+            "external_imem": 1, "external_dmem": 1,
+            "enable_icache": enable, "enable_dcache": enable,
+            "icache_ways": 2, "icache_sets": 64, "icache_line_bytes": 16, "icache_bytes": 2048,
+            "dcache_ways": 2, "dcache_sets": 64, "dcache_line_bytes": 16, "dcache_bytes": 2048,
+            "dcache_policy": "write-through/no-write-allocate",
+            "cacheable_ram_base": "0x00010000", "cacheable_ram_bytes": 16384,
+            "cache_stats_base": "0x30000000", "cache_stats_id": "0x434d4158",
+            "counter_window": "START-before-mtime;STOP-after-mtime;includes-boundary-overhead",
+            "cpu_counter_bits": 64, "cache_counter_bits": 32, "mtime_bits": 64,
+            "counter_snapshot_words_per_bank": 16,
+            "counter_start_trigger_offset": "0x00", "counter_stop_trigger_offset": "0x04",
+            "counter_start_bank_offset": "0x40", "counter_stop_bank_offset": "0x80",
+            "axi_wait_cycles": {"imem_req": 0, "imem_rsp": 0, "mmio_req": 0, "mmio_rsp": 0,
+                                "ram_aw": 0, "ram_w": 0, "ram_ar": 0, "ram_b": 0, "ram_r": 0},
+            "formal_score_measured": False,
+            "firmware_config": {
+                coremark_config.name: hashlib.sha256(coremark_config.read_bytes()).hexdigest()
+            },
+            "firmware_build_report": {
+                coremark_report.relative_to(ROOT).as_posix(): hashlib.sha256(coremark_report.read_bytes()).hexdigest()
+            },
+            "contract_script_sha256": hashlib.sha256((ROOT / "tools/coremark_axi_contract.py").read_bytes()).hexdigest(),
+            "generated_top_sha256": hashlib.sha256(generated_top.read_bytes()).hexdigest(),
         })
     (build / "build_manifest.json").write_text(
         json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
