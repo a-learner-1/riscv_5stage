@@ -51,7 +51,8 @@ module trap_board_top #(
         .icache_access_count(),.icache_hit_count(),.icache_miss_count(),
         .icache_refill_word_count(),.icache_error_count(),
         .trap_valid(trap_valid), .trap_pc(trap_pc),
-        .trap_cause(trap_cause), .trap_tval(trap_tval)
+        .trap_cause(trap_cause), .trap_tval(trap_tval),
+        .dcache_access_count(),.dcache_hit_count(),.dcache_miss_count(),.dcache_refill_word_count(),.dcache_error_count(),.dcache_write_count(),.dcache_bypass_count()
     );
     axi_lite_ram #(
         .WORDS(4096), .BASE_ADDR(32'h00010000), .INIT_FILE(DATA_FILE)

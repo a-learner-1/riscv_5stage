@@ -160,6 +160,30 @@ module instr_cache_case #(parameter integer WAIT_CYCLES=0)(output reg done=0);
         #1;
         if(reads!=4 || hits!=35 || accesses!=36) $fatal(1,"Cache warm stream final counters");
         @(negedge clk);rsp_ready=0;
+        // Alternating-way hits followed immediately by a same-set miss.
+        // A pipelined LRU update must forward the most recent hit, not evict
+        // the way that was just read on the previous clock.
+        reset_cache;fetch(0,0);fetch(64,0);
+        @(negedge clk);rsp_ready=1;req_valid=1;req_addr=0;
+        @(posedge clk);if(!req_ready) $fatal(1,"LRU overlap first request");
+        @(negedge clk);req_addr=64;
+        @(posedge clk);
+        if(!req_ready || !rsp_valid || rsp_error || rsp_rdata!==memory_value(0))
+            $fatal(1,"LRU overlap first hit");
+        @(negedge clk);req_addr=128;
+        @(posedge clk);
+        if(!req_ready || !rsp_valid || rsp_error || rsp_rdata!==memory_value(64))
+            $fatal(1,"LRU overlap second hit");
+        @(negedge clk);req_valid=0;
+        wait(rsp_valid);#1;
+        if(rsp_error || rsp_rdata!==memory_value(128) || reads!=12)
+            $fatal(1,"LRU overlap replacement refill");
+        @(posedge clk);@(negedge clk);req_valid=1;req_addr=64;
+        @(posedge clk);if(!req_ready) $fatal(1,"LRU survivor request");
+        @(negedge clk);req_valid=0;
+        if(!rsp_valid || rsp_error || rsp_rdata!==memory_value(64) || reads!=12)
+            $fatal(1,"LRU forwarding evicted the most recent way");
+        @(posedge clk);@(negedge clk);rsp_ready=0;
         $display("CACHE case %m PASS: %0d modeled reads, two-way LRU, faults, reset, backpressure, one hit/clock",checks);
         done=1;
     end

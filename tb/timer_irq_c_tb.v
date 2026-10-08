@@ -51,7 +51,8 @@ module timer_irq_c_case #(parameter integer MODE=0)(output reg done=0);
         .m_axi_rdata(rdata),.m_axi_rresp(rresp),.m_axi_rvalid(rvalid),.m_axi_rready(rready),
         .icache_access_count(),.icache_hit_count(),.icache_miss_count(),
         .icache_refill_word_count(),.icache_error_count(),
-        .trap_valid(trap_valid),.trap_pc(trap_pc),.trap_cause(trap_cause),.trap_tval(trap_tval));
+        .trap_valid(trap_valid),.trap_pc(trap_pc),.trap_cause(trap_cause),.trap_tval(trap_tval),
+        .dcache_access_count(),.dcache_hit_count(),.dcache_miss_count(),.dcache_refill_word_count(),.dcache_error_count(),.dcache_write_count(),.dcache_bypass_count());
     axi_lite_ram #(.INIT_FILE("programs/timer_irq_data.hex"),
         .AW_WAIT_CYCLES(MODE==2?5:0),.W_WAIT_CYCLES(MODE==1?5:0),
         .B_WAIT_CYCLES(MODE?4:0),.AR_WAIT_CYCLES(MODE?3:0),.R_WAIT_CYCLES(MODE?6:0)

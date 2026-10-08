@@ -18,7 +18,8 @@ module soc_axi_lite_top #(
     parameter integer ENABLE_TRAPS = 0,
     parameter integer ENABLE_TIMER_IRQ = 0,
     parameter integer ENABLE_ICACHE = 0,
-    parameter integer ICACHE_SETS = 64, ICACHE_LINE_WORDS = 4
+    parameter integer ICACHE_SETS = 64, ICACHE_LINE_WORDS = 4,
+    parameter integer ENABLE_DCACHE = 0, DCACHE_SETS = 64, DCACHE_LINE_WORDS = 4
 ) (
     input  wire        clk,
     input  wire        rst_n,
@@ -64,7 +65,9 @@ module soc_axi_lite_top #(
     output wire [31:0] trap_cause,
     output wire [31:0] trap_tval,
     output wire [31:0] icache_access_count, icache_hit_count, icache_miss_count,
-    output wire [31:0] icache_refill_word_count, icache_error_count
+    output wire [31:0] icache_refill_word_count, icache_error_count,
+    output wire [31:0] dcache_access_count,dcache_hit_count,dcache_miss_count,
+    output wire [31:0] dcache_refill_word_count,dcache_error_count,dcache_write_count,dcache_bypass_count
 );
     wire imem_req_valid, imem_req_ready;
     wire [31:0] imem_req_addr;
@@ -138,14 +141,39 @@ module soc_axi_lite_top #(
         .rsp_valid(rom_rsp_valid), .rsp_ready(rom_rsp_ready),
         .rsp_rdata(rom_rsp_rdata), .rsp_error(rom_rsp_error)
     );
+    wire bridge_req_valid,bridge_req_ready,bridge_req_write;
+    wire [31:0] bridge_req_addr,bridge_req_wdata,bridge_rsp_rdata;
+    wire [1:0] bridge_req_size;
+    wire [3:0] bridge_req_wstrb;
+    wire bridge_rsp_valid,bridge_rsp_ready,bridge_rsp_error;
+    generate if(ENABLE_DCACHE) begin : g_dcache
+        data_cache #(.SETS(DCACHE_SETS),.LINE_WORDS(DCACHE_LINE_WORDS),
+            .MEM_WORDS(DMEM_WORDS),.BASE_ADDR(DMEM_BASE_ADDR)) u_cache (
+            .clk(clk),.rst_n(rst_n),
+            .req_valid(dmem_req_valid),.req_ready(dmem_req_ready),.req_write(dmem_req_write),
+            .req_addr(dmem_req_addr),.req_size(dmem_req_size),.req_wdata(dmem_req_wdata),.req_wstrb(dmem_req_wstrb),
+            .rsp_valid(dmem_rsp_valid),.rsp_ready(dmem_rsp_ready),.rsp_rdata(dmem_rsp_rdata),.rsp_error(dmem_rsp_error),
+            .mem_req_valid(bridge_req_valid),.mem_req_ready(bridge_req_ready),.mem_req_write(bridge_req_write),
+            .mem_req_addr(bridge_req_addr),.mem_req_size(bridge_req_size),.mem_req_wdata(bridge_req_wdata),.mem_req_wstrb(bridge_req_wstrb),
+            .mem_rsp_valid(bridge_rsp_valid),.mem_rsp_ready(bridge_rsp_ready),.mem_rsp_rdata(bridge_rsp_rdata),.mem_rsp_error(bridge_rsp_error),
+            .access_count(dcache_access_count),.hit_count(dcache_hit_count),.miss_count(dcache_miss_count),.refill_word_count(dcache_refill_word_count),.error_count(dcache_error_count),.write_count(dcache_write_count),.bypass_count(dcache_bypass_count)
+        );
+    end else begin : g_no_dcache
+        assign bridge_req_valid=dmem_req_valid,dmem_req_ready=bridge_req_ready;
+        assign bridge_req_write=dmem_req_write,bridge_req_addr=dmem_req_addr;
+        assign bridge_req_size=dmem_req_size,bridge_req_wdata=dmem_req_wdata,bridge_req_wstrb=dmem_req_wstrb;
+        assign dmem_rsp_valid=bridge_rsp_valid,bridge_rsp_ready=dmem_rsp_ready;
+        assign dmem_rsp_rdata=bridge_rsp_rdata,dmem_rsp_error=bridge_rsp_error;
+        assign dcache_access_count=0,dcache_hit_count=0,dcache_miss_count=0,dcache_refill_word_count=0,dcache_error_count=0,dcache_write_count=0,dcache_bypass_count=0;
+    end endgenerate
     dmem_axi_lite_bridge u_bridge (
         .clk(clk), .rst_n(rst_n),
-        .req_valid(dmem_req_valid), .req_ready(dmem_req_ready),
-        .req_write(dmem_req_write), .req_addr(dmem_req_addr),
-        .req_size(dmem_req_size), .req_wdata(dmem_req_wdata),
-        .req_wstrb(dmem_req_wstrb), .rsp_valid(dmem_rsp_valid),
-        .rsp_ready(dmem_rsp_ready), .rsp_rdata(dmem_rsp_rdata),
-        .rsp_error(dmem_rsp_error),
+        .req_valid(bridge_req_valid), .req_ready(bridge_req_ready),
+        .req_write(bridge_req_write), .req_addr(bridge_req_addr),
+        .req_size(bridge_req_size), .req_wdata(bridge_req_wdata),
+        .req_wstrb(bridge_req_wstrb), .rsp_valid(bridge_rsp_valid),
+        .rsp_ready(bridge_rsp_ready), .rsp_rdata(bridge_rsp_rdata),
+        .rsp_error(bridge_rsp_error),
         .m_axi_awaddr(m_axi_awaddr),
         .m_axi_awprot(m_axi_awprot),
         .m_axi_awvalid(m_axi_awvalid),

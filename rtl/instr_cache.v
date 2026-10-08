@@ -33,8 +33,15 @@ module instr_cache #(
     wire [TB-1:0] lookup_tag=req_addr[LB+SB+:TB];
     wire hit0=valid0[lookup_set] && tag0[lookup_set]==lookup_tag;
     wire hit1=valid1[lookup_set] && tag1[lookup_set]==lookup_tag;
+    wire recent_victim;
     wire victim= !valid0[lookup_set] ? 1'b0 :
-                 !valid1[lookup_set] ? 1'b1 : victim_lru[lookup_set];
+                 !valid1[lookup_set] ? 1'b1 : recent_victim;
+    // Commit hit LRU through registered metadata, so a late CPU redirect
+    // does not drive the distributed LRU array's write-enable decoder.
+    // Forward the pending value to an immediately following same-set miss.
+    reg lru_pending,lru_value;
+    reg [SB-1:0] lru_set;
+    assign recent_victim=lru_pending && lru_set==lookup_set ? lru_value : victim_lru[lookup_set];
     reg fill_way;
     reg [SB-1:0] fill_set;
     reg [WB-1:0] fill_word, wanted_word;
@@ -54,6 +61,7 @@ module instr_cache #(
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             state<=IDLE; valid0<=0; valid1<=0; victim_lru<=0;
+            lru_pending<=0;lru_value<=0;lru_set<=0;
             fill_way<=0; fill_set<=0; fill_word<=0; wanted_word<=0;
             fill_tag<=0; fill_base<=0; wanted_data<=0;
             rsp_rdata<=0; rsp_error<=0;
@@ -61,6 +69,8 @@ module instr_cache #(
             refill_word_count<=0; error_count<=0;
             access_event<=0;hit_event<=0;miss_event<=0;refill_event<=0;error_event<=0;
         end else begin
+            lru_pending<=0;
+            if(lru_pending) victim_lru[lru_set]<=lru_value;
             access_event<=0;hit_event<=0;miss_event<=0;refill_event<=0;error_event<=0;
             if(access_event) access_count<=access_count+1;
             if(hit_event) hit_count<=hit_count+1;
@@ -83,7 +93,7 @@ module instr_cache #(
                 end else if(hit0 || hit1) begin
                     rsp_rdata<=hit0 ? data0[{lookup_set,lookup_word}] : data1[{lookup_set,lookup_word}];
                     rsp_error<=0; state<=RESPONSE;
-                    victim_lru[lookup_set]<=hit0; // opposite way is least recent
+                    lru_pending<=1;lru_set<=lookup_set;lru_value<=hit0; // opposite way is least recent
                     hit_event<=1;
                 end else begin
                     miss_event<=1;

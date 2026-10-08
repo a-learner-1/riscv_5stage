@@ -59,3 +59,7 @@ coremark_*_work/
 # Two-way instruction cache validation
 icache_work/
 icache_board_netlist_work/
+
+# Two-way data cache validation
+dcache_work/
+dcache_board_netlist_work/

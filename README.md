@@ -2,7 +2,7 @@
 
 自研的 32 位 RISC-V 裸机处理器，采用 **IF → EX → WB** 三级流水线，使用 Verilog 实现 CPU、存储接口和基础外设，在紫光同创 MES50HP 开发板上验证。工程提供 GCC 固件构建、ModelSim 自动自检和 PDS 独立板级构建入口，可作为后续 CNN 加速器的控制处理器。
 
-**更新时间：2026-10-04。** CPU 基础功能、串口收发、AXI 控制、同步异常、定时器中断和两路指令 Cache 的独立板级自检均已通过。50 MHz 无 Cache 配置已取得 CoreMark 性能基线。两路数据 Cache、动态分支预测和真实 CNN 联调仍待完成。
+**更新时间：2026-10-07。** CPU 基础功能、串口收发、AXI 控制、同步异常、定时器中断和两路指令 Cache 的独立板级自检均已通过。新增两路数据 Cache 与双 Cache 独立自检版本，实物上板确认待完成。50 MHz 无 Cache 配置已取得 CoreMark 性能基线；带 Cache 的 CoreMark、动态分支预测和真实 CNN 联调仍待完成。
 
 ## 功能与验证状态
 
@@ -19,7 +19,7 @@
 | 机器定时器中断 | 64 位 mtime／mtimecmp、MTIE／MTIP、屏蔽与挂起、中断返回 | `TIMER IRQ PASS` 实物验证通过，见[验证记录](docs/timer_irq_board.md) |
 | 两路指令 Cache | 2 KiB、64 组、16 字节行、LRU，可选择启用 | RTL、50 MHz 时序、综合网表及 2026-10-04 实物验证通过，见[验证记录](docs/icache_verification_20261003.md) |
 | CoreMark | performance／validation 独立正式模式，64 位计时和 CRC 检查 | 两次均 `FORMAL PASS`；无 Cache 性能为 **52.574739 CoreMark** |
-| 两路数据 Cache | 尚未实现 | 待确定 RAM 缓存与 MMIO 旁路策略 |
+| 两路数据 Cache | 2 KiB、两路、64 组、16 字节行、LRU；写穿透、写缺失不分配；RAM 之外旁路 | RTL、真实 CPU 错误恢复、50 MHz PDS 与综合网表通过；实物待确认，见[说明](docs/dcache.md) |
 | 动态分支预测／BTB | 尚未实现，当前分支在 EX 级解析 | 待实现并验证误预测恢复 |
 | 更完整的异常／中断 | 当前仅最小 M 模式同步异常与机器定时器中断 | 外部／软件中断、PLIC、嵌套中断等尚未实现 |
 | CNN／DDR／DMA | 已有 AXI4-Lite 控制接口基础 | 真实 CNN 联调、AXI4 突发传输、DDR／DMA 尚未实现 |
@@ -48,6 +48,7 @@ ROM 与 RAM 均为 FPGA 内的片上存储，不是板载 DDR。不同仿真脚�
 | `ENABLE_TRAPS=0` | 通用 CPU 默认保持兼容模式；设为 1 开启最小 M 模式同步异常与 CSR |
 | `ENABLE_TIMER_IRQ=0` | 设为 1 开启机器定时器中断，同时要求 `ENABLE_TRAPS=1` |
 | `ENABLE_ICACHE=0` | `soc_axi_lite_top` 默认关闭指令 Cache；`icache_board_top` 显式开启 |
+| `ENABLE_DCACHE=0` | `soc_axi_lite_top` 默认关闭数据 Cache；`dcache_board_top` 显式开启 I/D Cache |
 | `IMEM_WORDS`／`DMEM_WORDS` | 通用存储容量参数；当前板级固件与构建保护按 8192／4096 字配置 |
 
 扩大 ROM／RAM 时，需要同步修改顶层容量、`software/link.ld`、镜像生成器及构建保护检查，并重新验证资源和时序。只修改链接脚本不会增加硬件存储容量。
@@ -56,7 +57,7 @@ ROM 与 RAM 均为 FPGA 内的片上存储，不是板载 DDR。不同仿真脚�
 
 CPU 保持 IF → EX → WB。EX 级执行译码、ALU 运算、分支判断和访存请求，WB 级写回并向 EX 前递结果。访存等待时暂停相关流水线；分支、跳转和异常重定向时冲刷错误路径。
 
-在 AXI SoC 版本中，取指路径为 CPU → 可选指令 Cache → 片上 ROM；普通数据访存经 AXI4-Lite 主桥到 RAM 或控制设备。UART、GPIO、性能计数器和机器定时器沿用 CPU 的本地 MMIO 路径。演示控制设备与 Cache 统计设备分别属于不同自检顶层。
+在 AXI SoC 版本中，取指路径为 CPU → 可选指令 Cache → 片上 ROM；普通数据访存经可选数据 Cache、AXI4-Lite 主桥到 RAM 或控制设备。仅配置的普通 RAM 地址可以缓存，范围外请求旁路。UART、GPIO、性能计数器和机器定时器沿用 CPU 的本地 MMIO 路径。演示控制设备、指令 Cache 统计设备和数据 Cache 统计设备分别属于不同自检顶层。
 
 支持的常用整数指令：
 
@@ -84,7 +85,7 @@ CPU 保持 IF → EX → WB。EX 级执行译码、ALU 运算、分支判断和�
 | `0x20000020`–`0x20000034` | GPIO 输出、输入、使能、置位、清零、翻转 | [gpio.h](software/gpio.h) |
 | `0x20000040`／`0x20000044` | mtime 低／高 32 位 | [timer.h](software/timer.h) |
 | `0x20000048`／`0x2000004C` | mtimecmp 低／高 32 位 | [timer.h](software/timer.h) |
-| `0x30000000` 起 | AXI 演示控制设备，或 I-cache 自检统计设备，依顶层选择 | [axi_control.h](software/axi_control.h)、[Cache 寄存器说明](docs/icache.md) |
+| `0x30000000` 起 | AXI 演示控制设备，或 I/D Cache 自检统计设备，依顶层选择 | [axi_control.h](software/axi_control.h)、[I-cache 统计](docs/icache.md)、[D-cache 统计](docs/dcache.md) |
 
 `cycle_count`、`instret_count` 还有 64 位 RTL 观测端口；周期计数从首条有效指令进入 EX 后开始。CoreMark 使用复位释放后持续运行的 64 位 mtime 计时，两者不能直接混用。`0x30000000` 是现有演示／自检映射，真实 CNN 的地址与寄存器协议仍需约定。
 
@@ -142,6 +143,7 @@ do run_uart.do
 | 同步异常自检 | `build_trap_board.bat` | `trap_board`／`trap_board` | `TRAP BOARD PASS` |
 | 定时器中断自检 | `build_timer_irq_board.bat` | `timer_irq_board`／`timer_irq_board` | `TIMER IRQ PASS` |
 | 两路指令 Cache 自检 | `build_icache_board.bat` | `icache_board`／`icache_board` | `ICACHE PASS` |
+| 两路数据 Cache 自检（同时开启 I-cache） | `build_dcache_board.bat` | `dcache_board`／`dcache_board` | 预期 `DCACHE PASS`；实物待确认 |
 | CoreMark 性能基线 | `build_coremark.bat --profile performance` | `coremark_board`／`coremark_performance` | `COREMARK RESULT: FORMAL PASS` |
 | CoreMark 校验运行 | `build_coremark.bat --profile validation` | `coremark_board`／`coremark_validation` | `COREMARK RESULT: FORMAL PASS` |
 
@@ -177,7 +179,25 @@ do run_icache_board_netlist.do
 
 第二条需要已有配套 PDS 综合网表。详细协议、统计寄存器、测试范围与限制见[指令 Cache 说明](docs/icache.md)，时序、网表模型告警及位流哈希见[验证记录](docs/icache_verification_20261003.md)。
 
-**本步骤完成了指令 Cache；两路数据 Cache 尚未实现。** 带 Cache 的 CoreMark 尚未重测，下节的成绩仍属于原无 Cache 配置。
+2026-10-07 的双 Cache 步骤调整了指令 Cache 的 LRU 更新路径，并补验连续命中后立即同组缺失时的替换；命中响应和每拍接受一次请求的行为不变。上述 2026-10-04 实物记录属于原指令 Cache 版本，当前双 Cache 位流的实物结果另行记录。
+
+## 两路组相联数据 Cache
+
+新增 **2 KiB、两路、64 组、16 字节行**的数据 Cache，采用写穿透、写缺失不分配。RAM 读命中一拍返回；读缺失逐字填充整行。SB／SH／SW 写成功后更新命中行；写响应错误保持该行无效，下一次读取重新访问 RAM。范围外请求旁路，保留原请求的地址、大小和字节掩码。
+
+独立 `dcache_board` 同时开启 I/D Cache、同步异常与定时器中断，检查两路冲突替换、字节／半字读写、后端 RAM 写入、统计快照和三次 IRQ／MRET。在 Git Bash 执行：
+
+```bash
+cd /d/FPGA/riscv_3stage
+cmd.exe //c build_dcache_board.bat
+cmd.exe //c build_pds_board.bat --variant dcache_board --firmware dcache_board --stage bitstream
+```
+
+位流在 `build/pds_dcache_board/generate_bitstream/board_top.sbit`。上板预期：115200／8N1 收到 `DCACHE PASS`，LED2 常亮、LED1 心跳；KEY1 重启后再次 PASS。本版本的实物验证仍待用户确认。
+
+ModelSim 使用 `do run_dcache.do`；旧版本兼容回归使用 `do run_dcache_baseline.do`；配套综合网表使用 `do run_dcache_board_netlist.do`。协议、寄存器、错误与复位说明见[数据 Cache 说明](docs/dcache.md)，具体验证结果见[验证记录](docs/dcache_verification_20261007.md)。
+
+当前没有 DMA 一致性或缓存失效指令。带 Cache 的 CoreMark 尚未重测，下节成绩仍属于原无 Cache 配置。
 
 ## CoreMark 板级性能基线
 
@@ -219,13 +239,14 @@ cmd.exe //c build_pds_board.bat --variant coremark_board --firmware coremark_val
 | 同步异常 | `run_trap.do`、`run_trap_edges.do`、`run_trap_c.do` |
 | 定时器中断 | `run_timer_irq.do`、`run_timer_irq_board.do` |
 | 两路指令 Cache | `run_icache.do`、`run_icache_board_netlist.do` |
+| 两路数据 Cache／双 Cache | `run_dcache.do`、`run_dcache_fault.do`、`run_dcache_baseline.do`、`run_dcache_board_netlist.do` |
 | CoreMark 短程和移植层 | `run_coremark_prepare.do`，先按[说明](docs/coremark.md)准备对应镜像 |
 
 普通有限 C 仿真使用 `tohost` 结束协议；板级自检程序完成检查后持续维持 LED 心跳或回显，按 KEY1 重启。两类程序的结束方式不同，应使用配套顶层和测试平台。
 
 ## 后续开发与 CNN 协作
 
-下一步适合实现两路组相联数据 Cache，先确定普通 RAM 的写策略、失效／复位行为及 MMIO 旁路，再验证背压、错误响应和写入副作用。之后重新测量带 Cache 的 CoreMark，再实现 BTB／动态分支预测及误预测恢复。
+下一步先完成双 Cache 版本实物验收，保存串口 PASS、LED 与 KEY1 现象。随后增加配套双 Cache CoreMark 入口，使用相同频率、编译选项和正式模式重新测量 performance／validation，再实现 BTB／动态分支预测及误预测恢复。
 
 CPU 已具备裸机 C、UART、GPIO、定时器和 AXI4-Lite 控制基础，可交给队友作为控制接口参考。真实 CNN 接入前还需约定寄存器地址、启动／完成／清除流程、结果格式、数据缓冲区、时钟与复位；若后续使用 DMA，还需明确数据 Cache 与加速器共享内存的一致性策略。
 
@@ -235,6 +256,8 @@ CPU 已具备裸机 C、UART、GPIO、定时器和 AXI4-Lite 控制基础，可�
 
 - [指令 Cache：结构、协议、统计与操作](docs/icache.md)
 - [指令 Cache：RTL、PDS、网表和实物验证记录](docs/icache_verification_20261003.md)
+- [数据 Cache：结构、写策略、MMIO 与上板步骤](docs/dcache.md)
+- [双 Cache：RTL、PDS 与实物验收状态](docs/dcache_verification_20261007.md)
 - [定时器中断板级自检与实物验证](docs/timer_irq_board.md)
 - [CoreMark：配置、板级基线与验证](docs/coremark.md)
 - [开发阶段历史记录](docs/development_history.md)：保留整理前的详细 README；历史状态与性能数值按原文版本理解，当前状态以本页为准。

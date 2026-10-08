@@ -77,7 +77,8 @@ module soc_icache_stats_top #(
         .m_axi_rready(axi_rready),
         .trap_valid(trap_valid), .trap_pc(trap_pc), .trap_cause(trap_cause), .trap_tval(trap_tval),
         .icache_access_count(icache_access_count),.icache_hit_count(icache_hit_count),.icache_miss_count(icache_miss_count),
-        .icache_refill_word_count(icache_refill_word_count),.icache_error_count(icache_error_count)
+        .icache_refill_word_count(icache_refill_word_count),.icache_error_count(icache_error_count),
+        .dcache_access_count(),.dcache_hit_count(),.dcache_miss_count(),.dcache_refill_word_count(),.dcache_error_count(),.dcache_write_count(),.dcache_bypass_count()
     );
     axi_lite_1x2 #(.M0_BASE_ADDR(DMEM_BASE_ADDR),.M0_SIZE_BYTES(DMEM_WORDS*4),
         .M1_BASE_ADDR(STATS_BASE_ADDR),.M1_SIZE_BYTES(32'h100)
