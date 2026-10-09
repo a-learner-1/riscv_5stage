@@ -17,7 +17,10 @@ module cpu_top #(
     // Opt in explicitly. Existing boards retain their fault-stop behavior.
     parameter integer ENABLE_TRAPS = 0,
     // Timer interrupts require the M-mode exception environment above.
-    parameter integer ENABLE_TIMER_IRQ = 0
+    parameter integer ENABLE_TIMER_IRQ = 0,
+    // Direct-mapped BTB and conditional 2-bit predictor; opt in explicitly.
+    parameter integer ENABLE_BRANCH_PRED = 0,
+    parameter integer BTB_ENTRIES = 64
 ) (
     input wire clk,
     input wire rst_n,
@@ -318,6 +321,16 @@ module cpu_top #(
     wire [31:0] trap_event_cause;
     wire [31:0] trap_event_tval;
     wire        normal_redirect_x;
+    wire [31:0] predicted_next_pc_x;
+    wire        prediction_taken_x, prediction_hit_x;
+    wire [31:0] actual_next_pc_x;
+    wire        bp_resolve_valid, bp_predictable_x, bp_actual_taken_x;
+    wire        bp_next_mismatch_x, bp_direction_error_x, bp_target_error_x;
+    wire [31:0] bp_lookup_count, bp_hit_count, bp_taken_count;
+    reg [31:0]  bp_resolved_count, bp_mispredict_count;
+    reg [31:0]  bp_direction_error_count, bp_target_error_count;
+    wire        bp_mmio_read_hit_x;
+    reg [31:0]  bp_mmio_read_data_x;
 
     wire [31:0] rs1_data_x;
     wire [31:0] rs2_data_x;
@@ -341,7 +354,8 @@ module cpu_top #(
         .EXTERNAL_IMEM(EXTERNAL_IMEM),
         .IMEM_REQ_WAIT_CYCLES(IMEM_REQ_WAIT_CYCLES),
         .IMEM_RSP_WAIT_CYCLES(IMEM_RSP_WAIT_CYCLES),
-        .ENABLE_TRAPS(ENABLE_TRAPS)
+        .ENABLE_TRAPS(ENABLE_TRAPS),
+        .ENABLE_BRANCH_PRED(ENABLE_BRANCH_PRED), .BTB_ENTRIES(BTB_ENTRIES)
     ) u_if_stage (
         .clk           (clk),
         .rst_n         (rst_n),
@@ -356,7 +370,16 @@ module cpu_top #(
         .imem_req_addr(imem_req_addr), .imem_rsp_valid(imem_rsp_valid),
         .imem_rsp_ready(imem_rsp_ready), .imem_rsp_rdata(imem_rsp_rdata),
         .imem_rsp_error(imem_rsp_error),
-        .imem_fault(imem_fault), .imem_fault_pc(imem_fault_pc)
+        .imem_fault(imem_fault), .imem_fault_pc(imem_fault_pc),
+        .bp_update_valid((ENABLE_BRANCH_PRED != 0) && bp_resolve_valid),
+        .bp_update_pc(pc_x),
+        .bp_update_target(is_jal_x ? jump_target_x : branch_target_x),
+        .bp_update_taken(bp_actual_taken_x),
+        .bp_update_is_branch(is_branch_x), .bp_update_is_jal(is_jal_x),
+        .predicted_next_pc_x(predicted_next_pc_x),
+        .prediction_taken_x(prediction_taken_x), .prediction_hit_x(prediction_hit_x),
+        .bp_lookup_count(bp_lookup_count), .bp_hit_count(bp_hit_count),
+        .bp_taken_count(bp_taken_count)
     );
 
     /*
@@ -660,9 +683,24 @@ module cpu_top #(
         (pc_x + imm_j_x) :
         ((rs1_value_x + imm_x) & 32'hffff_fffe);
 
-    assign normal_redirect_x =
-        !dmem_fault && !mem_active &&
-        (branch_taken_x | jump_taken_x);
+    assign actual_next_pc_x = jump_taken_x ? jump_target_x :
+                              branch_taken_x ? branch_target_x : pc_x + 32'd4;
+    // Resolve only a completed architectural instruction. A stalled memory
+    // instruction retains its prediction until its successful response. IRQ,
+    // synchronous exception and MRET use their existing priority path instead.
+    assign bp_resolve_valid = rst_n && !dmem_fault && valid_x &&
+        !trap_event && !mret_commit_x &&
+        (mem_rsp_success || (!mem_active && !is_load_x && !is_store_x && instr_supported_x));
+    assign bp_predictable_x = is_branch_x || is_jal_x;
+    assign bp_actual_taken_x = branch_taken_x || is_jal_x;
+    assign bp_next_mismatch_x = (predicted_next_pc_x != actual_next_pc_x);
+    assign bp_direction_error_x = bp_predictable_x &&
+                                 (prediction_taken_x != bp_actual_taken_x);
+    assign bp_target_error_x = bp_predictable_x && prediction_taken_x &&
+                              bp_actual_taken_x && bp_next_mismatch_x;
+    assign normal_redirect_x = (ENABLE_BRANCH_PRED != 0) ?
+        (bp_resolve_valid && bp_next_mismatch_x) :
+        (!dmem_fault && !mem_active && (branch_taken_x | jump_taken_x));
 
     // IALIGN=32: only a taken branch/jump checks its destination. JALR
     // clears bit 0 first. The exception belongs to the control instruction,
@@ -730,7 +768,21 @@ module cpu_top #(
                          (normal_redirect_x && !ex_exception_x);
     assign redirect_pc_x = trap_event ? csr_mtvec :
                            mret_commit_x ? csr_mepc :
-                           jump_taken_x ? jump_target_x : branch_target_x;
+                           actual_next_pc_x;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            bp_resolved_count <= 0;
+            bp_mispredict_count <= 0;
+            bp_direction_error_count <= 0;
+            bp_target_error_count <= 0;
+        end else if ((ENABLE_BRANCH_PRED != 0) && bp_resolve_valid) begin
+            if (bp_predictable_x) bp_resolved_count <= bp_resolved_count + 1;
+            if (bp_next_mismatch_x) bp_mispredict_count <= bp_mispredict_count + 1;
+            if (bp_direction_error_x) bp_direction_error_count <= bp_direction_error_count + 1;
+            if (bp_target_error_x) bp_target_error_count <= bp_target_error_count + 1;
+        end
+    end
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
@@ -895,7 +947,7 @@ module cpu_top #(
     // needs the low word because elapsed time is computed by subtraction.
     assign mmio_load_ok_x =
         (mmio_counter_addr_x || mmio_uart_status_addr_x ||
-         uart_rx_read_hit_x || gpio_read_hit_x || timer_read_hit_x) &&
+         uart_rx_read_hit_x || gpio_read_hit_x || timer_read_hit_x || bp_mmio_read_hit_x) &&
         (mem_size_x == 2'd2) &&
         (mem_addr_x[1:0] == 2'b00);
 
@@ -905,7 +957,27 @@ module cpu_top #(
         mmio_uart_status_addr_x ? {31'd0, uart_busy} :
         uart_rx_read_hit_x  ? uart_rx_read_data_x :
         gpio_read_hit_x     ? gpio_read_data_x :
-        timer_read_hit_x    ? timer_read_data_x : 32'd0;
+        timer_read_hit_x    ? timer_read_data_x :
+        bp_mmio_read_hit_x  ? bp_mmio_read_data_x : 32'd0;
+
+    // Opt-in, aligned LW-only diagnostic registers. Stores are rejected by
+    // the existing MMIO legality path; the disabled core keeps them unmapped.
+    assign bp_mmio_read_hit_x = (ENABLE_BRANCH_PRED != 0) &&
+        (mem_addr_x >= 32'h20000070) && (mem_addr_x <= 32'h2000008c) &&
+        (mem_addr_x[1:0] == 2'b00);
+    always @(*) begin
+        case (mem_addr_x)
+            32'h20000070: bp_mmio_read_data_x = (BTB_ENTRIES << 16) | 32'd1;
+            32'h20000074: bp_mmio_read_data_x = bp_lookup_count;
+            32'h20000078: bp_mmio_read_data_x = bp_hit_count;
+            32'h2000007c: bp_mmio_read_data_x = bp_taken_count;
+            32'h20000080: bp_mmio_read_data_x = bp_resolved_count;
+            32'h20000084: bp_mmio_read_data_x = bp_mispredict_count;
+            32'h20000088: bp_mmio_read_data_x = bp_direction_error_count;
+            32'h2000008c: bp_mmio_read_data_x = bp_target_error_count;
+            default: bp_mmio_read_data_x = 32'd0;
+        endcase
+    end
 
     // Accept SB, SH and SW at the character register and use the low byte.
     assign mmio_putchar_addr_ok_x =

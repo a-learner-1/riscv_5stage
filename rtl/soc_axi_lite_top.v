@@ -19,7 +19,8 @@ module soc_axi_lite_top #(
     parameter integer ENABLE_TIMER_IRQ = 0,
     parameter integer ENABLE_ICACHE = 0,
     parameter integer ICACHE_SETS = 64, ICACHE_LINE_WORDS = 4,
-    parameter integer ENABLE_DCACHE = 0, DCACHE_SETS = 64, DCACHE_LINE_WORDS = 4
+    parameter integer ENABLE_DCACHE = 0, DCACHE_SETS = 64, DCACHE_LINE_WORDS = 4,
+    parameter integer ENABLE_BRANCH_PRED = 0, BTB_ENTRIES = 64
 ) (
     input  wire        clk,
     input  wire        rst_n,
@@ -90,6 +91,7 @@ module soc_axi_lite_top #(
         .EXTERNAL_IMEM(1), .EXTERNAL_DMEM(1),
         .ENABLE_TRAPS(ENABLE_TRAPS),
         .ENABLE_TIMER_IRQ(ENABLE_TIMER_IRQ),
+        .ENABLE_BRANCH_PRED(ENABLE_BRANCH_PRED), .BTB_ENTRIES(BTB_ENTRIES),
         // These still control the existing local MMIO endpoint.
         .DMEM_REQ_WAIT_CYCLES(MMIO_REQ_WAIT_CYCLES),
         .DMEM_RSP_WAIT_CYCLES(MMIO_RSP_WAIT_CYCLES)
