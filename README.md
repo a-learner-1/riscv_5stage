@@ -2,7 +2,7 @@
 
 自研的 32 位 RISC-V 裸机处理器，采用 **IF → EX → WB** 三级流水线，使用 Verilog 实现 CPU、存储接口和基础外设，在紫光同创 MES50HP 开发板上验证。工程提供 GCC 固件构建、ModelSim 自动自检和 PDS 独立板级构建入口，可作为后续 CNN 加速器的控制处理器。
 
-**更新时间：2026-10-10。** CPU 基础功能、串口收发、AXI 控制、同步异常、定时器中断和两路指令 Cache 的独立板级自检已有验证记录。两路数据 Cache 的实物确认、AXI CoreMark 对照测量仍待完成。64 项 BTB 与动态分支预测代码已准备，本轮将其接入 AXI CoreMark，补齐基线／双 Cache／双 Cache＋BTB 三配置及原子统计入口。按“暂时不验证”的安排，未编译、仿真、运行 PDS 或上板；预测器关闭模式的兼容回归也待执行。下表通过记录属于相应历史版本。真实 CNN 联调仍待完成。
+**更新时间：2026-10-10。** CPU 基础功能、串口收发、AXI 控制、同步异常、定时器中断和两路指令 Cache 的独立板级自检已有验证记录。两路数据 Cache 的实物确认、BTB 与 AXI CoreMark 三配置对照测量仍待完成。本轮增加默认关闭的机器外部／软件中断、三源优先级和独立板级自检入口。按“暂时不验证”的安排，只准备代码，未编译、仿真、运行 PDS 或上板；共用 CPU 通路的兼容回归也待执行。下表通过记录属于相应历史版本。真实 CNN 联调仍待完成。
 
 ## 功能与验证状态
 
@@ -17,12 +17,13 @@
 | AXI4-Lite | 32 位数据主桥、AXI RAM、1 主 2 从地址分发、演示控制设备 | 协议自检、CPU 集成和 `AXI CTRL PASS` 实物验证通过 |
 | 最小 M 模式同步异常 | 6 种 Zicsr、MRET、必要 CSR；非法指令、ECALL／EBREAK、取指／访存错误 | `TRAP BOARD PASS` 实物验证通过 |
 | 机器定时器中断 | 64 位 mtime／mtimecmp、MTIE／MTIP、屏蔽与挂起、中断返回 | `TIMER IRQ PASS` 实物验证通过，见[验证记录](docs/timer_irq_board.md) |
+| 机器外部／软件中断 | 单路电平外部输入、MSIP 本地寄存器、三源使能／挂起及优先级，默认关闭 | 代码及独立自检入口已准备，全部待验证，见[说明](docs/machine_irq.md) |
 | 两路指令 Cache | 2 KiB、64 组、16 字节行、LRU，可选择启用 | RTL、50 MHz 时序、综合网表及 2026-10-04 实物验证通过，见[验证记录](docs/icache_verification_20261003.md) |
 | CoreMark | performance／validation 独立正式模式，64 位计时和 CRC 检查 | 两次均 `FORMAL PASS`；无 Cache 性能为 **52.574739 CoreMark** |
 | AXI SoC 的 CoreMark 对照 | 同一平台的基线／双 Cache／双 Cache＋BTB；原子快照、CPI、Cache 与预测器统计 | 三配置独立构建、六种短测试和板级入口已准备；本轮未运行验证，见[操作说明](docs/coremark_axi.md) |
 | 两路数据 Cache | 2 KiB、两路、64 组、16 字节行、LRU；写穿透、写缺失不分配；RAM 之外旁路 | RTL、真实 CPU 错误恢复、50 MHz PDS 与综合网表通过；实物待确认，见[说明](docs/dcache.md) |
 | 动态分支预测／BTB | 已编写默认关闭的 64 项 BTB、2 位饱和方向计数器；预测条件分支与 JAL，EX 核对并恢复错误预测 | 新功能及关闭模式兼容性均待验证，见[说明](docs/btb.md) |
-| 更完整的异常／中断 | 当前仅最小 M 模式同步异常与机器定时器中断 | 外部／软件中断、PLIC、嵌套中断等尚未实现 |
+| 更完整的异常／中断 | 最小 M 模式同步异常；定时器及新增外部／软件中断代码 | 新中断仍待验证；PLIC、向量入口、嵌套中断与 S/U 模式尚未实现 |
 | CNN／DDR／DMA | 已有 AXI4-Lite 控制接口基础 | 真实 CNN 联调、AXI4 突发传输、DDR／DMA 尚未实现 |
 
 上述板级结果来自用户提供的串口记录、截图和现象确认，具体资源、时序与镜像哈希按各版本验证记录区分。构建脚本不会自动下载 FPGA；生成 manifest 中的 `hardware_verified=false` 表示构建器自身未执行实物验收。
@@ -48,6 +49,7 @@ ROM 与 RAM 均为 FPGA 内的片上存储，不是板载 DDR。不同仿真脚�
 | --- | --- |
 | `ENABLE_TRAPS=0` | 通用 CPU 默认保持兼容模式；设为 1 开启最小 M 模式同步异常与 CSR |
 | `ENABLE_TIMER_IRQ=0` | 设为 1 开启机器定时器中断，同时要求 `ENABLE_TRAPS=1` |
+| `ENABLE_EXTERNAL_IRQ=0`／`ENABLE_SOFTWARE_IRQ=0` | 设为 1 开启对应机器中断源，同时要求 `ENABLE_TRAPS=1`；外部输入为 `irq_external` |
 | `ENABLE_ICACHE=0` | `soc_axi_lite_top` 默认关闭指令 Cache；`icache_board_top` 显式开启 |
 | `ENABLE_DCACHE=0` | `soc_axi_lite_top` 默认关闭数据 Cache；`dcache_board_top` 显式开启 I/D Cache |
 | `ENABLE_BRANCH_PRED=0`／`BTB_ENTRIES=64` | 通用 CPU／SoC 默认关闭预测器；`btb_board` 和 `coremark_axi_btb` 显式开启 64 项 BTB |
@@ -87,7 +89,8 @@ CPU 保持 IF → EX → WB。EX 级执行译码、ALU 运算、分支判断和�
 | `0x20000020`–`0x20000034` | GPIO 输出、输入、使能、置位、清零、翻转 | [gpio.h](software/gpio.h) |
 | `0x20000040`／`0x20000044` | mtime 低／高 32 位 | [timer.h](software/timer.h) |
 | `0x20000048`／`0x2000004C` | mtimecmp 低／高 32 位 | [timer.h](software/timer.h) |
-| `0x30000000` 起 | AXI 演示控制设备，或 I/D Cache 自检统计设备，依顶层选择 | [axi_control.h](software/axi_control.h)、[I-cache 统计](docs/icache.md)、[D-cache 统计](docs/dcache.md) |
+| `0x20000050` | 启用软件中断时的 MSIP，对齐 LW／SW，bit0 置位／清除 | [machine_irq.h](software/machine_irq.h) |
+| `0x30000000` 起 | AXI 演示控制设备、Cache 统计设备或独立中断演示源，依顶层选择 | [axi_control.h](software/axi_control.h)、[I-cache 统计](docs/icache.md)、[D-cache 统计](docs/dcache.md)、[中断演示源](docs/machine_irq.md) |
 
 `cycle_count`、`instret_count` 还有 64 位 RTL 观测端口；周期计数从首条有效指令进入 EX 后开始。CoreMark 使用复位释放后持续运行的 64 位 mtime 计时，两者不能直接混用。`0x30000000` 是现有演示／自检映射，真实 CNN 的地址与寄存器协议仍需约定。
 
@@ -137,13 +140,14 @@ do run_uart.do
 
 所有命令从 `D:/FPGA/riscv_3stage` 执行。每个版本先构建固件，再用匹配的 `--variant` 和 `--firmware` 生成位流。
 
-| 用途 | 固件构建入口 | PDS variant／firmware | 已验证现象 |
+| 用途 | 固件构建入口 | PDS variant／firmware | 现象与验证状态 |
 | --- | --- | --- | --- |
 | CPU、UART TX、GPIO 基线 | `build_board.bat` | `default`／`board_demo` | `Hello RISC-V`、LED 心跳、按键 |
 | UART RX 回显 | `build_uart_rx.bat` | `default`／`uart_rx_echo` | 发送 `CPU123` 后收到相同文本 |
 | AXI 控制自检 | `build_axi_control_board.bat` | `axi_control_board`／`axi_control_board` | `AXI CTRL PASS` |
 | 同步异常自检 | `build_trap_board.bat` | `trap_board`／`trap_board` | `TRAP BOARD PASS` |
 | 定时器中断自检 | `build_timer_irq_board.bat` | `timer_irq_board`／`timer_irq_board` | `TIMER IRQ PASS` |
+| 外部／软件／定时器三源自检 | `build_machine_irq_board.bat` | `machine_irq_board`／`machine_irq_board` | 预期 `MACHINE IRQ PASS`，本轮未验证 |
 | 两路指令 Cache 自检 | `build_icache_board.bat` | `icache_board`／`icache_board` | `ICACHE PASS` |
 | 两路数据 Cache 自检（同时开启 I-cache） | `build_dcache_board.bat` | `dcache_board`／`dcache_board` | 预期 `DCACHE PASS`；实物待确认 |
 | CoreMark 性能基线 | `build_coremark.bat --profile performance` | `coremark_board`／`coremark_performance` | `COREMARK RESULT: FORMAL PASS` |
@@ -262,6 +266,10 @@ cmd.exe //c build_pds_board.bat --variant btb_board --firmware btb_board --stage
 
 预期位流路径为 `build/pds_btb_board/generate_bitstream/board_top.sbit`。功能、关闭模式回归和 50 MHz 时序通过后再上板；预期串口 `BTB BOARD PASS`，LED2 常亮、LED1 心跳，KEY1 重启后再次自检。以上均为待验证行为，当前未生成本版镜像或位流。结构、统计口径和未来仿真步骤见[BTB 说明](docs/btb.md)。
 
+## 机器外部与软件中断（代码准备）
+
+通用 CPU 的机器外部／软件中断开关默认关闭；独立 `machine_irq_board` 显式开启三类机器中断，使用 AXI 演示外设自动产生外部电平请求，软件 MSIP 和现有定时器产生另外两类请求。未来检查屏蔽挂起、外部→软件→定时器优先级、MRET 恢复和前台校验和，说明与构建命令见[机器中断说明](docs/machine_irq.md)。此演示外设用于自检，真实 CNN 完成通知仍需约定来源清除协议。
+
 ## 常用仿真入口
 
 在 ModelSim 的仓库根目录执行 `do 脚本名`。根据本次修改选择受影响的自检；综合网表测试需要对应 PDS 生成文件。
@@ -276,6 +284,8 @@ cmd.exe //c build_pds_board.bat --variant btb_board --firmware btb_board --stage
 | SoC／AXI | `run_soc.do`、`run_axi_lite.do`、`run_axi_control.do` |
 | 同步异常 | `run_trap.do`、`run_trap_edges.do`、`run_trap_c.do` |
 | 定时器中断 | `run_timer_irq.do`、`run_timer_irq_board.do` |
+| 外部／软件中断、三源优先级及 AXI 演示源 | `run_machine_irq.do`；新增入口尚未运行 |
+| 三源独立板级固件与 KEY1 重启 | `run_machine_irq_board.do`，先构建匹配镜像；新增入口尚未运行 |
 | 两路指令 Cache | `run_icache.do`、`run_icache_board_netlist.do` |
 | 两路数据 Cache／双 Cache | `run_dcache.do`、`run_dcache_fault.do`、`run_dcache_baseline.do`、`run_dcache_board_netlist.do` |
 | CoreMark 短程和移植层 | `run_coremark_prepare.do`，先按[说明](docs/coremark.md)准备对应镜像 |
@@ -287,7 +297,7 @@ cmd.exe //c build_pds_board.bat --variant btb_board --firmware btb_board --stage
 
 ## 后续开发与 CNN 协作
 
-三配置 AXI CoreMark 和 BTB／动态分支预测入口已编写，验证待执行。恢复验证后先回归关闭预测器的原 CPU、握手、异常、中断和 Cache 功能，再执行 BTB 定向测试与独立板级验收。随后运行六种 AXI CoreMark 短组合，检查 PDS 资源和 50 MHz 时序，最后上板测量三个配置的 performance，并完成各自 validation。比较是否提升时保留相同配置条件和完整证据。
+三配置 AXI CoreMark、BTB 和机器外部／软件中断入口已编写，验证待执行。恢复验证后先在新增开关关闭时回归原 CPU、握手、异常、定时器和 Cache 功能，再执行 BTB 与三源中断定向测试和独立板级验收。随后运行六种 AXI CoreMark 短组合，检查资源和 50 MHz 时序，最后上板测量三个配置的 performance，并完成各自 validation。比较是否提升时保留相同配置条件和完整证据。
 
 CPU 已具备裸机 C、UART、GPIO、定时器和 AXI4-Lite 控制基础，可交给队友作为控制接口参考。真实 CNN 接入前还需约定寄存器地址、启动／完成／清除流程、结果格式、数据缓冲区、时钟与复位；若后续使用 DMA，还需明确数据 Cache 与加速器共享内存的一致性策略。
 
@@ -300,6 +310,7 @@ CPU 已具备裸机 C、UART、GPIO、定时器和 AXI4-Lite 控制基础，可�
 - [数据 Cache：结构、写策略、MMIO 与上板步骤](docs/dcache.md)
 - [双 Cache：RTL、PDS 与实物验收状态](docs/dcache_verification_20261007.md)
 - [定时器中断板级自检与实物验证](docs/timer_irq_board.md)
+- [机器外部／软件中断：接口、优先级和待验证入口](docs/machine_irq.md)
 - [CoreMark：配置、板级基线与验证](docs/coremark.md)
 - [AXI CoreMark：基线、双 Cache、双 Cache＋BTB 与原子统计](docs/coremark_axi.md)
 - [BTB：动态分支预测、误预测恢复与待验证入口](docs/btb.md)

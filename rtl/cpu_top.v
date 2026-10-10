@@ -20,7 +20,10 @@ module cpu_top #(
     parameter integer ENABLE_TIMER_IRQ = 0,
     // Direct-mapped BTB and conditional 2-bit predictor; opt in explicitly.
     parameter integer ENABLE_BRANCH_PRED = 0,
-    parameter integer BTB_ENTRIES = 64
+    parameter integer BTB_ENTRIES = 64,
+    // Independent machine interrupt sources; existing targets leave both off.
+    parameter integer ENABLE_EXTERNAL_IRQ = 0,
+    parameter integer ENABLE_SOFTWARE_IRQ = 0
 ) (
     input wire clk,
     input wire rst_n,
@@ -70,7 +73,7 @@ module cpu_top #(
     output wire        imem_fault,
     output wire [31:0] imem_fault_pc,
     // One-cycle trap-entry pulse and the most recent trap descriptor
-    // (synchronous exception or optional machine timer interrupt).
+    // (synchronous exception or an enabled machine interrupt source).
     output reg         trap_valid,
     output reg  [31:0] trap_pc,
     output reg  [31:0] trap_cause,
@@ -78,15 +81,28 @@ module cpu_top #(
     // Predictor observations retain their existing internal counter semantics.
     output wire [31:0] bp_lookup_count, bp_hit_count, bp_taken_count,
     output reg  [31:0] bp_resolved_count, bp_mispredict_count,
-    output reg  [31:0] bp_direction_error_count, bp_target_error_count
+    output reg  [31:0] bp_direction_error_count, bp_target_error_count,
+    // Asynchronous level request; ignored when the external source is disabled.
+    input wire irq_external
 );
 
     localparam [31:0] MMIO_CYCLE_ADDR   = 32'h2000_0000;
     localparam [31:0] MMIO_INSTRET_ADDR = 32'h2000_0004;
     localparam [31:0] MMIO_PUTCHAR_ADDR = 32'h2000_0010;
     localparam [31:0] MMIO_UART_STATUS_ADDR = 32'h2000_0014;
+    localparam [31:0] MMIO_MSIP_ADDR = 32'h2000_0050;
     localparam integer TIMER_IRQ_ENABLED =
         (ENABLE_TRAPS != 0) && (ENABLE_TIMER_IRQ != 0);
+    localparam integer EXTERNAL_IRQ_ENABLED =
+        (ENABLE_TRAPS != 0) && (ENABLE_EXTERNAL_IRQ != 0);
+    localparam integer SOFTWARE_IRQ_ENABLED =
+        (ENABLE_TRAPS != 0) && (ENABLE_SOFTWARE_IRQ != 0);
+    localparam integer MACHINE_IRQ_ENABLED =
+        TIMER_IRQ_ENABLED || EXTERNAL_IRQ_ENABLED || SOFTWARE_IRQ_ENABLED;
+    localparam [31:0] MIE_WRITABLE_MASK =
+        (TIMER_IRQ_ENABLED != 0 ? 32'h00000080 : 32'd0) |
+        (EXTERNAL_IRQ_ENABLED != 0 ? 32'h00000800 : 32'd0) |
+        (SOFTWARE_IRQ_ENABLED != 0 ? 32'h00000008 : 32'd0);
 
     localparam [3:0] ALU_ADD  = 4'b0000;
     localparam [3:0] ALU_SUB  = 4'b0001;
@@ -157,6 +173,9 @@ module cpu_top #(
     wire [63:0] timer_mtime;
     wire [63:0] timer_mtimecmp;
     wire        timer_mtip;
+    wire        mmio_msip_read_hit_x;
+    wire        mmio_msip_store_ok_x;
+    wire        mmio_msip_write_x;
     wire [31:0] mmio_read_data_x;
     wire [31:0] load_raw_data_x;
 
@@ -294,9 +313,9 @@ module cpu_top #(
     reg         csr_read_only_x;
     wire        csr_legal_x;
 
-    // Minimal M-mode trap CSRs, plus optional MTIE/MTIP for the local timer.
-    // There is no external interrupt input, delegation, U/S mode, PMP,
-    // or counter CSR implementation in this step.
+    // Minimal M-mode trap CSRs, with independently optional timer, software
+    // and one synchronized machine external interrupt source. No delegation,
+    // U/S mode, PLIC, PMP or counter CSR implementation is provided here.
     // MPP is WARL M (3); mstatus implements only MIE and MPIE besides MPP.
     reg [31:0] csr_mstatus;
     reg [31:0] csr_mtvec;
@@ -305,6 +324,49 @@ module cpu_top #(
     reg [31:0] csr_mcause;
     reg [31:0] csr_mtval;
     reg [31:0] csr_mie;
+    reg        external_irq_meta;
+    reg        external_irq_sync;
+    reg        software_msip;
+    wire [31:0] csr_mip_value;
+    wire [31:0] irq_enabled_pending;
+    wire [31:0] irq_selected_cause;
+
+    // The source must hold its request until its peripheral is serviced.
+    // Clearing CPU trap state or writing mip does not acknowledge that source.
+    // Constant disabled gating keeps an omitted legacy input (Z) out of the
+    // CSR/IRQ logic and allows these synchronizer registers to be removed.
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            external_irq_meta <= 1'b0;
+            external_irq_sync <= 1'b0;
+        end else if (EXTERNAL_IRQ_ENABLED != 0) begin
+            external_irq_meta <= irq_external;
+            external_irq_sync <= external_irq_meta;
+        end else begin
+            external_irq_meta <= 1'b0;
+            external_irq_sync <= 1'b0;
+        end
+    end
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            software_msip <= 1'b0;
+        else if (SOFTWARE_IRQ_ENABLED == 0)
+            software_msip <= 1'b0;
+        else if (mmio_msip_write_x)
+            software_msip <= mem_store_raw_x[0];
+    end
+
+    assign csr_mip_value =
+        ((EXTERNAL_IRQ_ENABLED != 0 && external_irq_sync) ? 32'h00000800 : 32'd0) |
+        ((SOFTWARE_IRQ_ENABLED != 0 && software_msip) ? 32'h00000008 : 32'd0) |
+        ((TIMER_IRQ_ENABLED != 0 && timer_mtip) ? 32'h00000080 : 32'd0);
+    assign irq_enabled_pending = csr_mip_value & csr_mie & MIE_WRITABLE_MASK;
+    // Standard machine-source priority considers only implemented, enabled
+    // requests: external before software before timer. Global MIE gates entry.
+    assign irq_selected_cause = irq_enabled_pending[11] ? 32'h8000000b :
+                                irq_enabled_pending[3] ? 32'h80000003 :
+                                irq_enabled_pending[7] ? 32'h80000007 : 32'd0;
 
     wire        control_misaligned_x;
     wire        data_misaligned_x;
@@ -611,7 +673,7 @@ module cpu_top #(
                 csr_read_data_x = 32'h40000100;
             end
             12'h304: begin
-                csr_known_x = (TIMER_IRQ_ENABLED != 0);
+                csr_known_x = (MACHINE_IRQ_ENABLED != 0);
                 csr_read_data_x = csr_mie;
             end
             12'h305: csr_read_data_x = csr_mtvec;
@@ -620,9 +682,10 @@ module cpu_top #(
             12'h342: csr_read_data_x = csr_mcause;
             12'h343: csr_read_data_x = csr_mtval;
             12'h344: begin
-                csr_known_x = (TIMER_IRQ_ENABLED != 0);
-                csr_read_data_x = timer_mtip ? 32'h00000080 : 32'd0;
-                // Hardware-owned MTIP. CSR writes are legal but ignored.
+                csr_known_x = (MACHINE_IRQ_ENABLED != 0);
+                csr_read_data_x = csr_mip_value;
+                // MEIP/MSIP/MTIP are owned by their source devices. CSR writes
+                // remain legal and ignored; MSIP changes through its MMIO word.
             end
             12'hf11, 12'hf12, 12'hf13, 12'hf14, 12'hf15: begin
                 csr_read_data_x = 32'd0;
@@ -737,8 +800,8 @@ module cpu_top #(
     assign fetch_exception = (ENABLE_TRAPS != 0) && rst_n && imem_fault &&
                               !dmem_fault && !mem_active && !valid_x;
     assign sync_trap_event = data_exception || ex_exception_x || fetch_exception;
-    assign irq_pending = (TIMER_IRQ_ENABLED != 0) && timer_mtip &&
-                          csr_mie[7] && csr_mstatus[3];
+    assign irq_pending = (MACHINE_IRQ_ENABLED != 0) &&
+                         (|irq_enabled_pending) && csr_mstatus[3];
     // Once a memory descriptor has started, even an unaccepted request or
     // held response must drain. Its STORE/MMIO effect is never replayed.
     // Only recognized synchronous exceptions outrank this interrupt. A raw
@@ -755,7 +818,7 @@ module cpu_top #(
                               ex_exception_x ? ex_exception_cause_x :
                               fetch_exception ?
                                   ((imem_fault_pc[1:0] != 2'b00) ? 32'd0 : 32'd1) :
-                              32'h80000007;
+                              irq_selected_cause;
     assign trap_event_tval = data_exception ? mem_addr_q :
                              ex_exception_x ? ex_exception_tval_x :
                              fetch_exception ? imem_fault_pc : 32'd0;
@@ -816,7 +879,7 @@ module cpu_top #(
                 case (csr_addr_x)
                     12'h300: csr_mstatus <= 32'h00001800 |
                                            (csr_write_data_x & 32'h00000088);
-                    12'h304: csr_mie <= csr_write_data_x & 32'h00000080;
+                    12'h304: csr_mie <= csr_write_data_x & MIE_WRITABLE_MASK;
                     // Only direct mtvec and IALIGN=32 addresses are WARL.
                     12'h305: csr_mtvec <= {csr_write_data_x[31:2], 2'b00};
                     12'h340: csr_mscratch <= csr_write_data_x;
@@ -925,8 +988,11 @@ module cpu_top #(
      *   0x2000_002c/0030/0034: output SET/CLEAR/TOGGLE, write-only
      *   0x2000_0040/0044: optional mtime low/high, read/write
      *   0x2000_0048/004c: optional mtimecmp low/high, read/write
+     *   0x2000_0050: optional machine software interrupt word; bit 0 is MSIP
      * GPIO registers accept aligned LW/SW only.
      * Timer registers accept aligned LW/SW only when TIMER_IRQ_ENABLED.
+     * MSIP accepts aligned LW/SW only when SOFTWARE_IRQ_ENABLED; bits 31:1
+     * always read zero and ignore written data. Subword accesses have no effect.
      */
     assign mmio_region_x =
         (mem_addr_x[31:16] == 16'h2000);
@@ -948,7 +1014,8 @@ module cpu_top #(
     // needs the low word because elapsed time is computed by subtraction.
     assign mmio_load_ok_x =
         (mmio_counter_addr_x || mmio_uart_status_addr_x ||
-         uart_rx_read_hit_x || gpio_read_hit_x || timer_read_hit_x || bp_mmio_read_hit_x) &&
+         uart_rx_read_hit_x || gpio_read_hit_x || timer_read_hit_x ||
+         mmio_msip_read_hit_x || bp_mmio_read_hit_x) &&
         (mem_size_x == 2'd2) &&
         (mem_addr_x[1:0] == 2'b00);
 
@@ -959,7 +1026,11 @@ module cpu_top #(
         uart_rx_read_hit_x  ? uart_rx_read_data_x :
         gpio_read_hit_x     ? gpio_read_data_x :
         timer_read_hit_x    ? timer_read_data_x :
+        mmio_msip_read_hit_x ? {31'd0, software_msip} :
         bp_mmio_read_hit_x  ? bp_mmio_read_data_x : 32'd0;
+
+    assign mmio_msip_read_hit_x = (SOFTWARE_IRQ_ENABLED != 0) &&
+        (mem_addr_x == MMIO_MSIP_ADDR);
 
     // Opt-in, aligned LW-only diagnostic registers. Stores are rejected by
     // the existing MMIO legality path; the disabled core keeps them unmapped.
@@ -994,8 +1065,12 @@ module cpu_top #(
     assign mmio_timer_store_ok_x = timer_write_hit_x &&
         (mem_size_x == 2'd2) && (mem_addr_x[1:0] == 2'b00);
 
+    assign mmio_msip_store_ok_x = mmio_msip_read_hit_x &&
+        (mem_size_x == 2'd2) && (mem_addr_x[1:0] == 2'b00);
+
     assign mmio_store_ok_x = mmio_putchar_addr_ok_x ||
-        mmio_gpio_store_ok_x || mmio_uart_rx_store_ok_x || mmio_timer_store_ok_x;
+        mmio_gpio_store_ok_x || mmio_uart_rx_store_ok_x || mmio_timer_store_ok_x ||
+        mmio_msip_store_ok_x;
 
     // Peripheral side effects occur ONCE, at request acceptance, even when
     // the CPU remains stalled waiting for a delayed completion response.
@@ -1012,6 +1087,9 @@ module cpu_top #(
 
     assign mmio_timer_write_x = mem_req_fire && mem_req_write &&
         mem_req_mmio && mmio_timer_store_ok_x;
+
+    assign mmio_msip_write_x = mem_req_fire && mem_req_write &&
+        mem_req_mmio && mmio_msip_store_ok_x;
 
     // Capture the pre-pop head in load_mmio_data_q on the issue edge.
     // A held LOAD has load_pending=1 on the next edge and cannot pop again.
@@ -1401,4 +1479,14 @@ module cpu_top #(
         end
     end
 
+    // synthesis translate_off
+    initial begin
+        if ((ENABLE_EXTERNAL_IRQ != 0 && ENABLE_EXTERNAL_IRQ != 1) ||
+            (ENABLE_SOFTWARE_IRQ != 0 && ENABLE_SOFTWARE_IRQ != 1))
+            $fatal(1, "cpu_top machine interrupt switches must be zero or one");
+        if ((ENABLE_EXTERNAL_IRQ != 0 || ENABLE_SOFTWARE_IRQ != 0) &&
+            ENABLE_TRAPS != 1)
+            $fatal(1, "cpu_top external/software interrupts require ENABLE_TRAPS=1");
+    end
+    // synthesis translate_on
 endmodule

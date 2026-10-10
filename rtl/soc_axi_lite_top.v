@@ -20,7 +20,8 @@ module soc_axi_lite_top #(
     parameter integer ENABLE_ICACHE = 0,
     parameter integer ICACHE_SETS = 64, ICACHE_LINE_WORDS = 4,
     parameter integer ENABLE_DCACHE = 0, DCACHE_SETS = 64, DCACHE_LINE_WORDS = 4,
-    parameter integer ENABLE_BRANCH_PRED = 0, BTB_ENTRIES = 64
+    parameter integer ENABLE_BRANCH_PRED = 0, BTB_ENTRIES = 64,
+    parameter integer ENABLE_EXTERNAL_IRQ = 0, ENABLE_SOFTWARE_IRQ = 0
 ) (
     input  wire        clk,
     input  wire        rst_n,
@@ -71,7 +72,8 @@ module soc_axi_lite_top #(
     output wire [31:0] dcache_refill_word_count,dcache_error_count,dcache_write_count,dcache_bypass_count,
     output wire [31:0] bp_lookup_count,bp_hit_count,bp_taken_count,
     output wire [31:0] bp_resolved_count,bp_mispredict_count,
-    output wire [31:0] bp_direction_error_count,bp_target_error_count
+    output wire [31:0] bp_direction_error_count,bp_target_error_count,
+    input wire irq_external
 );
     wire imem_req_valid, imem_req_ready;
     wire [31:0] imem_req_addr;
@@ -94,6 +96,7 @@ module soc_axi_lite_top #(
         .EXTERNAL_IMEM(1), .EXTERNAL_DMEM(1),
         .ENABLE_TRAPS(ENABLE_TRAPS),
         .ENABLE_TIMER_IRQ(ENABLE_TIMER_IRQ),
+        .ENABLE_EXTERNAL_IRQ(ENABLE_EXTERNAL_IRQ), .ENABLE_SOFTWARE_IRQ(ENABLE_SOFTWARE_IRQ),
         .ENABLE_BRANCH_PRED(ENABLE_BRANCH_PRED), .BTB_ENTRIES(BTB_ENTRIES),
         // These still control the existing local MMIO endpoint.
         .DMEM_REQ_WAIT_CYCLES(MMIO_REQ_WAIT_CYCLES),
@@ -121,7 +124,8 @@ module soc_axi_lite_top #(
         .bp_taken_count(bp_taken_count), .bp_resolved_count(bp_resolved_count),
         .bp_mispredict_count(bp_mispredict_count),
         .bp_direction_error_count(bp_direction_error_count),
-        .bp_target_error_count(bp_target_error_count)
+        .bp_target_error_count(bp_target_error_count),
+        .irq_external(irq_external)
     );
     wire rom_req_valid, rom_req_ready, rom_rsp_valid, rom_rsp_ready, rom_rsp_error;
     wire [31:0] rom_req_addr, rom_rsp_rdata;
