@@ -3,6 +3,8 @@
 // Future self-check only: this testbench has not been compiled or simulated.
 module axi_lite_coremark_stats_case #(
     parameter integer CACHE_ENABLE = 1,
+    parameter integer BP_ENABLE = 0,
+    parameter integer BTB_ENTRIES = 64,
     parameter integer I_SETS = 32,
     parameter integer D_SETS = 64
 ) (
@@ -12,14 +14,16 @@ module axi_lite_coremark_stats_case #(
     localparam [31:0] BASE = 32'h30000000;
     localparam [31:0] SNAP_ID = 32'h434d4158;
     localparam [31:0] FLAGS = CACHE_ENABLE ? 32'd3 : 32'd0;
+    localparam [31:0] BP_CONFIG = (BTB_ENTRIES << 16) | BP_ENABLE;
     localparam [31:0] I_GEOMETRY = (32'd2 << 24) | (I_SETS << 16) | 32'd16;
     localparam [31:0] D_GEOMETRY = (32'd2 << 24) | (D_SETS << 16) | 32'd16;
 
     reg rst_n = 0;
-    // The register order is the documented 16-word START/STOP bank layout.
-    reg [31:0] live [0:15];
-    reg [31:0] expected_start [0:15];
-    reg [31:0] expected_stop [0:15];
+    // Original 16 words retain their addresses. Seven BP words use the new
+    // START c0..d8 / STOP e0..f8 ranges, captured by the same trigger edge.
+    reg [31:0] live [0:22];
+    reg [31:0] expected_start [0:22];
+    reg [31:0] expected_stop [0:22];
     reg [31:0] awaddr = 0, wdata = 0, araddr = 0;
     reg [3:0] wstrb = 0;
     reg awvalid = 0, wvalid = 0, bready = 0, arvalid = 0, rready = 0;
@@ -30,6 +34,7 @@ module axi_lite_coremark_stats_case #(
 
     axi_lite_coremark_stats #(
         .ENABLE_ICACHE(CACHE_ENABLE), .ENABLE_DCACHE(CACHE_ENABLE),
+        .ENABLE_BRANCH_PRED(BP_ENABLE), .BTB_ENTRIES(BTB_ENTRIES),
         .ICACHE_SETS(I_SETS), .DCACHE_SETS(D_SETS)
     ) dut (
         .clk(clk), .rst_n(rst_n),
@@ -41,6 +46,10 @@ module axi_lite_coremark_stats_case #(
         .dcache_miss_count(live[11]), .dcache_refill_word_count(live[12]),
         .dcache_error_count(live[13]), .dcache_write_count(live[14]),
         .dcache_bypass_count(live[15]),
+        .bp_lookup_count(live[16]), .bp_hit_count(live[17]),
+        .bp_taken_count(live[18]), .bp_resolved_count(live[19]),
+        .bp_mispredict_count(live[20]), .bp_direction_error_count(live[21]),
+        .bp_target_error_count(live[22]),
         .s_axi_awaddr(awaddr), .s_axi_awprot(3'd0),
         .s_axi_awvalid(awvalid), .s_axi_awready(awready),
         .s_axi_wdata(wdata), .s_axi_wstrb(wstrb),
@@ -55,7 +64,7 @@ module axi_lite_coremark_stats_case #(
     task set_live(input [31:0] seed);
         integer i;
         begin
-            for (i = 0; i < 16; i = i + 1)
+            for (i = 0; i < 23; i = i + 1)
                 live[i] = seed + i * 32'h01020304;
         end
     endtask
@@ -63,7 +72,7 @@ module axi_lite_coremark_stats_case #(
     task advance_live;
         integer i;
         begin
-            for (i = 0; i < 16; i = i + 1)
+            for (i = 0; i < 23; i = i + 1)
                 live[i] = live[i] + 32'h00100001 + i;
         end
     endtask
@@ -71,9 +80,11 @@ module axi_lite_coremark_stats_case #(
     task remember_bank(input integer stop_bank);
         integer i;
         begin
-            for (i = 0; i < 16; i = i + 1) begin
-                if (stop_bank) expected_stop[i] = live[i];
-                else expected_start[i] = live[i];
+            for (i = 0; i < 23; i = i + 1) begin
+                // Nonzero synthetic BP inputs intentionally remain live when
+                // disabled: the device itself must gate its snapshot banks.
+                if (stop_bank) expected_stop[i] = (i >= 16 && !BP_ENABLE) ? 0 : live[i];
+                else expected_start[i] = (i >= 16 && !BP_ENABLE) ? 0 : live[i];
             end
         end
     endtask
@@ -81,8 +92,8 @@ module axi_lite_coremark_stats_case #(
     task check_response(input [31:0] value, input [1:0] response);
         begin
             if (!rvalid || rdata !== value || rresp !== response)
-                $fatal(1, "CoreMark stats cache=%0d AR=%h data=%h expected=%h resp=%b expected=%b",
-                       CACHE_ENABLE, araddr, rdata, value, rresp, response);
+                $fatal(1, "CoreMark stats cache=%0d BP=%0d AR=%h data=%h expected=%h resp=%b expected=%b",
+                       CACHE_ENABLE, BP_ENABLE, araddr, rdata, value, rresp, response);
         end
     endtask
 
@@ -125,6 +136,9 @@ module axi_lite_coremark_stats_case #(
         begin
             for (i = 0; i < 16; i = i + 1)
                 read_word((stop_bank ? 32'h80 : 32'h40) + i * 4,
+                          stop_bank ? expected_stop[i] : expected_start[i], 2'b00);
+            for (i = 16; i < 23; i = i + 1)
+                read_word((stop_bank ? 32'he0 : 32'hc0) + (i - 16) * 4,
                           stop_bank ? expected_stop[i] : expected_start[i], 2'b00);
         end
     endtask
@@ -283,7 +297,7 @@ module axi_lite_coremark_stats_case #(
     task clear_expected_banks;
         integer i;
         begin
-            for (i = 0; i < 16; i = i + 1) begin
+            for (i = 0; i < 23; i = i + 1) begin
                 expected_start[i] = 0;
                 expected_stop[i] = 0;
             end
@@ -298,6 +312,8 @@ module axi_lite_coremark_stats_case #(
         read_word(8, FLAGS, 0);
         read_word(12, I_GEOMETRY, 0);
         read_word(16, D_GEOMETRY, 0);
+        read_word(20, BP_CONFIG, 0);
+        read_word(24, 32'd2, 0);
         read_bank(0);
         read_bank(1);
 
@@ -317,12 +333,20 @@ module axi_lite_coremark_stats_case #(
         read_word(1, 0, 2'b10);
         read_word(5, 0, 2'b10);
         read_word(9, 0, 2'b10);
-        read_word(32'h14, 0, 2'b10);
+        read_word(32'h15, 0, 2'b10);
+        read_word(32'h19, 0, 2'b10);
+        read_word(32'h1c, 0, 2'b10);
         read_word(32'h3c, 0, 2'b10);
         read_word(32'h41, 0, 2'b10);
         read_word(32'h7e, 0, 2'b10);
         read_word(32'hbe, 0, 2'b10);
-        read_word(32'hc0, 0, 2'b10);
+        read_word(32'hc1, 0, 2'b10);
+        read_word(32'hd9, 0, 2'b10);
+        read_word(32'hdc, 0, 2'b10);
+        read_word(32'he1, 0, 2'b10);
+        read_word(32'hf9, 0, 2'b10);
+        read_word(32'hfc, 0, 2'b10);
+        read_word(32'h100, 0, 2'b10);
         read_word(32'hfffffffc, 0, 2'b10);
         read_bank(0);
         read_bank(1);
@@ -333,12 +357,18 @@ module axi_lite_coremark_stats_case #(
         write_error(8, 2);
         write_error(12, 0);
         write_error(16, 1);
+        write_error(20, 2);
+        write_error(24, 0);
         for (k = 0; k < 16; k = k + 1) begin
             write_error(32'h40 + k * 4, k % 3);
             write_error(32'h80 + k * 4, (k + 1) % 3);
         end
+        for (k = 0; k < 7; k = k + 1) begin
+            write_error(32'hc0 + k * 4, k % 3);
+            write_error(32'he0 + k * 4, (k + 1) % 3);
+        end
         write_error(1, 2);
-        write_error(32'h14, 0);
+        write_error(32'h1c, 0);
         write_error(32'hfffffffc, 1);
         read_bank(0);
         read_bank(1);
@@ -365,6 +395,8 @@ module axi_lite_coremark_stats_case #(
         read_word(8, FLAGS, 0);
         read_word(12, I_GEOMETRY, 0);
         read_word(16, D_GEOMETRY, 0);
+        read_word(20, BP_CONFIG, 0);
+        read_word(24, 32'd2, 0);
         send_w;
         repeat (3) @(negedge clk);
         if (bvalid) $fatal(1, "CoreMark stats retained pre-reset AW");
@@ -387,15 +419,15 @@ module axi_lite_coremark_stats_case #(
         read_bank(1);
 
         done = 1;
-        $display("COREMARK AXI STATS CASE PASS cache=%0d: independent banks, 64-bit counters, all 12 Cache fields, flags/geometry, AXI backpressure/errors/reset",
-                 CACHE_ENABLE);
+        $display("COREMARK AXI STATS CASE PASS cache=%0d BP=%0d: same-edge 23-field snapshots, disabled BP gating, schema/config, AXI backpressure/errors/reset",
+                 CACHE_ENABLE, BP_ENABLE);
     end
 endmodule
 
 module axi_lite_coremark_stats_tb;
     reg clk = 0;
     reg test_pass = 0;
-    wire off_done, on_done;
+    wire off_done, on_done, btb_done;
     always #5 clk = ~clk;
     axi_lite_coremark_stats_case #(
         .CACHE_ENABLE(0), .I_SETS(64), .D_SETS(128)
@@ -403,8 +435,11 @@ module axi_lite_coremark_stats_tb;
     axi_lite_coremark_stats_case #(
         .CACHE_ENABLE(1), .I_SETS(32), .D_SETS(64)
     ) cache_on (.clk(clk), .done(on_done));
+    axi_lite_coremark_stats_case #(
+        .CACHE_ENABLE(1), .BP_ENABLE(1), .BTB_ENTRIES(64), .I_SETS(64), .D_SETS(32)
+    ) cache_on_btb (.clk(clk), .done(btb_done));
     initial begin
-        wait (off_done && on_done);
+        wait (off_done && on_done && btb_done);
         test_pass = 1;
         $display("COREMARK AXI STATS TESTS PASS");
         $stop;

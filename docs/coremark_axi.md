@@ -1,63 +1,53 @@
-# AXI SoC 的 CoreMark：Cache 关闭／开启对照
+# AXI CoreMark：基线、双 Cache、双 Cache＋BTB 对照
 
-本入口用于在同一 AXI SoC 上对比 Cache 关闭和 I/D Cache 同时开启的效果。新增代码于 2026-10-08 整理；根据用户本轮“暂时不验证”的要求，未执行固件编译、ModelSim 仿真、PDS 综合及时序检查、实物上板或成绩测量。本文中的命令供后续验证使用，文中的 PASS 和位流路径均为预期，不表示已经完成验证。
+**代码更新：2026-10-10；验证待完成。** 本轮将 BTB 接入独立 AXI CoreMark 平台，准备三个配置的固件构建、PDS 绑定、统计接口和未来自检入口。按用户“暂时不验证”的安排，未执行 GCC、ModelSim、PDS、上板或成绩测量。下列命令供以后恢复验证时使用，PASS 和位流路径均为预期。
 
-原有 `build_coremark.bat`、CoreMark 移植层、无 Cache 顶层及 `programs/coremark_performance*`、`programs/coremark_validation*` 保留原样。原先上板得到的 **52.574739 CoreMark、1.051494774 CoreMark/MHz（50 MHz）** 仍为内部 RAM 版本的历史基线。新版本使用 AXI RAM，不能将它与历史基线之间的差异全部归因于 Cache。
+原有 `build_coremark.bat`、内部 RAM 移植层及历史镜像保持原样。原先的 **52.574739 CoreMark、1.051494774 CoreMark/MHz（50 MHz）** 属于内部 RAM 无 Cache 版本。新版本使用 AXI RAM，分析 Cache 与 BTB 效果应在下面三个配置之间比较。
 
-## 对照配置
+## 三个配置
 
-| 项目 | Cache 关闭 | Cache 开启 |
-| --- | --- | --- |
-| 构建选项 | `--cache off` | `--cache on` |
-| PDS variant | `coremark_axi_off` | `coremark_axi_on` |
-| SoC 与存储器 | 同一 AXI SoC、ROM 32 KiB、RAM 16 KiB | 同左 |
-| ROM / RAM 地址 | `0x00000000` / `0x00010000` | 同左 |
-| 人工 RAM 等待参数 | 0 | 0 |
-| 正式时钟 / 串口 | 50 MHz / 115200、8N1 | 同左 |
-| I Cache / D Cache | 均关闭 | 均为 2 KiB、2 路、64 组、16 字节行、LRU |
-| D Cache 写策略 | 经 AXI 写 RAM | 写穿透、不在写缺失时分配缓存行 |
-| MMIO | 旁路 | 旁路，不缓存外设寄存器 |
-| 编译配置 | RV32I、ILP32、`-O2`，沿用原 CoreMark 基础选项 | 同左 |
+| 项目 | AXI 基线 | 双 Cache | 双 Cache＋BTB |
+| --- | --- | --- | --- |
+| 固件选项 | `--cache off --btb off` | `--cache on --btb off` | `--cache on --btb on` |
+| PDS variant | `coremark_axi_off` | `coremark_axi_on` | `coremark_axi_btb` |
+| 固件名字前缀 | `coremark_axi_cache_off_` | `coremark_axi_cache_on_` | `coremark_axi_cache_on_btb_` |
+| I/D Cache | 均关闭 | 均开启 | 均开启 |
+| 动态分支预测 | 关闭 | 关闭 | 64 项 BTB、条件分支 2 位计数器，预测 JAL |
+| BTB 配置寄存器 | `0x00400000` | `0x00400000` | `0x00400001` |
 
-人工等待参数为 0 仍存在 AXI 握手和同步存储器访问周期。两个版本采用相同的总线与 RAM 配置。上游 CoreMark 算法源文件保持原样。
+共同条件为 50 MHz 核心时钟、32 KiB ROM、16 KiB AXI RAM、核心与存储时钟 1:1、全部人工等待参数为 0、RV32I／ILP32／`-O2`、上游 CoreMark 算法不修改。ROM 为 `0x00000000`～`0x00007fff`，RAM 为 `0x00010000`～`0x00013fff`。人工等待为 0 仍有实际 AXI 握手与同步存储器延迟。
 
-## 独立构建入口
+I/D Cache 均为 2 KiB、2 路、64 组、16 字节行、LRU。D Cache 写穿透、写缺失不分配；RAM 范围之外旁路，外设不缓存。预测器只训练条件分支和 JAL，JALR 继续在 EX 解析。详见 [Cache 说明](dcache.md) 和 [BTB 说明](btb.md)。
 
-在工程根目录使用 `build_coremark_axi.bat`，它调用 `tools/build_coremark_axi_images.py`。
+## 固件构建入口
 
-支持的参数为：
+保留原有 `build_coremark_axi.bat`，新增 `build_coremark_compare.bat`，一次解析公共参数后串行构建三个配置。仅提交源代码不会生成固件。
 
-- `--cache off|on|both`：`both` 串行构建关闭和开启两个版本。
 - `--profile performance|validation|smoke|smoke-validation|formal-short`。
-- `--iterations N`：正式版本的 0 表示自动校准；正整数指定迭代次数。短功能测试应使用正整数。
-- `--cross PREFIX`：可选的 RISC-V 工具链前缀，包含末尾的 `-`。
+- `--iterations N`：正式模式默认 0，自动校准；正整数指定迭代次数。短模式默认 1，不能指定 0。
+- `--cross PREFIX`：可选工具链前缀，包含末尾的 `-`。
+- 原入口继续支持 `--cache off|on|both`，默认 `both`；新增 `--btb off|on`，默认 `off`。
+- `--btb on` 要求明确指定 `--cache on`，拒绝 `off` 和 `both`。
+- 对照入口等价于 `build_coremark_axi.bat --compare all`，不能同时传 `--cache` 或 `--btb`，避免改变三组配置。
 
-输出名字自动生成为 `axi_cache_<off或on>_<profile>`，其中 profile 的连字符替换为下划线。新入口不提供 `--name`，避免复用或覆盖历史镜像的名字。
-
-例如 performance 的输出为：
+输出使用独立名字。以 performance 为例：
 
 ```text
 programs/coremark_axi_cache_off_performance.hex
-programs/coremark_axi_cache_off_performance_data.hex
-programs/coremark_axi_cache_off_performance_config.vh
-build/coremark/axi_cache_off_performance/
-
 programs/coremark_axi_cache_on_performance.hex
-programs/coremark_axi_cache_on_performance_data.hex
-programs/coremark_axi_cache_on_performance_config.vh
-build/coremark/axi_cache_on_performance/
+programs/coremark_axi_cache_on_btb_performance.hex
 ```
 
-每个目录保存对应固件的构建报告和产物；仅保存或提交本次源代码不会生成这些镜像。
+每个名字还有配套 `_data.hex`、`_config.vh`；ELF、MAP、反汇编和构建报告保存在 `build/coremark/axi_cache_<配置>_<profile>/`。新增 BTB 名字不会覆盖原 off/on 名字或内部 RAM 历史镜像。
 
-## 后续短仿真
+## 恢复验证后的短仿真
 
-先在 Git Bash 构建两个 Cache 配置和两组种子的短镜像：
+先回归预测器关闭时的 CPU、握手、异常、中断和双 Cache 功能，再执行 BTB 定向自检。随后在 Git Bash 准备六个短镜像：
 
 ```bash
 cd /d/FPGA/riscv_3stage
-cmd.exe //c build_coremark_axi.bat --cache both --profile smoke
-cmd.exe //c build_coremark_axi.bat --cache both --profile smoke-validation
+cmd.exe //c build_coremark_compare.bat --profile smoke
+cmd.exe //c build_coremark_compare.bat --profile smoke-validation
 ```
 
 然后在 ModelSim Transcript 执行：
@@ -67,76 +57,68 @@ cd D:/FPGA/riscv_3stage
 do run_coremark_axi.do
 ```
 
-该入口先运行统计模块的独立自检，再覆盖四种固件组合：Cache off/on，各运行 performance 和 validation 种子的短测试。统计自检检查开始／结束银行、64 位计数采样、Cache 字段、硬件配置、总线背压、只读错误和复位。短测试用于检查功能、CRC、报告字段和统计接口，不能作为正式 CoreMark 成绩。`formal-short` 用于检查正式模式对过短运行的拒绝，不是可上板报告成绩的正式固件。
+脚本先检查镜像、报告与源码的匹配，再运行统计模块自检和三个配置×两组种子的六种短组合。未来检查范围包括 CRC、真实 mtime 计时、退休计数、Cache／BP 冻结银行、软硬件配置一致性、AXI 背压、只读错误与复位。预测关闭时 BP 银行读零；预测开启时检查实际预测活动。自检源码已准备，本轮未运行。
 
-短固件使用 50 MHz 核心时钟和 5 Mbps 的仿真串口，以缩短日志输出的仿真时间；正式上板固件仍使用 115200 波特率。上游算法会提示短运行不足 10 秒，这属于 smoke 的预期提示；须结合 CRC 和最终 `SMOKE PASS` 判断功能，不能引用短运行速度作为正式成绩。
+短镜像使用 50 MHz／5 Mbps 仿真串口，正式镜像使用 50 MHz／115200、8N1。`SMOKE PASS` 只表示短功能检查，不能作为正式分数。`formal-short` 用于检查不足 10 秒的正式运行被拒绝，不属于可报告成绩的固件。
 
-## 后续正式固件
+## 正式构建与 PDS
 
-在 Git Bash 分别构建四个版本：
+恢复验证后，在 Git Bash 构建三个 performance 和三个 validation 固件：
 
 ```bash
 cd /d/FPGA/riscv_3stage
-cmd.exe //c build_coremark_axi.bat --cache off --profile performance
-cmd.exe //c build_coremark_axi.bat --cache on --profile performance
-cmd.exe //c build_coremark_axi.bat --cache off --profile validation
-cmd.exe //c build_coremark_axi.bat --cache on --profile validation
+cmd.exe //c build_coremark_compare.bat --profile performance
+cmd.exe //c build_coremark_compare.bat --profile validation
 ```
 
-performance 和 validation 默认自动校准迭代次数。比较正式速度时，两种 Cache 配置的自动迭代次数可以不同。若还要按相同工作量比较计数，使用相同的 `--iterations N` 重新构建两个对应版本，并确保两者正式测量时间均达到 10 秒。
-
-## 后续 PDS 构建与上板
-
-固件构建成功后，再分别生成四个位流：
+固件成功构建后，分别生成匹配位流：
 
 ```bash
-cd /d/FPGA/riscv_3stage
 cmd.exe //c build_pds_board.bat --variant coremark_axi_off --firmware coremark_axi_cache_off_performance --stage bitstream
 cmd.exe //c build_pds_board.bat --variant coremark_axi_on --firmware coremark_axi_cache_on_performance --stage bitstream
+cmd.exe //c build_pds_board.bat --variant coremark_axi_btb --firmware coremark_axi_cache_on_btb_performance --stage bitstream
 cmd.exe //c build_pds_board.bat --variant coremark_axi_off --firmware coremark_axi_cache_off_validation --stage bitstream
 cmd.exe //c build_pds_board.bat --variant coremark_axi_on --firmware coremark_axi_cache_on_validation --stage bitstream
+cmd.exe //c build_pds_board.bat --variant coremark_axi_btb --firmware coremark_axi_cache_on_btb_validation --stage bitstream
 ```
 
-PDS 目录互相独立：
+目录按固件名隔离；位流的预期路径为 `build/pds_<固件名>/generate_bitstream/board_top.sbit`。例如新增 performance 的路径为 `build/pds_coremark_axi_cache_on_btb_performance/generate_bitstream/board_top.sbit`。
 
-| 固件 | 成功完成后预期的位流路径 |
+构建守卫核对报告、源码与镜像哈希、Cache／BTB 开关、64 项 BTB、统计 schema 2、时钟／波特率和等待参数。PDS 固定绑定各配置，不允许把 BTB 镜像配给预测关闭的硬件，也不允许混用短镜像。修改过的统计接口要求重新构建配套 off/on 固件；旧报告或旧镜像不能直接沿用。
+
+通过功能与时序检查后，由用户在 PDS 手动下载匹配位流。SSCOM 使用 115200、8N1，保存完整日志。各配置仍须满足 CRC、正式测量至少 10 秒等条件，最终才应输出 `COREMARK RESULT: FORMAL PASS`。本轮没有生成新位流或通过记录。
+
+## 原子统计与计时边界
+
+START 触发读取在 mtime 开始前，STOP 在 mtime 结束后。两次触发在各自 AXI AR 握手边沿同时冻结 64 位周期／退休指令计数、12 项 Cache 计数和 7 项 BP 计数。固件在计时结束后读取银行并打印，避免逐个读取活动计数带来的采样偏差。
+
+**统计窗口含边界开销，与正式 mtime 窗口不完全重合。** CPI 为统计窗口周期差／退休指令差，供辅助分析；正式分数仍按原有 mtime 耗时计算。周期和退休指令为 64 位，Cache／BP 为 32 位。窗口周期差达到 `2^32` 时，32 位差值标记无效，避免多次回绕；不能因此直接否定已通过时间／CRC 检查的 CoreMark 分数。
+
+自动校准会预热 Cache、训练预测器。日志明确报告 `cache_state` 和 `predictor_state`；当前不实现每轮清空 Cache／BTB 的冷启动测量。固定迭代次数也不在 START 清空硬件状态。
+
+统计设备基址 `0x30000000`，只读；写入、未映射或未对齐读取返回 AXI `SLVERR`。
+
+| 偏移 | 内容 |
 | --- | --- |
-| off / performance | `build/pds_coremark_axi_cache_off_performance/generate_bitstream/board_top.sbit` |
-| on / performance | `build/pds_coremark_axi_cache_on_performance/generate_bitstream/board_top.sbit` |
-| off / validation | `build/pds_coremark_axi_cache_off_validation/generate_bitstream/board_top.sbit` |
-| on / validation | `build/pds_coremark_axi_cache_on_validation/generate_bitstream/board_top.sbit` |
+| `0x00` | 冻结全部 START 字段，返回 ID `0x434d4158` |
+| `0x04` | 冻结全部 STOP 字段，返回同一 ID |
+| `0x08` | bit0 I Cache、bit1 D Cache；off 为 0、on 为 3 |
+| `0x0c`／`0x10` | I/D Cache 几何 `0x02400010` |
+| `0x14` | 高 16 位 BTB 项数，bit0 预测器开关；关闭仍报告表容量 64 |
+| `0x18` | 统计接口版本，当前为 2 |
+| `0x40`～`0x7c` | 原 START 周期／退休／Cache 银行，16 字 |
+| `0x80`～`0xbc` | 原 STOP 周期／退休／Cache 银行，16 字 |
+| `0xc0`～`0xd8` | BP START 银行，7 字 |
+| `0xe0`～`0xf8` | BP STOP 银行，7 字 |
 
-构建守卫核对固件配置、构建报告、源文件和镜像哈希，并核对 Cache 开关与目标 variant。将 on 固件用于 off variant、使用仿真时钟镜像或使用过期镜像，都应被拒绝。最终位流还须通过 PDS 时序检查；本轮没有运行这些检查。
+原 16 字顺序保持：周期低／高、退休指令低／高、I Cache 访问／命中／缺失／填充字／错误、D Cache 访问／命中／缺失／填充字／错误／写入／旁路。BP 两银行顺序均为 lookup、hit、predicted taken、resolved、next-PC mismatch、direction error、target error。新的 START 不覆盖 STOP；后续银行读取只返回已冻结的值。
 
-后续由用户在 PDS 中手动下载相应位流，SSCOM 使用 115200、8N1 接收日志。每个版本应完整输出运行参数、CRC、耗时、速度、平台和 Cache 配置。满足正式运行时间及 CRC 等检查后，预期结束行为为 `COREMARK RESULT: FORMAL PASS`。接收窗口的分包不会改变日志内容，保存日志时应保留完整字段。
+串口新增 `branch_pred_enable`、`btb_entries`、`btb_config` 和七项 `bp_*` 差值。`bp_lookup` 统计接受且当时未标记 stale 的取指请求，可能包含随后被冲刷的请求；`bp_resolved` 只含正常完成的条件分支与 JAL；`bp_next_pc_mismatch` 则含所有正常完成指令的下一 PC 恢复，包括 JALR。**不能把 next-PC mismatch／resolved 称为分支预测错误率，也不能把 hit／lookup 称为方向预测准确率。**
 
-## Cache 计数、CPI 和计时边界
+D Cache 访问数包含写入和旁路；读取命中率使用 hit／(hit＋miss)。填充可能跨窗口边界，不能要求差值严格满足“填充字数＝缺失数×4”。
 
-统计接口使用两组采样银行，保存开始和结束时的 I/D Cache 计数，以及 64 位周期数、退休指令数。固件在 `start_time` 的 mtime 计时开始前触发开始采样，在 `stop_time` 的 mtime 计时结束后触发结束采样；统计读取和串口打印在测量结束后进行。
+## 比较与记录
 
-两次采样的差值可用于观察命中、缺失、填充、写入、旁路和错误情况。CPI 由统计窗口中的周期差与退休指令差计算。**统计窗口包含边界采样开销，与 mtime 的正式测量窗口不完全重合**，不能将这些计数描述为严格的正式计时区间计数。CoreMark 速度仍由 mtime 耗时计算。
+每组记录绑定固件名、构建报告、PDS manifest、位流和完整串口日志。三个配置都完成对应 validation 后，再比较 performance 的 CoreMark/MHz：AXI 基线→双 Cache 看 Cache 效果；双 Cache→双 Cache＋BTB 看预测器效果。
 
-Cache 计数器为 32 位，周期数和退休指令数为 64 位。若统计窗口周期差达到 `2^32`，Cache 差值会标记为无效，避免对多次回绕作错误解释；该标记本身不否定通过时间、CRC 等检查的正式 CoreMark 分数。周期差或退休指令差不满足计算条件时，不应报告有效 CPI。
-
-自动校准会提前运行算法，因此正式运行通常已有热 Cache。当前报告应注明这一点；没有实施每轮清空 Cache 的冷启动测量。
-
-专用统计设备的基地址为 `0x30000000`，所有寄存器只读，写入及无效／未对齐读取返回 AXI `SLVERR`。
-
-| 偏移 | 含义 |
-| --- | --- |
-| `0x00` | 读取时冻结 START 银行，并返回设备 ID `0x434d4158` |
-| `0x04` | 读取时冻结 STOP 银行，并返回同一 ID |
-| `0x08` | 实际硬件开关：bit0 为 I Cache，bit1 为 D Cache；off 为 0，on 为 3 |
-| `0x0c`／`0x10` | I／D Cache 几何配置：默认 `0x02400010`，分别编码 2 路、64 组、16 字节行 |
-| `0x40`～`0x7c` | START 银行，共 16 个 32 位字 |
-| `0x80`～`0xbc` | STOP 银行，共 16 个 32 位字 |
-
-两银行顺序均为：周期数低／高 32 位、退休指令数低／高 32 位、I Cache 的访问／命中／缺失／填充字／错误、D Cache 的访问／命中／缺失／填充字／错误／写入／旁路。触发读取在 AXI AR 握手时同时采样所有字段；后续读取只返回冻结值。两银行独立，新的 START 不覆盖上一次 STOP。
-
-D Cache 的访问数包含写请求和旁路请求。若自行计算 RAM 读取命中率，使用 `hit / (hit + miss)`，不要把写入和旁路放入读取命中率分母。填充可能跨过窗口边界，不能要求窗口差值严格满足“填充字数 = 缺失数 × 4”。
-
-## 如何记录结果
-
-后续验证时，每份记录应绑定固件输出名字、构建报告、PDS 清单、对应位流和完整串口日志。保留两个正式 performance 结果，确认对应 validation 均通过，再比较 Cache off/on 的 CoreMark/MHz；同时记录实际迭代次数和统计有效性。
-
-固件构建或位流生成不能代替实物测量。当前新增版本的功能、仿真、时序、实物状态和正式成绩均待验证，暂不填写成绩或 PASS 记录。
+自动校准允许实际迭代次数不同。比较相同工作量下的计数时，可对三个配置传相同 `--iterations N`，并确保所有正式运行均达到 10 秒；同时记录每次工作量、统计有效性、资源与时序。性能是否提高要由测量决定，当前没有新增分数。

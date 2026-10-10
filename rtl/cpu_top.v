@@ -74,7 +74,11 @@ module cpu_top #(
     output reg         trap_valid,
     output reg  [31:0] trap_pc,
     output reg  [31:0] trap_cause,
-    output reg  [31:0] trap_tval
+    output reg  [31:0] trap_tval,
+    // Predictor observations retain their existing internal counter semantics.
+    output wire [31:0] bp_lookup_count, bp_hit_count, bp_taken_count,
+    output reg  [31:0] bp_resolved_count, bp_mispredict_count,
+    output reg  [31:0] bp_direction_error_count, bp_target_error_count
 );
 
     localparam [31:0] MMIO_CYCLE_ADDR   = 32'h2000_0000;
@@ -326,9 +330,6 @@ module cpu_top #(
     wire [31:0] actual_next_pc_x;
     wire        bp_resolve_valid, bp_predictable_x, bp_actual_taken_x;
     wire        bp_next_mismatch_x, bp_direction_error_x, bp_target_error_x;
-    wire [31:0] bp_lookup_count, bp_hit_count, bp_taken_count;
-    reg [31:0]  bp_resolved_count, bp_mispredict_count;
-    reg [31:0]  bp_direction_error_count, bp_target_error_count;
     wire        bp_mmio_read_hit_x;
     reg [31:0]  bp_mmio_read_data_x;
 

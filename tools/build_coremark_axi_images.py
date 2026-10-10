@@ -1,4 +1,4 @@
-"""Prepare independent CoreMark firmware for identical AXI SoCs with Cache off/on.
+"""Prepare independent CoreMark firmware for AXI Cache and BTB comparisons.
 
 This entry never replaces the existing internal-memory CoreMark images and never
 programs hardware. A successful firmware build does not establish a score.
@@ -19,6 +19,7 @@ if legacy.ROOT != ROOT:
 ROM_WORDS, RAM_WORDS, MIN_STACK_BYTES = (
     legacy.ROM_WORDS, legacy.RAM_WORDS, legacy.MIN_STACK_BYTES)
 STATS_BASE, STATS_ID, CACHE_GEOMETRY = 0x30000000, 0x434D4158, 0x02400010
+STATS_SCHEMA, BTB_ENTRIES = 2, 64
 AXI_RAM_WAITS = {name: 0 for name in ("aw", "w", "ar", "b", "r")}
 PROFILES = {
     "performance": (115200, 0, True, "performance"),
@@ -34,20 +35,24 @@ COMPILE_SOURCES = tuple(
 AXI_SYMBOL_MACROS = {
     "coremark_axi_stats_valid": "COREMARK_AXI_STATS_VALID_ADDR",
     "coremark_axi_mode_seen": "COREMARK_AXI_MODE_SEEN_ADDR",
+    "coremark_axi_btb_mode_seen": "COREMARK_AXI_BTB_MODE_SEEN_ADDR",
     "coremark_axi_platform_failed": "COREMARK_AXI_PLATFORM_FAILED_ADDR",
     "coremark_axi_cycle_delta": "COREMARK_AXI_CYCLE_DELTA_ADDR",
     "coremark_axi_instret_delta": "COREMARK_AXI_INSTRET_DELTA_ADDR",
     "coremark_axi_icache_delta": "COREMARK_AXI_ICACHE_DELTA_ADDR",
     "coremark_axi_dcache_delta": "COREMARK_AXI_DCACHE_DELTA_ADDR",
+    "coremark_axi_btb_delta": "COREMARK_AXI_BTB_DELTA_ADDR",
 }
 AXI_SYMBOL_BYTES = {
     "coremark_axi_stats_valid": 4, "coremark_axi_mode_seen": 4,
+    "coremark_axi_btb_mode_seen": 4,
     "coremark_axi_platform_failed": 4,
     "coremark_axi_cycle_delta": 8, "coremark_axi_instret_delta": 8,
     "coremark_axi_icache_delta": 20, "coremark_axi_dcache_delta": 28,
+    "coremark_axi_btb_delta": 28,
 }
 HARDWARE_SOURCES = tuple("rtl/" + name for name in (
-    "instr_mem.v", "instr_bus_adapter.v", "if_stage.v", "regfile.v",
+    "instr_mem.v", "instr_bus_adapter.v", "branch_predictor.v", "if_stage.v", "regfile.v",
     "decoder.v", "alu.v", "data_mem.v", "data_bus_adapter.v", "uart_tx.v",
     "uart_rx.v", "uart_rx_fifo.v", "uart_rx_mmio.v", "gpio_mmio.v",
     "machine_timer.v", "cpu_top.v", "board_reset.v", "soc_instr_mem.v",
@@ -69,27 +74,47 @@ INPUT_SOURCES = tuple(sorted(set(COMPILE_SOURCES + HARDWARE_SOURCES + (
 @dataclass(frozen=True)
 class BuildConfig(legacy.BuildConfig):
     cache_mode: str
+    btb_mode: str = "off"
+
+
+def output_name(cache_mode, btb_mode, profile):
+    return ("axi_cache_" + cache_mode + ("_btb" if btb_mode == "on" else "") +
+            "_" + profile.replace("-", "_"))
+
+
+def bp_config(config):
+    return (BTB_ENTRIES << 16) | int(config.btb_mode == "on")
 
 
 def parse_args(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
     parser.add_argument("--cache", choices=("off", "on", "both"), default="both")
+    parser.add_argument("--btb", choices=("off", "on"), default="off",
+                        help="BTB on requires --cache on; the original Cache comparison defaults to BTB off")
+    parser.add_argument("--compare", choices=("all",),
+                        help="Build Cache off/BTB off, Cache on/BTB off and Cache on/BTB on with identical run options")
     parser.add_argument("--profile", choices=PROFILES, default="performance")
     parser.add_argument("--iterations", type=int,
                         help="0 selects formal automatic calibration; otherwise 1..2147483647")
     parser.add_argument("--cross", help="RISC-V executable prefix, including its final dash")
-    args = parser.parse_args(argv)
+    tokens = list(sys.argv[1:] if argv is None else argv)
+    args = parser.parse_args(tokens)
+    if args.compare and any(token.split("=", 1)[0] in {"--cache", "--btb"} for token in tokens):
+        parser.error("--compare all owns all three configurations; omit --cache and --btb")
+    if not args.compare and args.btb == "on" and args.cache != "on":
+        parser.error("--btb on requires --cache on")
     baud, iterations, formal, seeds = PROFILES[args.profile]
     iterations = iterations if args.iterations is None else args.iterations
     if not 0 <= iterations <= 0x7fffffff:
         parser.error("--iterations must fit the nonnegative signed 32-bit seed4")
     if iterations == 0 and not formal:
         parser.error("--iterations=0 is only allowed for formal profiles")
-    modes = ("off", "on") if args.cache == "both" else (args.cache,)
+    modes = (("off", "off"), ("on", "off"), ("on", "on")) if args.compare else tuple(
+        (mode, args.btb) for mode in (("off", "on") if args.cache == "both" else (args.cache,)))
     configs = [BuildConfig(
         args.profile, 50000000, baud, iterations, formal, seeds,
-        "axi_cache_" + mode + "_" + args.profile.replace("-", "_"), mode)
-        for mode in modes]
+        output_name(cache_mode, btb_mode, args.profile), cache_mode, btb_mode)
+        for cache_mode, btb_mode in modes]
     return configs, args.cross
 
 
@@ -108,7 +133,7 @@ def source_hashes(root=ROOT):
 
 
 def platform_name(config):
-    return "axi-cache-" + config.cache_mode
+    return "axi-cache-" + config.cache_mode + ("-btb" if config.btb_mode == "on" else "")
 
 
 def memory_location(config):
@@ -117,6 +142,7 @@ def memory_location(config):
              if config.cache_mode == "on" else "I-cache disabled; D-cache disabled")
     return ("Static; ROM 32 KiB @0x00000000 via request/response; "
             "RAM 16 KiB @0x00010000 via AXI4-Lite; " + cache +
+            ("; BTB 64 entries, 2-bit direction counters" if config.btb_mode == "on" else "; BTB disabled") +
             "; AXI AW/W/AR/B/R waits=0/0/0/0/0; core:memory clock=1:1")
 
 
@@ -133,6 +159,10 @@ def write_config_header(config, build_dir, version, cflags, ldflags):
              "#define COREMARK_PLATFORM_NAME " + json.dumps(platform_name(config)),
              f"#define COREMARK_ENABLE_ICACHE {enabled}",
              f"#define COREMARK_ENABLE_DCACHE {enabled}",
+             f"#define COREMARK_ENABLE_BRANCH_PRED {int(config.btb_mode == 'on')}",
+             f"#define COREMARK_BTB_ENTRIES {BTB_ENTRIES}",
+             f"#define COREMARK_AXI_BP_CONFIG 0x{bp_config(config):08x}u",
+             f"#define COREMARK_AXI_STATS_SCHEMA {STATS_SCHEMA}",
              f"#define COREMARK_AXI_STATS_BASE 0x{STATS_BASE:08x}u",
              f"#define COREMARK_AXI_STATS_ID 0x{STATS_ID:08x}u",
              f"#define COREMARK_AXI_CACHE_GEOMETRY 0x{CACHE_GEOMETRY:08x}u",
@@ -152,6 +182,10 @@ def write_verilog_config(config, symbols):
     lines = [text,
              f'`define COREMARK_PLATFORM "{platform_name(config)}"\n',
              f"`define COREMARK_CACHE_FLAGS 32'd{3 if enabled else 0}\n",
+             f"`define COREMARK_ENABLE_BRANCH_PRED {int(config.btb_mode == 'on')}\n",
+             f"`define COREMARK_BTB_ENTRIES {BTB_ENTRIES}\n",
+             f"`define COREMARK_AXI_BP_CONFIG 32'h{bp_config(config):08x}\n",
+             f"`define COREMARK_AXI_STATS_SCHEMA 32'd{STATS_SCHEMA}\n",
              f"`define COREMARK_AXI_STATS_BASE 32'h{STATS_BASE:08x}\n",
              f"`define COREMARK_AXI_STATS_ID 32'h{STATS_ID:08x}\n",
              f"`define COREMARK_AXI_CACHE_GEOMETRY 32'h{CACHE_GEOMETRY:08x}\n"]
@@ -164,7 +198,9 @@ def write_verilog_config(config, symbols):
 def build(config, cross=None):
     if config.cache_mode not in ("off", "on"):
         raise RuntimeError("One firmware build requires cache_mode off or on")
-    expected_name = "axi_cache_" + config.cache_mode + "_" + config.profile.replace("-", "_")
+    if config.btb_mode not in ("off", "on") or (config.btb_mode == "on" and config.cache_mode != "on"):
+        raise RuntimeError("BTB on is supported only by the Cache on comparison platform")
+    expected_name = output_name(config.cache_mode, config.btb_mode, config.profile)
     if config.profile not in PROFILES or config.name != expected_name or config.clock_hz != 50000000:
         raise RuntimeError("CoreMark AXI output name/profile/clock violates the fixed comparison contract")
     expected_baud, _, expected_formal, expected_seeds = PROFILES[config.profile]
@@ -262,13 +298,19 @@ def build(config, cross=None):
             "cache": bool(enabled), "core_memory_clock_ratio": "1:1", "timer_source": "64-bit mtime",
             "platform": platform_name(config), "cache_mode": config.cache_mode,
             "enable_icache": enabled, "enable_dcache": enabled,
+            "enable_branch_pred": int(config.btb_mode == "on"), "btb_entries": BTB_ENTRIES,
+            "btb_mode": config.btb_mode, "stats_schema": STATS_SCHEMA,
+            "bp_config": f"0x{bp_config(config):08x}",
+            "btb_direction_counter_bits": 2,
+            "btb_counter_bits": 32, "btb_snapshot_words_per_bank": 7,
+            "btb_start_bank_offset": "0xc0", "btb_stop_bank_offset": "0xe0",
             "external_imem": 1, "external_dmem": 1,
             "axi_ram_waits": dict(AXI_RAM_WAITS),
             "stats_base": f"0x{STATS_BASE:08x}", "stats_id": f"0x{STATS_ID:08x}",
             "stats_geometry": f"0x{CACHE_GEOMETRY:08x}",
             "cache_policy": "write-through,no-write-allocate",
             "counter_window": "start-before-mtime,stop-after-mtime",
-            "counter_snapshot_source": "64-bit CPU cycle_count/instret_count; 32-bit I/D counters",
+            "counter_snapshot_source": "64-bit CPU cycle_count/instret_count; 32-bit I/D/BTB counters frozen by the same START/STOP read",
             "text_bytes": len(binaries["text"]), "data_bytes": len(binaries["data"]),
             "bss_bytes": symbols["__bss_end"] - symbols["__bss_start"],
             "stack_headroom_bytes": headroom, "minimum_stack_headroom_bytes": MIN_STACK_BYTES,
@@ -293,7 +335,7 @@ def main(argv=None):
     configs, cross = parse_args(argv)
     for config in configs:
         report = build(config, cross)
-        print(f"CoreMark AXI Cache {config.cache_mode}, {config.profile}: "
+        print(f"CoreMark AXI Cache {config.cache_mode}, BTB {config.btb_mode}, {config.profile}: "
               f"{report['text_bytes']} text bytes, {report['data_bytes']} data bytes, "
               f"{report['stack_headroom_bytes']} stack headroom")
         print(f"{config.clock_hz} Hz / UART {config.uart_baud}; "

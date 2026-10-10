@@ -4,12 +4,23 @@
 /* Generated metadata must describe the actual dedicated AXI hardware. */
 #if !defined(COREMARK_PLATFORM_NAME) || !defined(COREMARK_ENABLE_ICACHE) || \
     !defined(COREMARK_ENABLE_DCACHE) || !defined(COREMARK_AXI_STATS_BASE) || \
-    !defined(COREMARK_AXI_STATS_ID) || !defined(COREMARK_AXI_CACHE_GEOMETRY)
+    !defined(COREMARK_AXI_STATS_ID) || !defined(COREMARK_AXI_CACHE_GEOMETRY) || \
+    !defined(COREMARK_ENABLE_BRANCH_PRED) || !defined(COREMARK_BTB_ENTRIES) || \
+    !defined(COREMARK_AXI_BP_CONFIG) || !defined(COREMARK_AXI_STATS_SCHEMA)
 #error "Use build_coremark_axi.bat for the dedicated AXI CoreMark port"
 #endif
 #if (COREMARK_ENABLE_ICACHE != 0 && COREMARK_ENABLE_ICACHE != 1) || \
     (COREMARK_ENABLE_DCACHE != 0 && COREMARK_ENABLE_DCACHE != 1)
 #error "Cache switches must be zero or one"
+#endif
+#if (COREMARK_ENABLE_BRANCH_PRED != 0 && COREMARK_ENABLE_BRANCH_PRED != 1) || \
+    COREMARK_BTB_ENTRIES < 1 || COREMARK_BTB_ENTRIES > 1024 || \
+    (COREMARK_BTB_ENTRIES & (COREMARK_BTB_ENTRIES - 1)) != 0
+#error "Invalid branch predictor configuration"
+#endif
+#if COREMARK_AXI_STATS_SCHEMA != 2 || \
+    COREMARK_AXI_BP_CONFIG != ((COREMARK_BTB_ENTRIES << 16) | COREMARK_ENABLE_BRANCH_PRED)
+#error "CoreMark requires statistics schema 2 and matching BTB configuration"
 #endif
 
 #define COREMARK_AXI_EXPECTED_FLAGS \
@@ -17,6 +28,9 @@
 #define COREMARK_AXI_START_BANK 0x40u
 #define COREMARK_AXI_STOP_BANK  0x80u
 #define COREMARK_AXI_BANK_WORDS 16u
+#define COREMARK_AXI_BP_START_BANK 0xc0u
+#define COREMARK_AXI_BP_STOP_BANK  0xe0u
+#define COREMARK_AXI_BP_BANK_WORDS 7u
 
 static ee_u32 coremark_axi_read(ee_u32 offset)
 {

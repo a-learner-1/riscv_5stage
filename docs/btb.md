@@ -16,8 +16,8 @@
 - 非 4 字节对齐的 PC 或目标不用于预测；实际异常判断继续由现有 CPU 逻辑完成。
 - 未命中或预测不跳转时，下一取指地址为 `PC + 4`。
 
-CPU、取指阶段和 AXI SoC 的 `ENABLE_BRANCH_PRED` 默认均为 `0`。新增 `btb_board_top` 显式打开预测器；已有板级配置和 AXI CoreMark 开关版本继续保持预测器关闭。
-本次不增加新的 CoreMark 预测器对照镜像，也不改变既有成绩标签。
+CPU、取指阶段和 AXI SoC 的 `ENABLE_BRANCH_PRED` 默认均为 `0`。`btb_board_top` 显式打开预测器；已有板级配置和 AXI CoreMark off/on 版本继续保持预测器关闭。
+2026-10-10 新增 `coremark_axi_btb` 三配置对照入口，开启双 Cache 和 64 项 BTB，采用独立镜像名。该入口也只准备代码，尚未构建镜像或测量成绩；原有成绩标签保持原样，见 [AXI CoreMark 说明](coremark_axi.md)。
 取指继续采用工程已有的只读 ROM 假设。同 PC 旧表项失效用于防御性恢复，并不提供自修改代码或 `FENCE.I` 的一致性支持。
 
 ## 预测与恢复
@@ -51,6 +51,8 @@ trap 和 MRET 的 redirect 优先级高于普通预测恢复；发生异常或�
 `next-PC mismatch / resolved` 不是分支预测错误率，因为两项计数覆盖的指令范围不同。
 hit/lookup 只表示 BTB tag 命中比例，也不是方向预测准确率。
 板级固件逐个读取这些寄存器，诊断快照不是原子采样，包含读取快照时执行的指令。
+
+AXI CoreMark 顶层另在 `0x30000000` 提供 schema 2 原子统计接口：读取 `+0`／`+4` 时同时冻结周期、退休、Cache 和七项 BP 字段；BP START 位于 `+0xc0`～`+0xd8`，STOP 位于 `+0xe0`～`+0xf8`。预测关闭时该专用 BP 银行返回零，配置 `+0x14` 为 `0x00400000`；开启为 `0x00400001`。这不改变上述 CPU 本地 MMIO 的关闭模式映射规则。
 
 ## 后续准备运行的入口
 
@@ -107,6 +109,6 @@ BTB BOARD PASS
 1. 先在预测器默认关闭条件下回归已有 CPU、分支、取指/数据握手、trap、timer IRQ 和双 Cache 测试，确认共用前端修改的兼容性。
 2. 再运行 BTB 单元与 CPU 定向测试；错误路径、请求背压和 STORE 一次性必须先检查。
 3. 构建独立 `btb_board` 固件，运行板级 RTL 仿真，再检查 PDS 资源、时序、网表和实物现象。
-4. 通过以上步骤后，再增加相同 Cache/存储/时钟配置的预测器 off/on CoreMark 对照，重新测量 CRC、时长和成绩。
+4. 通过以上步骤后，运行已准备的 AXI 基线／双 Cache／双 Cache＋BTB CoreMark 对照，重新测量 CRC、时长和成绩。先按 [AXI CoreMark 说明](coremark_axi.md) 构建短镜像并完成六种组合，再生成正式镜像与位流。
 
 单元测试、RTL、网表、PDS、实物、性能提升在本步骤全部标记为 **待验证**。

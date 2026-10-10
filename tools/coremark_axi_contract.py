@@ -16,7 +16,7 @@ REQUIRED_SOURCES = {
     "rtl/coremark_axi_board_top.v", "rtl/instr_cache.v", "rtl/data_cache.v",
     "rtl/cpu_top.v", "rtl/soc_axi_lite_top.v", "rtl/soc_instr_mem.v",
     "rtl/dmem_axi_lite_bridge.v", "rtl/axi_lite_ram.v", "rtl/axi_lite_1x2.v",
-    "rtl/instr_mem.v", "rtl/instr_bus_adapter.v", "rtl/if_stage.v",
+    "rtl/instr_mem.v", "rtl/instr_bus_adapter.v", "rtl/branch_predictor.v", "rtl/if_stage.v",
     "rtl/regfile.v", "rtl/decoder.v", "rtl/alu.v", "rtl/data_mem.v",
     "rtl/data_bus_adapter.v", "rtl/uart_tx.v", "rtl/uart_rx.v",
     "rtl/uart_rx_fifo.v", "rtl/uart_rx_mmio.v", "rtl/gpio_mmio.v",
@@ -49,12 +49,14 @@ def checked_hashes(root, mapping, required, label):
             raise RuntimeError("Stale AXI CoreMark " + label + ": " + name)
 
 
-def validate_coremark_axi_firmware(firmware, cache_mode, root=ROOT, simulation=False):
+def validate_coremark_axi_firmware(firmware, cache_mode, root=ROOT, simulation=False, btb_mode="off"):
     if cache_mode not in {"off", "on"}:
         raise RuntimeError("Select one AXI Cache mode: off or on")
-    prefix = "coremark_axi_cache_" + cache_mode + "_"
+    if btb_mode not in {"off", "on"} or (btb_mode == "on" and cache_mode != "on"):
+        raise RuntimeError("BTB on requires the Cache on AXI comparison platform")
+    prefix = "coremark_axi_cache_" + cache_mode + ("_btb" if btb_mode == "on" else "") + "_"
     if not firmware.startswith(prefix):
-        raise RuntimeError("AXI CoreMark firmware does not match the hardware Cache mode")
+        raise RuntimeError("AXI CoreMark firmware does not match the hardware Cache/BTB modes")
     profile = firmware[len(prefix):].replace("_", "-")
     allowed = {"smoke", "smoke-validation"} if simulation else {"performance", "validation"}
     if profile not in allowed:
@@ -63,16 +65,18 @@ def validate_coremark_axi_firmware(firmware, cache_mode, root=ROOT, simulation=F
     config = root / "programs" / (firmware + "_config.vh")
     report_path = root / "build/coremark" / name / "build_report.json"
     if not config.is_file() or not report_path.is_file():
-        raise RuntimeError("Run build_coremark_axi.bat --cache " + cache_mode + " --profile " + profile + " first")
+        raise RuntimeError("Run build_coremark_axi.bat --cache " + cache_mode + " --btb " + btb_mode + " --profile " + profile + " first")
     try:
         report = json.loads(report_path.read_text(encoding="utf-8"))
     except (UnicodeError, ValueError) as error:
         raise RuntimeError("Invalid AXI CoreMark build report") from error
     enabled = int(cache_mode == "on")
+    pred_enabled = int(btb_mode == "on")
+    predictor_config = (64 << 16) | pred_enabled
     seeds = "validation" if "validation" in profile else "performance"
     expected = {
         "profile": profile, "output_name": name, "cache_mode": cache_mode,
-        "platform": "axi-cache-" + cache_mode, "formal": not simulation,
+        "platform": "axi-cache-" + cache_mode + ("-btb" if pred_enabled else ""), "formal": not simulation,
         "clock_hz": 50000000, "tick_hz": 50000000,
         "uart_baud": 5000000 if simulation else 115200,
         "seed_profile": seeds, "rom_bytes": 32768, "ram_bytes": 16384,
@@ -81,6 +85,11 @@ def validate_coremark_axi_firmware(firmware, cache_mode, root=ROOT, simulation=F
         "timer_source": "64-bit mtime", "core_memory_clock_ratio": "1:1",
         "all_linked_text_checked_rv32i": True,
         "enable_icache": enabled, "enable_dcache": enabled,
+        "enable_branch_pred": pred_enabled, "btb_entries": 64, "btb_mode": btb_mode,
+        "stats_schema": 2, "bp_config": f"0x{predictor_config:08x}",
+        "btb_direction_counter_bits": 2, "btb_counter_bits": 32,
+        "btb_snapshot_words_per_bank": 7,
+        "btb_start_bank_offset": "0xc0", "btb_stop_bank_offset": "0xe0",
         "external_imem": 1, "external_dmem": 1,
         "stats_base": "0x30000000", "stats_id": "0x434d4158",
         "stats_geometry": "0x02400010",
@@ -98,6 +107,8 @@ def validate_coremark_axi_firmware(firmware, cache_mode, root=ROOT, simulation=F
         "COREMARK_TOTAL_DATA_SIZE": 2000,
         "COREMARK_AXI_STATS_BASE": 0x30000000, "COREMARK_AXI_STATS_ID": 0x434d4158,
         "COREMARK_AXI_CACHE_GEOMETRY": 0x02400010,
+        "COREMARK_ENABLE_BRANCH_PRED": pred_enabled, "COREMARK_BTB_ENTRIES": 64,
+        "COREMARK_AXI_BP_CONFIG": predictor_config, "COREMARK_AXI_STATS_SCHEMA": 2,
     }.items():
         if number(text, macro) != value:
             raise RuntimeError("AXI CoreMark firmware macro mismatch: " + macro)
@@ -125,9 +136,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--firmware", required=True)
     parser.add_argument("--cache", choices=["off", "on"], required=True)
+    parser.add_argument("--btb", choices=["off", "on"], default="off")
     parser.add_argument("--simulation", action="store_true")
     args = parser.parse_args()
-    _, report = validate_coremark_axi_firmware(args.firmware, args.cache, simulation=args.simulation)
+    _, report = validate_coremark_axi_firmware(args.firmware, args.cache,
+                                             simulation=args.simulation, btb_mode=args.btb)
     print("AXI CoreMark firmware metadata matched: " + str(report))
 
 

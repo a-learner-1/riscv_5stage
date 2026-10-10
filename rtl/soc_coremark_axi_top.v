@@ -1,5 +1,5 @@
-// Dedicated CoreMark comparison SoC: identical AXI ROM/RAM path with Cache off/on.
-// The independent statistics map has atomic START/STOP banks for I/D counters.
+// Dedicated CoreMark comparison SoC: identical AXI ROM/RAM path with Cache/BTB options.
+// Statistics schema 2 preserves I/D banks and adds simultaneous BP snapshot banks.
 module soc_coremark_axi_top #(
     parameter PROGRAM_FILE="programs/coremark_axi_cache_on_performance.hex",
     parameter DATA_FILE="programs/coremark_axi_cache_on_performance_data.hex",
@@ -7,6 +7,7 @@ module soc_coremark_axi_top #(
     parameter [31:0] DMEM_BASE_ADDR=32'h00010000, STATS_BASE_ADDR=32'h30000000,
     parameter integer ENABLE_ICACHE=1, ICACHE_SETS=64, ICACHE_LINE_WORDS=4,
     parameter integer ENABLE_DCACHE=1, DCACHE_SETS=64, DCACHE_LINE_WORDS=4,
+    parameter integer ENABLE_BRANCH_PRED=0, BTB_ENTRIES=64,
     parameter integer UART_CLOCK_HZ=50000000, UART_BAUD=115200, UART_RX_FIFO_DEPTH=16,
     parameter integer SIM_CONSOLE_ECHO=0,
     parameter integer IMEM_REQ_WAIT_CYCLES=0, IMEM_RSP_WAIT_CYCLES=0,
@@ -23,7 +24,10 @@ module soc_coremark_axi_top #(
     output wire trap_valid, output wire [31:0] trap_pc,trap_cause,trap_tval,
     output wire [31:0] icache_access_count,icache_hit_count,icache_miss_count,
     output wire [31:0] icache_refill_word_count,icache_error_count,
-    output wire [31:0] dcache_access_count,dcache_hit_count,dcache_miss_count,dcache_refill_word_count,dcache_error_count,dcache_write_count,dcache_bypass_count
+    output wire [31:0] dcache_access_count,dcache_hit_count,dcache_miss_count,dcache_refill_word_count,dcache_error_count,dcache_write_count,dcache_bypass_count,
+    output wire [31:0] bp_lookup_count,bp_hit_count,bp_taken_count,
+    output wire [31:0] bp_resolved_count,bp_mispredict_count,
+    output wire [31:0] bp_direction_error_count,bp_target_error_count
 );
     wire [31:0] axi_awaddr,axi_wdata,axi_araddr,axi_rdata;
     wire [2:0] axi_awprot,axi_arprot;
@@ -52,7 +56,8 @@ module soc_coremark_axi_top #(
         .MMIO_REQ_WAIT_CYCLES(MMIO_REQ_WAIT_CYCLES),.MMIO_RSP_WAIT_CYCLES(MMIO_RSP_WAIT_CYCLES),
         .ENABLE_TRAPS(1),.ENABLE_TIMER_IRQ(1),.ENABLE_ICACHE(ENABLE_ICACHE),
         .ICACHE_SETS(ICACHE_SETS),.ICACHE_LINE_WORDS(ICACHE_LINE_WORDS),
-        .ENABLE_DCACHE(ENABLE_DCACHE),.DCACHE_SETS(DCACHE_SETS),.DCACHE_LINE_WORDS(DCACHE_LINE_WORDS)
+        .ENABLE_DCACHE(ENABLE_DCACHE),.DCACHE_SETS(DCACHE_SETS),.DCACHE_LINE_WORDS(DCACHE_LINE_WORDS),
+        .ENABLE_BRANCH_PRED(ENABLE_BRANCH_PRED),.BTB_ENTRIES(BTB_ENTRIES)
     ) u_core (
         .clk(clk),.rst_n(rst_n),.uart_rx(uart_rx),.uart_tx(uart_tx),
         .gpio_in(gpio_in),.gpio_out(gpio_out),.gpio_oe(gpio_oe),
@@ -82,7 +87,12 @@ module soc_coremark_axi_top #(
         .trap_valid(trap_valid), .trap_pc(trap_pc), .trap_cause(trap_cause), .trap_tval(trap_tval),
         .icache_access_count(icache_access_count),.icache_hit_count(icache_hit_count),.icache_miss_count(icache_miss_count),
         .icache_refill_word_count(icache_refill_word_count),.icache_error_count(icache_error_count),
-        .dcache_access_count(dcache_access_count),.dcache_hit_count(dcache_hit_count),.dcache_miss_count(dcache_miss_count),.dcache_refill_word_count(dcache_refill_word_count),.dcache_error_count(dcache_error_count),.dcache_write_count(dcache_write_count),.dcache_bypass_count(dcache_bypass_count)
+        .dcache_access_count(dcache_access_count),.dcache_hit_count(dcache_hit_count),.dcache_miss_count(dcache_miss_count),.dcache_refill_word_count(dcache_refill_word_count),.dcache_error_count(dcache_error_count),.dcache_write_count(dcache_write_count),.dcache_bypass_count(dcache_bypass_count),
+        .bp_lookup_count(bp_lookup_count), .bp_hit_count(bp_hit_count),
+        .bp_taken_count(bp_taken_count), .bp_resolved_count(bp_resolved_count),
+        .bp_mispredict_count(bp_mispredict_count),
+        .bp_direction_error_count(bp_direction_error_count),
+        .bp_target_error_count(bp_target_error_count)
     );
     axi_lite_1x2 #(.M0_BASE_ADDR(DMEM_BASE_ADDR),.M0_SIZE_BYTES(DMEM_WORDS*4),
         .M1_BASE_ADDR(STATS_BASE_ADDR),.M1_SIZE_BYTES(32'h100)
@@ -171,6 +181,7 @@ module soc_coremark_axi_top #(
     );
     axi_lite_coremark_stats #(
         .BASE_ADDR(STATS_BASE_ADDR), .ENABLE_ICACHE(ENABLE_ICACHE), .ENABLE_DCACHE(ENABLE_DCACHE),
+        .ENABLE_BRANCH_PRED(ENABLE_BRANCH_PRED), .BTB_ENTRIES(BTB_ENTRIES),
         .ICACHE_SETS(ICACHE_SETS), .ICACHE_LINE_WORDS(ICACHE_LINE_WORDS),
         .DCACHE_SETS(DCACHE_SETS), .DCACHE_LINE_WORDS(DCACHE_LINE_WORDS)
     ) u_stats (.clk(clk),.rst_n(rst_n),
@@ -182,6 +193,11 @@ module soc_coremark_axi_top #(
         .dcache_miss_count(dcache_miss_count), .dcache_refill_word_count(dcache_refill_word_count),
         .dcache_error_count(dcache_error_count), .dcache_write_count(dcache_write_count),
         .dcache_bypass_count(dcache_bypass_count),
+        .bp_lookup_count(bp_lookup_count), .bp_hit_count(bp_hit_count),
+        .bp_taken_count(bp_taken_count), .bp_resolved_count(bp_resolved_count),
+        .bp_mispredict_count(bp_mispredict_count),
+        .bp_direction_error_count(bp_direction_error_count),
+        .bp_target_error_count(bp_target_error_count),
         .s_axi_awaddr(stats_awaddr),
         .s_axi_awprot(stats_awprot),
         .s_axi_awvalid(stats_awvalid),

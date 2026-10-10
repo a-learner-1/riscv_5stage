@@ -13,7 +13,10 @@ module coremark_axi_tb;
     wire [63:0] cycle_count, instret_count;
     wire [31:0] i_access, i_hit, i_miss, i_refill, i_error;
     wire [31:0] d_access, d_hit, d_miss, d_refill, d_error, d_write, d_bypass;
+    wire [31:0] bp_lookup, bp_hit, bp_taken, bp_resolved;
+    wire [31:0] bp_next_pc_mismatch, bp_direction_error, bp_target_error;
     localparam integer CACHE_ENABLED = (`COREMARK_CACHE_FLAGS == 3);
+    localparam integer BP_ENABLED = `COREMARK_ENABLE_BRANCH_PRED;
     localparam integer START_WORD = (`COREMARK_START_TICKS - 32'h10000) / 4;
     localparam integer STOP_WORD = (`COREMARK_STOP_TICKS - 32'h10000) / 4;
     localparam integer TOTAL_WORD = (`COREMARK_TOTAL_TICKS - 32'h10000) / 4;
@@ -26,6 +29,8 @@ module coremark_axi_tb;
     localparam integer INSTRET_DELTA_WORD = (`COREMARK_AXI_INSTRET_DELTA_ADDR - 32'h10000) / 4;
     localparam integer I_DELTA_WORD = (`COREMARK_AXI_ICACHE_DELTA_ADDR - 32'h10000) / 4;
     localparam integer D_DELTA_WORD = (`COREMARK_AXI_DCACHE_DELTA_ADDR - 32'h10000) / 4;
+    localparam integer BP_MODE_WORD = (`COREMARK_AXI_BTB_MODE_SEEN_ADDR - 32'h10000) / 4;
+    localparam integer BP_DELTA_WORD = (`COREMARK_AXI_BTB_DELTA_ADDR - 32'h10000) / 4;
 
     integer watchdog_cycles = 0, timer_phase = 0, snapshots = 0;
     integer k;
@@ -37,6 +42,7 @@ module coremark_axi_tb;
     reg [63:0] expected_cycle_delta, expected_instret_delta;
     reg [31:0] stored_i [0:4];
     reg [31:0] stored_d [0:6];
+    reg [31:0] stored_bp [0:6];
     reg tohost_pending = 0, completion_seen = 0;
     reg [31:0] pending_result = 0, completed_result = 0;
     string console = "";
@@ -46,6 +52,7 @@ module coremark_axi_tb;
         .PROGRAM_FILE(`COREMARK_ROM_FILE), .DATA_FILE(`COREMARK_RAM_FILE),
         .IMEM_WORDS(8192), .DMEM_WORDS(4096), .DMEM_BASE_ADDR(32'h10000),
         .ENABLE_ICACHE(CACHE_ENABLED), .ENABLE_DCACHE(CACHE_ENABLED),
+        .ENABLE_BRANCH_PRED(BP_ENABLED), .BTB_ENTRIES(`COREMARK_BTB_ENTRIES),
         .UART_CLOCK_HZ(`COREMARK_CLOCK_HZ), .UART_BAUD(`COREMARK_UART_BAUD),
         .SIM_CONSOLE_ECHO(0)
     ) dut (
@@ -60,7 +67,10 @@ module coremark_axi_tb;
         .icache_refill_word_count(i_refill), .icache_error_count(i_error),
         .dcache_access_count(d_access), .dcache_hit_count(d_hit), .dcache_miss_count(d_miss),
         .dcache_refill_word_count(d_refill), .dcache_error_count(d_error),
-        .dcache_write_count(d_write), .dcache_bypass_count(d_bypass)
+        .dcache_write_count(d_write), .dcache_bypass_count(d_bypass),
+        .bp_lookup_count(bp_lookup), .bp_hit_count(bp_hit), .bp_taken_count(bp_taken),
+        .bp_resolved_count(bp_resolved), .bp_mispredict_count(bp_next_pc_mismatch),
+        .bp_direction_error_count(bp_direction_error), .bp_target_error_count(bp_target_error)
     );
     always #(500000000.0 / `COREMARK_CLOCK_HZ) clk = ~clk;
 
@@ -159,6 +169,11 @@ module coremark_axi_tb;
             $fatal(1, "AXI HDL accepts only 50 MHz / 5 MHz UART one-iteration smoke fixtures");
         if (`COREMARK_CACHE_FLAGS != 0 && `COREMARK_CACHE_FLAGS != 3)
             $fatal(1, "AXI CoreMark smoke must select Cache flags 0 or 3");
+        if ((BP_ENABLED != 0 && BP_ENABLED != 1) ||
+            (BP_ENABLED && !CACHE_ENABLED) || `COREMARK_BTB_ENTRIES != 64 ||
+            `COREMARK_AXI_STATS_SCHEMA != 2 ||
+            `COREMARK_AXI_BP_CONFIG != (32'h00400000 | BP_ENABLED))
+            $fatal(1, "AXI CoreMark smoke requires schema 2 and the selected 64-entry BTB mode");
         repeat (3) @(negedge clk);
         rst_n = 1;
         while (!completion_seen) begin
@@ -189,7 +204,8 @@ module coremark_axi_tb;
             dut.u_ram.u_data_mem.mem[FAILED_WORD] !== 0 ||
             dut.u_ram.u_data_mem.mem[PLATFORM_FAILED_WORD] !== 0 ||
             dut.u_ram.u_data_mem.mem[VALID_WORD] !== 1 ||
-            dut.u_ram.u_data_mem.mem[MODE_WORD] !== `COREMARK_CACHE_FLAGS)
+            dut.u_ram.u_data_mem.mem[MODE_WORD] !== `COREMARK_CACHE_FLAGS ||
+            dut.u_ram.u_data_mem.mem[BP_MODE_WORD] !== `COREMARK_AXI_BP_CONFIG)
             $fatal(1, "AXI CoreMark firmware iteration/platform/statistics validation failed");
 
         stored_cycle_delta = ram_u64(CYCLE_DELTA_WORD);
@@ -214,6 +230,22 @@ module coremark_axi_tb;
             if (stored_d[k] !== dut.u_stats.stop_snapshot[9 + k] - dut.u_stats.start_snapshot[9 + k])
                 $fatal(1, "AXI CoreMark D Cache delta field %0d mismatch", k);
         end
+        for (k = 0; k < 7; k = k + 1) begin
+            stored_bp[k] = dut.u_ram.u_data_mem.mem[BP_DELTA_WORD + k];
+            if (stored_bp[k] !== dut.u_stats.bp_stop_snapshot[k] - dut.u_stats.bp_start_snapshot[k])
+                $fatal(1, "AXI CoreMark branch predictor delta field %0d mismatch", k);
+        end
+        if (BP_ENABLED) begin
+            if (stored_bp[0] == 0 || stored_bp[1] == 0 || stored_bp[2] == 0 || stored_bp[3] == 0)
+                $fatal(1, "AXI CoreMark enabled BTB did not exercise lookup/hit/taken/resolution");
+        end else begin
+            // The statistics device must gate disabled BP banks even if some
+            // internal diagnostic inputs continue changing without prediction.
+            for (k = 0; k < 7; k = k + 1)
+                if (stored_bp[k] !== 0 || dut.u_stats.bp_start_snapshot[k] !== 0 ||
+                    dut.u_stats.bp_stop_snapshot[k] !== 0)
+                    $fatal(1, "Disabled branch predictor statistics bank/delta is nonzero");
+        end
         if (stored_i[4] !== 0 || stored_d[4] !== 0 || i_error !== 0 || d_error !== 0)
             $fatal(1, "AXI CoreMark Cache error counter is nonzero");
         if (CACHE_ENABLED) begin
@@ -231,8 +263,11 @@ module coremark_axi_tb;
         end
 
         require_text("COREMARK RESULT: SMOKE PASS");
-        require_text(CACHE_ENABLED ? "COREMARK platform=axi-cache-on" : "COREMARK platform=axi-cache-off");
+        require_text($sformatf("COREMARK platform=%s\n", `COREMARK_PLATFORM));
         require_text($sformatf("COREMARK cache_enable=%0d", `COREMARK_CACHE_FLAGS));
+        require_text($sformatf("COREMARK branch_pred_enable=%0d\n", BP_ENABLED));
+        require_text("COREMARK btb_entries=64\n");
+        require_text($sformatf("COREMARK btb_config=%0d\n", `COREMARK_AXI_BP_CONFIG));
         require_text("COREMARK counter_valid=1");
         require_text($sformatf("COREMARK counter_cycles=%0d", stored_cycle_delta));
         require_text($sformatf("COREMARK counter_retired=%0d", stored_instret_delta));
@@ -265,6 +300,20 @@ module coremark_axi_tb;
             endcase
             require_text(expected);
         end
+        for (k = 0; k < 7; k = k + 1) begin
+            case (k)
+                0: expected = $sformatf("COREMARK bp_lookup=%0d\n", stored_bp[k]);
+                1: expected = $sformatf("COREMARK bp_hit=%0d\n", stored_bp[k]);
+                2: expected = $sformatf("COREMARK bp_predicted_taken=%0d\n", stored_bp[k]);
+                3: expected = $sformatf("COREMARK bp_resolved=%0d\n", stored_bp[k]);
+                // Next-PC recovery counts include ordinary instructions after
+                // stale predictions. They are not a branch miss-rate numerator.
+                4: expected = $sformatf("COREMARK bp_next_pc_mismatch=%0d\n", stored_bp[k]);
+                5: expected = $sformatf("COREMARK bp_direction_error=%0d\n", stored_bp[k]);
+                6: expected = $sformatf("COREMARK bp_target_error=%0d\n", stored_bp[k]);
+            endcase
+            require_text(expected);
+        end
         // Upstream explicitly warns that a one-iteration smoke run is too
         // short for a formal score; the reused port accepts only its CRCs.
         require_text("ERROR! Must execute for at least 10 secs");
@@ -275,8 +324,8 @@ module coremark_axi_tb;
             contains(console, "COREMARK RESULT: FORMAL"))
             $fatal(1, "AXI CoreMark smoke UART contained an error or a formal score claim");
         $display("%s", console);
-        $display("PASS: AXI CoreMark %s flags=%0d real C CRCs, successful CPU tohost, mtime and independent I/D statistics",
-                 `COREMARK_PROFILE, `COREMARK_CACHE_FLAGS);
+        $display("PASS: AXI CoreMark %s flags=%0d BP=%0d real C CRCs, successful CPU tohost, mtime and frozen I/D/BP statistics",
+                 `COREMARK_PROFILE, `COREMARK_CACHE_FLAGS, BP_ENABLED);
         test_pass = 1;
         $stop;
     end

@@ -14,14 +14,26 @@ ROOT = Path(__file__).resolve().parents[1]
 RTL = ["instr_mem.v", "instr_bus_adapter.v", "branch_predictor.v", "if_stage.v", "regfile.v", "decoder.v", "alu.v",
        "data_mem.v", "data_bus_adapter.v", "uart_tx.v", "uart_rx.v", "uart_rx_fifo.v", "uart_rx_mmio.v",
        "gpio_mmio.v", "machine_timer.v", "cpu_top.v", "board_reset.v"]
-COREMARK_AXI_VARIANTS = {"coremark_axi_off": "off", "coremark_axi_on": "on"}
+COREMARK_AXI_VARIANTS = {"coremark_axi_off": "off", "coremark_axi_on": "on",
+                         "coremark_axi_btb": "on"}
+
+
+def coremark_axi_btb_mode(variant):
+    return "on" if variant == "coremark_axi_btb" else "off"
+
+
+def coremark_axi_firmware_name(variant, profile):
+    return ("coremark_axi_cache_" + COREMARK_AXI_VARIANTS[variant] +
+            ("_btb" if coremark_axi_btb_mode(variant) == "on" else "") + "_" + profile)
+
+
 COREMARK_AXI_FIRMWARE = {
-    "coremark_axi_cache_" + mode + "_" + profile
-    for mode in ("off", "on") for profile in ("performance", "validation")
+    coremark_axi_firmware_name(variant, profile)
+    for variant in COREMARK_AXI_VARIANTS for profile in ("performance", "validation")
 }
 
 
-def bind_coremark_axi_board_parameters(top, cache_mode):
+def bind_coremark_axi_board_parameters(top, cache_mode, btb_mode="off"):
     """Fix the generated hardware to the verified firmware contract.
 
     The portable source keeps parameters for simulation. The synthesis copy
@@ -30,12 +42,15 @@ def bind_coremark_axi_board_parameters(top, cache_mode):
     """
     if cache_mode not in {"off", "on"}:
         raise RuntimeError("Unknown CoreMark AXI cache mode: " + str(cache_mode))
+    if btb_mode not in {"off", "on"} or (btb_mode == "on" and cache_mode != "on"):
+        raise RuntimeError("BTB on requires the Cache on AXI hardware platform")
     match = re.search(r"module board_top #\(\n(.*?)\n\) \(\n", top, re.S)
     if not match:
         raise RuntimeError("Unexpected CoreMark AXI board parameter declaration")
     parameters = match.group(1)
     expected = {
         "ENABLE_ICACHE": 1, "ENABLE_DCACHE": 1,
+        "ENABLE_BRANCH_PRED": 0, "BTB_ENTRIES": 64,
         "UART_CLOCK_HZ": 50000000, "UART_BAUD": 115200,
         "RESET_HOLD_CYCLES": 50000,
         "IMEM_REQ_WAIT_CYCLES": 0, "IMEM_RSP_WAIT_CYCLES": 0,
@@ -49,11 +64,12 @@ def bind_coremark_axi_board_parameters(top, cache_mode):
         if not value or int(value.group(1)) != default:
             raise RuntimeError("Unexpected CoreMark AXI board default: " + name)
     enable = 1 if cache_mode == "on" else 0
-    for name in ("ENABLE_ICACHE", "ENABLE_DCACHE"):
-        parameters, count = re.subn(r"(\b" + name + r"\s*=\s*)1\b",
-                                   lambda m: m.group(1) + str(enable), parameters)
+    for name, value in (("ENABLE_ICACHE", enable), ("ENABLE_DCACHE", enable),
+                        ("ENABLE_BRANCH_PRED", int(btb_mode == "on")), ("BTB_ENTRIES", 64)):
+        parameters, count = re.subn(r"(\b" + name + r"\s*=\s*)\d+\b",
+                                   lambda m: m.group(1) + str(value), parameters)
         if count != 1:
-            raise RuntimeError("Could not bind CoreMark AXI cache mode: " + name)
+            raise RuntimeError("Could not bind CoreMark AXI hardware parameter: " + name)
     # Original header declarations are comma-separated parameter groups.
     # Local declarations require semicolons between those groups.
     parameters = re.sub(r",\n(?=\s*parameter\b)", ";\n", parameters)
@@ -216,7 +232,7 @@ def main():
                         help="Isolate data/fetch handshake, SoC, AXI control, trap and timer IRQ board builds")
     args = parser.parse_args()
     if args.firmware is None:
-        args.firmware = ("coremark_axi_cache_" + COREMARK_AXI_VARIANTS[args.variant] + "_performance"
+        args.firmware = (coremark_axi_firmware_name(args.variant, "performance")
                          if args.variant in COREMARK_AXI_VARIANTS else
                          "coremark_performance" if args.variant == "coremark_board" else
                          args.variant if args.variant in {"axi_control_board", "trap_board", "timer_irq_board", "icache_board", "dcache_board", "btb_board"} else "board_demo")
@@ -226,10 +242,10 @@ def main():
     if (args.variant == "coremark_board") != (args.firmware in {"coremark_performance", "coremark_validation"}):
         parser.error("CoreMark firmware requires --variant coremark_board and a formal performance/validation image")
     if (args.variant in COREMARK_AXI_VARIANTS) != (args.firmware in COREMARK_AXI_FIRMWARE):
-        parser.error("CoreMark AXI firmware requires --variant coremark_axi_off/on and matching formal firmware")
-    if args.variant in COREMARK_AXI_VARIANTS and not args.firmware.startswith(
-            "coremark_axi_cache_" + COREMARK_AXI_VARIANTS[args.variant] + "_"):
-        parser.error("CoreMark AXI cache mode does not match the selected firmware")
+        parser.error("CoreMark AXI firmware requires --variant coremark_axi_off/on/btb and matching formal firmware")
+    if args.variant in COREMARK_AXI_VARIANTS and args.firmware not in {
+            coremark_axi_firmware_name(args.variant, profile) for profile in ("performance", "validation")}:
+        parser.error("CoreMark AXI Cache/BTB mode does not match the selected firmware")
     coremark_config = None
     coremark_report = None
     if args.variant == "coremark_board":
@@ -238,7 +254,8 @@ def main():
     if args.variant in COREMARK_AXI_VARIANTS:
         from coremark_axi_contract import validate_coremark_axi_firmware
         coremark_config, coremark_report = validate_coremark_axi_firmware(
-            args.firmware, COREMARK_AXI_VARIANTS[args.variant], root=ROOT)
+            args.firmware, COREMARK_AXI_VARIANTS[args.variant], root=ROOT,
+            btb_mode=coremark_axi_btb_mode(args.variant))
     timer_irq_report = (validate_timer_irq_board_firmware()
                         if args.variant == "timer_irq_board" else None)
     icache_report = validate_icache_board_firmware() if args.variant == "icache_board" else None
@@ -258,6 +275,7 @@ def main():
     for path, words in zip(images, [8192, 4096]):
         if not path.is_file():
             builder = ("build_coremark_axi.bat --cache " + COREMARK_AXI_VARIANTS[args.variant] +
+                       " --btb " + coremark_axi_btb_mode(args.variant) +
                        " --profile " + args.firmware.rsplit("_", 1)[1]
                        if args.variant in COREMARK_AXI_VARIANTS else
                        "build_coremark.bat --profile " + args.firmware.removeprefix("coremark_")
@@ -325,7 +343,8 @@ def main():
             raise RuntimeError("Unexpected " + top_name + " module declaration")
         top = top.replace(marker, "module board_top #(")
     if args.variant in COREMARK_AXI_VARIANTS:
-        top = bind_coremark_axi_board_parameters(top, COREMARK_AXI_VARIANTS[args.variant])
+        top = bind_coremark_axi_board_parameters(top, COREMARK_AXI_VARIANTS[args.variant],
+                                                 coremark_axi_btb_mode(args.variant))
     source_firmware = ("coremark_axi_cache_on_performance" if args.variant in COREMARK_AXI_VARIANTS else
                        "coremark_performance" if args.variant == "coremark_board" else
                        args.variant if args.variant in {"axi_control_board", "trap_board", "timer_irq_board", "icache_board", "dcache_board", "btb_board"} else "board_demo")
@@ -521,19 +540,28 @@ def main():
         })
     if args.variant in COREMARK_AXI_VARIANTS:
         enable = 1 if COREMARK_AXI_VARIANTS[args.variant] == "on" else 0
+        pred_enable = int(coremark_axi_btb_mode(args.variant) == "on")
         manifest.update({
-            "coremark_platform": "axi-cache-" + COREMARK_AXI_VARIANTS[args.variant],
+            "coremark_platform": "axi-cache-" + COREMARK_AXI_VARIANTS[args.variant] + ("-btb" if pred_enable else ""),
             "enable_timer_irq": 1, "software_irq_masked": True,
             "uart_baud": 115200, "timer_tick_hz": 50000000,
             "instruction_memory_bytes": 32768, "data_memory_bytes": 16384,
             "external_imem": 1, "external_dmem": 1,
             "enable_icache": enable, "enable_dcache": enable,
+            "enable_branch_pred": pred_enable, "btb_entries": 64,
+            "btb_mode": coremark_axi_btb_mode(args.variant), "stats_schema": 2,
+            "bp_config": f"0x{((64 << 16) | pred_enable):08x}",
+            "btb_direction_counter_bits": 2, "btb_counter_bits": 32,
+            "btb_snapshot_words_per_bank": 7,
+            "btb_start_bank_offset": "0xc0", "btb_stop_bank_offset": "0xe0",
+            "bp_config_offset": "0x14", "stats_schema_offset": "0x18",
             "icache_ways": 2, "icache_sets": 64, "icache_line_bytes": 16, "icache_bytes": 2048,
             "dcache_ways": 2, "dcache_sets": 64, "dcache_line_bytes": 16, "dcache_bytes": 2048,
             "dcache_policy": "write-through/no-write-allocate",
             "cacheable_ram_base": "0x00010000", "cacheable_ram_bytes": 16384,
             "cache_stats_base": "0x30000000", "cache_stats_id": "0x434d4158",
             "counter_window": "START-before-mtime;STOP-after-mtime;includes-boundary-overhead",
+            "btb_counter_window": "frozen with the existing I/D/CPU START/STOP snapshots",
             "cpu_counter_bits": 64, "cache_counter_bits": 32, "mtime_bits": 64,
             "counter_snapshot_words_per_bank": 16,
             "counter_start_trigger_offset": "0x00", "counter_stop_trigger_offset": "0x04",

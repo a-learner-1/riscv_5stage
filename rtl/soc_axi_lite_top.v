@@ -68,7 +68,10 @@ module soc_axi_lite_top #(
     output wire [31:0] icache_access_count, icache_hit_count, icache_miss_count,
     output wire [31:0] icache_refill_word_count, icache_error_count,
     output wire [31:0] dcache_access_count,dcache_hit_count,dcache_miss_count,
-    output wire [31:0] dcache_refill_word_count,dcache_error_count,dcache_write_count,dcache_bypass_count
+    output wire [31:0] dcache_refill_word_count,dcache_error_count,dcache_write_count,dcache_bypass_count,
+    output wire [31:0] bp_lookup_count,bp_hit_count,bp_taken_count,
+    output wire [31:0] bp_resolved_count,bp_mispredict_count,
+    output wire [31:0] bp_direction_error_count,bp_target_error_count
 );
     wire imem_req_valid, imem_req_ready;
     wire [31:0] imem_req_addr;
@@ -113,7 +116,12 @@ module soc_axi_lite_top #(
         .dmem_rsp_ready(dmem_rsp_ready), .dmem_rsp_rdata(dmem_rsp_rdata),
         .dmem_rsp_error(dmem_rsp_error), .dmem_fault(dmem_fault),
         .trap_valid(trap_valid), .trap_pc(trap_pc),
-        .trap_cause(trap_cause), .trap_tval(trap_tval)
+        .trap_cause(trap_cause), .trap_tval(trap_tval),
+        .bp_lookup_count(bp_lookup_count), .bp_hit_count(bp_hit_count),
+        .bp_taken_count(bp_taken_count), .bp_resolved_count(bp_resolved_count),
+        .bp_mispredict_count(bp_mispredict_count),
+        .bp_direction_error_count(bp_direction_error_count),
+        .bp_target_error_count(bp_target_error_count)
     );
     wire rom_req_valid, rom_req_ready, rom_rsp_valid, rom_rsp_ready, rom_rsp_error;
     wire [31:0] rom_req_addr, rom_rsp_rdata;
