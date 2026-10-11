@@ -2,7 +2,7 @@
 
 自研的 32 位 RISC-V 裸机处理器，采用 **IF → EX → WB** 三级流水线，使用 Verilog 实现 CPU、存储接口和基础外设，在紫光同创 MES50HP 开发板上验证。工程提供 GCC 固件构建、ModelSim 自动自检和 PDS 独立板级构建入口，可作为后续 CNN 加速器的控制处理器。
 
-**更新时间：2026-10-10。** CPU 基础功能、串口收发、AXI 控制、同步异常、定时器中断和两路指令 Cache 的独立板级自检已有验证记录。两路数据 Cache 的实物确认、BTB 与 AXI CoreMark 三配置对照测量仍待完成。本轮增加默认关闭的机器外部／软件中断、三源优先级和独立板级自检入口。按“暂时不验证”的安排，只准备代码，未编译、仿真、运行 PDS 或上板；共用 CPU 通路的兼容回归也待执行。下表通过记录属于相应历史版本。真实 CNN 联调仍待完成。
+**更新时间：2026-10-11。** CPU 基础功能、串口收发、AXI 控制、同步异常、定时器中断和两路指令 Cache 的独立板级自检已有验证记录。两路数据 Cache 的实物确认、BTB、机器外部／软件中断与 AXI CoreMark 三配置对照测量仍待完成。本轮新增统一回归入口、双击菜单、前置镜像检查和结果汇总。按“暂时不验证”的安排，只准备代码，未执行新入口、编译、仿真、PDS 或上板；共用 CPU 通路的兼容回归也待执行。下表通过记录属于相应历史版本。真实 CNN 联调仍待完成。
 
 ## 功能与验证状态
 
@@ -25,6 +25,7 @@
 | 动态分支预测／BTB | 已编写默认关闭的 64 项 BTB、2 位饱和方向计数器；预测条件分支与 JAL，EX 核对并恢复错误预测 | 新功能及关闭模式兼容性均待验证，见[说明](docs/btb.md) |
 | 更完整的异常／中断 | 最小 M 模式同步异常；定时器及新增外部／软件中断代码 | 新中断仍待验证；PLIC、向量入口、嵌套中断与 S/U 模式尚未实现 |
 | CNN／DDR／DMA | 已有 AXI4-Lite 控制接口基础 | 真实 CNN 联调、AXI4 突发传输、DDR／DMA 尚未实现 |
+| 统一回归入口 | 双击菜单、分组运行既有 ModelSim 自检、前置镜像检查及 JSON／中文 Markdown 汇总 | 代码准备，入口和结果判断逻辑均未执行，见[操作说明](docs/regression.md) |
 
 上述板级结果来自用户提供的串口记录、截图和现象确认，具体资源、时序与镜像哈希按各版本验证记录区分。构建脚本不会自动下载 FPGA；生成 manifest 中的 `hardware_verified=false` 表示构建器自身未执行实物验收。
 
@@ -105,6 +106,7 @@ CPU 保持 IF → EX → WB。EX 级执行译码、ALU 运算、分支判断和�
 | `tb/` | 模块、CPU、SoC、板级及综合网表自检平台 |
 | `tools/`、`build_*.bat` | 固件／镜像生成和 PDS 构建工具 |
 | `run_*.do` | ModelSim 一键自检入口 |
+| `run_regression.bat` | 统一回归双击菜单；可选择测试组、查看清单或生成未运行计划 |
 | `pds/` | 板卡引脚和时序约束 |
 | `docs/` | 操作、验证记录和历史说明 |
 | `build/` | 本机生成的 ELF、MAP、反汇编、日志、报告、波形和独立 PDS 工程；不纳入 Git |
@@ -270,6 +272,20 @@ cmd.exe //c build_pds_board.bat --variant btb_board --firmware btb_board --stage
 
 通用 CPU 的机器外部／软件中断开关默认关闭；独立 `machine_irq_board` 显式开启三类机器中断，使用 AXI 演示外设自动产生外部电平请求，软件 MSIP 和现有定时器产生另外两类请求。未来检查屏蔽挂起、外部→软件→定时器优先级、MRET 恢复和前台校验和，说明与构建命令见[机器中断说明](docs/machine_irq.md)。此演示外设用于自检，真实 CNN 完成通知仍需约定来源清除协议。
 
+## 统一回归入口（代码准备）
+
+双击 `run_regression.bat` 进入中文菜单，选择基础兼容、Cache、BTB、中断、CoreMark 或三源中断模拟板级组。实际选择运行后才启动 ModelSim；入口不会自动构建固件。缺少或过期的配套镜像显示 `BLOCKED` 并给出构建提示，未选和仅计划的测试保持 `NOT_RUN`。
+
+后续可在 Git Bash 查看清单或生成计划：
+
+```bash
+cd /d/FPGA/riscv_3stage
+cmd.exe //c run_regression.bat --list
+cmd.exe //c run_regression.bat --group all --plan
+```
+
+`--list`／`--plan` 不启动仿真或固件检查子进程；计划不能作为通过记录。恢复验证后再使用 `--group btb`、`--group irq,board` 或 `--group all` 实际运行；`all` 包括所有清单分组。独立日志与 JSON／中文汇总保存在 `build/regression/<run_id>/`。本轮未执行任何这些入口，详细范围、ModelSim 路径设置及 PASS 证据规则见[统一回归说明](docs/regression.md)。
+
 ## 常用仿真入口
 
 在 ModelSim 的仓库根目录执行 `do 脚本名`。根据本次修改选择受影响的自检；综合网表测试需要对应 PDS 生成文件。
@@ -297,7 +313,7 @@ cmd.exe //c build_pds_board.bat --variant btb_board --firmware btb_board --stage
 
 ## 后续开发与 CNN 协作
 
-三配置 AXI CoreMark、BTB 和机器外部／软件中断入口已编写，验证待执行。恢复验证后先在新增开关关闭时回归原 CPU、握手、异常、定时器和 Cache 功能，再执行 BTB 与三源中断定向测试和独立板级验收。随后运行六种 AXI CoreMark 短组合，检查资源和 50 MHz 时序，最后上板测量三个配置的 performance，并完成各自 validation。比较是否提升时保留相同配置条件和完整证据。
+三配置 AXI CoreMark、BTB、机器外部／软件中断及统一回归入口已编写，验证待执行。恢复验证后先按统一清单在新增开关关闭时回归原 CPU、握手、异常、定时器和 Cache 功能，再执行 BTB 与三源中断定向测试及模拟板级检查。随后运行六种 AXI CoreMark 短组合，检查资源和 50 MHz 时序，最后上板完成独立功能验收、测量三个配置的 performance，并完成各自 validation。比较是否提升时保留相同配置条件和完整证据。
 
 CPU 已具备裸机 C、UART、GPIO、定时器和 AXI4-Lite 控制基础，可交给队友作为控制接口参考。真实 CNN 接入前还需约定寄存器地址、启动／完成／清除流程、结果格式、数据缓冲区、时钟与复位；若后续使用 DMA，还需明确数据 Cache 与加速器共享内存的一致性策略。
 
@@ -305,6 +321,7 @@ CPU 已具备裸机 C、UART、GPIO、定时器和 AXI4-Lite 控制基础，可�
 
 ## 文档索引
 
+- [统一回归：双击菜单、分组、前置检查与结果汇总](docs/regression.md)
 - [指令 Cache：结构、协议、统计与操作](docs/icache.md)
 - [指令 Cache：RTL、PDS、网表和实物验证记录](docs/icache_verification_20261003.md)
 - [数据 Cache：结构、写策略、MMIO 与上板步骤](docs/dcache.md)
