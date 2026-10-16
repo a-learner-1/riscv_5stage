@@ -252,7 +252,7 @@ cmd.exe //c build_coremark_compare.bat --profile performance
 cmd.exe //c build_coremark_compare.bat --profile validation
 ```
 
-对照入口一次解析公共参数并串行构建三个版本。原 `--cache off/on/both` 入口保持兼容，预测器默认关闭。统计接口升级为 schema 2，之前的 off/on 固件也需重新构建。六种短仿真、六个正式版本的 PDS 命令、预期路径、统计有效性及结果记录方式见[AXI CoreMark 说明](docs/coremark_axi.md)。
+对照入口一次解析公共参数并串行构建三个版本。原 `--cache off/on/both` 入口保持兼容，预测器默认关闭。统计接口升级为 schema 3，新增六类互斥的 64 位周期统计；全部 AXI 固件需重新构建。六种短仿真、六个正式版本的 PDS 命令、预期路径、统计有效性及结果记录方式见[AXI CoreMark 说明](docs/coremark_axi.md)。
 
 ## BTB 与动态分支预测
 
@@ -352,3 +352,11 @@ CPU 已具备裸机 C、UART、GPIO、定时器和 AXI4-Lite 控制基础，可�
 - [AXI CoreMark：基线、双 Cache、双 Cache＋BTB 与原子统计](docs/coremark_axi.md)
 - [BTB：动态分支预测、误预测恢复与待验证入口](docs/btb.md)
 - [开发阶段历史记录](docs/development_history.md)：保留整理前的详细 README；历史状态与性能数值按原文版本理解，当前状态以本页为准。
+
+## 周期瓶颈统计（2026-10-16）
+
+新增取指等待、数据读等待、数据写等待、本地 MMIO 等待、重定向后等待和工作／其他六类周期；沿用同一 START／STOP 快照并校验分类总和等于总周期。构建与仿真命令、寄存器和统计边界见[周期统计说明](docs/cycle_profile.md)。这一步提供瓶颈测量能力；此前 49.603719 CoreMark 是统计扩展前版本的成绩，新版本功能验证、PDS 时序和实物结果分别记录，不能沿用旧位流宣称已经测量。
+
+## AXI 低延迟改进（2026-10-16）
+
+AXI 路由器在 AW/W 最后一个通道握手的边沿完成配对；RAM 的零等待 B/R 响应分别在真实写提交／同步读数据捕获边沿置为有效。非零人工等待保持原时序。三级 CPU、AXI4-Lite 端口和精确访存错误处理沿用原实现。测试、延迟口径及版本状态见 [AXI 低延迟说明](docs/axi_latency.md)。新增 `axi-latency` 回归组。**当前功能仿真通过；本轮 50 MHz PDS 时序未通过（Setup WNS −0.523 ns，11 个失败端点），新版上板跑分待验证。** 后续先修复时序，再使用重新生成的匹配位流测量；此前 49.603719 CoreMark 属于优化前版本。

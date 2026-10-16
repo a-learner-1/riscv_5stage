@@ -89,3 +89,7 @@ run_regression.bat --group btb
 PASS 证据取自本轮独立进程及完成标记，不读取旧日志替代本次结果。报告不纳入 Git；本轮只提交入口源码和说明。默认不会改变既有 RTL、固件算法或 `.do` 的验收逻辑。
 
 若要扩大回归范围，编辑 `tools/regression_suites.json`，为每项补齐脚本、依赖、前置检查、超时及精确成功标记，并核对测试平台中的真实完成路径。旧 affected 回归须保留所有子平台的成功证据，不能只凭总组数或进程返回 0 判为通过。
+
+## 周期分类扩展（2026-10-16）
+
+新增 `cycle-profile` 分组，运行无需 GCC 的六类周期分类定向测试；新增 `coremark-axi-profile` 分组，只运行 AXI 统计及六种真实 C 短程对照。后者须先执行 `build_coremark_compare.bat --profile smoke` 和 `build_coremark_compare.bat --profile smoke-validation`，生成 schema 3 匹配镜像。具体计数口径及本次结果见 [周期统计说明](cycle_profile.md)。

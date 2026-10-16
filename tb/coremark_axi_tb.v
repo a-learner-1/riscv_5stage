@@ -4,8 +4,8 @@
 `endif
 `include `COREMARK_CONFIG
 
-// Future real-firmware self-check. No compile or simulation has been run for
-// this new platform. Only fixed, one-iteration smoke fixtures are accepted.
+// Real-firmware self-check. Only fixed, one-iteration smoke fixtures are
+// accepted; the cycle profile extends the frozen statistics contract.
 module coremark_axi_tb;
     reg clk = 0, rst_n = 0, test_pass = 0;
     wire [31:0] pc_x, instr_x, wb_pc;
@@ -31,6 +31,9 @@ module coremark_axi_tb;
     localparam integer D_DELTA_WORD = (`COREMARK_AXI_DCACHE_DELTA_ADDR - 32'h10000) / 4;
     localparam integer BP_MODE_WORD = (`COREMARK_AXI_BTB_MODE_SEEN_ADDR - 32'h10000) / 4;
     localparam integer BP_DELTA_WORD = (`COREMARK_AXI_BTB_DELTA_ADDR - 32'h10000) / 4;
+    localparam integer PROFILE_VALID_WORD = (`COREMARK_AXI_CYCLE_PROFILE_VALID_ADDR - 32'h10000) / 4;
+    localparam integer PROFILE_DELTA_WORD = (`COREMARK_AXI_CYCLE_PROFILE_DELTA_ADDR - 32'h10000) / 4;
+    localparam integer PROFILE_SUM_WORD = (`COREMARK_AXI_CYCLE_PROFILE_SUM_ADDR - 32'h10000) / 4;
 
     integer watchdog_cycles = 0, timer_phase = 0, snapshots = 0;
     integer k;
@@ -43,6 +46,9 @@ module coremark_axi_tb;
     reg [31:0] stored_i [0:4];
     reg [31:0] stored_d [0:6];
     reg [31:0] stored_bp [0:6];
+    reg [63:0] stored_profile [0:5];
+    reg [63:0] profile_sum, profile_start_sum, profile_stop_sum;
+    reg [63:0] expected_profile;
     reg tohost_pending = 0, completion_seen = 0;
     reg [31:0] pending_result = 0, completed_result = 0;
     string console = "";
@@ -171,9 +177,15 @@ module coremark_axi_tb;
             $fatal(1, "AXI CoreMark smoke must select Cache flags 0 or 3");
         if ((BP_ENABLED != 0 && BP_ENABLED != 1) ||
             (BP_ENABLED && !CACHE_ENABLED) || `COREMARK_BTB_ENTRIES != 64 ||
-            `COREMARK_AXI_STATS_SCHEMA != 2 ||
+            `COREMARK_AXI_STATS_SCHEMA != 3 ||
+            `COREMARK_AXI_CYCLE_PROFILE_SCHEMA != 1 ||
+            `COREMARK_AXI_CYCLE_PROFILE_FIELDS != 6 ||
+            `COREMARK_AXI_CYCLE_PROFILE_BITS != 64 ||
+            `COREMARK_AXI_CYCLE_PROFILE_START_BANK != 32'h100 ||
+            `COREMARK_AXI_CYCLE_PROFILE_STOP_BANK != 32'h140 ||
+            `COREMARK_AXI_STATS_WINDOW_BYTES != 512 ||
             `COREMARK_AXI_BP_CONFIG != (32'h00400000 | BP_ENABLED))
-            $fatal(1, "AXI CoreMark smoke requires schema 2 and the selected 64-entry BTB mode");
+            $fatal(1, "AXI CoreMark smoke requires schema 3, the six-field cycle profile and selected 64-entry BTB mode");
         repeat (3) @(negedge clk);
         rst_n = 1;
         while (!completion_seen) begin
@@ -204,6 +216,7 @@ module coremark_axi_tb;
             dut.u_ram.u_data_mem.mem[FAILED_WORD] !== 0 ||
             dut.u_ram.u_data_mem.mem[PLATFORM_FAILED_WORD] !== 0 ||
             dut.u_ram.u_data_mem.mem[VALID_WORD] !== 1 ||
+            dut.u_ram.u_data_mem.mem[PROFILE_VALID_WORD] !== 1 ||
             dut.u_ram.u_data_mem.mem[MODE_WORD] !== `COREMARK_CACHE_FLAGS ||
             dut.u_ram.u_data_mem.mem[BP_MODE_WORD] !== `COREMARK_AXI_BP_CONFIG)
             $fatal(1, "AXI CoreMark firmware iteration/platform/statistics validation failed");
@@ -220,6 +233,24 @@ module coremark_axi_tb;
             stored_cycle_delta >= 64'h100000000 || stored_cycle_delta < stored_total ||
             stored_instret_delta >= instret_count)
             $fatal(1, "AXI CoreMark 64-bit counter difference/window mismatch");
+        profile_sum = 0;
+        profile_start_sum = 0;
+        profile_stop_sum = 0;
+        for (k = 0; k < 6; k = k + 1) begin
+            stored_profile[k] = ram_u64(PROFILE_DELTA_WORD + k * 2);
+            expected_profile = dut.u_stats.cycle_stop_snapshot[k] -
+                               dut.u_stats.cycle_start_snapshot[k];
+            if (stored_profile[k] !== expected_profile ||
+                stored_profile[k] > stored_cycle_delta)
+                $fatal(1, "AXI CoreMark cycle class %0d delta/bound mismatch", k);
+            profile_sum = profile_sum + stored_profile[k];
+            profile_start_sum = profile_start_sum + dut.u_stats.cycle_start_snapshot[k];
+            profile_stop_sum = profile_stop_sum + dut.u_stats.cycle_stop_snapshot[k];
+        end
+        if (profile_sum !== stored_cycle_delta || ram_u64(PROFILE_SUM_WORD) !== profile_sum ||
+            profile_start_sum !== {dut.u_stats.start_snapshot[1], dut.u_stats.start_snapshot[0]} ||
+            profile_stop_sum !== {dut.u_stats.stop_snapshot[1], dut.u_stats.stop_snapshot[0]})
+            $fatal(1, "AXI CoreMark six exclusive cycle classes do not partition the frozen window");
         for (k = 0; k < 5; k = k + 1) begin
             stored_i[k] = dut.u_ram.u_data_mem.mem[I_DELTA_WORD + k];
             if (stored_i[k] !== dut.u_stats.stop_snapshot[4 + k] - dut.u_stats.start_snapshot[4 + k])
@@ -271,6 +302,20 @@ module coremark_axi_tb;
         require_text("COREMARK counter_valid=1");
         require_text($sformatf("COREMARK counter_cycles=%0d", stored_cycle_delta));
         require_text($sformatf("COREMARK counter_retired=%0d", stored_instret_delta));
+        require_text("COREMARK cycle_profile_schema=1\n");
+        require_text("COREMARK cycle_profile_valid=1\n");
+        require_text($sformatf("COREMARK cycle_profile_sum=%0d\n", profile_sum));
+        for (k = 0; k < 6; k = k + 1) begin
+            case (k)
+                0: expected = $sformatf("COREMARK cycle_work_other=%0d\n", stored_profile[k]);
+                1: expected = $sformatf("COREMARK cycle_ifetch_wait=%0d\n", stored_profile[k]);
+                2: expected = $sformatf("COREMARK cycle_data_read_wait=%0d\n", stored_profile[k]);
+                3: expected = $sformatf("COREMARK cycle_data_write_wait=%0d\n", stored_profile[k]);
+                4: expected = $sformatf("COREMARK cycle_local_mmio_wait=%0d\n", stored_profile[k]);
+                5: expected = $sformatf("COREMARK cycle_redirect_wait=%0d\n", stored_profile[k]);
+            endcase
+            require_text(expected);
+        end
         require_text($sformatf("COREMARK raw_ticks=%0d", stored_total));
         require_text("COREMARK cpu_hz=50000000");
         require_text("COREMARK uart_baud=5000000");
@@ -326,6 +371,7 @@ module coremark_axi_tb;
         $display("%s", console);
         $display("PASS: AXI CoreMark %s flags=%0d BP=%0d real C CRCs, successful CPU tohost, mtime and frozen I/D/BP statistics",
                  `COREMARK_PROFILE, `COREMARK_CACHE_FLAGS, BP_ENABLED);
+        $display("PASS: AXI CoreMark cycle profile six 64-bit classes exactly partition the frozen cycle window and UART/RAM deltas");
         test_pass = 1;
         $stop;
     end

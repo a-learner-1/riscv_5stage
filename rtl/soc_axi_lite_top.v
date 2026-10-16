@@ -73,7 +73,8 @@ module soc_axi_lite_top #(
     output wire [31:0] bp_lookup_count,bp_hit_count,bp_taken_count,
     output wire [31:0] bp_resolved_count,bp_mispredict_count,
     output wire [31:0] bp_direction_error_count,bp_target_error_count,
-    input wire irq_external
+    input wire irq_external,
+    output wire [5:0] perf_cycle_events
 );
     wire imem_req_valid, imem_req_ready;
     wire [31:0] imem_req_addr;
@@ -125,7 +126,7 @@ module soc_axi_lite_top #(
         .bp_mispredict_count(bp_mispredict_count),
         .bp_direction_error_count(bp_direction_error_count),
         .bp_target_error_count(bp_target_error_count),
-        .irq_external(irq_external)
+        .irq_external(irq_external), .perf_cycle_events(perf_cycle_events)
     );
     wire rom_req_valid, rom_req_ready, rom_rsp_valid, rom_rsp_ready, rom_rsp_error;
     wire [31:0] rom_req_addr, rom_rsp_rdata;

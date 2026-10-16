@@ -6,7 +6,13 @@
     !defined(COREMARK_ENABLE_DCACHE) || !defined(COREMARK_AXI_STATS_BASE) || \
     !defined(COREMARK_AXI_STATS_ID) || !defined(COREMARK_AXI_CACHE_GEOMETRY) || \
     !defined(COREMARK_ENABLE_BRANCH_PRED) || !defined(COREMARK_BTB_ENTRIES) || \
-    !defined(COREMARK_AXI_BP_CONFIG) || !defined(COREMARK_AXI_STATS_SCHEMA)
+    !defined(COREMARK_AXI_BP_CONFIG) || !defined(COREMARK_AXI_STATS_SCHEMA) || \
+    !defined(COREMARK_AXI_CYCLE_PROFILE_SCHEMA) || \
+    !defined(COREMARK_AXI_CYCLE_PROFILE_FIELDS) || \
+    !defined(COREMARK_AXI_CYCLE_PROFILE_BITS) || \
+    !defined(COREMARK_AXI_CYCLE_PROFILE_START_BANK) || \
+    !defined(COREMARK_AXI_CYCLE_PROFILE_STOP_BANK) || \
+    !defined(COREMARK_AXI_STATS_WINDOW_BYTES)
 #error "Use build_coremark_axi.bat for the dedicated AXI CoreMark port"
 #endif
 #if (COREMARK_ENABLE_ICACHE != 0 && COREMARK_ENABLE_ICACHE != 1) || \
@@ -18,9 +24,17 @@
     (COREMARK_BTB_ENTRIES & (COREMARK_BTB_ENTRIES - 1)) != 0
 #error "Invalid branch predictor configuration"
 #endif
-#if COREMARK_AXI_STATS_SCHEMA != 2 || \
+#if COREMARK_AXI_STATS_SCHEMA != 3 || \
     COREMARK_AXI_BP_CONFIG != ((COREMARK_BTB_ENTRIES << 16) | COREMARK_ENABLE_BRANCH_PRED)
-#error "CoreMark requires statistics schema 2 and matching BTB configuration"
+#error "CoreMark requires statistics schema 3 and matching BTB configuration"
+#endif
+#if COREMARK_AXI_CYCLE_PROFILE_SCHEMA != 1 || \
+    COREMARK_AXI_CYCLE_PROFILE_FIELDS != 6 || \
+    COREMARK_AXI_CYCLE_PROFILE_BITS != 64 || \
+    COREMARK_AXI_CYCLE_PROFILE_START_BANK != 0x100 || \
+    COREMARK_AXI_CYCLE_PROFILE_STOP_BANK != 0x140 || \
+    COREMARK_AXI_STATS_WINDOW_BYTES != 0x200
+#error "CoreMark requires the six-field 64-bit cycle profile and a 0x200-byte window"
 #endif
 
 #define COREMARK_AXI_EXPECTED_FLAGS \

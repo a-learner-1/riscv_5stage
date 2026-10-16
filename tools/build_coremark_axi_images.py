@@ -19,7 +19,12 @@ if legacy.ROOT != ROOT:
 ROM_WORDS, RAM_WORDS, MIN_STACK_BYTES = (
     legacy.ROM_WORDS, legacy.RAM_WORDS, legacy.MIN_STACK_BYTES)
 STATS_BASE, STATS_ID, CACHE_GEOMETRY = 0x30000000, 0x434D4158, 0x02400010
-STATS_SCHEMA, BTB_ENTRIES = 2, 64
+STATS_SCHEMA, BTB_ENTRIES = 3, 64
+CYCLE_PROFILE_SCHEMA, CYCLE_PROFILE_BITS, STATS_WINDOW_BYTES = 1, 64, 0x200
+CYCLE_PROFILE_START_BANK, CYCLE_PROFILE_STOP_BANK = 0x100, 0x140
+CYCLE_PROFILE_FIELDS = (
+    "work_other", "ifetch_wait", "data_read_wait", "data_write_wait",
+    "local_mmio_wait", "redirect_wait")
 AXI_RAM_WAITS = {name: 0 for name in ("aw", "w", "ar", "b", "r")}
 PROFILES = {
     "performance": (115200, 0, True, "performance"),
@@ -42,6 +47,9 @@ AXI_SYMBOL_MACROS = {
     "coremark_axi_icache_delta": "COREMARK_AXI_ICACHE_DELTA_ADDR",
     "coremark_axi_dcache_delta": "COREMARK_AXI_DCACHE_DELTA_ADDR",
     "coremark_axi_btb_delta": "COREMARK_AXI_BTB_DELTA_ADDR",
+    "coremark_axi_cycle_profile_valid": "COREMARK_AXI_CYCLE_PROFILE_VALID_ADDR",
+    "coremark_axi_cycle_profile_delta": "COREMARK_AXI_CYCLE_PROFILE_DELTA_ADDR",
+    "coremark_axi_cycle_profile_sum": "COREMARK_AXI_CYCLE_PROFILE_SUM_ADDR",
 }
 AXI_SYMBOL_BYTES = {
     "coremark_axi_stats_valid": 4, "coremark_axi_mode_seen": 4,
@@ -50,6 +58,9 @@ AXI_SYMBOL_BYTES = {
     "coremark_axi_cycle_delta": 8, "coremark_axi_instret_delta": 8,
     "coremark_axi_icache_delta": 20, "coremark_axi_dcache_delta": 28,
     "coremark_axi_btb_delta": 28,
+    "coremark_axi_cycle_profile_valid": 4,
+    "coremark_axi_cycle_profile_delta": 6 * 8,
+    "coremark_axi_cycle_profile_sum": 8,
 }
 HARDWARE_SOURCES = tuple("rtl/" + name for name in (
     "instr_mem.v", "instr_bus_adapter.v", "branch_predictor.v", "if_stage.v", "regfile.v",
@@ -163,6 +174,12 @@ def write_config_header(config, build_dir, version, cflags, ldflags):
              f"#define COREMARK_BTB_ENTRIES {BTB_ENTRIES}",
              f"#define COREMARK_AXI_BP_CONFIG 0x{bp_config(config):08x}u",
              f"#define COREMARK_AXI_STATS_SCHEMA {STATS_SCHEMA}",
+             f"#define COREMARK_AXI_CYCLE_PROFILE_SCHEMA {CYCLE_PROFILE_SCHEMA}",
+             f"#define COREMARK_AXI_CYCLE_PROFILE_FIELDS {len(CYCLE_PROFILE_FIELDS)}",
+             f"#define COREMARK_AXI_CYCLE_PROFILE_BITS {CYCLE_PROFILE_BITS}",
+             f"#define COREMARK_AXI_CYCLE_PROFILE_START_BANK 0x{CYCLE_PROFILE_START_BANK:x}u",
+             f"#define COREMARK_AXI_CYCLE_PROFILE_STOP_BANK 0x{CYCLE_PROFILE_STOP_BANK:x}u",
+             f"#define COREMARK_AXI_STATS_WINDOW_BYTES {STATS_WINDOW_BYTES}u",
              f"#define COREMARK_AXI_STATS_BASE 0x{STATS_BASE:08x}u",
              f"#define COREMARK_AXI_STATS_ID 0x{STATS_ID:08x}u",
              f"#define COREMARK_AXI_CACHE_GEOMETRY 0x{CACHE_GEOMETRY:08x}u",
@@ -186,6 +203,12 @@ def write_verilog_config(config, symbols):
              f"`define COREMARK_BTB_ENTRIES {BTB_ENTRIES}\n",
              f"`define COREMARK_AXI_BP_CONFIG 32'h{bp_config(config):08x}\n",
              f"`define COREMARK_AXI_STATS_SCHEMA 32'd{STATS_SCHEMA}\n",
+             f"`define COREMARK_AXI_CYCLE_PROFILE_SCHEMA {CYCLE_PROFILE_SCHEMA}\n",
+             f"`define COREMARK_AXI_CYCLE_PROFILE_FIELDS {len(CYCLE_PROFILE_FIELDS)}\n",
+             f"`define COREMARK_AXI_CYCLE_PROFILE_BITS {CYCLE_PROFILE_BITS}\n",
+             f"`define COREMARK_AXI_CYCLE_PROFILE_START_BANK 32'h{CYCLE_PROFILE_START_BANK:08x}\n",
+             f"`define COREMARK_AXI_CYCLE_PROFILE_STOP_BANK 32'h{CYCLE_PROFILE_STOP_BANK:08x}\n",
+             f"`define COREMARK_AXI_STATS_WINDOW_BYTES {STATS_WINDOW_BYTES}\n",
              f"`define COREMARK_AXI_STATS_BASE 32'h{STATS_BASE:08x}\n",
              f"`define COREMARK_AXI_STATS_ID 32'h{STATS_ID:08x}\n",
              f"`define COREMARK_AXI_CACHE_GEOMETRY 32'h{CACHE_GEOMETRY:08x}\n"]
@@ -300,6 +323,12 @@ def build(config, cross=None):
             "enable_icache": enabled, "enable_dcache": enabled,
             "enable_branch_pred": int(config.btb_mode == "on"), "btb_entries": BTB_ENTRIES,
             "btb_mode": config.btb_mode, "stats_schema": STATS_SCHEMA,
+            "cycle_profile_schema": CYCLE_PROFILE_SCHEMA,
+            "cycle_profile_fields": list(CYCLE_PROFILE_FIELDS),
+            "cycle_profile_counter_bits": CYCLE_PROFILE_BITS,
+            "cycle_profile_start_bank_offset": f"0x{CYCLE_PROFILE_START_BANK:x}",
+            "cycle_profile_stop_bank_offset": f"0x{CYCLE_PROFILE_STOP_BANK:x}",
+            "stats_window_bytes": STATS_WINDOW_BYTES,
             "bp_config": f"0x{bp_config(config):08x}",
             "btb_direction_counter_bits": 2,
             "btb_counter_bits": 32, "btb_snapshot_words_per_bank": 7,
@@ -310,7 +339,7 @@ def build(config, cross=None):
             "stats_geometry": f"0x{CACHE_GEOMETRY:08x}",
             "cache_policy": "write-through,no-write-allocate",
             "counter_window": "start-before-mtime,stop-after-mtime",
-            "counter_snapshot_source": "64-bit CPU cycle_count/instret_count; 32-bit I/D/BTB counters frozen by the same START/STOP read",
+            "counter_snapshot_source": "64-bit CPU cycle_count/instret_count and six exclusive cycle classes; 32-bit I/D/BTB counters frozen by the same START/STOP read",
             "text_bytes": len(binaries["text"]), "data_bytes": len(binaries["data"]),
             "bss_bytes": symbols["__bss_end"] - symbols["__bss_start"],
             "stack_headroom_bytes": headroom, "minimum_stack_headroom_bytes": MIN_STACK_BYTES,

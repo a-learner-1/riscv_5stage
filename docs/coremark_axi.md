@@ -84,7 +84,7 @@ cmd.exe //c build_pds_board.bat --variant coremark_axi_btb --firmware coremark_a
 
 目录按固件名隔离；位流的预期路径为 `build/pds_<固件名>/generate_bitstream/board_top.sbit`。例如新增 performance 的路径为 `build/pds_coremark_axi_cache_on_btb_performance/generate_bitstream/board_top.sbit`。
 
-构建守卫核对报告、源码与镜像哈希、Cache／BTB 开关、64 项 BTB、统计 schema 2、时钟／波特率和等待参数。PDS 固定绑定各配置，不允许把 BTB 镜像配给预测关闭的硬件，也不允许混用短镜像。修改过的统计接口要求重新构建配套 off/on 固件；旧报告或旧镜像不能直接沿用。
+构建守卫核对报告、源码与镜像哈希、Cache／BTB 开关、64 项 BTB、统计 schema 3、时钟／波特率和等待参数。PDS 固定绑定各配置，不允许把 BTB 镜像配给预测关闭的硬件，也不允许混用短镜像。修改过的统计接口要求重新构建配套 off/on 固件；旧报告或旧镜像不能直接沿用。
 
 通过功能与时序检查后，由用户在 PDS 手动下载匹配位流。SSCOM 使用 115200、8N1，保存完整日志。各配置仍须满足 CRC、正式测量至少 10 秒等条件，最终才应输出 `COREMARK RESULT: FORMAL PASS`。当前 AXI 无 Cache、双 Cache、双 Cache＋BTB 的 performance 与 validation 六项均已实测通过并完成配对；构建、时序与实测证据分别保存在测量记录中。
 
@@ -128,3 +128,7 @@ D Cache 访问数包含写入和旁路；读取命中率使用 hit／(hit＋miss
 每组记录绑定固件名、构建报告、PDS manifest、位流和完整串口日志。三个配置均已完成对应 validation，性能比较使用各自 performance 的 CoreMark/MHz：AXI 基线→双 Cache 对照 Cache 配置；双 Cache→双 Cache＋BTB 对照预测器配置。
 
 自动校准允许实际迭代次数不同。比较相同工作量下的计数时，可对三个配置传相同 `--iterations N`，并确保所有正式运行均达到 10 秒；同时记录每次工作量、统计有效性、资源与时序。三配置六项正式运行均已配对完成；双 Cache 实测提升 20.84%，双 Cache＋BTB 比双 Cache 快 7.72%、比 AXI 无 Cache 基线快 30.17%。各配置独立固件的链接布局也有差异，增幅按配置整体实测解释。
+
+## 统计接口第三版：周期分类
+
+2026-10-16 新增六个互斥的 64 位周期计数器，START／STOP 新银行位于偏移 `0x100`／`0x140`，专用统计从设备窗口扩大到 `0x200` 字节。原 I/D/BP 寄存器地址保留。新固件要求 schema 3，旧固件及其报告须重建；原板级成绩仍属于原版本。分类口径、构建和验证步骤见[周期统计说明](cycle_profile.md)。

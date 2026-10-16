@@ -1,5 +1,7 @@
 // Single-word AXI4-Lite RAM slave. AW and W are buffered independently.
 // Reset clears protocol state; RAM contents and completed writes survive.
+// Zero-wait responses become valid on actual write commit/read capture;
+// positive wait parameters retain their previous registered timing.
 module axi_lite_ram #(
     parameter integer WORDS = 4096,
     parameter [31:0] BASE_ADDR = 32'h00010000,
@@ -81,6 +83,7 @@ module axi_lite_ram #(
                 aw_pending <= 0; w_pending <= 0; write_busy <= 1;
                 s_axi_bresp <= write_addr_ok ? 2'b00 : 2'b11;
                 b_wait_q <= B_WAIT_CYCLES;
+                if (B_WAIT_CYCLES == 0) bvalid_q <= 1;
             end
             if (write_busy && !bvalid_q) begin
                 if (b_wait_q == 0) bvalid_q <= 1;
@@ -102,6 +105,7 @@ module axi_lite_ram #(
             if (read_capture) begin
                 read_capture <= 0;
                 s_axi_rdata <= read_error_q ? 32'd0 : ram_rdata;
+                if (R_WAIT_CYCLES == 0) rvalid_q <= 1;
             end
             if (read_busy && !read_capture && !rvalid_q) begin
                 if (r_wait_q == 0) rvalid_q <= 1;

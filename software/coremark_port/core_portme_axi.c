@@ -21,6 +21,9 @@ volatile ee_u64 coremark_axi_instret_delta;
 volatile ee_u32 coremark_axi_icache_delta[5];
 volatile ee_u32 coremark_axi_dcache_delta[7];
 volatile ee_u32 coremark_axi_btb_delta[COREMARK_AXI_BP_BANK_WORDS];
+volatile ee_u32 coremark_axi_cycle_profile_valid;
+volatile ee_u64 coremark_axi_cycle_profile_delta[COREMARK_AXI_CYCLE_PROFILE_FIELDS];
+volatile ee_u64 coremark_axi_cycle_profile_sum;
 
 void start_time(void)
 {
@@ -44,6 +47,10 @@ void portable_init(core_portable *portable, int *argc, char *argv[])
     coremark_axi_base_portable_init(portable, argc, argv);
     coremark_axi_stats_valid = coremark_axi_platform_failed = 0u;
     coremark_axi_cycle_delta = coremark_axi_instret_delta = 0u;
+    coremark_axi_cycle_profile_valid = 0u;
+    coremark_axi_cycle_profile_sum = 0u;
+    for (i = 0u; i < COREMARK_AXI_CYCLE_PROFILE_FIELDS; ++i)
+        coremark_axi_cycle_profile_delta[i] = 0u;
     for (i = 0u; i < 5u; ++i) coremark_axi_icache_delta[i] = 0u;
     for (i = 0u; i < 7u; ++i) coremark_axi_dcache_delta[i] = 0u;
     for (i = 0u; i < COREMARK_AXI_BP_BANK_WORDS; ++i)
@@ -55,7 +62,8 @@ void portable_init(core_portable *portable, int *argc, char *argv[])
         coremark_axi_read(12u) != COREMARK_AXI_CACHE_GEOMETRY ||
         coremark_axi_read(16u) != COREMARK_AXI_CACHE_GEOMETRY ||
         coremark_axi_btb_mode_seen != COREMARK_AXI_BP_CONFIG ||
-        coremark_axi_read(24u) != COREMARK_AXI_STATS_SCHEMA) {
+        coremark_axi_read(24u) != COREMARK_AXI_STATS_SCHEMA ||
+        sizeof(ee_u64) != 8u) {
         coremark_axi_platform_failed = coremark_failed = 1u;
         ee_printf("ERROR: AXI CoreMark hardware configuration mismatch\n");
     }
@@ -65,6 +73,11 @@ void portable_fini(core_portable *portable)
 {
     ee_u32 first[COREMARK_AXI_BANK_WORDS], last[COREMARK_AXI_BANK_WORDS];
     ee_u32 i;
+    ee_u64 profile_sum = 0u;
+    static const char *const cycle_names[COREMARK_AXI_CYCLE_PROFILE_FIELDS] = {
+        "work_other", "ifetch_wait", "data_read_wait", "data_write_wait",
+        "local_mmio_wait", "redirect_wait"
+    };
     for (i = 0u; i < COREMARK_AXI_BANK_WORDS; ++i) {
         first[i] = coremark_axi_read(COREMARK_AXI_START_BANK + 4u * i);
         last[i] = coremark_axi_read(COREMARK_AXI_STOP_BANK + 4u * i);
@@ -87,6 +100,34 @@ void portable_fini(core_portable *portable)
         coremark_axi_btb_delta[i] =
             coremark_axi_read(COREMARK_AXI_BP_STOP_BANK + 4u * i) -
             coremark_axi_read(COREMARK_AXI_BP_START_BANK + 4u * i);
+    /* Each class is a 64-bit counter frozen by the SAME START/STOP reads as
+     * cycle_count. Read the frozen banks only after stop_time, outside the
+     * timed algorithm. A partition failure invalidates the entire platform
+     * report; it must never be followed by a FORMAL PASS. */
+    coremark_axi_cycle_profile_valid = coremark_axi_stats_valid;
+    for (i = 0u; i < COREMARK_AXI_CYCLE_PROFILE_FIELDS; ++i) {
+        ee_u32 offset = i * 8u;
+        ee_u64 begin_count = coremark_axi_join(
+            coremark_axi_read(COREMARK_AXI_CYCLE_PROFILE_START_BANK + offset),
+            coremark_axi_read(COREMARK_AXI_CYCLE_PROFILE_START_BANK + offset + 4u));
+        ee_u64 end_count = coremark_axi_join(
+            coremark_axi_read(COREMARK_AXI_CYCLE_PROFILE_STOP_BANK + offset),
+            coremark_axi_read(COREMARK_AXI_CYCLE_PROFILE_STOP_BANK + offset + 4u));
+        ee_u64 delta = end_count - begin_count;
+        ee_u64 next_sum = profile_sum + delta;
+        coremark_axi_cycle_profile_delta[i] = delta;
+        if (delta > coremark_axi_cycle_delta || next_sum < profile_sum)
+            coremark_axi_cycle_profile_valid = 0u;
+        profile_sum = next_sum;
+    }
+    coremark_axi_cycle_profile_sum = profile_sum;
+    if (profile_sum != coremark_axi_cycle_delta)
+        coremark_axi_cycle_profile_valid = 0u;
+    if (!coremark_axi_cycle_profile_valid) {
+        coremark_axi_stats_valid = 0u;
+        coremark_axi_platform_failed = coremark_failed = 1u;
+        ee_printf("ERROR: AXI CoreMark cycle profile partition mismatch\n");
+    }
     if (coremark_axi_platform_failed) coremark_failed = 1u;
 
     ee_printf("COREMARK platform=%s\n", COREMARK_PLATFORM_NAME);
@@ -103,6 +144,12 @@ void portable_fini(core_portable *portable)
                   (double)coremark_axi_cycle_delta / (double)coremark_axi_instret_delta);
     else
         ee_printf("COREMARK counter_cpi=unavailable\n");
+    ee_printf("COREMARK cycle_profile_schema=%u\n", COREMARK_AXI_CYCLE_PROFILE_SCHEMA);
+    ee_printf("COREMARK cycle_profile_valid=%u\n", coremark_axi_cycle_profile_valid);
+    for (i = 0u; i < COREMARK_AXI_CYCLE_PROFILE_FIELDS; ++i)
+        ee_printf("COREMARK cycle_%s=%llu\n", cycle_names[i],
+                  coremark_axi_cycle_profile_delta[i]);
+    ee_printf("COREMARK cycle_profile_sum=%llu\n", coremark_axi_cycle_profile_sum);
     ee_printf("COREMARK icache_access=%u\n", coremark_axi_icache_delta[0]);
     ee_printf("COREMARK icache_hit=%u\n", coremark_axi_icache_delta[1]);
     ee_printf("COREMARK icache_miss=%u\n", coremark_axi_icache_delta[2]);

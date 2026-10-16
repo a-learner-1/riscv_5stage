@@ -86,7 +86,13 @@ def validate_coremark_axi_firmware(firmware, cache_mode, root=ROOT, simulation=F
         "all_linked_text_checked_rv32i": True,
         "enable_icache": enabled, "enable_dcache": enabled,
         "enable_branch_pred": pred_enabled, "btb_entries": 64, "btb_mode": btb_mode,
-        "stats_schema": 2, "bp_config": f"0x{predictor_config:08x}",
+        "stats_schema": 3, "bp_config": f"0x{predictor_config:08x}",
+        "cycle_profile_schema": 1,
+        "cycle_profile_fields": ["work_other", "ifetch_wait", "data_read_wait",
+                                 "data_write_wait", "local_mmio_wait", "redirect_wait"],
+        "cycle_profile_counter_bits": 64,
+        "cycle_profile_start_bank_offset": "0x100",
+        "cycle_profile_stop_bank_offset": "0x140", "stats_window_bytes": 512,
         "btb_direction_counter_bits": 2, "btb_counter_bits": 32,
         "btb_snapshot_words_per_bank": 7,
         "btb_start_bank_offset": "0xc0", "btb_stop_bank_offset": "0xe0",
@@ -108,7 +114,12 @@ def validate_coremark_axi_firmware(firmware, cache_mode, root=ROOT, simulation=F
         "COREMARK_AXI_STATS_BASE": 0x30000000, "COREMARK_AXI_STATS_ID": 0x434d4158,
         "COREMARK_AXI_CACHE_GEOMETRY": 0x02400010,
         "COREMARK_ENABLE_BRANCH_PRED": pred_enabled, "COREMARK_BTB_ENTRIES": 64,
-        "COREMARK_AXI_BP_CONFIG": predictor_config, "COREMARK_AXI_STATS_SCHEMA": 2,
+        "COREMARK_AXI_BP_CONFIG": predictor_config, "COREMARK_AXI_STATS_SCHEMA": 3,
+        "COREMARK_AXI_CYCLE_PROFILE_SCHEMA": 1, "COREMARK_AXI_CYCLE_PROFILE_FIELDS": 6,
+        "COREMARK_AXI_CYCLE_PROFILE_BITS": 64,
+        "COREMARK_AXI_CYCLE_PROFILE_START_BANK": 0x100,
+        "COREMARK_AXI_CYCLE_PROFILE_STOP_BANK": 0x140,
+        "COREMARK_AXI_STATS_WINDOW_BYTES": 512,
     }.items():
         if number(text, macro) != value:
             raise RuntimeError("AXI CoreMark firmware macro mismatch: " + macro)

@@ -276,6 +276,44 @@ module axi_router_case #(
         end
     end
 
+    // Independent timing oracle: observe only upstream handshakes. The
+    // selected downstream VALIDs (or local DECERR) must appear immediately
+    // after the edge that accepts the second write channel, without a bubble.
+    reg latency_aw_seen = 0, latency_w_seen = 0, latency_pair_seen = 0;
+    reg [31:0] latency_address = 0;
+    integer latency_target;
+    always @(posedge clk) begin
+        if (!rst_n) begin
+            latency_aw_seen = 0;
+            latency_w_seen = 0;
+            latency_pair_seen = 0;
+        end else begin
+            if (awvalid && awready) begin
+                latency_aw_seen = 1;
+                latency_address = awaddr;
+            end
+            if (wvalid && wready) latency_w_seen = 1;
+            if (bvalid && bready) begin
+                latency_aw_seen = 0;
+                latency_w_seen = 0;
+                latency_pair_seen = 0;
+            end
+            if (latency_aw_seen && latency_w_seen && !latency_pair_seen) begin
+                latency_pair_seen = 1;
+                latency_target = reference_target(latency_address);
+                #1;
+                if (latency_target == 2) begin
+                    if (!bvalid || bresp !== 2'b11 || d_awvalid[0] ||
+                        d_awvalid[1] || d_wvalid[0] || d_wvalid[1])
+                        $fatal(1, "router miss was not paired immediately");
+                end else if (!d_awvalid[latency_target] || !d_wvalid[latency_target] ||
+                    d_awaddr[latency_target] !== latency_address ||
+                    d_awvalid[1-latency_target] || d_wvalid[1-latency_target])
+                    $fatal(1, "router introduced a pairing bubble or used a stale AW address");
+            end
+        end
+    end
+
     task send_aw;
         input [31:0] address;
         input [2:0] prot;

@@ -63,3 +63,9 @@ icache_board_netlist_work/
 # Two-way data cache validation
 dcache_work/
 dcache_board_netlist_work/
+
+# CPU exclusive cycle profiling simulation
+cpu_cycle_profile_work/
+
+# AXI latency focused verification
+axi_latency_work/

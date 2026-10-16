@@ -199,11 +199,14 @@ module axi_lite_1x2 #(
                         wdata_q <= s_axi_wdata;
                         wstrb_q <= s_axi_wstrb;
                     end
-                    if (aw_pending && w_pending) begin
-                        write_route <= decode_route(awaddr_q);
+                    // Pair on the edge that accepts the missing channel.
+                    // The following W_SEND cycle still uses registered slots;
+                    // no combinational upstream READY-to-downstream VALID path.
+                    if ((aw_pending || s_aw_fire) && (w_pending || s_w_fire)) begin
+                        write_route <= decode_route(aw_pending ? awaddr_q : s_axi_awaddr);
                         aw_sent <= 1'b0;
                         w_sent <= 1'b0;
-                        write_state <= (decode_route(awaddr_q) == ROUTE_MISS) ? W_MISS : W_SEND;
+                        write_state <= (decode_route(aw_pending ? awaddr_q : s_axi_awaddr) == ROUTE_MISS) ? W_MISS : W_SEND;
                     end
                 end
                 W_SEND: begin

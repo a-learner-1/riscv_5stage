@@ -1,5 +1,5 @@
 // Dedicated CoreMark comparison SoC: identical AXI ROM/RAM path with Cache/BTB options.
-// Statistics schema 2 preserves I/D banks and adds simultaneous BP snapshot banks.
+// Statistics schema 3 preserves I/D/BP banks and adds aligned CPU cycle profiles.
 module soc_coremark_axi_top #(
     parameter PROGRAM_FILE="programs/coremark_axi_cache_on_performance.hex",
     parameter DATA_FILE="programs/coremark_axi_cache_on_performance_data.hex",
@@ -29,6 +29,7 @@ module soc_coremark_axi_top #(
     output wire [31:0] bp_resolved_count,bp_mispredict_count,
     output wire [31:0] bp_direction_error_count,bp_target_error_count
 );
+    wire [5:0] perf_cycle_events;
     wire [31:0] axi_awaddr,axi_wdata,axi_araddr,axi_rdata;
     wire [2:0] axi_awprot,axi_arprot;
     wire [3:0] axi_wstrb;
@@ -64,6 +65,7 @@ module soc_coremark_axi_top #(
         .pc_x(pc_x),.instr_x(instr_x),.valid_x(valid_x),
         .wb_pc(wb_pc),.wb_rd(wb_rd),.wb_data(wb_data),.wb_we(wb_we),.retire_valid(retire_valid),
         .cycle_count(cycle_count),.instret_count(instret_count),
+        .perf_cycle_events(perf_cycle_events),
         .imem_fault(imem_fault),.imem_fault_pc(imem_fault_pc),.dmem_fault(dmem_fault),
         .m_axi_awaddr(axi_awaddr),
         .m_axi_awprot(axi_awprot),
@@ -95,7 +97,7 @@ module soc_coremark_axi_top #(
         .bp_target_error_count(bp_target_error_count)
     );
     axi_lite_1x2 #(.M0_BASE_ADDR(DMEM_BASE_ADDR),.M0_SIZE_BYTES(DMEM_WORDS*4),
-        .M1_BASE_ADDR(STATS_BASE_ADDR),.M1_SIZE_BYTES(32'h100)
+        .M1_BASE_ADDR(STATS_BASE_ADDR),.M1_SIZE_BYTES(32'h200)
     ) u_router (.clk(clk),.rst_n(rst_n),
         .s_axi_awaddr(axi_awaddr),
         .s_axi_awprot(axi_awprot),
@@ -186,6 +188,7 @@ module soc_coremark_axi_top #(
         .DCACHE_SETS(DCACHE_SETS), .DCACHE_LINE_WORDS(DCACHE_LINE_WORDS)
     ) u_stats (.clk(clk),.rst_n(rst_n),
         .cycle_count(cycle_count), .instret_count(instret_count),
+        .perf_cycle_events(perf_cycle_events),
         .icache_access_count(icache_access_count), .icache_hit_count(icache_hit_count),
         .icache_miss_count(icache_miss_count), .icache_refill_word_count(icache_refill_word_count),
         .icache_error_count(icache_error_count),
@@ -223,7 +226,7 @@ module soc_coremark_axi_top #(
         if(DMEM_WORDS <= 0 || DMEM_WORDS > 1073741823)
             $fatal(1,"soc_coremark_axi_top invalid RAM size");
         if(({32'd0,STATS_BASE_ADDR}<64'h20010000) &&
-           (({32'd0,STATS_BASE_ADDR}+64'h100)>64'h20000000))
+           (({32'd0,STATS_BASE_ADDR}+64'h200)>64'h20000000))
             $fatal(1,"Cache statistics window overlaps CPU-local 0x2000xxxx MMIO");
     end
     // synthesis translate_on

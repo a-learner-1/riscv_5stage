@@ -1,7 +1,12 @@
 // Dedicated CoreMark AXI statistics: START and STOP are separate snapshot banks.
 // Trigger reads capture all fields together at the AXI AR handshake; subsequent
 // reads return the stored values, without resampling counters during printing.
-// Schema 2 adds BP banks without moving any of the original I/D registers.
+// Schema 3 adds six 64-bit cycle-profile banks; all schema-2 offsets survive.
+// perf_cycle_events is registered by the CPU: bit 0 work/other, 1 fetch wait,
+// 2 external data-read wait, 3 external data-write wait, 4 local MMIO wait,
+// 5 redirect recovery. Exactly one bit accompanies each counted CPU cycle.
+// The event arrives one clock after cycle_count increments. Capturing NEXT
+// profile counts aligns a START/STOP edge with that edge's cycle_count input.
 // All writes return SLVERR. AW and W are accepted independently.
 module axi_lite_coremark_stats #(
     parameter [31:0] BASE_ADDR = 32'h30000000,
@@ -12,6 +17,7 @@ module axi_lite_coremark_stats #(
 ) (
     input wire clk, rst_n,
     input wire [63:0] cycle_count, instret_count,
+    input wire [5:0] perf_cycle_events,
     input wire [31:0] icache_access_count, icache_hit_count, icache_miss_count,
     input wire [31:0] icache_refill_word_count, icache_error_count,
     input wire [31:0] dcache_access_count, dcache_hit_count, dcache_miss_count,
@@ -55,6 +61,20 @@ module axi_lite_coremark_stats #(
     reg [31:0] stop_snapshot [0:15];
     reg [31:0] bp_start_snapshot [0:6];
     reg [31:0] bp_stop_snapshot [0:6];
+    reg [63:0] profile_count [0:5];
+    reg [63:0] cycle_start_snapshot [0:5];
+    reg [63:0] cycle_stop_snapshot [0:5];
+    wire [63:0] profile_next [0:5];
+    genvar profile_index;
+    generate
+        for (profile_index = 0; profile_index < 6; profile_index = profile_index + 1) begin : g_profile_next
+            // Reuse this increment for both counting and same-edge snapshots.
+            // The CPU supplies a registered event, keeping its control path
+            // away from the wide counter increment and capture logic.
+            assign profile_next[profile_index] = profile_count[profile_index] +
+                (perf_cycle_events[profile_index] ? 64'd1 : 64'd0);
+        end
+    endgenerate
     wire [31:0] offset = s_axi_araddr - BASE_ADDR;
     integer index;
 
@@ -79,7 +99,14 @@ module axi_lite_coremark_stats #(
                 bp_start_snapshot[index] <= 0;
                 bp_stop_snapshot[index] <= 0;
             end
+            for (index = 0; index < 6; index = index + 1) begin
+                profile_count[index] <= 0;
+                cycle_start_snapshot[index] <= 0;
+                cycle_stop_snapshot[index] <= 0;
+            end
         end else begin
+            for (index = 0; index < 6; index = index + 1)
+                profile_count[index] <= profile_next[index];
             if (s_axi_awvalid && s_axi_awready) got_aw <= 1;
             if (s_axi_wvalid && s_axi_wready) got_w <= 1;
             if (got_aw && got_w && !s_axi_bvalid) begin
@@ -120,6 +147,8 @@ module axi_lite_coremark_stats #(
                         bp_start_snapshot[4] <= ENABLE_BRANCH_PRED != 0 ? bp_mispredict_count : 32'd0;
                         bp_start_snapshot[5] <= ENABLE_BRANCH_PRED != 0 ? bp_direction_error_count : 32'd0;
                         bp_start_snapshot[6] <= ENABLE_BRANCH_PRED != 0 ? bp_target_error_count : 32'd0;
+                        for (index = 0; index < 6; index = index + 1)
+                            cycle_start_snapshot[index] <= profile_next[index];
                     end
                     32'h04: begin
                         s_axi_rdata <= ID;
@@ -146,12 +175,14 @@ module axi_lite_coremark_stats #(
                         bp_stop_snapshot[4] <= ENABLE_BRANCH_PRED != 0 ? bp_mispredict_count : 32'd0;
                         bp_stop_snapshot[5] <= ENABLE_BRANCH_PRED != 0 ? bp_direction_error_count : 32'd0;
                         bp_stop_snapshot[6] <= ENABLE_BRANCH_PRED != 0 ? bp_target_error_count : 32'd0;
+                        for (index = 0; index < 6; index = index + 1)
+                            cycle_stop_snapshot[index] <= profile_next[index];
                     end
                     32'h08: s_axi_rdata <= ENABLE_FLAGS;
                     32'h0c: s_axi_rdata <= I_GEOMETRY;
                     32'h10: s_axi_rdata <= D_GEOMETRY;
                     32'h14: s_axi_rdata <= PREDICTOR_CONFIG;
-                    32'h18: s_axi_rdata <= 32'd2;
+                    32'h18: s_axi_rdata <= 32'd3;
                     32'h40: s_axi_rdata <= start_snapshot[0];
                     32'h44: s_axi_rdata <= start_snapshot[1];
                     32'h48: s_axi_rdata <= start_snapshot[2];
@@ -198,6 +229,30 @@ module axi_lite_coremark_stats #(
                     32'hf0: s_axi_rdata <= bp_stop_snapshot[4];
                     32'hf4: s_axi_rdata <= bp_stop_snapshot[5];
                     32'hf8: s_axi_rdata <= bp_stop_snapshot[6];
+                    32'h100: s_axi_rdata <= cycle_start_snapshot[0][31:0];
+                    32'h104: s_axi_rdata <= cycle_start_snapshot[0][63:32];
+                    32'h108: s_axi_rdata <= cycle_start_snapshot[1][31:0];
+                    32'h10c: s_axi_rdata <= cycle_start_snapshot[1][63:32];
+                    32'h110: s_axi_rdata <= cycle_start_snapshot[2][31:0];
+                    32'h114: s_axi_rdata <= cycle_start_snapshot[2][63:32];
+                    32'h118: s_axi_rdata <= cycle_start_snapshot[3][31:0];
+                    32'h11c: s_axi_rdata <= cycle_start_snapshot[3][63:32];
+                    32'h120: s_axi_rdata <= cycle_start_snapshot[4][31:0];
+                    32'h124: s_axi_rdata <= cycle_start_snapshot[4][63:32];
+                    32'h128: s_axi_rdata <= cycle_start_snapshot[5][31:0];
+                    32'h12c: s_axi_rdata <= cycle_start_snapshot[5][63:32];
+                    32'h140: s_axi_rdata <= cycle_stop_snapshot[0][31:0];
+                    32'h144: s_axi_rdata <= cycle_stop_snapshot[0][63:32];
+                    32'h148: s_axi_rdata <= cycle_stop_snapshot[1][31:0];
+                    32'h14c: s_axi_rdata <= cycle_stop_snapshot[1][63:32];
+                    32'h150: s_axi_rdata <= cycle_stop_snapshot[2][31:0];
+                    32'h154: s_axi_rdata <= cycle_stop_snapshot[2][63:32];
+                    32'h158: s_axi_rdata <= cycle_stop_snapshot[3][31:0];
+                    32'h15c: s_axi_rdata <= cycle_stop_snapshot[3][63:32];
+                    32'h160: s_axi_rdata <= cycle_stop_snapshot[4][31:0];
+                    32'h164: s_axi_rdata <= cycle_stop_snapshot[4][63:32];
+                    32'h168: s_axi_rdata <= cycle_stop_snapshot[5][31:0];
+                    32'h16c: s_axi_rdata <= cycle_stop_snapshot[5][63:32];
                     default: begin
                         s_axi_rdata <= 0;
                         s_axi_rresp <= 2'b10;

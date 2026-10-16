@@ -1,13 +1,73 @@
 {
   "schema_version": 1,
-  "description": "仅复用现有 ModelSim RTL 自检入口；每个 case 独立进程。all 包含全部六组及可选板级仿真组。缺镜像、报告或前置契约不符为 BLOCKED，不自动构建，不执行 PDS、网表或下载。CoreMark formal-short 的 FORMAL FAIL 是预期负测，仍须完整 TB PASS。",
+  "description": "仅复用现有 ModelSim RTL 自检入口；每个 case 独立进程。all 包含全部清单组。缺镜像、报告或前置契约不符为 BLOCKED，不自动构建，不执行 PDS、网表或下载。CoreMark formal-short 的 FORMAL FAIL 是预期负测，仍须完整 TB PASS。",
   "groups": [
-    {"id": "baseline", "title": "原 CPU 通路与默认关闭兼容性", "cases": ["baseline-affected"]},
-    {"id": "cache", "title": "指令／数据 Cache 协议、故障与固件仿真", "cases": ["icache", "dcache"]},
-    {"id": "btb", "title": "BTB 单元与 CPU 预测恢复", "cases": ["btb-directed"]},
-    {"id": "irq", "title": "定时器与外部／软件中断定向自检", "cases": ["timer-irq", "machine-irq"]},
-    {"id": "coremark", "title": "旧移植层与 AXI 三配置短程对照", "cases": ["coremark-prepare", "coremark-axi-short"]},
-    {"id": "board", "title": "可选三源中断板顶 RTL 仿真（不下载硬件）", "cases": ["machine-irq-board"]}
+    {
+      "id": "baseline",
+      "title": "原 CPU 通路与默认关闭兼容性",
+      "cases": [
+        "baseline-affected"
+      ]
+    },
+    {
+      "id": "cache",
+      "title": "指令／数据 Cache 协议、故障与固件仿真",
+      "cases": [
+        "icache",
+        "dcache"
+      ]
+    },
+    {
+      "id": "btb",
+      "title": "BTB 单元与 CPU 预测恢复",
+      "cases": [
+        "btb-directed"
+      ]
+    },
+    {
+      "id": "irq",
+      "title": "定时器与外部／软件中断定向自检",
+      "cases": [
+        "timer-irq",
+        "machine-irq"
+      ]
+    },
+    {
+      "id": "coremark",
+      "title": "旧移植层与 AXI 三配置短程对照",
+      "cases": [
+        "coremark-prepare",
+        "coremark-axi-short"
+      ]
+    },
+    {
+      "id": "board",
+      "title": "可选三源中断板顶 RTL 仿真（不下载硬件）",
+      "cases": [
+        "machine-irq-board"
+      ]
+    },
+    {
+      "id": "cycle-profile",
+      "title": "CPU 六类周期统计定向自检",
+      "cases": [
+        "cpu-cycle-profile"
+      ]
+    },
+    {
+      "id": "coremark-axi-profile",
+      "title": "AXI 统计与六种真实 C 周期分类短程验证",
+      "cases": [
+        "coremark-axi-short"
+      ]
+    },
+    {
+      "id": "axi-latency",
+      "title": "AXI 低延迟、公开握手及精确错误恢复",
+      "cases": [
+        "axi-latency-directed"
+      ]
+    }
   ],
   "cases": [
     {
@@ -17,24 +77,81 @@
       "timeout_seconds": 1200,
       "required_files": [
         "run_timer_affected.do",
-        "rtl/cpu_top.v", "rtl/branch_predictor.v", "rtl/if_stage.v", "rtl/decoder.v", "rtl/regfile.v", "rtl/alu.v",
-        "rtl/instr_mem.v", "rtl/instr_bus_adapter.v", "rtl/data_mem.v", "rtl/data_bus_adapter.v",
-        "rtl/uart_tx.v", "rtl/uart_rx.v", "rtl/uart_rx_fifo.v", "rtl/uart_rx_mmio.v", "rtl/gpio_mmio.v", "rtl/machine_timer.v",
-        "rtl/soc_instr_mem.v", "rtl/soc_data_mem.v", "rtl/soc_top.v", "rtl/soc_axi_lite_top.v", "rtl/dmem_axi_lite_bridge.v",
-        "rtl/axi_lite_ram.v", "rtl/axi_lite_1x2.v", "rtl/axi_lite_ctrl.v", "rtl/soc_axi_control_top.v",
-        "rtl/board_reset.v", "rtl/axi_control_board_top.v", "rtl/trap_board_top.v",
-        "tb/cpu_top_tb.v", "tb/branch_tb.v", "tb/compare_branch_tb.v", "tb/jump_tb.v", "tb/load_store_tb.v", "tb/subword_mem_tb.v",
-        "tb/mmio_tb.v", "tb/gpio_cpu_tb.v", "tb/uart_cpu_tb.v", "tb/uart_rx_cpu_tb.v", "tb/c_program_tb.v", "tb/performance_tb.v",
-        "tb/program_load_tb.v", "tb/toolchain_program_tb.v", "tb/data_handshake_tb.v", "tb/fetch_handshake_tb.v",
-        "tb/soc_top_tb.v", "tb/soc_fault_tb.v", "tb/axi_lite_cpu_tb.v", "tb/axi_control_system_tb.v", "tb/axi_control_board_tb.v",
-        "tb/cpu_trap_tb.v", "tb/cpu_trap_edges_tb.v", "tb/trap_c_tb.v", "tb/trap_board_tb.v",
-        "programs/mmio_test.hex", "programs/gpio_test.hex", "programs/gpio_test_data.hex",
-        "programs/uart_demo.hex", "programs/uart_demo_data.hex", "programs/uart_rx_echo_test.hex", "programs/uart_rx_echo_test_data.hex",
-        "programs/c_demo.hex", "programs/c_demo_data.hex", "programs/program_load_test.hex", "programs/toolchain_demo.hex",
-        "programs/data_handshake_blank.hex", "programs/axi_control_demo.hex", "programs/axi_control_demo_data.hex",
-        "programs/axi_control_board.hex", "programs/axi_control_board_sim_data.hex",
-        "programs/trap_demo.hex", "programs/trap_demo_data.hex", "programs/trap_demo_symbols.vh",
-        "programs/trap_board.hex", "programs/trap_board_sim_data.hex", "programs/trap_board_symbols.vh"
+        "rtl/cpu_top.v",
+        "rtl/branch_predictor.v",
+        "rtl/if_stage.v",
+        "rtl/decoder.v",
+        "rtl/regfile.v",
+        "rtl/alu.v",
+        "rtl/instr_mem.v",
+        "rtl/instr_bus_adapter.v",
+        "rtl/data_mem.v",
+        "rtl/data_bus_adapter.v",
+        "rtl/uart_tx.v",
+        "rtl/uart_rx.v",
+        "rtl/uart_rx_fifo.v",
+        "rtl/uart_rx_mmio.v",
+        "rtl/gpio_mmio.v",
+        "rtl/machine_timer.v",
+        "rtl/soc_instr_mem.v",
+        "rtl/soc_data_mem.v",
+        "rtl/soc_top.v",
+        "rtl/soc_axi_lite_top.v",
+        "rtl/dmem_axi_lite_bridge.v",
+        "rtl/axi_lite_ram.v",
+        "rtl/axi_lite_1x2.v",
+        "rtl/axi_lite_ctrl.v",
+        "rtl/soc_axi_control_top.v",
+        "rtl/board_reset.v",
+        "rtl/axi_control_board_top.v",
+        "rtl/trap_board_top.v",
+        "tb/cpu_top_tb.v",
+        "tb/branch_tb.v",
+        "tb/compare_branch_tb.v",
+        "tb/jump_tb.v",
+        "tb/load_store_tb.v",
+        "tb/subword_mem_tb.v",
+        "tb/mmio_tb.v",
+        "tb/gpio_cpu_tb.v",
+        "tb/uart_cpu_tb.v",
+        "tb/uart_rx_cpu_tb.v",
+        "tb/c_program_tb.v",
+        "tb/performance_tb.v",
+        "tb/program_load_tb.v",
+        "tb/toolchain_program_tb.v",
+        "tb/data_handshake_tb.v",
+        "tb/fetch_handshake_tb.v",
+        "tb/soc_top_tb.v",
+        "tb/soc_fault_tb.v",
+        "tb/axi_lite_cpu_tb.v",
+        "tb/axi_control_system_tb.v",
+        "tb/axi_control_board_tb.v",
+        "tb/cpu_trap_tb.v",
+        "tb/cpu_trap_edges_tb.v",
+        "tb/trap_c_tb.v",
+        "tb/trap_board_tb.v",
+        "programs/mmio_test.hex",
+        "programs/gpio_test.hex",
+        "programs/gpio_test_data.hex",
+        "programs/uart_demo.hex",
+        "programs/uart_demo_data.hex",
+        "programs/uart_rx_echo_test.hex",
+        "programs/uart_rx_echo_test_data.hex",
+        "programs/c_demo.hex",
+        "programs/c_demo_data.hex",
+        "programs/program_load_test.hex",
+        "programs/toolchain_demo.hex",
+        "programs/data_handshake_blank.hex",
+        "programs/axi_control_demo.hex",
+        "programs/axi_control_demo_data.hex",
+        "programs/axi_control_board.hex",
+        "programs/axi_control_board_sim_data.hex",
+        "programs/trap_demo.hex",
+        "programs/trap_demo_data.hex",
+        "programs/trap_demo_symbols.vh",
+        "programs/trap_board.hex",
+        "programs/trap_board_sim_data.hex",
+        "programs/trap_board_symbols.vh"
       ],
       "required_markers": [
         "^(?:# )?PASS: cpu_top U-type integration test passed, 77 instructions\\r?$",
@@ -67,8 +184,14 @@
       "preflight_commands": [],
       "build_hints": [
         "保留现有定向 HEX；缺编译固件时参考 README.md 和相应构建说明，以下命令仅供人工准备。",
-        "build_program.bat", "build_uart.bat", "build_uart_rx.bat", "build_gpio.bat",
-        "build_axi_control.bat", "build_axi_control_board.bat", "build_trap.bat", "build_trap_board.bat"
+        "build_program.bat",
+        "build_uart.bat",
+        "build_uart_rx.bat",
+        "build_gpio.bat",
+        "build_axi_control.bat",
+        "build_axi_control_board.bat",
+        "build_trap.bat",
+        "build_trap_board.bat"
       ]
     },
     {
@@ -77,17 +200,53 @@
       "script": "run_icache.do",
       "timeout_seconds": 900,
       "required_files": [
-        "run_icache.do", "tools/regression_preflight.py", "tools/build_pds_board.py", "tools/build_icache_board_images.py", "tools/build_timer_images.py",
+        "run_icache.do",
+        "tools/regression_preflight.py",
+        "tools/build_pds_board.py",
+        "tools/build_icache_board_images.py",
+        "tools/build_timer_images.py",
         "build/icache_board_firmware/build_report.json",
-        "software/start.S", "software/timer_entry.S", "software/icache_board.c", "software/icache_workload.S",
-        "software/timer.h", "software/gpio.h", "software/mmio.h", "software/link.ld",
-        "programs/icache_board.hex", "programs/icache_board_data.hex", "programs/icache_board_sim_data.hex", "programs/icache_board_symbols.vh",
-        "rtl/cpu_top.v", "rtl/if_stage.v", "rtl/decoder.v", "rtl/regfile.v", "rtl/alu.v", "rtl/instr_mem.v", "rtl/instr_bus_adapter.v",
-        "rtl/data_mem.v", "rtl/data_bus_adapter.v", "rtl/uart_tx.v", "rtl/uart_rx.v", "rtl/uart_rx_fifo.v", "rtl/uart_rx_mmio.v",
-        "rtl/gpio_mmio.v", "rtl/machine_timer.v", "rtl/board_reset.v", "rtl/soc_instr_mem.v", "rtl/dmem_axi_lite_bridge.v",
-        "rtl/axi_lite_ram.v", "rtl/axi_lite_1x2.v", "rtl/instr_cache.v", "rtl/axi_lite_icache_stats.v",
-        "rtl/soc_axi_lite_top.v", "rtl/soc_icache_stats_top.v", "rtl/icache_board_top.v",
-        "tb/instr_cache_tb.v", "tb/axi_lite_icache_stats_tb.v", "tb/icache_frontend_tb.v", "tb/icache_board_tb.v"
+        "software/start.S",
+        "software/timer_entry.S",
+        "software/icache_board.c",
+        "software/icache_workload.S",
+        "software/timer.h",
+        "software/gpio.h",
+        "software/mmio.h",
+        "software/link.ld",
+        "programs/icache_board.hex",
+        "programs/icache_board_data.hex",
+        "programs/icache_board_sim_data.hex",
+        "programs/icache_board_symbols.vh",
+        "rtl/cpu_top.v",
+        "rtl/if_stage.v",
+        "rtl/decoder.v",
+        "rtl/regfile.v",
+        "rtl/alu.v",
+        "rtl/instr_mem.v",
+        "rtl/instr_bus_adapter.v",
+        "rtl/data_mem.v",
+        "rtl/data_bus_adapter.v",
+        "rtl/uart_tx.v",
+        "rtl/uart_rx.v",
+        "rtl/uart_rx_fifo.v",
+        "rtl/uart_rx_mmio.v",
+        "rtl/gpio_mmio.v",
+        "rtl/machine_timer.v",
+        "rtl/board_reset.v",
+        "rtl/soc_instr_mem.v",
+        "rtl/dmem_axi_lite_bridge.v",
+        "rtl/axi_lite_ram.v",
+        "rtl/axi_lite_1x2.v",
+        "rtl/instr_cache.v",
+        "rtl/axi_lite_icache_stats.v",
+        "rtl/soc_axi_lite_top.v",
+        "rtl/soc_icache_stats_top.v",
+        "rtl/icache_board_top.v",
+        "tb/instr_cache_tb.v",
+        "tb/axi_lite_icache_stats_tb.v",
+        "tb/icache_frontend_tb.v",
+        "tb/icache_board_tb.v"
       ],
       "required_markers": [
         "^(?:# )?INSTR CACHE UNIT TESTS PASS\\r?$",
@@ -102,12 +261,29 @@
       ],
       "preflight_commands": [
         {
-          "argv": ["python", "tools/regression_preflight.py", "--kind", "icache"],
-          "required_files": ["tools/regression_preflight.py", "tools/build_pds_board.py", "tools/build_icache_board_images.py", "tools/build_timer_images.py", "build/icache_board_firmware/build_report.json", "programs/icache_board.hex", "programs/icache_board_data.hex", "programs/icache_board_sim_data.hex", "programs/icache_board_symbols.vh"],
+          "argv": [
+            "python",
+            "tools/regression_preflight.py",
+            "--kind",
+            "icache"
+          ],
+          "required_files": [
+            "tools/regression_preflight.py",
+            "tools/build_pds_board.py",
+            "tools/build_icache_board_images.py",
+            "tools/build_timer_images.py",
+            "build/icache_board_firmware/build_report.json",
+            "programs/icache_board.hex",
+            "programs/icache_board_data.hex",
+            "programs/icache_board_sim_data.hex",
+            "programs/icache_board_symbols.vh"
+          ],
           "hint": "build_icache_board.bat"
         }
       ],
-      "build_hints": ["build_icache_board.bat；入口保留旧 guard，报告或镜像过期时须人工重新准备。"]
+      "build_hints": [
+        "build_icache_board.bat；入口保留旧 guard，报告或镜像过期时须人工重新准备。"
+      ]
     },
     {
       "id": "dcache",
@@ -115,18 +291,60 @@
       "script": "run_dcache.do",
       "timeout_seconds": 1200,
       "required_files": [
-        "run_dcache.do", "tools/regression_preflight.py", "tools/build_pds_board.py", "tools/build_dcache_board_images.py", "tools/build_timer_images.py",
+        "run_dcache.do",
+        "tools/regression_preflight.py",
+        "tools/build_pds_board.py",
+        "tools/build_dcache_board_images.py",
+        "tools/build_timer_images.py",
         "build/dcache_board_firmware/build_report.json",
-        "software/start.S", "software/timer_entry.S", "software/dcache_board.c", "software/icache_workload.S", "software/dcache_workload.h",
-        "software/timer.h", "software/gpio.h", "software/mmio.h", "software/link.ld",
-        "programs/dcache_board.hex", "programs/dcache_board_data.hex", "programs/dcache_board_sim_data.hex", "programs/dcache_board_symbols.vh",
-        "programs/data_handshake_blank.hex", "programs/trap_demo.hex", "programs/trap_demo_data.hex", "programs/trap_demo_symbols.vh",
-        "rtl/cpu_top.v", "rtl/if_stage.v", "rtl/decoder.v", "rtl/regfile.v", "rtl/alu.v", "rtl/instr_mem.v", "rtl/instr_bus_adapter.v",
-        "rtl/data_mem.v", "rtl/data_bus_adapter.v", "rtl/uart_tx.v", "rtl/uart_rx.v", "rtl/uart_rx_fifo.v", "rtl/uart_rx_mmio.v",
-        "rtl/gpio_mmio.v", "rtl/machine_timer.v", "rtl/board_reset.v", "rtl/soc_instr_mem.v", "rtl/dmem_axi_lite_bridge.v",
-        "rtl/axi_lite_ram.v", "rtl/axi_lite_1x2.v", "rtl/instr_cache.v", "rtl/data_cache.v", "rtl/axi_lite_dcache_stats.v",
-        "rtl/soc_axi_lite_top.v", "rtl/soc_dcache_stats_top.v", "rtl/dcache_board_top.v",
-        "tb/data_cache_tb.v", "tb/axi_lite_dcache_stats_tb.v", "tb/dcache_fault_tb.v", "tb/dcache_trap_tb.v", "tb/dcache_board_tb.v"
+        "software/start.S",
+        "software/timer_entry.S",
+        "software/dcache_board.c",
+        "software/icache_workload.S",
+        "software/dcache_workload.h",
+        "software/timer.h",
+        "software/gpio.h",
+        "software/mmio.h",
+        "software/link.ld",
+        "programs/dcache_board.hex",
+        "programs/dcache_board_data.hex",
+        "programs/dcache_board_sim_data.hex",
+        "programs/dcache_board_symbols.vh",
+        "programs/data_handshake_blank.hex",
+        "programs/trap_demo.hex",
+        "programs/trap_demo_data.hex",
+        "programs/trap_demo_symbols.vh",
+        "rtl/cpu_top.v",
+        "rtl/if_stage.v",
+        "rtl/decoder.v",
+        "rtl/regfile.v",
+        "rtl/alu.v",
+        "rtl/instr_mem.v",
+        "rtl/instr_bus_adapter.v",
+        "rtl/data_mem.v",
+        "rtl/data_bus_adapter.v",
+        "rtl/uart_tx.v",
+        "rtl/uart_rx.v",
+        "rtl/uart_rx_fifo.v",
+        "rtl/uart_rx_mmio.v",
+        "rtl/gpio_mmio.v",
+        "rtl/machine_timer.v",
+        "rtl/board_reset.v",
+        "rtl/soc_instr_mem.v",
+        "rtl/dmem_axi_lite_bridge.v",
+        "rtl/axi_lite_ram.v",
+        "rtl/axi_lite_1x2.v",
+        "rtl/instr_cache.v",
+        "rtl/data_cache.v",
+        "rtl/axi_lite_dcache_stats.v",
+        "rtl/soc_axi_lite_top.v",
+        "rtl/soc_dcache_stats_top.v",
+        "rtl/dcache_board_top.v",
+        "tb/data_cache_tb.v",
+        "tb/axi_lite_dcache_stats_tb.v",
+        "tb/dcache_fault_tb.v",
+        "tb/dcache_trap_tb.v",
+        "tb/dcache_board_tb.v"
       ],
       "required_markers": [
         "^(?:# )?DATA CACHE UNIT TESTS PASS\\r?$",
@@ -143,12 +361,30 @@
       ],
       "preflight_commands": [
         {
-          "argv": ["python", "tools/regression_preflight.py", "--kind", "dcache"],
-          "required_files": ["tools/regression_preflight.py", "tools/build_pds_board.py", "tools/build_dcache_board_images.py", "tools/build_timer_images.py", "build/dcache_board_firmware/build_report.json", "programs/dcache_board.hex", "programs/dcache_board_data.hex", "programs/dcache_board_sim_data.hex", "programs/dcache_board_symbols.vh"],
+          "argv": [
+            "python",
+            "tools/regression_preflight.py",
+            "--kind",
+            "dcache"
+          ],
+          "required_files": [
+            "tools/regression_preflight.py",
+            "tools/build_pds_board.py",
+            "tools/build_dcache_board_images.py",
+            "tools/build_timer_images.py",
+            "build/dcache_board_firmware/build_report.json",
+            "programs/dcache_board.hex",
+            "programs/dcache_board_data.hex",
+            "programs/dcache_board_sim_data.hex",
+            "programs/dcache_board_symbols.vh"
+          ],
           "hint": "build_dcache_board.bat；缺 trap_demo 镜像时另参考 build_trap.bat。"
         }
       ],
-      "build_hints": ["build_dcache_board.bat", "build_trap.bat（仅在旧 trap_demo 镜像缺失时人工准备）"]
+      "build_hints": [
+        "build_dcache_board.bat",
+        "build_trap.bat（仅在旧 trap_demo 镜像缺失时人工准备）"
+      ]
     },
     {
       "id": "btb-directed",
@@ -156,18 +392,35 @@
       "script": "run_btb.do",
       "timeout_seconds": 300,
       "required_files": [
-        "run_btb.do", "programs/data_handshake_blank.hex",
-        "rtl/uart_tx.v", "rtl/uart_rx.v", "rtl/uart_rx_fifo.v", "rtl/uart_rx_mmio.v", "rtl/instr_mem.v", "rtl/instr_bus_adapter.v",
-        "rtl/branch_predictor.v", "rtl/if_stage.v", "rtl/regfile.v", "rtl/decoder.v", "rtl/alu.v", "rtl/data_mem.v",
-        "rtl/data_bus_adapter.v", "rtl/gpio_mmio.v", "rtl/machine_timer.v", "rtl/cpu_top.v",
-        "tb/branch_predictor_tb.v", "tb/btb_cpu_tb.v"
+        "run_btb.do",
+        "programs/data_handshake_blank.hex",
+        "rtl/uart_tx.v",
+        "rtl/uart_rx.v",
+        "rtl/uart_rx_fifo.v",
+        "rtl/uart_rx_mmio.v",
+        "rtl/instr_mem.v",
+        "rtl/instr_bus_adapter.v",
+        "rtl/branch_predictor.v",
+        "rtl/if_stage.v",
+        "rtl/regfile.v",
+        "rtl/decoder.v",
+        "rtl/alu.v",
+        "rtl/data_mem.v",
+        "rtl/data_bus_adapter.v",
+        "rtl/gpio_mmio.v",
+        "rtl/machine_timer.v",
+        "rtl/cpu_top.v",
+        "tb/branch_predictor_tb.v",
+        "tb/btb_cpu_tb.v"
       ],
       "required_markers": [
         "^(?:# )?BTB UNIT PASS: saturation, full tags, JAL, stale invalidation, held-request metadata, stale errors and reset\\r?$",
         "^(?:# )?BTB CPU PASS: exact retire trace, six branches, loop direction changes, JAL/JALR and once-only stores across off/on and delayed buses\\r?$"
       ],
       "preflight_commands": [],
-      "build_hints": ["此入口使用 TB 自含指令，不需要编译 BTB 板级固件；保留 programs/data_handshake_blank.hex。"]
+      "build_hints": [
+        "此入口使用 TB 自含指令，不需要编译 BTB 板级固件；保留 programs/data_handshake_blank.hex。"
+      ]
     },
     {
       "id": "timer-irq",
@@ -175,11 +428,34 @@
       "script": "run_timer_irq.do",
       "timeout_seconds": 600,
       "required_files": [
-        "run_timer_irq.do", "programs/data_handshake_blank.hex", "programs/timer_irq.hex", "programs/timer_irq_data.hex", "programs/timer_irq_symbols.vh",
-        "rtl/instr_mem.v", "rtl/instr_bus_adapter.v", "rtl/branch_predictor.v", "rtl/if_stage.v", "rtl/regfile.v", "rtl/decoder.v", "rtl/alu.v",
-        "rtl/data_mem.v", "rtl/data_bus_adapter.v", "rtl/uart_tx.v", "rtl/uart_rx.v", "rtl/uart_rx_fifo.v", "rtl/uart_rx_mmio.v",
-        "rtl/gpio_mmio.v", "rtl/machine_timer.v", "rtl/cpu_top.v", "rtl/soc_instr_mem.v", "rtl/dmem_axi_lite_bridge.v", "rtl/axi_lite_ram.v", "rtl/soc_axi_lite_top.v",
-        "tb/machine_timer_tb.v", "tb/timer_irq_tb.v", "tb/timer_irq_c_tb.v"
+        "run_timer_irq.do",
+        "programs/data_handshake_blank.hex",
+        "programs/timer_irq.hex",
+        "programs/timer_irq_data.hex",
+        "programs/timer_irq_symbols.vh",
+        "rtl/instr_mem.v",
+        "rtl/instr_bus_adapter.v",
+        "rtl/branch_predictor.v",
+        "rtl/if_stage.v",
+        "rtl/regfile.v",
+        "rtl/decoder.v",
+        "rtl/alu.v",
+        "rtl/data_mem.v",
+        "rtl/data_bus_adapter.v",
+        "rtl/uart_tx.v",
+        "rtl/uart_rx.v",
+        "rtl/uart_rx_fifo.v",
+        "rtl/uart_rx_mmio.v",
+        "rtl/gpio_mmio.v",
+        "rtl/machine_timer.v",
+        "rtl/cpu_top.v",
+        "rtl/soc_instr_mem.v",
+        "rtl/dmem_axi_lite_bridge.v",
+        "rtl/axi_lite_ram.v",
+        "rtl/soc_axi_lite_top.v",
+        "tb/machine_timer_tb.v",
+        "tb/timer_irq_tb.v",
+        "tb/timer_irq_c_tb.v"
       ],
       "required_markers": [
         "^(?:# )?PASS: machine timer exact word decode, half writes, rollover, safe compare update, level MTIP, rearm and reset\\r?$",
@@ -191,7 +467,9 @@
         "^(?:# )?TIMER NEW TESTS PASS\\r?$"
       ],
       "preflight_commands": [],
-      "build_hints": ["build_timer.bat（旧 timer_irq C 固件缺失时人工准备）"]
+      "build_hints": [
+        "build_timer.bat（旧 timer_irq C 固件缺失时人工准备）"
+      ]
     },
     {
       "id": "machine-irq",
@@ -199,11 +477,27 @@
       "script": "run_machine_irq.do",
       "timeout_seconds": 300,
       "required_files": [
-        "run_machine_irq.do", "programs/data_handshake_blank.hex",
-        "rtl/instr_mem.v", "rtl/instr_bus_adapter.v", "rtl/branch_predictor.v", "rtl/if_stage.v", "rtl/regfile.v", "rtl/decoder.v", "rtl/alu.v",
-        "rtl/data_mem.v", "rtl/data_bus_adapter.v", "rtl/uart_tx.v", "rtl/uart_rx.v", "rtl/uart_rx_fifo.v", "rtl/uart_rx_mmio.v",
-        "rtl/gpio_mmio.v", "rtl/machine_timer.v", "rtl/cpu_top.v", "rtl/axi_lite_irq_demo.v",
-        "tb/machine_irq_cpu_tb.v", "tb/axi_lite_irq_demo_tb.v"
+        "run_machine_irq.do",
+        "programs/data_handshake_blank.hex",
+        "rtl/instr_mem.v",
+        "rtl/instr_bus_adapter.v",
+        "rtl/branch_predictor.v",
+        "rtl/if_stage.v",
+        "rtl/regfile.v",
+        "rtl/decoder.v",
+        "rtl/alu.v",
+        "rtl/data_mem.v",
+        "rtl/data_bus_adapter.v",
+        "rtl/uart_tx.v",
+        "rtl/uart_rx.v",
+        "rtl/uart_rx_fifo.v",
+        "rtl/uart_rx_mmio.v",
+        "rtl/gpio_mmio.v",
+        "rtl/machine_timer.v",
+        "rtl/cpu_top.v",
+        "rtl/axi_lite_irq_demo.v",
+        "tb/machine_irq_cpu_tb.v",
+        "tb/axi_lite_irq_demo_tb.v"
       ],
       "required_markers": [
         "^(?:# )?AXI IRQ DEMO TESTS PASS: level and command counts, SET/CLEAR bit0, independent AW/W, no side effects on SLVERR, held R/B and reset\\r?$",
@@ -213,7 +507,9 @@
         "^(?:# )?MACHINE IRQ DIRECTED TESTS PASS \\(no physical board verification\\)\\r?$"
       ],
       "preflight_commands": [],
-      "build_hints": ["此入口使用 TB 自含指令，不需要编译 machine_irq_board 固件；保留 programs/data_handshake_blank.hex。"]
+      "build_hints": [
+        "此入口使用 TB 自含指令，不需要编译 machine_irq_board 固件；保留 programs/data_handshake_blank.hex。"
+      ]
     },
     {
       "id": "coremark-prepare",
@@ -221,29 +517,73 @@
       "script": "run_coremark_prepare.do",
       "timeout_seconds": 1800,
       "required_files": [
-        "run_coremark_prepare.do", "run_coremark.do", "run_coremark_port_math.do", "tools/regression_preflight.py",
-        "tools/build_pds_board.py", "tools/build_coremark_images.py", "tools/build_coremark_port_tests.py",
-        "build/coremark/smoke/build_report.json", "build/coremark/smoke_validation/build_report.json", "build/coremark/formal_short/build_report.json",
-        "build/coremark/performance/build_report.json", "build/coremark_port_tests/build_report.json",
-        "build/coremark/smoke/coremark_build_config.h", "build/coremark/smoke_validation/coremark_build_config.h",
-        "build/coremark/formal_short/coremark_build_config.h", "build/coremark/performance/coremark_build_config.h",
-        "build/coremark_port_tests/coremark_math_50_smoke/coremark_math_50_smoke.bin", "build/coremark_port_tests/coremark_math_50_smoke/coremark_math_50_smoke_data.bin",
-        "build/coremark_port_tests/coremark_math_50_formal/coremark_math_50_formal.bin", "build/coremark_port_tests/coremark_math_50_formal/coremark_math_50_formal_data.bin",
-        "build/coremark_port_tests/coremark_math_100_smoke/coremark_math_100_smoke.bin", "build/coremark_port_tests/coremark_math_100_smoke/coremark_math_100_smoke_data.bin",
-        "build/coremark_port_tests/coremark_math_100_formal/coremark_math_100_formal.bin", "build/coremark_port_tests/coremark_math_100_formal/coremark_math_100_formal_data.bin",
-        "programs/coremark_smoke.hex", "programs/coremark_smoke_data.hex", "programs/coremark_smoke_config.vh",
-        "programs/coremark.hex", "programs/coremark_data.hex",
-        "programs/coremark_smoke_validation.hex", "programs/coremark_smoke_validation_data.hex", "programs/coremark_smoke_validation_config.vh",
-        "programs/coremark_formal_short.hex", "programs/coremark_formal_short_data.hex", "programs/coremark_formal_short_config.vh",
-        "programs/coremark_performance.hex", "programs/coremark_performance_data.hex", "programs/coremark_performance_config.vh",
-        "programs/coremark_math_symbols.vh", "programs/coremark_math_50_smoke.hex", "programs/coremark_math_50_smoke_data.hex",
-        "programs/coremark_math_50_formal.hex", "programs/coremark_math_50_formal_data.hex",
-        "programs/coremark_math_100_smoke.hex", "programs/coremark_math_100_smoke_data.hex",
-        "programs/coremark_math_100_formal.hex", "programs/coremark_math_100_formal_data.hex",
-        "rtl/instr_mem.v", "rtl/instr_bus_adapter.v", "rtl/if_stage.v", "rtl/regfile.v", "rtl/decoder.v", "rtl/alu.v",
-        "rtl/data_mem.v", "rtl/data_bus_adapter.v", "rtl/uart_tx.v", "rtl/uart_rx.v", "rtl/uart_rx_fifo.v", "rtl/uart_rx_mmio.v",
-        "rtl/gpio_mmio.v", "rtl/machine_timer.v", "rtl/cpu_top.v", "rtl/board_reset.v", "rtl/coremark_board_top.v",
-        "tb/coremark_tb.v", "tb/coremark_prepare_tb.v", "tb/coremark_port_math_tb.v"
+        "run_coremark_prepare.do",
+        "run_coremark.do",
+        "run_coremark_port_math.do",
+        "tools/regression_preflight.py",
+        "tools/build_pds_board.py",
+        "tools/build_coremark_images.py",
+        "tools/build_coremark_port_tests.py",
+        "build/coremark/smoke/build_report.json",
+        "build/coremark/smoke_validation/build_report.json",
+        "build/coremark/formal_short/build_report.json",
+        "build/coremark/performance/build_report.json",
+        "build/coremark_port_tests/build_report.json",
+        "build/coremark/smoke/coremark_build_config.h",
+        "build/coremark/smoke_validation/coremark_build_config.h",
+        "build/coremark/formal_short/coremark_build_config.h",
+        "build/coremark/performance/coremark_build_config.h",
+        "build/coremark_port_tests/coremark_math_50_smoke/coremark_math_50_smoke.bin",
+        "build/coremark_port_tests/coremark_math_50_smoke/coremark_math_50_smoke_data.bin",
+        "build/coremark_port_tests/coremark_math_50_formal/coremark_math_50_formal.bin",
+        "build/coremark_port_tests/coremark_math_50_formal/coremark_math_50_formal_data.bin",
+        "build/coremark_port_tests/coremark_math_100_smoke/coremark_math_100_smoke.bin",
+        "build/coremark_port_tests/coremark_math_100_smoke/coremark_math_100_smoke_data.bin",
+        "build/coremark_port_tests/coremark_math_100_formal/coremark_math_100_formal.bin",
+        "build/coremark_port_tests/coremark_math_100_formal/coremark_math_100_formal_data.bin",
+        "programs/coremark_smoke.hex",
+        "programs/coremark_smoke_data.hex",
+        "programs/coremark_smoke_config.vh",
+        "programs/coremark.hex",
+        "programs/coremark_data.hex",
+        "programs/coremark_smoke_validation.hex",
+        "programs/coremark_smoke_validation_data.hex",
+        "programs/coremark_smoke_validation_config.vh",
+        "programs/coremark_formal_short.hex",
+        "programs/coremark_formal_short_data.hex",
+        "programs/coremark_formal_short_config.vh",
+        "programs/coremark_performance.hex",
+        "programs/coremark_performance_data.hex",
+        "programs/coremark_performance_config.vh",
+        "programs/coremark_math_symbols.vh",
+        "programs/coremark_math_50_smoke.hex",
+        "programs/coremark_math_50_smoke_data.hex",
+        "programs/coremark_math_50_formal.hex",
+        "programs/coremark_math_50_formal_data.hex",
+        "programs/coremark_math_100_smoke.hex",
+        "programs/coremark_math_100_smoke_data.hex",
+        "programs/coremark_math_100_formal.hex",
+        "programs/coremark_math_100_formal_data.hex",
+        "rtl/instr_mem.v",
+        "rtl/instr_bus_adapter.v",
+        "rtl/if_stage.v",
+        "rtl/regfile.v",
+        "rtl/decoder.v",
+        "rtl/alu.v",
+        "rtl/data_mem.v",
+        "rtl/data_bus_adapter.v",
+        "rtl/uart_tx.v",
+        "rtl/uart_rx.v",
+        "rtl/uart_rx_fifo.v",
+        "rtl/uart_rx_mmio.v",
+        "rtl/gpio_mmio.v",
+        "rtl/machine_timer.v",
+        "rtl/cpu_top.v",
+        "rtl/board_reset.v",
+        "rtl/coremark_board_top.v",
+        "tb/coremark_tb.v",
+        "tb/coremark_prepare_tb.v",
+        "tb/coremark_port_math_tb.v"
       ],
       "required_markers": [
         "^(?:# )?PASS: CoreMark smoke real C seeds/CRCs, 64-bit mtime snapshots and algorithm-only interval\\r?$",
@@ -265,14 +605,32 @@
       ],
       "preflight_commands": [
         {
-          "argv": ["python", "tools/regression_preflight.py", "--kind", "coremark-prepare"],
-          "required_files": ["tools/regression_preflight.py", "tools/build_pds_board.py", "tools/build_coremark_images.py", "tools/build_coremark_port_tests.py", "build/coremark/smoke/build_report.json", "build/coremark/smoke_validation/build_report.json", "build/coremark/formal_short/build_report.json", "build/coremark/performance/build_report.json", "build/coremark_port_tests/build_report.json", "programs/coremark_math_symbols.vh"],
+          "argv": [
+            "python",
+            "tools/regression_preflight.py",
+            "--kind",
+            "coremark-prepare"
+          ],
+          "required_files": [
+            "tools/regression_preflight.py",
+            "tools/build_pds_board.py",
+            "tools/build_coremark_images.py",
+            "tools/build_coremark_port_tests.py",
+            "build/coremark/smoke/build_report.json",
+            "build/coremark/smoke_validation/build_report.json",
+            "build/coremark/formal_short/build_report.json",
+            "build/coremark/performance/build_report.json",
+            "build/coremark_port_tests/build_report.json",
+            "programs/coremark_math_symbols.vh"
+          ],
           "hint": "人工准备四个 CoreMark profile 和 tools/build_coremark_port_tests.py 的四组移植层镜像，见 build_hints。"
         }
       ],
       "build_hints": [
-        "build_coremark.bat --profile smoke", "build_coremark.bat --profile smoke-validation",
-        "build_coremark.bat --profile formal-short", "build_coremark.bat --profile performance",
+        "build_coremark.bat --profile smoke",
+        "build_coremark.bat --profile smoke-validation",
+        "build_coremark.bat --profile formal-short",
+        "build_coremark.bat --profile performance",
         "python tools/build_coremark_port_tests.py",
         "FORMAL FAIL 仅是 formal-short 的预期负测，不能当正式成绩；不允许用 partial/resume 汇总代替完整组。"
       ]
@@ -283,30 +641,72 @@
       "script": "run_coremark_axi.do",
       "timeout_seconds": 2400,
       "required_files": [
-        "run_coremark_axi.do", "tools/coremark_axi_contract.py", "tools/build_coremark_axi_images.py", "tools/build_coremark_images.py",
-        "rtl/instr_mem.v", "rtl/instr_bus_adapter.v", "rtl/if_stage.v", "rtl/regfile.v", "rtl/decoder.v", "rtl/alu.v",
-        "rtl/data_mem.v", "rtl/data_bus_adapter.v", "rtl/uart_tx.v", "rtl/uart_rx.v", "rtl/uart_rx_fifo.v", "rtl/uart_rx_mmio.v",
-        "rtl/gpio_mmio.v", "rtl/machine_timer.v", "rtl/branch_predictor.v", "rtl/cpu_top.v", "rtl/soc_instr_mem.v",
-        "rtl/dmem_axi_lite_bridge.v", "rtl/axi_lite_ram.v", "rtl/instr_cache.v", "rtl/data_cache.v", "rtl/soc_axi_lite_top.v",
-        "rtl/axi_lite_1x2.v", "rtl/axi_lite_coremark_stats.v", "rtl/soc_coremark_axi_top.v",
-        "tb/axi_lite_coremark_stats_tb.v", "tb/coremark_axi_tb.v",
-        "programs/coremark_axi_cache_off_smoke.hex", "programs/coremark_axi_cache_off_smoke_data.hex", "programs/coremark_axi_cache_off_smoke_config.vh",
-        "programs/coremark_axi_cache_off_smoke_validation.hex", "programs/coremark_axi_cache_off_smoke_validation_data.hex", "programs/coremark_axi_cache_off_smoke_validation_config.vh",
-        "programs/coremark_axi_cache_on_smoke.hex", "programs/coremark_axi_cache_on_smoke_data.hex", "programs/coremark_axi_cache_on_smoke_config.vh",
-        "programs/coremark_axi_cache_on_smoke_validation.hex", "programs/coremark_axi_cache_on_smoke_validation_data.hex", "programs/coremark_axi_cache_on_smoke_validation_config.vh",
-        "programs/coremark_axi_cache_on_btb_smoke.hex", "programs/coremark_axi_cache_on_btb_smoke_data.hex", "programs/coremark_axi_cache_on_btb_smoke_config.vh",
-        "programs/coremark_axi_cache_on_btb_smoke_validation.hex", "programs/coremark_axi_cache_on_btb_smoke_validation_data.hex", "programs/coremark_axi_cache_on_btb_smoke_validation_config.vh",
-        "build/coremark/axi_cache_off_smoke/build_report.json", "build/coremark/axi_cache_off_smoke/coremark_build_config.h",
-        "build/coremark/axi_cache_off_smoke_validation/build_report.json", "build/coremark/axi_cache_off_smoke_validation/coremark_build_config.h",
-        "build/coremark/axi_cache_on_smoke/build_report.json", "build/coremark/axi_cache_on_smoke/coremark_build_config.h",
-        "build/coremark/axi_cache_on_smoke_validation/build_report.json", "build/coremark/axi_cache_on_smoke_validation/coremark_build_config.h",
-        "build/coremark/axi_cache_on_btb_smoke/build_report.json", "build/coremark/axi_cache_on_btb_smoke/coremark_build_config.h",
-        "build/coremark/axi_cache_on_btb_smoke_validation/build_report.json", "build/coremark/axi_cache_on_btb_smoke_validation/coremark_build_config.h"
+        "run_coremark_axi.do",
+        "tools/coremark_axi_contract.py",
+        "tools/build_coremark_axi_images.py",
+        "tools/build_coremark_images.py",
+        "rtl/instr_mem.v",
+        "rtl/instr_bus_adapter.v",
+        "rtl/if_stage.v",
+        "rtl/regfile.v",
+        "rtl/decoder.v",
+        "rtl/alu.v",
+        "rtl/data_mem.v",
+        "rtl/data_bus_adapter.v",
+        "rtl/uart_tx.v",
+        "rtl/uart_rx.v",
+        "rtl/uart_rx_fifo.v",
+        "rtl/uart_rx_mmio.v",
+        "rtl/gpio_mmio.v",
+        "rtl/machine_timer.v",
+        "rtl/branch_predictor.v",
+        "rtl/cpu_top.v",
+        "rtl/soc_instr_mem.v",
+        "rtl/dmem_axi_lite_bridge.v",
+        "rtl/axi_lite_ram.v",
+        "rtl/instr_cache.v",
+        "rtl/data_cache.v",
+        "rtl/soc_axi_lite_top.v",
+        "rtl/axi_lite_1x2.v",
+        "rtl/axi_lite_coremark_stats.v",
+        "rtl/soc_coremark_axi_top.v",
+        "tb/axi_lite_coremark_stats_tb.v",
+        "tb/coremark_axi_tb.v",
+        "programs/coremark_axi_cache_off_smoke.hex",
+        "programs/coremark_axi_cache_off_smoke_data.hex",
+        "programs/coremark_axi_cache_off_smoke_config.vh",
+        "programs/coremark_axi_cache_off_smoke_validation.hex",
+        "programs/coremark_axi_cache_off_smoke_validation_data.hex",
+        "programs/coremark_axi_cache_off_smoke_validation_config.vh",
+        "programs/coremark_axi_cache_on_smoke.hex",
+        "programs/coremark_axi_cache_on_smoke_data.hex",
+        "programs/coremark_axi_cache_on_smoke_config.vh",
+        "programs/coremark_axi_cache_on_smoke_validation.hex",
+        "programs/coremark_axi_cache_on_smoke_validation_data.hex",
+        "programs/coremark_axi_cache_on_smoke_validation_config.vh",
+        "programs/coremark_axi_cache_on_btb_smoke.hex",
+        "programs/coremark_axi_cache_on_btb_smoke_data.hex",
+        "programs/coremark_axi_cache_on_btb_smoke_config.vh",
+        "programs/coremark_axi_cache_on_btb_smoke_validation.hex",
+        "programs/coremark_axi_cache_on_btb_smoke_validation_data.hex",
+        "programs/coremark_axi_cache_on_btb_smoke_validation_config.vh",
+        "build/coremark/axi_cache_off_smoke/build_report.json",
+        "build/coremark/axi_cache_off_smoke/coremark_build_config.h",
+        "build/coremark/axi_cache_off_smoke_validation/build_report.json",
+        "build/coremark/axi_cache_off_smoke_validation/coremark_build_config.h",
+        "build/coremark/axi_cache_on_smoke/build_report.json",
+        "build/coremark/axi_cache_on_smoke/coremark_build_config.h",
+        "build/coremark/axi_cache_on_smoke_validation/build_report.json",
+        "build/coremark/axi_cache_on_smoke_validation/coremark_build_config.h",
+        "build/coremark/axi_cache_on_btb_smoke/build_report.json",
+        "build/coremark/axi_cache_on_btb_smoke/coremark_build_config.h",
+        "build/coremark/axi_cache_on_btb_smoke_validation/build_report.json",
+        "build/coremark/axi_cache_on_btb_smoke_validation/coremark_build_config.h"
       ],
       "required_markers": [
-        "^(?:# )?COREMARK AXI STATS CASE PASS cache=0 BP=0: same-edge 23-field snapshots, disabled BP gating, schema/config, AXI backpressure/errors/reset\\r?$",
-        "^(?:# )?COREMARK AXI STATS CASE PASS cache=1 BP=0: same-edge 23-field snapshots, disabled BP gating, schema/config, AXI backpressure/errors/reset\\r?$",
-        "^(?:# )?COREMARK AXI STATS CASE PASS cache=1 BP=1: same-edge 23-field snapshots, disabled BP gating, schema/config, AXI backpressure/errors/reset\\r?$",
+        "^(?:# )?COREMARK AXI STATS CASE PASS cache=0 BP=0: same-edge 35-field snapshots, six 64-bit profiles/carry/rollover, disabled BP gating, schema/config, AXI backpressure/errors/reset\\r?$",
+        "^(?:# )?COREMARK AXI STATS CASE PASS cache=1 BP=0: same-edge 35-field snapshots, six 64-bit profiles/carry/rollover, disabled BP gating, schema/config, AXI backpressure/errors/reset\\r?$",
+        "^(?:# )?COREMARK AXI STATS CASE PASS cache=1 BP=1: same-edge 35-field snapshots, six 64-bit profiles/carry/rollover, disabled BP gating, schema/config, AXI backpressure/errors/reset\\r?$",
         "^(?:# )?COREMARK AXI STATS TESTS PASS\\r?$",
         "^(?:# )?COREMARK AXI STATS test_pass=1\\r?$",
         "^(?:# )?PASS: AXI CoreMark smoke flags=0 BP=0 real C CRCs, successful CPU tohost, mtime and frozen I/D/BP statistics\\r?$",
@@ -321,41 +721,160 @@
         "^(?:# )?COREMARK AXI coremark_axi_cache_on_smoke_validation test_pass=1\\r?$",
         "^(?:# )?COREMARK AXI coremark_axi_cache_on_btb_smoke test_pass=1\\r?$",
         "^(?:# )?COREMARK AXI coremark_axi_cache_on_btb_smoke_validation test_pass=1\\r?$",
-        "^(?:# )?COREMARK AXI SHORT TESTS PASS \\(three statistics modes and six firmware cases; no formal score\\)\\r?$"
+        "^(?:# )?COREMARK AXI SHORT TESTS PASS \\(three statistics modes and six firmware cases; no formal score\\)\\r?$",
+        "^(?:# )?PASS: AXI CoreMark cycle profile six 64-bit classes exactly partition the frozen cycle window and UART/RAM deltas\\r?$"
       ],
       "preflight_commands": [
         {
-          "argv": ["python", "tools/coremark_axi_contract.py", "--firmware", "coremark_axi_cache_off_smoke", "--cache", "off", "--btb", "off", "--simulation"],
-          "required_files": ["tools/coremark_axi_contract.py", "tools/build_coremark_axi_images.py", "tools/build_coremark_images.py", "build/coremark/axi_cache_off_smoke/build_report.json", "build/coremark/axi_cache_off_smoke/coremark_build_config.h", "programs/coremark_axi_cache_off_smoke.hex", "programs/coremark_axi_cache_off_smoke_data.hex", "programs/coremark_axi_cache_off_smoke_config.vh"],
+          "argv": [
+            "python",
+            "tools/coremark_axi_contract.py",
+            "--firmware",
+            "coremark_axi_cache_off_smoke",
+            "--cache",
+            "off",
+            "--btb",
+            "off",
+            "--simulation"
+          ],
+          "required_files": [
+            "tools/coremark_axi_contract.py",
+            "tools/build_coremark_axi_images.py",
+            "tools/build_coremark_images.py",
+            "build/coremark/axi_cache_off_smoke/build_report.json",
+            "build/coremark/axi_cache_off_smoke/coremark_build_config.h",
+            "programs/coremark_axi_cache_off_smoke.hex",
+            "programs/coremark_axi_cache_off_smoke_data.hex",
+            "programs/coremark_axi_cache_off_smoke_config.vh"
+          ],
           "hint": "build_coremark_axi.bat --cache off --btb off --profile smoke"
         },
         {
-          "argv": ["python", "tools/coremark_axi_contract.py", "--firmware", "coremark_axi_cache_off_smoke_validation", "--cache", "off", "--btb", "off", "--simulation"],
-          "required_files": ["tools/coremark_axi_contract.py", "tools/build_coremark_axi_images.py", "tools/build_coremark_images.py", "build/coremark/axi_cache_off_smoke_validation/build_report.json", "build/coremark/axi_cache_off_smoke_validation/coremark_build_config.h", "programs/coremark_axi_cache_off_smoke_validation.hex", "programs/coremark_axi_cache_off_smoke_validation_data.hex", "programs/coremark_axi_cache_off_smoke_validation_config.vh"],
+          "argv": [
+            "python",
+            "tools/coremark_axi_contract.py",
+            "--firmware",
+            "coremark_axi_cache_off_smoke_validation",
+            "--cache",
+            "off",
+            "--btb",
+            "off",
+            "--simulation"
+          ],
+          "required_files": [
+            "tools/coremark_axi_contract.py",
+            "tools/build_coremark_axi_images.py",
+            "tools/build_coremark_images.py",
+            "build/coremark/axi_cache_off_smoke_validation/build_report.json",
+            "build/coremark/axi_cache_off_smoke_validation/coremark_build_config.h",
+            "programs/coremark_axi_cache_off_smoke_validation.hex",
+            "programs/coremark_axi_cache_off_smoke_validation_data.hex",
+            "programs/coremark_axi_cache_off_smoke_validation_config.vh"
+          ],
           "hint": "build_coremark_axi.bat --cache off --btb off --profile smoke-validation"
         },
         {
-          "argv": ["python", "tools/coremark_axi_contract.py", "--firmware", "coremark_axi_cache_on_smoke", "--cache", "on", "--btb", "off", "--simulation"],
-          "required_files": ["tools/coremark_axi_contract.py", "tools/build_coremark_axi_images.py", "tools/build_coremark_images.py", "build/coremark/axi_cache_on_smoke/build_report.json", "build/coremark/axi_cache_on_smoke/coremark_build_config.h", "programs/coremark_axi_cache_on_smoke.hex", "programs/coremark_axi_cache_on_smoke_data.hex", "programs/coremark_axi_cache_on_smoke_config.vh"],
+          "argv": [
+            "python",
+            "tools/coremark_axi_contract.py",
+            "--firmware",
+            "coremark_axi_cache_on_smoke",
+            "--cache",
+            "on",
+            "--btb",
+            "off",
+            "--simulation"
+          ],
+          "required_files": [
+            "tools/coremark_axi_contract.py",
+            "tools/build_coremark_axi_images.py",
+            "tools/build_coremark_images.py",
+            "build/coremark/axi_cache_on_smoke/build_report.json",
+            "build/coremark/axi_cache_on_smoke/coremark_build_config.h",
+            "programs/coremark_axi_cache_on_smoke.hex",
+            "programs/coremark_axi_cache_on_smoke_data.hex",
+            "programs/coremark_axi_cache_on_smoke_config.vh"
+          ],
           "hint": "build_coremark_axi.bat --cache on --btb off --profile smoke"
         },
         {
-          "argv": ["python", "tools/coremark_axi_contract.py", "--firmware", "coremark_axi_cache_on_smoke_validation", "--cache", "on", "--btb", "off", "--simulation"],
-          "required_files": ["tools/coremark_axi_contract.py", "tools/build_coremark_axi_images.py", "tools/build_coremark_images.py", "build/coremark/axi_cache_on_smoke_validation/build_report.json", "build/coremark/axi_cache_on_smoke_validation/coremark_build_config.h", "programs/coremark_axi_cache_on_smoke_validation.hex", "programs/coremark_axi_cache_on_smoke_validation_data.hex", "programs/coremark_axi_cache_on_smoke_validation_config.vh"],
+          "argv": [
+            "python",
+            "tools/coremark_axi_contract.py",
+            "--firmware",
+            "coremark_axi_cache_on_smoke_validation",
+            "--cache",
+            "on",
+            "--btb",
+            "off",
+            "--simulation"
+          ],
+          "required_files": [
+            "tools/coremark_axi_contract.py",
+            "tools/build_coremark_axi_images.py",
+            "tools/build_coremark_images.py",
+            "build/coremark/axi_cache_on_smoke_validation/build_report.json",
+            "build/coremark/axi_cache_on_smoke_validation/coremark_build_config.h",
+            "programs/coremark_axi_cache_on_smoke_validation.hex",
+            "programs/coremark_axi_cache_on_smoke_validation_data.hex",
+            "programs/coremark_axi_cache_on_smoke_validation_config.vh"
+          ],
           "hint": "build_coremark_axi.bat --cache on --btb off --profile smoke-validation"
         },
         {
-          "argv": ["python", "tools/coremark_axi_contract.py", "--firmware", "coremark_axi_cache_on_btb_smoke", "--cache", "on", "--btb", "on", "--simulation"],
-          "required_files": ["tools/coremark_axi_contract.py", "tools/build_coremark_axi_images.py", "tools/build_coremark_images.py", "build/coremark/axi_cache_on_btb_smoke/build_report.json", "build/coremark/axi_cache_on_btb_smoke/coremark_build_config.h", "programs/coremark_axi_cache_on_btb_smoke.hex", "programs/coremark_axi_cache_on_btb_smoke_data.hex", "programs/coremark_axi_cache_on_btb_smoke_config.vh"],
+          "argv": [
+            "python",
+            "tools/coremark_axi_contract.py",
+            "--firmware",
+            "coremark_axi_cache_on_btb_smoke",
+            "--cache",
+            "on",
+            "--btb",
+            "on",
+            "--simulation"
+          ],
+          "required_files": [
+            "tools/coremark_axi_contract.py",
+            "tools/build_coremark_axi_images.py",
+            "tools/build_coremark_images.py",
+            "build/coremark/axi_cache_on_btb_smoke/build_report.json",
+            "build/coremark/axi_cache_on_btb_smoke/coremark_build_config.h",
+            "programs/coremark_axi_cache_on_btb_smoke.hex",
+            "programs/coremark_axi_cache_on_btb_smoke_data.hex",
+            "programs/coremark_axi_cache_on_btb_smoke_config.vh"
+          ],
           "hint": "build_coremark_axi.bat --cache on --btb on --profile smoke"
         },
         {
-          "argv": ["python", "tools/coremark_axi_contract.py", "--firmware", "coremark_axi_cache_on_btb_smoke_validation", "--cache", "on", "--btb", "on", "--simulation"],
-          "required_files": ["tools/coremark_axi_contract.py", "tools/build_coremark_axi_images.py", "tools/build_coremark_images.py", "build/coremark/axi_cache_on_btb_smoke_validation/build_report.json", "build/coremark/axi_cache_on_btb_smoke_validation/coremark_build_config.h", "programs/coremark_axi_cache_on_btb_smoke_validation.hex", "programs/coremark_axi_cache_on_btb_smoke_validation_data.hex", "programs/coremark_axi_cache_on_btb_smoke_validation_config.vh"],
+          "argv": [
+            "python",
+            "tools/coremark_axi_contract.py",
+            "--firmware",
+            "coremark_axi_cache_on_btb_smoke_validation",
+            "--cache",
+            "on",
+            "--btb",
+            "on",
+            "--simulation"
+          ],
+          "required_files": [
+            "tools/coremark_axi_contract.py",
+            "tools/build_coremark_axi_images.py",
+            "tools/build_coremark_images.py",
+            "build/coremark/axi_cache_on_btb_smoke_validation/build_report.json",
+            "build/coremark/axi_cache_on_btb_smoke_validation/coremark_build_config.h",
+            "programs/coremark_axi_cache_on_btb_smoke_validation.hex",
+            "programs/coremark_axi_cache_on_btb_smoke_validation_data.hex",
+            "programs/coremark_axi_cache_on_btb_smoke_validation_config.vh"
+          ],
           "hint": "build_coremark_axi.bat --cache on --btb on --profile smoke-validation"
         }
       ],
-      "build_hints": ["build_coremark_compare.bat --profile smoke", "build_coremark_compare.bat --profile smoke-validation", "仅人工生成匹配六种短镜像；本组不测正式成绩，不生成位流。"]
+      "build_hints": [
+        "build_coremark_compare.bat --profile smoke",
+        "build_coremark_compare.bat --profile smoke-validation",
+        "仅人工生成匹配六种短镜像；本组不测正式成绩，不生成位流。"
+      ]
     },
     {
       "id": "machine-irq-board",
@@ -363,13 +882,42 @@
       "script": "run_machine_irq_board.do",
       "timeout_seconds": 1200,
       "required_files": [
-        "run_machine_irq_board.do", "tools/machine_irq_contract.py", "tools/build_machine_irq_board_images.py", "tools/build_timer_images.py", "tools/build_coremark_images.py",
+        "run_machine_irq_board.do",
+        "tools/machine_irq_contract.py",
+        "tools/build_machine_irq_board_images.py",
+        "tools/build_timer_images.py",
+        "tools/build_coremark_images.py",
         "build/machine_irq_board_firmware/build_report.json",
-        "programs/machine_irq_board.hex", "programs/machine_irq_board_data.hex", "programs/machine_irq_board_sim_data.hex", "programs/machine_irq_board_symbols.vh",
-        "rtl/instr_mem.v", "rtl/instr_bus_adapter.v", "rtl/branch_predictor.v", "rtl/if_stage.v", "rtl/regfile.v", "rtl/decoder.v", "rtl/alu.v",
-        "rtl/data_mem.v", "rtl/data_bus_adapter.v", "rtl/uart_tx.v", "rtl/uart_rx.v", "rtl/uart_rx_fifo.v", "rtl/uart_rx_mmio.v", "rtl/gpio_mmio.v",
-        "rtl/machine_timer.v", "rtl/cpu_top.v", "rtl/board_reset.v", "rtl/soc_instr_mem.v", "rtl/instr_cache.v", "rtl/data_cache.v",
-        "rtl/dmem_axi_lite_bridge.v", "rtl/axi_lite_1x2.v", "rtl/axi_lite_ram.v", "rtl/axi_lite_irq_demo.v", "rtl/soc_axi_lite_top.v", "rtl/machine_irq_board_top.v",
+        "programs/machine_irq_board.hex",
+        "programs/machine_irq_board_data.hex",
+        "programs/machine_irq_board_sim_data.hex",
+        "programs/machine_irq_board_symbols.vh",
+        "rtl/instr_mem.v",
+        "rtl/instr_bus_adapter.v",
+        "rtl/branch_predictor.v",
+        "rtl/if_stage.v",
+        "rtl/regfile.v",
+        "rtl/decoder.v",
+        "rtl/alu.v",
+        "rtl/data_mem.v",
+        "rtl/data_bus_adapter.v",
+        "rtl/uart_tx.v",
+        "rtl/uart_rx.v",
+        "rtl/uart_rx_fifo.v",
+        "rtl/uart_rx_mmio.v",
+        "rtl/gpio_mmio.v",
+        "rtl/machine_timer.v",
+        "rtl/cpu_top.v",
+        "rtl/board_reset.v",
+        "rtl/soc_instr_mem.v",
+        "rtl/instr_cache.v",
+        "rtl/data_cache.v",
+        "rtl/dmem_axi_lite_bridge.v",
+        "rtl/axi_lite_1x2.v",
+        "rtl/axi_lite_ram.v",
+        "rtl/axi_lite_irq_demo.v",
+        "rtl/soc_axi_lite_top.v",
+        "rtl/machine_irq_board_top.v",
         "tb/machine_irq_board_tb.v"
       ],
       "required_markers": [
@@ -378,12 +926,122 @@
       ],
       "preflight_commands": [
         {
-          "argv": ["python", "tools/machine_irq_contract.py", "--simulation"],
-          "required_files": ["tools/machine_irq_contract.py", "tools/build_machine_irq_board_images.py", "tools/build_timer_images.py", "tools/build_coremark_images.py", "build/machine_irq_board_firmware/build_report.json", "programs/machine_irq_board.hex", "programs/machine_irq_board_data.hex", "programs/machine_irq_board_sim_data.hex", "programs/machine_irq_board_symbols.vh"],
+          "argv": [
+            "python",
+            "tools/machine_irq_contract.py",
+            "--simulation"
+          ],
+          "required_files": [
+            "tools/machine_irq_contract.py",
+            "tools/build_machine_irq_board_images.py",
+            "tools/build_timer_images.py",
+            "tools/build_coremark_images.py",
+            "build/machine_irq_board_firmware/build_report.json",
+            "programs/machine_irq_board.hex",
+            "programs/machine_irq_board_data.hex",
+            "programs/machine_irq_board_sim_data.hex",
+            "programs/machine_irq_board_symbols.vh"
+          ],
           "hint": "build_machine_irq_board.bat"
         }
       ],
-      "build_hints": ["build_machine_irq_board.bat；仅人工准备现有仿真镜像，不运行 PDS 或下载 FPGA。"]
+      "build_hints": [
+        "build_machine_irq_board.bat；仅人工准备现有仿真镜像，不运行 PDS 或下载 FPGA。"
+      ]
+    },
+    {
+      "id": "cpu-cycle-profile",
+      "title": "CPU 六类互斥周期、握手阻塞、重定向与复位",
+      "script": "run_cpu_cycle_profile.do",
+      "timeout_seconds": 300,
+      "required_files": [
+        "run_cpu_cycle_profile.do",
+        "tb/cpu_cycle_profile_tb.v",
+        "programs/data_handshake_blank.hex",
+        "rtl/uart_tx.v",
+        "rtl/uart_rx.v",
+        "rtl/uart_rx_fifo.v",
+        "rtl/uart_rx_mmio.v",
+        "rtl/instr_mem.v",
+        "rtl/instr_bus_adapter.v",
+        "rtl/branch_predictor.v",
+        "rtl/if_stage.v",
+        "rtl/regfile.v",
+        "rtl/decoder.v",
+        "rtl/alu.v",
+        "rtl/data_mem.v",
+        "rtl/data_bus_adapter.v",
+        "rtl/gpio_mmio.v",
+        "rtl/machine_timer.v",
+        "rtl/cpu_top.v"
+      ],
+      "required_markers": [
+        "^(?:# )?CPU CYCLE PROFILE PASS: six buckets, exact cycle sum, retire trace, once-only stores, pending resets and fault stop\\r?$"
+      ],
+      "preflight_commands": [],
+      "build_hints": []
+    },
+    {
+      "id": "axi-latency-directed",
+      "title": "AXI 独立通道、零等待延迟、保持非零等待、CPU 与 Cache 故障恢复",
+      "script": "run_axi_latency.do",
+      "timeout_seconds": 900,
+      "required_files": [
+        "run_axi_latency.do",
+        "rtl/instr_mem.v",
+        "rtl/instr_bus_adapter.v",
+        "rtl/if_stage.v",
+        "rtl/regfile.v",
+        "rtl/decoder.v",
+        "rtl/alu.v",
+        "rtl/branch_predictor.v",
+        "rtl/data_mem.v",
+        "rtl/data_bus_adapter.v",
+        "rtl/uart_tx.v",
+        "rtl/uart_rx.v",
+        "rtl/uart_rx_fifo.v",
+        "rtl/uart_rx_mmio.v",
+        "rtl/gpio_mmio.v",
+        "rtl/machine_timer.v",
+        "rtl/cpu_top.v",
+        "rtl/soc_instr_mem.v",
+        "rtl/dmem_axi_lite_bridge.v",
+        "rtl/axi_lite_ram.v",
+        "rtl/axi_lite_1x2.v",
+        "rtl/instr_cache.v",
+        "rtl/data_cache.v",
+        "rtl/soc_axi_lite_top.v",
+        "rtl/axi_lite_dcache_stats.v",
+        "rtl/soc_dcache_stats_top.v",
+        "tb/axi_lite_ram_tb.v",
+        "tb/axi_lite_1x2_tb.v",
+        "tb/axi_lite_latency_tb.v",
+        "tb/axi_lite_bridge_tb.v",
+        "tb/axi_lite_cpu_tb.v",
+        "tb/dcache_fault_tb.v",
+        "tb/dcache_trap_tb.v",
+        "programs/data_handshake_blank.hex",
+        "programs/c_demo.hex",
+        "programs/c_demo_data.hex",
+        "programs/trap_demo.hex",
+        "programs/trap_demo_data.hex",
+        "programs/trap_demo_symbols.vh"
+      ],
+      "required_markers": [
+        "^(?:# )?AXI latency axi_lite_ram_tb test_pass=1\\r?$",
+        "^(?:# )?AXI latency axi_lite_1x2_tb test_pass=1\\r?$",
+        "^(?:# )?AXI latency axi_lite_latency_tb test_pass=1\\r?$",
+        "^(?:# )?AXI latency axi_lite_bridge_tb test_pass=1\\r?$",
+        "^(?:# )?AXI latency axi_lite_cpu_tb test_pass=1\\r?$",
+        "^(?:# )?AXI latency dcache_fault_tb test_pass=1\\r?$",
+        "^(?:# )?AXI latency dcache_trap_tb test_pass=1\\r?$",
+        "^(?:# )?AXI LATENCY TESTS PASS: zero-wait B/R one-cycle responses and preserved nonzero delays\\r?$",
+        "^(?:# )?AXI LOW LATENCY ALL TESTS PASS\\r?$"
+      ],
+      "preflight_commands": [],
+      "build_hints": [
+        "使用既有 c_demo、trap_demo 与空白定向镜像；新增延迟测试不需要 GCC。"
+      ]
     }
   ]
 }

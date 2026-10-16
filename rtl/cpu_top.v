@@ -83,7 +83,11 @@ module cpu_top #(
     output reg  [31:0] bp_resolved_count, bp_mispredict_count,
     output reg  [31:0] bp_direction_error_count, bp_target_error_count,
     // Asynchronous level request; ignored when the external source is disabled.
-    input wire irq_external
+    input wire irq_external,
+    // Registered, mutually exclusive primary cycle classification. Bit order:
+    // work/other, instruction wait, data read wait, data write wait,
+    // local MMIO wait, normal redirect recovery wait. Not retirement events.
+    output reg [5:0] perf_cycle_events
 );
 
     localparam [31:0] MMIO_CYCLE_ADDR   = 32'h2000_0000;
@@ -1445,6 +1449,47 @@ module cpu_top #(
      * ????????RAM????????
      */
     reg counting_started;
+
+    // Observation only: no profiler signal feeds instruction/bus control.
+    // A normal redirect starts a recovery interval only when it wins the
+    // architectural redirect priority. Stop at the next valid EX instruction;
+    // the interval includes downstream fetch latency, not just branch logic.
+    reg perf_redirect_pending;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            perf_cycle_events <= 6'b000000;
+            perf_redirect_pending <= 1'b0;
+        end else begin
+            if (trap_event || mret_commit_x || imem_fault || dmem_fault)
+                perf_redirect_pending <= 1'b0;
+            else if (redirect_x && normal_redirect_x)
+                perf_redirect_pending <= 1'b1;
+            else if (valid_x)
+                perf_redirect_pending <= 1'b0;
+
+            // Exactly the same enable as cycle_count, including its first
+            // counted edge. Consumers see this registered event one edge
+            // later and must include the current event when snapshotting.
+            perf_cycle_events <= 6'b000000;
+            if (counting_started || (valid_x && instr_supported_x)) begin
+                if (stall_x && (mem_active || mem_start_x)) begin
+                    if (mem_req_mmio)
+                        perf_cycle_events <= 6'b010000;
+                    else if (mem_req_write)
+                        perf_cycle_events <= 6'b001000;
+                    else
+                        perf_cycle_events <= 6'b000100;
+                end else if (!valid_x && perf_redirect_pending &&
+                             !trap_event && !mret_commit_x &&
+                             !imem_fault && !dmem_fault)
+                    perf_cycle_events <= 6'b100000;
+                else if (!valid_x && !imem_fault && !dmem_fault)
+                    perf_cycle_events <= 6'b000010;
+                else
+                    perf_cycle_events <= 6'b000001;
+            end
+        end
+    end
 
     assign retire_to_wb =
         mem_rsp_success ||
