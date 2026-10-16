@@ -71,6 +71,10 @@ module instr_cache #(
         end else begin
             lru_pending<=0;
             if(lru_pending) victim_lru[lru_set]<=lru_value;
+            // Only lru_pending qualifies this metadata on the next edge.
+            // Unconditional capture keeps the late hit/range decision off
+            // the metadata register clock enables, including same-set misses.
+            lru_set<=lookup_set;lru_value<=hit0;
             access_event<=0;hit_event<=0;miss_event<=0;refill_event<=0;error_event<=0;
             if(access_event) access_count<=access_count+1;
             if(hit_event) hit_count<=hit_count+1;
@@ -93,7 +97,7 @@ module instr_cache #(
                 end else if(hit0 || hit1) begin
                     rsp_rdata<=hit0 ? data0[{lookup_set,lookup_word}] : data1[{lookup_set,lookup_word}];
                     rsp_error<=0; state<=RESPONSE;
-                    lru_pending<=1;lru_set<=lookup_set;lru_value<=hit0; // opposite way is least recent
+                    lru_pending<=1; // opposite way is least recent
                     hit_event<=1;
                 end else begin
                     miss_event<=1;

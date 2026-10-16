@@ -1,4 +1,4 @@
-// Opt-in MES50HP branch prediction acceptance image, prepared but unverified.
+// Opt-in MES50HP branch prediction acceptance image.
 // Internal 32 KiB ROM / 16 KiB RAM, 50 MHz and 115200 baud.
 module btb_board_top #(
     parameter PROGRAM_FILE = "programs/btb_board.hex",
@@ -23,9 +23,11 @@ module btb_board_top #(
         .DMEM_BASE_ADDR(32'h00010000),
         .UART_CLOCK_HZ(50000000), .UART_BAUD(115200),
         .ENABLE_TRAPS(1), .ENABLE_TIMER_IRQ(1),
+        .ENABLE_EXTERNAL_IRQ(0), .ENABLE_SOFTWARE_IRQ(0),
         .ENABLE_BRANCH_PRED(1), .BTB_ENTRIES(64), .SIM_CONSOLE_ECHO(0)
     ) u_cpu (
         .clk(clk_50m), .rst_n(cpu_rst_n), .uart_rx(uart_rx), .uart_tx(uart_tx),
+        .irq_external(1'b0),
         .gpio_in({keys_n, key1_n}), .gpio_out(gpio_out), .gpio_oe(gpio_oe),
         .pc_x(), .instr_x(), .valid_x(), .wb_pc(), .wb_rd(), .wb_data(),
         .wb_we(), .retire_valid(), .cycle_count(), .instret_count(),
@@ -36,7 +38,11 @@ module btb_board_top #(
         .dmem_req_addr(), .dmem_req_size(), .dmem_req_wdata(), .dmem_req_wstrb(),
         .dmem_rsp_valid(1'b0), .dmem_rsp_ready(), .dmem_rsp_rdata(32'd0),
         .dmem_rsp_error(1'b0), .dmem_fault(),
-        .trap_valid(), .trap_pc(), .trap_cause(), .trap_tval()
+        .trap_valid(), .trap_pc(), .trap_cause(), .trap_tval(),
+        // Firmware reads predictor counters through the local MMIO bank.
+        .bp_lookup_count(), .bp_hit_count(), .bp_taken_count(),
+        .bp_resolved_count(), .bp_mispredict_count(),
+        .bp_direction_error_count(), .bp_target_error_count()
     );
     // GPIO bit 1 = PASS, bit 0 = heartbeat, bit 2 = FAIL.
     assign led = !cpu_rst_n ? 8'h00 : (gpio_out & gpio_oe);

@@ -14,7 +14,7 @@ HW_BLINK = 25000000
 SIM_BLINK = 2000
 SOURCES = [
     "software/start.S", "software/btb_board_cases.S", "software/btb_board.c",
-    "software/timer.h", "software/gpio.h", "software/mmio.h", "software/link.ld",
+    "software/timer.h", "software/gpio.h", "software/mmio.h", "software/link_btb.ld",
     "tools/build_timer_images.py", "tools/build_coremark_images.py",
     "tools/build_btb_board_images.py", "rtl/btb_board_top.v",
     "rtl/branch_predictor.v", "rtl/if_stage.v", "rtl/cpu_top.v", "rtl/board_reset.v",
@@ -86,7 +86,7 @@ def build(tool, name, blink_cycles, log):
              "-fno-builtin", "-fno-stack-protector", "-fno-pic",
              "-msmall-data-limit=0", "-mno-relax", "-ffunction-sections",
              "-fdata-sections", "-Wall", "-Wextra", "-Werror", "-nostdlib",
-             "-nostartfiles", "-static", "-Wl,-T,software/link.ld",
+             "-nostartfiles", "-static", "-Wl,-T,software/link_btb.ld",
              "-Wl,--gc-sections", "-Wl,--no-relax",
              "-Wl,-Map," + rel(Path(str(stem) + ".map")),
              f"-DBTB_BOARD_BLINK_CYCLES={blink_cycles}u"]

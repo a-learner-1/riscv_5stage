@@ -1019,15 +1019,17 @@ module cpu_top #(
         (mem_size_x == 2'd2) &&
         (mem_addr_x[1:0] == 2'b00);
 
+    // These register address sets are disjoint. Use parallel masked data
+    // rather than a priority chain after the late effective-address decode.
     assign mmio_read_data_x =
-        mmio_cycle_addr_x   ? cycle_count[31:0] :
-        mmio_instret_addr_x ? instret_count[31:0] :
-        mmio_uart_status_addr_x ? {31'd0, uart_busy} :
-        uart_rx_read_hit_x  ? uart_rx_read_data_x :
-        gpio_read_hit_x     ? gpio_read_data_x :
-        timer_read_hit_x    ? timer_read_data_x :
-        mmio_msip_read_hit_x ? {31'd0, software_msip} :
-        bp_mmio_read_hit_x  ? bp_mmio_read_data_x : 32'd0;
+        ({32{mmio_cycle_addr_x}} & cycle_count[31:0]) |
+        ({32{mmio_instret_addr_x}} & instret_count[31:0]) |
+        ({32{mmio_uart_status_addr_x}} & {31'd0, uart_busy}) |
+        ({32{uart_rx_read_hit_x}} & uart_rx_read_data_x) |
+        ({32{gpio_read_hit_x}} & gpio_read_data_x) |
+        ({32{timer_read_hit_x}} & timer_read_data_x) |
+        ({32{mmio_msip_read_hit_x}} & {31'd0, software_msip}) |
+        ({32{bp_mmio_read_hit_x}} & bp_mmio_read_data_x);
 
     assign mmio_msip_read_hit_x = (SOFTWARE_IRQ_ENABLED != 0) &&
         (mem_addr_x == MMIO_MSIP_ADDR);

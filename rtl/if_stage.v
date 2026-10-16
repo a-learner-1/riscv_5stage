@@ -73,15 +73,22 @@ module if_stage #(
     wire        fetch_req_pred_taken, fetch_req_pred_hit;
 
     assign fetch_req_pred_next = req_hold_q ? req_pred_next_q :
-                                  lookup_taken ? lookup_target : fetch_req_addr + 32'd4;
-    assign fetch_req_pred_taken = req_hold_q ? req_pred_taken_q : lookup_taken;
-    assign fetch_req_pred_hit = req_hold_q ? req_pred_hit_q : lookup_hit;
+                                  (!redirect_x && lookup_taken) ? lookup_target : fetch_req_addr + 32'd4;
+    assign fetch_req_pred_taken = req_hold_q ? req_pred_taken_q : (!redirect_x && lookup_taken);
+    assign fetch_req_pred_hit = req_hold_q ? req_pred_hit_q : (!redirect_x && lookup_hit);
 
     generate
         if (ENABLE_BRANCH_PRED != 0) begin : g_branch_predictor
             reg [31:0] lookup_count_q, hit_count_q, taken_count_q;
+            // Register statistics events before the 32-bit counters so the
+            // late redirect/ready/predictor path does not drive counter CEs.
+            // All three events are delayed equally; fetch behavior is unchanged.
+            reg lookup_event_q, hit_event_q, taken_event_q;
             branch_predictor #(.BTB_ENTRIES(BTB_ENTRIES)) u_branch_predictor (
-                .clk(clk), .rst_n(rst_n), .query_pc(fetch_req_addr),
+                // Query the registered fetch PC, keeping the late EX redirect
+                // off the BTB index/tag muxes. A fresh redirect request uses
+                // PC+4; held requests retain their original metadata.
+                .clk(clk), .rst_n(rst_n), .query_pc(pc_f),
                 .lookup_hit(lookup_hit), .lookup_taken(lookup_taken),
                 .lookup_target(lookup_target),
                 .update_valid(bp_update_valid), .update_pc(bp_update_pc),
@@ -96,11 +103,18 @@ module if_stage #(
                     lookup_count_q <= 32'd0;
                     hit_count_q <= 32'd0;
                     taken_count_q <= 32'd0;
-                end else if (fetch_req_fire && !fetch_req_stale) begin
-                    lookup_count_q <= lookup_count_q + 32'd1;
-                    if (fetch_req_pred_hit)
+                    lookup_event_q <= 1'b0;
+                    hit_event_q <= 1'b0;
+                    taken_event_q <= 1'b0;
+                end else begin
+                    lookup_event_q <= fetch_req_fire && !fetch_req_stale;
+                    hit_event_q <= fetch_req_fire && !fetch_req_stale && fetch_req_pred_hit;
+                    taken_event_q <= fetch_req_fire && !fetch_req_stale && fetch_req_pred_taken;
+                    if (lookup_event_q)
+                        lookup_count_q <= lookup_count_q + 32'd1;
+                    if (hit_event_q)
                         hit_count_q <= hit_count_q + 32'd1;
-                    if (fetch_req_pred_taken)
+                    if (taken_event_q)
                         taken_count_q <= taken_count_q + 32'd1;
                 end
             end

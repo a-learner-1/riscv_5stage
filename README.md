@@ -2,7 +2,7 @@
 
 自研的 32 位 RISC-V 裸机处理器，采用 **IF → EX → WB** 三级流水线，使用 Verilog 实现 CPU、存储接口和基础外设，在紫光同创 MES50HP 开发板上验证。工程提供 GCC 固件构建、ModelSim 自动自检和 PDS 独立板级构建入口，可作为后续 CNN 加速器的控制处理器。
 
-**更新时间：2026-10-11。** CPU 基础功能、串口收发、AXI 控制、同步异常、定时器中断和两路指令 Cache 的独立板级自检已有验证记录。两路数据 Cache 的实物确认、BTB、机器外部／软件中断与 AXI CoreMark 三配置对照测量仍待完成。统一回归工具已有源码入口，本轮继续准备 CPU 源码交接包导出工具及接口说明。按“暂时不验证”的安排，只准备代码，未运行导出工具、生成交接 ZIP、执行新入口、编译、仿真、PDS 或上板；共用 CPU 通路的兼容回归也待执行。下表通过记录属于相应历史版本。真实 CNN 联调仍待完成。
+**更新时间：2026-10-16。** AXI CoreMark 三配置的 performance／validation 六项正式运行已全部上板 `FORMAL PASS` 并完成配对。50 MHz 下，无 Cache 为 **38.108122 CoreMark／0.762162439 CoreMark/MHz**，双 Cache 为 **46.049672／0.920993449**，双 Cache＋BTB 为 **49.603719／0.992074389**。BTB 配置比双 Cache 快 **7.72%**，比 AXI 无 Cache 基线快 **30.17%**；增幅按各构建配置的整体实测解释。既有统一回归与专项验收范围见对应记录。历史内部 RAM 基线 52.574739 CoreMark 属于另一条存储通路。源码交接导出与真实 CNN 联调仍待完成。最新数据见[AXI 测量记录](docs/coremark_axi_results_20261015.md)。
 
 ## 功能与验证状态
 
@@ -17,15 +17,15 @@
 | AXI4-Lite | 32 位数据主桥、AXI RAM、1 主 2 从地址分发、演示控制设备 | 协议自检、CPU 集成和 `AXI CTRL PASS` 实物验证通过 |
 | 最小 M 模式同步异常 | 6 种 Zicsr、MRET、必要 CSR；非法指令、ECALL／EBREAK、取指／访存错误 | `TRAP BOARD PASS` 实物验证通过 |
 | 机器定时器中断 | 64 位 mtime／mtimecmp、MTIE／MTIP、屏蔽与挂起、中断返回 | `TIMER IRQ PASS` 实物验证通过，见[验证记录](docs/timer_irq_board.md) |
-| 机器外部／软件中断 | 单路电平外部输入、MSIP 本地寄存器、三源使能／挂起及优先级，默认关闭 | 代码及独立自检入口已准备，全部待验证，见[说明](docs/machine_irq.md) |
+| 机器外部／软件中断 | 单路电平外部输入、MSIP 本地寄存器、三源使能／挂起及优先级，默认关闭 | 定向自检和三源固件板顶 RTL 已通过；专用实物验收待完成，见[说明](docs/machine_irq.md) |
 | 两路指令 Cache | 2 KiB、64 组、16 字节行、LRU，可选择启用 | RTL、50 MHz 时序、综合网表及 2026-10-04 实物验证通过，见[验证记录](docs/icache_verification_20261003.md) |
-| CoreMark | performance／validation 独立正式模式，64 位计时和 CRC 检查 | 两次均 `FORMAL PASS`；无 Cache 性能为 **52.574739 CoreMark** |
-| AXI SoC 的 CoreMark 对照 | 同一平台的基线／双 Cache／双 Cache＋BTB；原子快照、CPI、Cache 与预测器统计 | 三配置独立构建、六种短测试和板级入口已准备；本轮未运行验证，见[操作说明](docs/coremark_axi.md) |
+| 内部 RAM CoreMark 基线 | performance／validation 独立正式模式，64 位计时和 CRC 检查 | 两次均 `FORMAL PASS`；历史无 Cache 性能为 **52.574739 CoreMark** |
+| AXI SoC 的 CoreMark 对照 | 同一平台的基线／双 Cache／双 Cache＋BTB；原子快照、CPI、Cache 与预测器统计 | 六种短测试通过；AXI 无 Cache 两项实测通过，38.108122 CoreMark；双 Cache performance **46.049672 CoreMark（+20.84%）**，validation 也已通过；BTB performance **49.603719 CoreMark**，validation 也已通过，三配置全部配对完成，见[测量记录](docs/coremark_axi_results_20261015.md) |
 | 两路数据 Cache | 2 KiB、两路、64 组、16 字节行、LRU；写穿透、写缺失不分配；RAM 之外旁路 | RTL、真实 CPU 错误恢复、50 MHz PDS 与综合网表通过；实物待确认，见[说明](docs/dcache.md) |
-| 动态分支预测／BTB | 已编写默认关闭的 64 项 BTB、2 位饱和方向计数器；预测条件分支与 JAL，EX 核对并恢复错误预测 | 新功能及关闭模式兼容性均待验证，见[说明](docs/btb.md) |
-| 更完整的异常／中断 | 最小 M 模式同步异常；定时器及新增外部／软件中断代码 | 新中断仍待验证；PLIC、向量入口、嵌套中断与 S/U 模式尚未实现 |
+| 动态分支预测／BTB | 默认关闭的 64 项 BTB、2 位饱和方向计数器；预测条件分支与 JAL，EX 核对并恢复错误预测 | 单元／CPU、兼容及短程回归通过；AXI CoreMark BTB performance 已上板通过，49.603719 CoreMark；performance／validation 均实测通过；独立板顶记录见[说明](docs/btb.md) |
+| 更完整的异常／中断 | 最小 M 模式同步异常；定时器及新增外部／软件中断代码 | 三类中断 RTL 已通过；PLIC、向量入口、嵌套中断与 S/U 模式尚未实现 |
 | CNN／DDR／DMA | 已有 AXI4-Lite 控制接口基础 | 真实 CNN 联调、AXI4 突发传输、DDR／DMA 尚未实现 |
-| 统一回归入口 | 双击菜单、分组运行既有 ModelSim 自检、前置镜像检查及 JSON／中文 Markdown 汇总 | 代码准备，入口和结果判断逻辑均未执行，见[操作说明](docs/regression.md) |
+| 统一回归入口 | 双击菜单、分组运行既有 ModelSim 自检、前置镜像检查及 JSON／中文 Markdown 汇总 | 六组九场景已分组实际运行并通过；不等于一次 all 汇总或实物验收，见[操作说明](docs/regression.md) |
 | CPU 源码交接工具 | 已提交源码／显式工作区导出、版本和文件哈希清单、中文交接说明 | 工具代码准备，尚未运行或生成交接包，见[交接说明](docs/cpu_handoff.md) |
 
 上述板级结果来自用户提供的串口记录、截图和现象确认，具体资源、时序与镜像哈希按各版本验证记录区分。构建脚本不会自动下载 FPGA；生成 manifest 中的 `hardware_verified=false` 表示构建器自身未执行实物验收。
@@ -156,9 +156,9 @@ do run_uart.do
 | 两路数据 Cache 自检（同时开启 I-cache） | `build_dcache_board.bat` | `dcache_board`／`dcache_board` | 预期 `DCACHE PASS`；实物待确认 |
 | CoreMark 性能基线 | `build_coremark.bat --profile performance` | `coremark_board`／`coremark_performance` | `COREMARK RESULT: FORMAL PASS` |
 | CoreMark 校验运行 | `build_coremark.bat --profile validation` | `coremark_board`／`coremark_validation` | `COREMARK RESULT: FORMAL PASS` |
-| AXI CoreMark，Cache 关闭 | `build_coremark_axi.bat --cache off --profile performance` | `coremark_axi_off`／`coremark_axi_cache_off_performance` | 本轮仅编写代码，待验证 |
-| AXI CoreMark，双 Cache 开启 | `build_coremark_axi.bat --cache on --profile performance` | `coremark_axi_on`／`coremark_axi_cache_on_performance` | 本轮仅编写代码，待验证 |
-| AXI CoreMark，双 Cache＋BTB | `build_coremark_axi.bat --cache on --btb on --profile performance` | `coremark_axi_btb`／`coremark_axi_cache_on_btb_performance` | 本轮仅编写代码，待验证 |
+| AXI CoreMark，Cache 关闭 | `build_coremark_axi.bat --cache off --profile performance` | `coremark_axi_off`／`coremark_axi_cache_off_performance` | performance／validation 实测 `FORMAL PASS`；38.108122 CoreMark |
+| AXI CoreMark，双 Cache 开启 | `build_coremark_axi.bat --cache on --profile performance` | `coremark_axi_on`／`coremark_axi_cache_on_performance` | performance 实测 `FORMAL PASS`，46.049672 CoreMark；validation 也已实测通过 |
+| AXI CoreMark，双 Cache＋BTB | `build_coremark_axi.bat --cache on --btb on --profile performance` | `coremark_axi_btb`／`coremark_axi_cache_on_btb_performance` | performance 实测 `FORMAL PASS`，49.603719 CoreMark；performance／validation 均实测通过 |
 | BTB／动态分支预测自检 | `build_btb_board.bat` | `btb_board`／`btb_board` | 预期 `BTB BOARD PASS`，本轮未验证 |
 
 以当前两路指令 Cache 版本为例，在 Git Bash 执行：
@@ -222,7 +222,7 @@ ModelSim 使用 `do run_dcache.do`；旧版本兼容回归使用 `do run_dcache_
 | performance | 1100 | 1,046,129,783 | 20.922595660 s | 52.574738712 次/s | `FORMAL PASS` |
 | validation | 600 | 610,559,442 | 12.211188840 s | 49.135265031 次/s | `FORMAL PASS` |
 
-**当前性能基线：52.574739 CoreMark，1.051494774 CoreMark/MHz。** validation 使用另一组种子验证正确性，其速度不与 performance 求平均。本记录表示板上实测和固件正式模式检查通过，未声明 EEMBC 注册或认证。
+**历史内部 RAM 性能基线：52.574739 CoreMark，1.051494774 CoreMark/MHz。** validation 使用另一组种子验证正确性，其速度不与 performance 求平均。本记录表示板上实测和固件正式模式检查通过，未声明 EEMBC 注册或认证。当前 AXI 平台对照使用另测的 38.108122 CoreMark 基线。
 
 重新构建两种正式版本，在 Git Bash 执行：
 
@@ -258,7 +258,7 @@ cmd.exe //c build_coremark_compare.bat --profile validation
 
 新增默认 64 项的直接映射 BTB，保存完整 PC 标签、跳转目标和条件分支的 2 位饱和方向计数器。条件分支和 JAL 可提前选择取指地址；JALR 保留 EX 阶段解析。预测信息随请求冻结并送入 EX，成功完成的指令才更新预测器；错误预测恢复正确下一 PC，异常、中断和 MRET 保持更高优先级。
 
-`cpu_top` 与 `soc_axi_lite_top` 的 `ENABLE_BRANCH_PRED` 默认 0，`BTB_ENTRIES` 默认 64。原 CoreMark 入口保持预测器关闭；新增 `coremark_axi_btb` 配置明确开启，尚无新成绩。独立 `btb_board` 使用内部 ROM／RAM，输出诊断计数，供后续功能验收。
+`cpu_top` 与 `soc_axi_lite_top` 的 `ENABLE_BRANCH_PRED` 默认 0，`BTB_ENTRIES` 默认 64。原 CoreMark 入口保持预测器关闭；新增 `coremark_axi_btb` 配置明确开启，performance 实测 49.603719 CoreMark，同配置 validation 已实测通过，正式配对完成。独立 `btb_board` 使用内部 ROM／RAM，输出诊断计数，供后续功能验收。
 
 后续需要构建时，在 Git Bash 执行：
 
@@ -331,7 +331,7 @@ cmd.exe //c run_regression.bat --group all --plan
 
 ## 后续开发与 CNN 协作
 
-三配置 AXI CoreMark、BTB、机器外部／软件中断、统一回归与源码交接工具已编写，各新增入口仍待验证。交接时保留提交号和源码清单，说明当前配置及待验证范围。恢复验证后先按统一清单在新增开关关闭时回归原 CPU、握手、异常、定时器和 Cache 功能，再执行 BTB 与三源中断定向测试及模拟板级检查。随后运行六种 AXI CoreMark 短组合，检查资源和 50 MHz 时序，最后上板完成独立功能验收、测量三个配置的 performance，并完成各自 validation。比较是否提升时保留相同配置条件和完整证据。
+统一回归六组九场景与独立 BTB 板顶 RTL 已通过，AXI 无 Cache 的 performance／validation 已配对完成，双 Cache performance／validation 也已配对通过。双 Cache＋BTB performance／validation 也已配对通过，三种配置的六项正式运行全部完成；BTB 配置性能为 49.603719 CoreMark。下一步适合固定版本与测量证据，运行 CPU 源码交接导出工具，保留每份固件、PDS 最终时序、位流哈希和完整 UART。专用 BTB／三源中断板级版本的实物验收仍按各自说明完成。比较性能时在同一 AXI 平台、相同编译和存储条件下进行，交接时保留提交号、源码清单与待验证范围。
 
 CPU 已具备裸机 C、UART、GPIO、定时器和 AXI4-Lite 控制基础，可交给队友作为控制接口参考。真实 CNN 接入前还需约定寄存器地址、启动／完成／清除流程、结果格式、数据缓冲区、时钟与复位；若后续使用 DMA，还需明确数据 Cache 与加速器共享内存的一致性策略。
 
@@ -339,6 +339,7 @@ CPU 已具备裸机 C、UART、GPIO、定时器和 AXI4-Lite 控制基础，可�
 
 ## 文档索引
 
+- [AXI CoreMark 板级测量：三配置六项正式结果与性能对照](docs/coremark_axi_results_20261015.md)
 - [CPU 源码交接包：导出、版本清单、接口及五级升级边界](docs/cpu_handoff.md)
 - [统一回归：双击菜单、分组、前置检查与结果汇总](docs/regression.md)
 - [指令 Cache：结构、协议、统计与操作](docs/icache.md)

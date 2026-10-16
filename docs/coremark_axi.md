@@ -1,6 +1,6 @@
 # AXI CoreMark：基线、双 Cache、双 Cache＋BTB 对照
 
-**代码更新：2026-10-10；验证待完成。** 本轮将 BTB 接入独立 AXI CoreMark 平台，准备三个配置的固件构建、PDS 绑定、统计接口和未来自检入口。按用户“暂时不验证”的安排，未执行 GCC、ModelSim、PDS、上板或成绩测量。下列命令供以后恢复验证时使用，PASS 和位流路径均为预期。
+**更新：2026-10-16。** 三配置六种短程测试已通过统一 ModelSim 回归，三配置的 performance／validation 共六项正式运行也均已实测 `FORMAL PASS`，全部配对完成。AXI 无 Cache／无 BTB 基线为 **38.108122 CoreMark、0.762162439 CoreMark/MHz（50 MHz）**。双 Cache／无 BTB 为 **46.049672 CoreMark、0.920993449 CoreMark/MHz**，相对基线提升 **20.84%**；双 Cache＋BTB 为 **49.603719 CoreMark、0.992074389 CoreMark/MHz**，比双 Cache 快 **7.72%**、比 AXI 无 Cache 基线快 **30.17%**。性能均引用各自 performance 运行。完整数据与证据范围见[板级测量记录](coremark_axi_results_20261015.md)。
 
 原有 `build_coremark.bat`、内部 RAM 移植层及历史镜像保持原样。原先的 **52.574739 CoreMark、1.051494774 CoreMark/MHz（50 MHz）** 属于内部 RAM 无 Cache 版本。新版本使用 AXI RAM，分析 Cache 与 BTB 效果应在下面三个配置之间比较。
 
@@ -57,7 +57,7 @@ cd D:/FPGA/riscv_3stage
 do run_coremark_axi.do
 ```
 
-脚本先检查镜像、报告与源码的匹配，再运行统计模块自检和三个配置×两组种子的六种短组合。未来检查范围包括 CRC、真实 mtime 计时、退休计数、Cache／BP 冻结银行、软硬件配置一致性、AXI 背压、只读错误与复位。预测关闭时 BP 银行读零；预测开启时检查实际预测活动。自检源码已准备，本轮未运行。
+脚本先检查镜像、报告与源码的匹配，再运行统计模块自检和三个配置×两组种子的六种短组合。检查范围包括 CRC、真实 mtime 计时、退休计数、Cache／BP 冻结银行、软硬件配置一致性、AXI 背压、只读错误与复位。预测关闭时 BP 银行读零；预测开启时检查实际预测活动。上述短程检查已通过，正式测量按独立结果记录区分。
 
 短镜像使用 50 MHz／5 Mbps 仿真串口，正式镜像使用 50 MHz／115200、8N1。`SMOKE PASS` 只表示短功能检查，不能作为正式分数。`formal-short` 用于检查不足 10 秒的正式运行被拒绝，不属于可报告成绩的固件。
 
@@ -86,7 +86,9 @@ cmd.exe //c build_pds_board.bat --variant coremark_axi_btb --firmware coremark_a
 
 构建守卫核对报告、源码与镜像哈希、Cache／BTB 开关、64 项 BTB、统计 schema 2、时钟／波特率和等待参数。PDS 固定绑定各配置，不允许把 BTB 镜像配给预测关闭的硬件，也不允许混用短镜像。修改过的统计接口要求重新构建配套 off/on 固件；旧报告或旧镜像不能直接沿用。
 
-通过功能与时序检查后，由用户在 PDS 手动下载匹配位流。SSCOM 使用 115200、8N1，保存完整日志。各配置仍须满足 CRC、正式测量至少 10 秒等条件，最终才应输出 `COREMARK RESULT: FORMAL PASS`。本轮没有生成新位流或通过记录。
+通过功能与时序检查后，由用户在 PDS 手动下载匹配位流。SSCOM 使用 115200、8N1，保存完整日志。各配置仍须满足 CRC、正式测量至少 10 秒等条件，最终才应输出 `COREMARK RESULT: FORMAL PASS`。当前 AXI 无 Cache、双 Cache、双 Cache＋BTB 的 performance 与 validation 六项均已实测通过并完成配对；构建、时序与实测证据分别保存在测量记录中。
+
+最终 BTB validation 运行 600 次，耗时 **12.772387720 秒**，统计窗口 CPI 为 **1.355283420**，seed／list／matrix／state CRC 为 `18f2`／`e3c1`／`0747`／`8d84`，最终输出 `FORMAL PASS`。校验速度 46.976337796 次／秒不与 performance 求平均。I Cache 填充字数比缺失数四倍多 3，属于下述跨窗口填充的净边界差，不能据此判定失败。
 
 ## 原子统计与计时边界
 
@@ -115,10 +117,14 @@ START 触发读取在 mtime 开始前，STOP 在 mtime 结束后。两次触发�
 
 串口新增 `branch_pred_enable`、`btb_entries`、`btb_config` 和七项 `bp_*` 差值。`bp_lookup` 统计接受且当时未标记 stale 的取指请求，可能包含随后被冲刷的请求；`bp_resolved` 只含正常完成的条件分支与 JAL；`bp_next_pc_mismatch` 则含所有正常完成指令的下一 PC 恢复，包括 JALR。**不能把 next-PC mismatch／resolved 称为分支预测错误率，也不能把 hit／lookup 称为方向预测准确率。**
 
+2026-10-16 的统计时序修正将 IF 的 lookup／hit／predicted-taken 三类完整事件先寄存一拍，再独立累加到 32 位计数器，以缩短晚到的握手／重定向／BTB 查询到统计 CE 的组合路径。统计寄存本身不改变取指和算法计时；前三类 BP 事件的计数可见性晚一拍，START／STOP 仍在原 AR 握手边沿原子冻结，不补偿实时事件。窗口边界计数可能与原实现相差一个事件。
+
+同轮后续调整把 BTB 查询地址改为寄存 `pc_f`，新请求若当拍存在重定向，则以目标地址加 4 为预测后继，并记录 hit／taken 为 0；随后请求恢复正常预测。held 请求的原快照、stale 排空及 EX 错预测恢复保留。lookup 仍计接受且未 stale 的请求，因此分母包含这一重定向旁路。此项影响预测覆盖率，正式 BTB 结果须对应本版源码／位流，不能当作仅统计延迟的改动。
+
 D Cache 访问数包含写入和旁路；读取命中率使用 hit／(hit＋miss)。填充可能跨窗口边界，不能要求差值严格满足“填充字数＝缺失数×4”。
 
 ## 比较与记录
 
-每组记录绑定固件名、构建报告、PDS manifest、位流和完整串口日志。三个配置都完成对应 validation 后，再比较 performance 的 CoreMark/MHz：AXI 基线→双 Cache 看 Cache 效果；双 Cache→双 Cache＋BTB 看预测器效果。
+每组记录绑定固件名、构建报告、PDS manifest、位流和完整串口日志。三个配置均已完成对应 validation，性能比较使用各自 performance 的 CoreMark/MHz：AXI 基线→双 Cache 对照 Cache 配置；双 Cache→双 Cache＋BTB 对照预测器配置。
 
-自动校准允许实际迭代次数不同。比较相同工作量下的计数时，可对三个配置传相同 `--iterations N`，并确保所有正式运行均达到 10 秒；同时记录每次工作量、统计有效性、资源与时序。性能是否提高要由测量决定，当前没有新增分数。
+自动校准允许实际迭代次数不同。比较相同工作量下的计数时，可对三个配置传相同 `--iterations N`，并确保所有正式运行均达到 10 秒；同时记录每次工作量、统计有效性、资源与时序。三配置六项正式运行均已配对完成；双 Cache 实测提升 20.84%，双 Cache＋BTB 比双 Cache 快 7.72%、比 AXI 无 Cache 基线快 30.17%。各配置独立固件的链接布局也有差异，增幅按配置整体实测解释。

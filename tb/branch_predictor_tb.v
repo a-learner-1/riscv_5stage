@@ -179,10 +179,43 @@ module btb_frontend_metadata_case(output reg done = 0);
             $fatal(1, "Redirect target EX prediction mismatch");
         if (lookups !== 2 || hits !== 2 || takens !== 2)
             $fatal(1, "Held/stale requests inflated predictor counters %0d/%0d/%0d", lookups, hits, takens);
-        @(negedge clk); rst_n = 0;
+        // Reset immediately after another accepted request. A registered
+        // statistics event must not replay after reset is released.
+        accept(192);
+        rst_n = 0;
         @(negedge clk);
         if (req_valid || rsp_ready || valid_x || fault || lookups || hits || takens)
             $fatal(1, "Frontend/predictor reset did not clear transaction and counters");
+        rst_n = 1;
+        repeat (3) @(negedge clk);
+        if (lookups || hits || takens)
+            $fatal(1, "Pending predictor statistics event replayed after reset");
+        // An immediately accepted redirect bypasses prediction, even when
+        // both the old PC and the redirect destination have trained entries.
+        // Prediction resumes for the following registered-PC request.
+        train_jal(0, 64);
+        train_jal(128, 192);
+        train_jal(132, 196);
+        @(negedge clk); stall = 0; redirect = 1; redirect_pc = 128; req_ready = 1;
+        #1;
+        if (!req_valid || req_addr !== 128)
+            $fatal(1, "Immediate redirect did not present its destination");
+        @(negedge clk);
+        if (pc_f !== 132)
+            $fatal(1, "Immediate redirect used a BTB target instead of PC+4");
+        redirect = 0; req_ready = 0; rsp_valid = 1;
+        @(negedge clk); rsp_valid = 0; stall = 1;
+        if (!valid_x || pc_x !== 128 || pred_next !== 132 || pred_hit || pred_taken)
+            $fatal(1, "Immediate redirect prediction metadata mismatch");
+        accept(132);
+        if (pc_f !== 196)
+            $fatal(1, "Prediction did not resume at the registered fetch PC");
+        @(negedge clk); rsp_valid = 1; stall = 0;
+        @(negedge clk); rsp_valid = 0; stall = 1;
+        if (!valid_x || pc_x !== 132 || pred_next !== 196 || !pred_hit || !pred_taken)
+            $fatal(1, "Prediction after redirect did not retain matching metadata");
+        if (lookups !== 2 || hits !== 1 || takens !== 1)
+            $fatal(1, "Redirect bypass predictor statistics mismatch");
         done = 1;
     end
 endmodule
