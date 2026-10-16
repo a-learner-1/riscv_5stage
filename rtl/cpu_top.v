@@ -221,6 +221,7 @@ module cpu_top #(
     wire        mmio_gpio_store_ok_x;
     wire        mmio_uart_rx_store_ok_x;
     wire        mem_external_x;
+    wire        mem_rsp_external;
     wire        local_req_ready;
     wire        local_rsp_valid;
     wire [31:0] local_rsp_rdata;
@@ -1190,13 +1191,17 @@ module cpu_top #(
     // req_sent is updated only at an acceptance edge; it prevents consuming
     // an unsolicited or combinational same-edge external response.
     assign mem_rsp_ready = rst_n && !dmem_fault && mem_active && req_sent;
-    assign mem_rsp_valid = mem_external_x ? dmem_rsp_valid : local_rsp_valid;
-    assign mem_rsp_rdata = mem_external_x ? dmem_rsp_rdata : local_rsp_rdata;
-    assign mem_rsp_error = mem_external_x ? dmem_rsp_error : local_rsp_error;
+    // Only the captured transaction can own a response. Using its saved
+    // route keeps live EX address/decode logic off response error/redirect
+    // paths. mem_rsp_ready stays low until that descriptor is captured
+    // and the request accepted; this adds neither a cycle nor a register.
+    assign mem_rsp_external = (EXTERNAL_DMEM != 0) && !mem_mmio_q;
+    assign mem_rsp_valid = mem_rsp_external ? dmem_rsp_valid : local_rsp_valid;
+    assign mem_rsp_rdata = mem_rsp_external ? dmem_rsp_rdata : local_rsp_rdata;
+    assign mem_rsp_error = mem_rsp_external ? dmem_rsp_error : local_rsp_error;
     assign mem_rsp_fire = mem_rsp_valid && mem_rsp_ready;
     assign mem_rsp_success = mem_rsp_fire && !mem_rsp_error;
-    assign dmem_rsp_ready = (EXTERNAL_DMEM != 0) && !mem_req_mmio &&
-                            mem_rsp_ready;
+    assign dmem_rsp_ready = mem_rsp_external && mem_rsp_ready;
 
     assign load_issue_x = mem_req_fire && !mem_req_write;
     // Both LOAD and STORE wait for completion before the next EX advances.
@@ -1220,7 +1225,7 @@ module cpu_top #(
         .req_mmio(mem_req_mmio), .req_access_ok(mem_req_access_ok),
         .mmio_rdata(mmio_read_data_x), .ram_rdata(mem_rdata_x),
         .rsp_valid(local_rsp_valid),
-        .rsp_ready(mem_rsp_ready && !mem_external_x),
+        .rsp_ready(mem_rsp_ready && !mem_rsp_external),
         .rsp_rdata(local_rsp_rdata), .rsp_error(local_rsp_error)
     );
 

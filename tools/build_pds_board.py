@@ -33,6 +33,74 @@ COREMARK_AXI_FIRMWARE = {
 }
 
 
+def read_final_sta_report(report, not_before, mtime_tolerance=2):
+    """Require a fresh, complete multi-corner STA result."""
+    if not report.is_file() or report.stat().st_mtime < not_before - mtime_tolerance:
+        raise RuntimeError("Missing or stale final independent STA report")
+    final_text = report.read_text(encoding="utf-8", errors="replace")
+    timing_rows = re.findall(
+        r"clk_50m\s+clk_50m\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(\d+)\s+(\d+)",
+        final_text)
+    pulse_width_rows = re.findall(
+        r"(?m)^\s*clk_50m\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(\d+)\s+(\d+)\s*$",
+        final_text)
+    if ("Design Summary : All Constraints Met." not in final_text or
+            len(timing_rows) != 8 or len(pulse_width_rows) != 2 or
+            any(float(row[0]) < 0 or float(row[1]) != 0 or
+                int(row[2]) != 0 or int(row[3]) == 0
+                for row in timing_rows + pulse_width_rows)):
+        raise RuntimeError("Final STA failed/incomplete; bitstream not accepted")
+    return timing_rows, pulse_width_rows
+
+
+def read_post_route_timing_report(report, not_before, mtime_tolerance=2):
+    """Preserve the router timing gate for either implementation flow."""
+    if not report.is_file() or report.stat().st_mtime < not_before - mtime_tolerance:
+        raise RuntimeError("Missing or stale post-route timing summary")
+    timing_text = report.read_text(encoding="utf-8", errors="replace")
+    timing_rows = re.findall(
+        r"clk_50m\s+clk_50m\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(\d+)\s+(\d+)",
+        timing_text)
+    if ("Design Summary : All Constraints Met." not in timing_text or
+            len(timing_rows) < 4 or
+            any(float(row[0]) < 0 or int(row[2]) != 0 or int(row[3]) == 0
+                for row in timing_rows)):
+        raise RuntimeError("Post-route timing failed/incomplete; bitstream not accepted")
+    return timing_rows
+
+
+def verify_post_bitstream_timing(build, bit_started):
+    """Certify only reports produced by the bitstream generation flow."""
+    # -project/-run gen_bit_stream can rerun PNR and STA. Do not reuse the
+    # earlier flow's PASS or start another run which might reroute once more.
+    router_rows = read_post_route_timing_report(
+        build / "place_route/board_top_timing_summary_after_hold_fix.txt", bit_started,
+        mtime_tolerance=0)
+    try:
+        rows, pulse_rows = read_final_sta_report(
+            build / "report_timing/board_top.rtr", bit_started, mtime_tolerance=0)
+    except RuntimeError as error:
+        raise RuntimeError(str(error) +
+                           "; require final STA for the bitstream flow before accepting it") from error
+    route = build / "place_route/board_top_pnr.adf"
+    if not route.is_file() or route.stat().st_mtime < bit_started:
+        raise RuntimeError("Missing or stale bitstream route database")
+    route_hash = hashlib.sha256(route.read_bytes()).hexdigest()
+    return router_rows, rows, pulse_rows, route_hash
+
+
+def read_bitstream_outputs(build, bit_started):
+    """Hash only fresh outputs; never pair an old BIN with a new SBIT."""
+    paths = sorted(path for path in (build / "generate_bitstream").glob("board_top.*")
+                   if path.suffix in {".sbit", ".bin"})
+    if build / "generate_bitstream/board_top.sbit" not in paths:
+        raise RuntimeError("PDS did not produce a bitstream")
+    if any(path.stat().st_mtime < bit_started for path in paths):
+        raise RuntimeError("PDS left a stale bitstream output; bitstream not accepted")
+    return {path.relative_to(build).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in paths}
+
+
 def bind_machine_irq_board_parameters(top):
     """Fix image/reset parameters; reject changing the dedicated IRQ platform."""
     from machine_irq_contract import validate_machine_irq_board_top
@@ -329,6 +397,8 @@ def main():
                   "pds_board" if args.firmware == "board_demo" else "pds_uart_rx")
     build = ROOT / "build" / build_name
     build.mkdir(parents=True, exist_ok=True)
+    # A failed rebuild must not leave an earlier successful manifest in place.
+    (build / "build_manifest.json").unlink(missing_ok=True)
     # Generated synthesis-only copy: absolute memory-file paths avoid relying
     # on PDS's working directory. The checked-in RTL stays portable.
     rtl_names = RTL + (["soc_instr_mem.v", "soc_data_mem.v", "soc_top.v"]
@@ -421,36 +491,12 @@ def main():
     pulse_width_rows = []
     if args.stage != "synth":
         timing_report = build / "place_route/board_top_timing_summary_after_hold_fix.txt"
-        if (not timing_report.is_file() or
-                timing_report.stat().st_mtime < flow_started - 2):
-            raise RuntimeError("Missing post-route timing summary")
-        timing_text = timing_report.read_text(encoding="utf-8", errors="replace")
-        timing_rows = re.findall(
-            r"clk_50m\s+clk_50m\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(\d+)\s+(\d+)",
-            timing_text)
-        if ("Design Summary : All Constraints Met." not in timing_text or
-                len(timing_rows) < 4 or
-                any(float(row[0]) < 0 or int(row[2]) != 0 or int(row[3]) == 0
-                    for row in timing_rows)):
-            raise RuntimeError("Post-route timing failed/incomplete; bitstream not generated")
+        timing_rows = read_post_route_timing_report(timing_report, flow_started)
         # The router summary and the independent STA report have distinct
         # values. Require both, and record the final report separately.
         final_report = build / "report_timing/board_top.rtr"
-        if not final_report.is_file() or final_report.stat().st_mtime < flow_started - 2:
-            raise RuntimeError("Missing final independent STA report")
-        final_text = final_report.read_text(encoding="utf-8", errors="replace")
-        final_timing_rows = re.findall(
-            r"clk_50m\s+clk_50m\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(\d+)\s+(\d+)",
-            final_text)
-        pulse_width_rows = re.findall(
-            r"(?m)^\s*clk_50m\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)\s+(\d+)\s+(\d+)\s*$",
-            final_text)
-        if ("Design Summary : All Constraints Met." not in final_text or
-                len(final_timing_rows) != 8 or len(pulse_width_rows) != 2 or
-                any(float(row[0]) < 0 or int(row[2]) != 0 or int(row[3]) == 0
-                    for row in final_timing_rows + pulse_width_rows)):
-            raise RuntimeError("Final STA failed/incomplete; bitstream not generated")
-        print("50MHz router and final STA setup/hold/recovery/removal/pulse-width checks passed.")
+        final_timing_rows, pulse_width_rows = read_final_sta_report(final_report, flow_started)
+        print("50MHz router and independent STA setup/hold/recovery/removal/pulse-width checks passed.")
     if args.stage == "bitstream":
         # Generate only after verifying timing; this command never downloads.
         # -file starts a NEW project in PDS; a second -file call would discard
@@ -474,9 +520,10 @@ def main():
         print("\n".join(bit_output.splitlines()[-30:]))
         if bit_result.returncode or re.search(r"(?m)^\s*E:\s", bit_output):
             raise RuntimeError("Bitstream generation failed; inspect its log")
-        if not any(path.stat().st_mtime >= bit_started - 2
-                   for path in build.rglob("*.sbit")):
-            raise RuntimeError("PDS did not produce a bitstream")
+        bitstream_outputs = read_bitstream_outputs(build, bit_started)
+        timing_rows, final_timing_rows, pulse_width_rows, final_route_hash = \
+            verify_post_bitstream_timing(build, bit_started)
+        print("Bitstream-flow router and final independent STA checks passed.")
     manifest = {
         "base_target": "PGL50H-6IFBG484", "clock_hz": 50000000,
         "requested_stage": args.stage, "pds_returncode": result.returncode,
@@ -499,16 +546,19 @@ def main():
                       top_source, ROOT / "pds/board_top.fdc"]
         },
     }
+    if args.stage == "bitstream":
+        manifest.update({
+            "final_sta_log": "bitstream_generation.log",
+            "final_sta_report_sha256": hashlib.sha256(final_report.read_bytes()).hexdigest(),
+            "final_sta_route_sha256": final_route_hash,
+            "final_sta_from_bitstream_flow": True,
+        })
     if args.variant in {"trap_board", "timer_irq_board", "machine_irq_board", "icache_board", "dcache_board", "btb_board"} or args.variant in COREMARK_AXI_VARIANTS:
         manifest.update({
             "enable_traps": 1,
             "pds_shell": str(exe.resolve()),
             "build_script_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
-            "bitstreams": {
-                p.relative_to(build).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
-                for p in sorted((build / "generate_bitstream").glob("board_top.*"))
-                if p.suffix in {".sbit", ".bin"} and args.stage == "bitstream"
-            },
+            "bitstreams": bitstream_outputs if args.stage == "bitstream" else {},
         })
     if args.variant == "machine_irq_board":
         manifest.update({

@@ -67,6 +67,8 @@ RTL 输入哈希发生变化，原 CoreMark 固件报告不再与本版本匹配
 | axi_cache_on_btb_smoke | 1010869 | 981022 | 2.953% |
 | axi_cache_on_btb_smoke_validation | 1066832 | 1037099 | 2.787% |
 
-这些是单次短程仿真的同固件对照。它们验证功能及等待周期变化，不构成正式成绩，也不代表新版本已通过物理时序。完整比较与构建身份见 `build/verification/axi_latency_20261016/summary.json`，专项及回归日志位于相应 `build/regression/<运行编号>/`。**当前状态（2026-10-16）：功能仿真通过；双 Cache＋BTB performance 的本轮 50 MHz PDS 时序未通过，正式上板跑分待验证。**
+这些是单次短程仿真的同固件对照。它们验证功能及等待周期变化，不构成正式成绩，也不代表新版本已通过物理时序。完整比较与构建身份见 `build/verification/axi_latency_20261016/summary.json`，专项及回归日志位于相应 `build/regression/<运行编号>/`。**当前状态（2026-10-16）：功能仿真通过；响应路由时序修复后，双 Cache＋BTB performance／validation 的 50 MHz PDS 最终时序均已通过，正式上板跑分待验证。**
 
 本轮最终报告 `build/pds_coremark_axi_cache_on_btb_performance/report_timing/board_top.rtr`（2026-10-16 17:57）记录慢角 Setup WNS 为 **−0.523 ns**，11 个失败端点。该目录原有 `board_top.sbit` 与 `build_manifest.json` 仍是当日 09:17 的旧产物，不能作为本次优化的通过证据。后续先修复时序，再重新生成并验证 performance／validation 配套位流；历史板级成绩保持原版本归属。
+
+后续修复将 CPU 响应来源改为已捕获事务的 `mem_mmio_q`，请求侧与总线延迟保持原样。两个正式固件配置均通过最终时序，Setup WNS **＋1.300 ns**、最小 Hold 裕量 **＋0.026 ns**；六个短程窗口周期及退休数与修复前一致。以上失败记录作为首次尝试保留，最新报告和版本边界以 [时序修复记录](timing_fix_20261016.md) 为准。

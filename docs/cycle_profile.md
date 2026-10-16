@@ -80,4 +80,4 @@ cmd.exe //c build_pds_board.bat --variant coremark_axi_btb --firmware coremark_a
 
 六个短程和双 Cache＋BTB 的两个正式固件均构建成功；正式 performance 指令区 30388 字节、validation 30384 字节，均小于 32768 字节，栈余量均为 8532 字节。正式固件这里只完成构建／合同检查，没有进行正式运行。
 
-本地证据：`build/regression/20261016T020723Z_2f6673df0bbe/summary.json`、`build/verification/cycle_profile_negative/negative.transcript.log`、`build/verification/cycle_profile_20261016/summary.json`。这些文件保留隔离测试目录信息，安装记录用源文件哈希关联主工程；`build/` 继续属于本地构建产物。上述记录对应周期统计加入时的功能验证。后续 AXI 低延迟组合版本已执行一次 50 MHz PDS 构建，最终 Setup WNS 为 **−0.523 ns**，时序未通过；新版上板跑分待验证。具体状态见 [AXI 低延迟说明](axi_latency.md)。
+本地证据：`build/regression/20261016T020723Z_2f6673df0bbe/summary.json`、`build/verification/cycle_profile_negative/negative.transcript.log`、`build/verification/cycle_profile_20261016/summary.json`。这些文件保留隔离测试目录信息，安装记录用源文件哈希关联主工程；`build/` 继续属于本地构建产物。上述记录对应周期统计加入时的功能验证。后续 AXI 低延迟组合版本首次 50 MHz 构建曾出现 **−0.523 ns** Setup 违例；响应路由修复后，performance／validation 的最终时序均通过，Setup WNS **＋1.300 ns**、最小 Hold 裕量 **＋0.026 ns**。新版上板跑分待验证；最新证据见 [时序修复记录](timing_fix_20261016.md)。
