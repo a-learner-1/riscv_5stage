@@ -360,3 +360,7 @@ CPU 已具备裸机 C、UART、GPIO、定时器和 AXI4-Lite 控制基础，可�
 ## AXI 低延迟改进（2026-10-16）
 
 AXI 路由器在 AW/W 最后一个通道握手的边沿完成配对；RAM 的零等待 B/R 响应分别在真实写提交／同步读数据捕获边沿置为有效。非零人工等待保持原时序。三级 CPU、AXI4-Lite 端口和精确访存错误处理沿用原实现。测试、延迟口径及版本状态见 [AXI 低延迟说明](docs/axi_latency.md)。新增 `axi-latency` 回归组。**功能仿真通过；响应路由时序修复后，双 Cache＋BTB 的 performance／validation 均通过 50 MHz PDS 最终时序检查，Setup WNS ＋1.300 ns、最小 Hold 裕量 ＋0.026 ns。新版上板跑分待验证。** 六种短程的周期和退休指令数与修复前一致；此前 49.603719 CoreMark 属于优化前版本。修改范围、原始报告与位流归档见 [时序修复记录](docs/timing_fix_20261016.md)。
+
+### AXI 写通路分段分析
+
+新增 ModelSim `axi_write_profile_tb` 和 `run_axi_write_profile.do`，由 CPU STORE 测量 D-cache、桥、路由器、RAM 与 B 响应各段周期，输出逐事务及 min/max/mean CSV。统一入口为 `cmd.exe //c run_regression.bat --group axi-write-profile`，同时复查既有错误及复位恢复。采样口径与验证记录见 [写通路分析](docs/axi_write_profile.md)。

@@ -20,6 +20,7 @@ Python 3 和 ModelSim 须已安装。入口使用 ModelSim 的命令行模式，
 | `irq` | 定时器、外部／软件中断定向场景及演示外设 | 定时器 C 镜像及定向场景使用的空白镜像 |
 | `coremark` | 原短程／移植层测试与 AXI 三配置各两种短程测试 | 各短程镜像、配置头、数学测试镜像及构建报告 |
 | `board` | 新三源中断固件的 UART、LED、KEY1 模拟板级自检 | `machine_irq_board` 硬件指令、仿真 RAM、符号头与构建报告 |
+| `axi-write-profile` | CPU STORE 分段延迟与既有 AXI 错误／复位恢复七平台 | 既有空白、`c_demo`、`trap_demo` 镜像；无需新固件 |
 
 `all` 选择清单中所有分组，包括 `board`。可只选择与修改相关的组；清单不覆盖所有参数组合、综合网表、物理时序或实物验收。未选的场景明确保留 `NOT_RUN`。
 
@@ -93,3 +94,7 @@ PASS 证据取自本轮独立进程及完成标记，不读取旧日志替代本
 ## 周期分类扩展（2026-10-16）
 
 新增 `cycle-profile` 分组，运行无需 GCC 的六类周期分类定向测试；新增 `coremark-axi-profile` 分组，只运行 AXI 统计及六种真实 C 短程对照。后者须先执行 `build_coremark_compare.bat --profile smoke` 和 `build_coremark_compare.bat --profile smoke-validation`，生成 schema 3 匹配镜像。具体计数口径及本次结果见 [周期统计说明](cycle_profile.md)。
+
+## AXI 写通路分析（2026-10-16）
+
+新增 `axi-write-profile` 分组，包含 `run_axi_write_profile.do` 的逐事务／分段 CSV 以及既有 `axi-latency-directed` 恢复验证。运行方法、采样边沿与结果解释见 [写通路分析](axi_write_profile.md)。

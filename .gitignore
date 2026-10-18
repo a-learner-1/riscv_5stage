@@ -69,3 +69,6 @@ cpu_cycle_profile_work/
 
 # AXI latency focused verification
 axi_latency_work/
+
+# AXI write stage profiling
+axi_write_profile_work/
