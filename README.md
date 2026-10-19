@@ -361,6 +361,12 @@ CPU 已具备裸机 C、UART、GPIO、定时器和 AXI4-Lite 控制基础，可�
 
 AXI 路由器在 AW/W 最后一个通道握手的边沿完成配对；RAM 的零等待 B/R 响应分别在真实写提交／同步读数据捕获边沿置为有效。非零人工等待保持原时序。三级 CPU、AXI4-Lite 端口和精确访存错误处理沿用原实现。测试、延迟口径及版本状态见 [AXI 低延迟说明](docs/axi_latency.md)。新增 `axi-latency` 回归组。**功能仿真通过；响应路由时序修复后，双 Cache＋BTB 的 performance／validation 均通过 50 MHz PDS 最终时序检查，Setup WNS ＋1.300 ns、最小 Hold 裕量 ＋0.026 ns。新版上板跑分待验证。** 六种短程的周期和退休指令数与修复前一致；此前 49.603719 CoreMark 属于优化前版本。修改范围、原始报告与位流归档见 [时序修复记录](docs/timing_fix_20261016.md)。
 
+### D1 独立测量与时序基线
+
+ModelSim 中执行 `do run_coremark_d1_measure.do`，独立观测双 Cache＋BTB 两种真实 CoreMark 短程的 STORE 间距与方向错误拆分。D1 不接入统一回归。窗口按用户批准的工程口径修订 G4：记录两次原始 START、一次 STOP，选择最后一次 START 对应的 epoch 2，并检查窗口生命周期错误计数 `crossings` 为 0。测量通过仍须原 workload 自检及 M1／M2 冻结账本全部对账；队列等待等投影须与真实 RTL 性能区分。
+
+D1 时序基线采用已归档最终 STA：Slow Setup +1.300 ns，Slow／Fast Hold +0.035／+0.026 ns，两角最小 Hold **+0.026 ns**。过程报告中的 Fast Hold +0.015 ns 仅作过程参考。布局布线后 LUT 为 **9185**（5731 + 3454），综合映射后为 **9178**（9070 + 108）；报告哈希、历史资源对照及 50 MHz 工作点见[时序修复记录](docs/timing_fix_20261016.md)，后续延迟目标与方向错误率定义见[AXI 低延迟说明](docs/axi_latency.md)。
+
 ### AXI 写通路分段分析
 
 新增 ModelSim `axi_write_profile_tb` 和 `run_axi_write_profile.do`，由 CPU STORE 测量 D-cache、桥、路由器、RAM 与 B 响应各段周期，输出逐事务及 min/max/mean CSV。统一入口为 `cmd.exe //c run_regression.bat --group axi-write-profile`，同时复查既有错误及复位恢复。采样口径与验证记录见 [写通路分析](docs/axi_write_profile.md)。

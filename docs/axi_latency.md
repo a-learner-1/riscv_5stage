@@ -72,3 +72,13 @@ RTL 输入哈希发生变化，原 CoreMark 固件报告不再与本版本匹配
 本轮最终报告 `build/pds_coremark_axi_cache_on_btb_performance/report_timing/board_top.rtr`（2026-10-16 17:57）记录慢角 Setup WNS 为 **−0.523 ns**，11 个失败端点。该目录原有 `board_top.sbit` 与 `build_manifest.json` 仍是当日 09:17 的旧产物，不能作为本次优化的通过证据。后续先修复时序，再重新生成并验证 performance／validation 配套位流；历史板级成绩保持原版本归属。
 
 后续修复将 CPU 响应来源改为已捕获事务的 `mem_mmio_q`，请求侧与总线延迟保持原样。两个正式固件配置均通过最终时序，Setup WNS **＋1.300 ns**、最小 Hold 裕量 **＋0.026 ns**；六个短程窗口周期及退休数与修复前一致。以上失败记录作为首次尝试保留，最新报告和版本边界以 [时序修复记录](timing_fix_20261016.md) 为准。
+
+## D1 后续目标与统计解释
+
+既有[真实 CoreMark 写通路测量](coremark_axi_write_profile.md)中，非本地 STORE 等待为实测 **7 拍**。在 cache → bridge → 1x2 路由器 → RAM 的当前寄存器拓扑下，**7→6→5** 仅作为分阶段、待验证的优化目标；不能由可调整的寄存器级数推导出 AXI4-Lite 协议下限。每一步均须保持握手合法、错误响应及精确 STORE 异常语义，经独立回归与 P&R 验证后再记录真实收益。本轮 D1 只新增观察与测量，投影数值不代表已实现的加速。
+
+`bp_direction_error / bp_resolved` 应称为**综合方向错误率**，分母包含正常完成的条件分支与 JAL，不能称为条件分支预测错误率。`bp_next_pc_mismatch` 还包含 JALR 等下一 PC 恢复，其比值与方向错误率不是同一统计口径。
+
+`branch_predictor.v` 在 `!update_match` 时重新初始化 2 位方向计数器的机制有代码依据；别名是否为主要病因仍是**待验证假设**。D1 的 `relearn` 只统计重学习事件，需要结合全部可预测解析事件及方向错误分类分析，不能单独证明容量或别名是主因。`bp_target_error=0` 只说明已统计的目标预测未报错，不能推广为所有控制流目标均正确。
+
+物理时序继续采用 50 MHz 工作点的最终报告：Slow／Fast Hold 为 +0.035／+0.026 ns，最小值 +0.026 ns；过程报告的 +0.015 ns 仅作过程参考。最终报告哈希及两阶段资源口径见[时序修复记录](timing_fix_20261016.md)。

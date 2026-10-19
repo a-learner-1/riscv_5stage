@@ -27,6 +27,23 @@
 
 performance 位流生成流程中的第二轮 STA 与构建清单记录的数值一致，报告晚于最终布线数据库、早于位流；相关文件按 SHA-256 关联。
 
+### D1 最终时序与过程报告复核
+
+最终静态时序以归档 `pds_performance/report_timing/board_top.rtr` 为准，SHA-256 为 `be8c5508d90a8c648c4e46ee558dfee7195b2a1fdf46393e89cc3eae1a3cf800`；validation 最终报告 SHA-256 为 `a38122a38d15f1f2994fbed0898fe5e09b7bfbc27aa73d93441f20ce7d9f45ab`，两份报告的时序摘要一致。Slow Corner Setup WNS **+1.300 ns**，Slow／Fast Hold WHS 分别为 **+0.035／+0.026 ns**，最终两角最小 Hold 为 **+0.026 ns**。这些值与 `post_bitstream_guard.json` 的 `final_sta_rows` 相符。
+
+`place_route/board_top_timing_summary_after_hold_fix.txt` 记录 Slow Setup +1.594 ns、Slow Hold +0.019 ns、Fast Hold +0.015 ns，与守卫的 `router_rows` 相符。该文件属于布局布线**过程参考**，其中 +0.015 ns 不能替代最终 STA 的 +0.026 ns。本基线仍是 **50 MHz／20 ns** 工作点；最终报告的 **53.4759 MHz／18.7000 ns** 为工具估计，未作为验证频率。
+
+### 两阶段资源对照
+
+资源按同一报告阶段分别比较：
+
+| 报告阶段 | 当前版本 LUT | 历史版本 LUT | 跨版本增量 |
+| --- | --- | --- | --- |
+| 布局布线后 | **9185** = CLMA 5731 + CLMS 3454 | **8284** = CLMA 5160 + CLMS 3124 | **+901** |
+| 综合映射后 | **9178** = logic 9070 + dram 108 | **8261** = logic 8153 + dram 108 | **+917** |
+
+当前资源来自归档 `pds_performance/bitstream_generation.log`，历史资源来自主工程保留的 `build/pds_coremark_axi_cache_on_btb_performance/bitstream_generation.log`；两份日志中的 DRM18K 均为 **36.0 of 134**。布线后与映射后的 LUT 数不能混用。以上为整体跨版本资源变化，未独立控制所有实现变化，不能将全部增量归因为统计模块。
+
 本地归档根目录为 `build/verification/timing_fix_20261016/`，包含 `summary.json`、两个原始回归目录、`before/board_top.rtr`、`pds_performance/`、`pds_validation/` 与配套固件证据。`installation.json` 记录隔离副本到主工程的文件哈希。归档保留真实隔离路径，不将其改写为主工程执行记录。
 
 ## 版本与后续使用
