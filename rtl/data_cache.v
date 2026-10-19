@@ -11,7 +11,7 @@ module data_cache #(
     input wire [1:0] req_size, input wire [31:0] req_wdata,
     input wire [3:0] req_wstrb,
     output wire rsp_valid, input wire rsp_ready,
-    output wire [31:0] rsp_rdata, output reg rsp_error,
+    output wire [31:0] rsp_rdata, output wire rsp_error,
     output wire mem_req_valid, input wire mem_req_ready,
     output wire mem_req_write, output wire [31:0] mem_req_addr,
     output wire [1:0] mem_req_size, output wire [31:0] mem_req_wdata,
@@ -47,6 +47,11 @@ module data_cache #(
     wire hit1=valid1[lookup_set] && tag1[lookup_set]==lookup_tag;
     wire victim=!valid0[lookup_set] ? 1'b0 : !valid1[lookup_set] ? 1'b1 : victim_lru[lookup_set];
     reg write_q,write_hit_q,way_q;
+    reg rsp_error_q;
+    // The bridge holds its completed write response until the CPU
+    // consumes it. Bypass only the cache response register for writes.
+    wire write_rsp_bypass=(state==OUT_RSP) && write_q;
+    assign rsp_error=write_rsp_bypass ? mem_rsp_error : rsp_error_q;
     reg [31:0] addr_q,wdata_q,fill_base,wanted_data;
     reg [1:0] size_q;
     reg [3:0] strobe_q;
@@ -58,14 +63,16 @@ module data_cache #(
     wire memory_fire=mem_rsp_valid && mem_rsp_ready;
 
     assign req_ready=rst_n && (state==IDLE || (state==RESPONSE && rsp_ready));
-    assign rsp_valid=rst_n && state==RESPONSE;
+    assign rsp_valid=rst_n && (state==RESPONSE ||
+        (write_rsp_bypass && mem_rsp_valid));
     assign mem_req_valid=rst_n && (state==FILL_REQ || state==OUT_REQ);
     assign mem_req_write=state==OUT_REQ && write_q;
     assign mem_req_addr=state==FILL_REQ ? fill_base+({{(32-WB){1'b0}},fill_word}<<2) : addr_q;
     assign mem_req_size=state==FILL_REQ ? 2'd2 : size_q;
     assign mem_req_wdata=wdata_q;
     assign mem_req_wstrb=state==FILL_REQ ? 4'b0000 : strobe_q;
-    assign mem_rsp_ready=rst_n && (state==FILL_RSP || state==OUT_RSP);
+    assign mem_rsp_ready=rst_n && (state==FILL_RSP ||
+        (state==OUT_RSP && (!write_q || rsp_ready)));
 
     // Separate synchronous array processes retain byte write enables and avoid
     // resetting RAM contents. Protocol valid bits protect every lookup.
@@ -100,7 +107,7 @@ module data_cache #(
             state<=IDLE;valid0<=0;valid1<=0;victim_lru<=0;
             write_q<=0;write_hit_q<=0;way_q<=0;addr_q<=0;wdata_q<=0;
             size_q<=0;strobe_q<=0;set_q<=0;tag_q<=0;word_q<=0;fill_word<=0;
-            fill_base<=0;wanted_data<=0;rsp_data_q<=0;rsp_error<=0;
+            fill_base<=0;wanted_data<=0;rsp_data_q<=0;rsp_error_q<=0;
             hit_response_q<=0;hit_way_q<=0;
             access_count<=0;hit_count<=0;miss_count<=0;refill_word_count<=0;
             error_count<=0;write_count<=0;bypass_count<=0;
@@ -125,9 +132,9 @@ module data_cache #(
                 fill_base<={req_addr[31:LB],{LB{1'b0}}};fill_word<=0;
                 way_q<=req_write ? !hit0 : victim;
                 write_hit_q<=request_ok && in_range && req_write && (hit0||hit1);
-                rsp_data_q<=0;rsp_error<=0;
+                rsp_data_q<=0;rsp_error_q<=0;
                 if(!request_ok) begin
-                    rsp_error<=1;error_event<=1;state<=RESPONSE;
+                    rsp_error_q<=1;error_event<=1;state<=RESPONSE;
                 end else if(!in_range) begin
                     bypass_event<=1;state<=OUT_REQ;
                 end else if(req_write) begin
@@ -149,13 +156,15 @@ module data_cache #(
             if(mem_req_valid && mem_req_ready) state<=state==FILL_REQ ? FILL_RSP : OUT_RSP;
             if(memory_fire) begin
                 if(mem_rsp_error) begin
-                    rsp_data_q<=0;rsp_error<=1;error_event<=1;state<=RESPONSE;
+                    rsp_data_q<=0;rsp_error_q<=1;error_event<=1;
+                    state<=write_rsp_bypass ? IDLE : RESPONSE;
                 end else if(state==OUT_RSP) begin
                     if(write_hit_q) begin
                         if(way_q) valid1[set_q]<=1;else valid0[set_q]<=1;
                         victim_lru[set_q]<=!way_q;
                     end
-                    rsp_data_q<=write_q ? 32'd0 : mem_rsp_rdata;rsp_error<=0;state<=RESPONSE;
+                    rsp_data_q<=write_q ? 32'd0 : mem_rsp_rdata;rsp_error_q<=0;
+                    state<=write_q ? IDLE : RESPONSE;
                 end else begin
                     refill_event<=1;
                     if(fill_word==word_q) wanted_data<=mem_rsp_rdata;
@@ -164,7 +173,7 @@ module data_cache #(
                         else begin tag0[set_q]<=tag_q;valid0[set_q]<=1;end
                         victim_lru[set_q]<=!way_q;
                         rsp_data_q<=fill_word==word_q ? mem_rsp_rdata : wanted_data;
-                        rsp_error<=0;state<=RESPONSE;
+                        rsp_error_q<=0;state<=RESPONSE;
                     end else begin fill_word<=fill_word+1'b1;state<=FILL_REQ;end
                 end
             end
