@@ -163,14 +163,20 @@ module cpu_top #(
     wire        uart_write_accept_x;
     wire        uart_rx_read_hit_x;
     wire        uart_rx_write_hit_x;
+    wire        uart_rx_read_hit_raw;
+    wire        uart_rx_write_hit_raw;
     wire        mmio_uart_rx_write_x;
     wire [31:0] uart_rx_read_data_x;
     wire        gpio_read_hit_x;
     wire        gpio_write_hit_x;
+    wire        gpio_read_hit_raw;
+    wire        gpio_write_hit_raw;
     wire        mmio_gpio_write_x;
     wire [31:0] gpio_read_data_x;
     wire        timer_read_hit_x;
     wire        timer_write_hit_x;
+    wire        timer_read_hit_raw;
+    wire        timer_write_hit_raw;
     wire        mmio_timer_store_ok_x;
     wire        mmio_timer_write_x;
     wire [31:0] timer_read_data_x;
@@ -216,6 +222,21 @@ module cpu_top #(
     wire        mem_req_mmio;
     wire        mem_req_access_ok;
     wire [31:0] mem_store_raw_x;
+    // MMIO alone has a descriptor stage before the local endpoint accepts.
+    // RAM and external D-cache requests retain their original direct path.
+    reg         mmio_endpoint_pending;
+    reg [31:0]  mmio_endpoint_addr_q;
+    reg [31:0]  mmio_endpoint_wdata_q;
+    reg [3:0]   mmio_endpoint_wstrb_q;
+    reg [1:0]   mmio_endpoint_size_q;
+    reg         mmio_endpoint_write_q;
+    reg         mmio_endpoint_is_mmio_q;
+    wire        mmio_endpoint_fire;
+    wire        mmio_endpoint_decode_valid;
+    wire        mmio_endpoint_store_strobe_ok;
+    wire        local_endpoint_req_valid;
+    wire        local_endpoint_req_write;
+    wire        local_endpoint_req_mmio;
     wire        mmio_store_ok_x;
     wire        mmio_putchar_addr_ok_x;
     wire        mmio_gpio_store_ok_x;
@@ -359,7 +380,7 @@ module cpu_top #(
         else if (SOFTWARE_IRQ_ENABLED == 0)
             software_msip <= 1'b0;
         else if (mmio_msip_write_x)
-            software_msip <= mem_store_raw_x[0];
+            software_msip <= mmio_endpoint_wdata_q[0];
     end
 
     assign csr_mip_value =
@@ -1003,17 +1024,17 @@ module cpu_top #(
         (mem_addr_x[31:16] == 16'h2000);
 
     assign mmio_cycle_addr_x =
-        (mem_addr_x == MMIO_CYCLE_ADDR);
+        mmio_endpoint_decode_valid && (mmio_endpoint_addr_q == MMIO_CYCLE_ADDR);
 
     assign mmio_instret_addr_x =
-        (mem_addr_x == MMIO_INSTRET_ADDR);
+        mmio_endpoint_decode_valid && (mmio_endpoint_addr_q == MMIO_INSTRET_ADDR);
 
     assign mmio_counter_addr_x =
         mmio_cycle_addr_x |
         mmio_instret_addr_x;
 
     assign mmio_uart_status_addr_x =
-        (mem_addr_x == MMIO_UART_STATUS_ADDR);
+        mmio_endpoint_decode_valid && (mmio_endpoint_addr_q == MMIO_UART_STATUS_ADDR);
 
     // Counters are exposed as aligned 32-bit registers.  CoreMark only
     // needs the low word because elapsed time is computed by subtraction.
@@ -1021,8 +1042,8 @@ module cpu_top #(
         (mmio_counter_addr_x || mmio_uart_status_addr_x ||
          uart_rx_read_hit_x || gpio_read_hit_x || timer_read_hit_x ||
          mmio_msip_read_hit_x || bp_mmio_read_hit_x) &&
-        (mem_size_x == 2'd2) &&
-        (mem_addr_x[1:0] == 2'b00);
+        (mmio_endpoint_size_q == 2'd2) &&
+        (mmio_endpoint_addr_q[1:0] == 2'b00);
 
     // These register address sets are disjoint. Use parallel masked data
     // rather than a priority chain after the late effective-address decode.
@@ -1036,16 +1057,17 @@ module cpu_top #(
         ({32{mmio_msip_read_hit_x}} & {31'd0, software_msip}) |
         ({32{bp_mmio_read_hit_x}} & bp_mmio_read_data_x);
 
-    assign mmio_msip_read_hit_x = (SOFTWARE_IRQ_ENABLED != 0) &&
-        (mem_addr_x == MMIO_MSIP_ADDR);
+    assign mmio_msip_read_hit_x = mmio_endpoint_decode_valid && (SOFTWARE_IRQ_ENABLED != 0) &&
+        (mmio_endpoint_addr_q == MMIO_MSIP_ADDR);
 
     // Opt-in, aligned LW-only diagnostic registers. Stores are rejected by
     // the existing MMIO legality path; the disabled core keeps them unmapped.
-    assign bp_mmio_read_hit_x = (ENABLE_BRANCH_PRED != 0) &&
-        (mem_addr_x >= 32'h20000070) && (mem_addr_x <= 32'h2000008c) &&
-        (mem_addr_x[1:0] == 2'b00);
+    assign bp_mmio_read_hit_x = mmio_endpoint_decode_valid && (ENABLE_BRANCH_PRED != 0) &&
+        (mmio_endpoint_addr_q >= 32'h20000070) &&
+        (mmio_endpoint_addr_q <= 32'h2000008c) &&
+        (mmio_endpoint_addr_q[1:0] == 2'b00);
     always @(*) begin
-        case (mem_addr_x)
+        case (mmio_endpoint_addr_q)
             32'h20000070: bp_mmio_read_data_x = (BTB_ENTRIES << 16) | 32'd1;
             32'h20000074: bp_mmio_read_data_x = bp_lookup_count;
             32'h20000078: bp_mmio_read_data_x = bp_hit_count;
@@ -1060,55 +1082,75 @@ module cpu_top #(
 
     // Accept SB, SH and SW at the character register and use the low byte.
     assign mmio_putchar_addr_ok_x =
-        (mem_addr_x == MMIO_PUTCHAR_ADDR) &&
-        (mem_size_x != 2'd3);
+        mmio_endpoint_decode_valid && (mmio_endpoint_addr_q == MMIO_PUTCHAR_ADDR) &&
+        (mmio_endpoint_size_q != 2'd3);
 
     assign mmio_gpio_store_ok_x = gpio_write_hit_x &&
-        (mem_size_x == 2'd2) && (mem_addr_x[1:0] == 2'b00);
+        (mmio_endpoint_size_q == 2'd2) && (mmio_endpoint_addr_q[1:0] == 2'b00);
 
     assign mmio_uart_rx_store_ok_x = uart_rx_write_hit_x &&
-        (mem_size_x == 2'd2) && (mem_addr_x[1:0] == 2'b00);
+        (mmio_endpoint_size_q == 2'd2) && (mmio_endpoint_addr_q[1:0] == 2'b00);
 
     assign mmio_timer_store_ok_x = timer_write_hit_x &&
-        (mem_size_x == 2'd2) && (mem_addr_x[1:0] == 2'b00);
+        (mmio_endpoint_size_q == 2'd2) && (mmio_endpoint_addr_q[1:0] == 2'b00);
 
     assign mmio_msip_store_ok_x = mmio_msip_read_hit_x &&
-        (mem_size_x == 2'd2) && (mem_addr_x[1:0] == 2'b00);
+        (mmio_endpoint_size_q == 2'd2) && (mmio_endpoint_addr_q[1:0] == 2'b00);
 
-    assign mmio_store_ok_x = mmio_putchar_addr_ok_x ||
+    assign mmio_endpoint_store_strobe_ok = mmio_endpoint_wstrb_q ==
+        (mmio_endpoint_size_q == 2'd0 ? (4'b0001 << mmio_endpoint_addr_q[1:0]) :
+         mmio_endpoint_size_q == 2'd1 ? (4'b0011 << mmio_endpoint_addr_q[1:0]) :
+         mmio_endpoint_size_q == 2'd2 ? 4'b1111 : 4'b0000);
+    assign mmio_store_ok_x = mmio_endpoint_store_strobe_ok &&
+        (mmio_putchar_addr_ok_x ||
         mmio_gpio_store_ok_x || mmio_uart_rx_store_ok_x || mmio_timer_store_ok_x ||
-        mmio_msip_store_ok_x;
+        mmio_msip_store_ok_x);
 
-    // Peripheral side effects occur ONCE, at request acceptance, even when
-    // the CPU remains stalled waiting for a delayed completion response.
-    assign mmio_putchar_write_x = mem_req_fire && mem_req_write &&
-        mem_req_mmio && mmio_putchar_addr_ok_x;
+    // Every MMIO side effect uses the same staged descriptor and endpoint
+    // acceptance edge. Response backpressure cannot repeat this edge.
+    assign mmio_putchar_write_x = mmio_endpoint_fire && mmio_endpoint_write_q &&
+        mmio_endpoint_store_strobe_ok &&
+        mmio_putchar_addr_ok_x;
 
     assign uart_write_accept_x = mmio_putchar_write_x && !uart_busy;
 
-    assign mmio_gpio_write_x = mem_req_fire && mem_req_write &&
-        mem_req_mmio && mmio_gpio_store_ok_x;
+    assign mmio_gpio_write_x = mmio_endpoint_fire && mmio_endpoint_write_q &&
+        mmio_endpoint_store_strobe_ok &&
+        mmio_gpio_store_ok_x;
 
-    assign mmio_uart_rx_write_x = mem_req_fire && mem_req_write &&
-        mem_req_mmio && mmio_uart_rx_store_ok_x;
+    assign mmio_uart_rx_write_x = mmio_endpoint_fire && mmio_endpoint_write_q &&
+        mmio_endpoint_store_strobe_ok &&
+        mmio_uart_rx_store_ok_x;
 
-    assign mmio_timer_write_x = mem_req_fire && mem_req_write &&
-        mem_req_mmio && mmio_timer_store_ok_x;
+    assign mmio_timer_write_x = mmio_endpoint_fire && mmio_endpoint_write_q &&
+        mmio_endpoint_store_strobe_ok &&
+        mmio_timer_store_ok_x;
 
-    assign mmio_msip_write_x = mem_req_fire && mem_req_write &&
-        mem_req_mmio && mmio_msip_store_ok_x;
+    assign mmio_msip_write_x = mmio_endpoint_fire && mmio_endpoint_write_q &&
+        mmio_endpoint_store_strobe_ok &&
+        mmio_msip_store_ok_x;
 
-    // Capture the pre-pop head in load_mmio_data_q on the issue edge.
-    // A held LOAD has load_pending=1 on the next edge and cannot pop again.
+    // Capture the pre-pop head in load_mmio_data_q and the adapter on the
+    // staged endpoint issue edge. A held response cannot pop the FIFO again.
+    // The stage keeps its last address after acceptance. Scope the public
+    // hit predicates to its valid lifetime so later RAM loads cannot appear
+    // to access the previous peripheral in existing transaction monitors.
+    assign uart_rx_read_hit_x = mmio_endpoint_decode_valid && uart_rx_read_hit_raw;
+    assign uart_rx_write_hit_x = mmio_endpoint_decode_valid && uart_rx_write_hit_raw;
+    assign gpio_read_hit_x = mmio_endpoint_decode_valid && gpio_read_hit_raw;
+    assign gpio_write_hit_x = mmio_endpoint_decode_valid && gpio_write_hit_raw;
+    assign timer_read_hit_x = mmio_endpoint_decode_valid && timer_read_hit_raw;
+    assign timer_write_hit_x = mmio_endpoint_decode_valid && timer_write_hit_raw;
+
     uart_rx_mmio #(
         .CLOCK_HZ(UART_CLOCK_HZ), .BAUD(UART_BAUD),
         .FIFO_DEPTH(UART_RX_FIFO_DEPTH)
     ) u_uart_rx_mmio (
-        .clk(clk), .rst_n(rst_n), .rx(uart_rx), .addr(mem_addr_x),
-        .read_enable(load_issue_x && mmio_load_ok_x),
-        .write_enable(mmio_uart_rx_write_x), .write_data(mem_store_raw_x),
+        .clk(clk), .rst_n(rst_n), .rx(uart_rx), .addr(mmio_endpoint_addr_q),
+        .read_enable(mmio_endpoint_fire && !mmio_endpoint_write_q && mmio_load_ok_x),
+        .write_enable(mmio_uart_rx_write_x), .write_data(mmio_endpoint_wdata_q),
         .read_data(uart_rx_read_data_x),
-        .read_hit(uart_rx_read_hit_x), .write_hit(uart_rx_write_hit_x)
+        .read_hit(uart_rx_read_hit_raw), .write_hit(uart_rx_write_hit_raw)
     );
 
     // Keep the peripheral independent of the pipeline implementation.
@@ -1116,27 +1158,27 @@ module cpu_top #(
     // tristates or uses the mask to gate dedicated LED output pins.
     gpio_mmio u_gpio (
         .clk(clk), .rst_n(rst_n),
-        .addr(mem_addr_x), .write_enable(mmio_gpio_write_x),
-        .write_data(mem_store_raw_x), .read_data(gpio_read_data_x),
-        .read_hit(gpio_read_hit_x), .write_hit(gpio_write_hit_x),
+        .addr(mmio_endpoint_addr_q), .write_enable(mmio_gpio_write_x),
+        .write_data(mmio_endpoint_wdata_q), .read_data(gpio_read_data_x),
+        .read_hit(gpio_read_hit_raw), .write_hit(gpio_write_hit_raw),
         .gpio_in(gpio_in), .gpio_out(gpio_out), .gpio_oe(gpio_oe)
     );
 
     generate
         if (TIMER_IRQ_ENABLED != 0) begin : g_machine_timer
             machine_timer u_timer (
-                .clk(clk), .rst_n(rst_n), .addr(mem_addr_x),
-                .write_enable(mmio_timer_write_x), .write_data(mem_store_raw_x),
-                .read_data(timer_read_data_x), .read_hit(timer_read_hit_x),
-                .write_hit(timer_write_hit_x), .mtime(timer_mtime),
+                .clk(clk), .rst_n(rst_n), .addr(mmio_endpoint_addr_q),
+                .write_enable(mmio_timer_write_x), .write_data(mmio_endpoint_wdata_q),
+                .read_data(timer_read_data_x), .read_hit(timer_read_hit_raw),
+                .write_hit(timer_write_hit_raw), .mtime(timer_mtime),
                 .mtimecmp(timer_mtimecmp), .mtip(timer_mtip)
             );
         end else begin : g_no_machine_timer
             // A disabled generate branch has no timer module dependency;
             // existing standalone compile scripts remain compatible.
             assign timer_read_data_x = 32'd0;
-            assign timer_read_hit_x = 1'b0;
-            assign timer_write_hit_x = 1'b0;
+            assign timer_read_hit_raw = 1'b0;
+            assign timer_write_hit_raw = 1'b0;
             assign timer_mtime = 64'd0;
             assign timer_mtimecmp = 64'hffffffffffffffff;
             assign timer_mtip = 1'b0;
@@ -1153,7 +1195,7 @@ module cpu_top #(
         .clk(clk),
         .rst_n(rst_n),
         .valid(mmio_putchar_write_x),
-        .data(mem_store_raw_x[7:0]),
+        .data(mmio_endpoint_wdata_q[7:0]),
         .tx(uart_tx),
         .busy(uart_busy),
         .done()
@@ -1169,14 +1211,53 @@ module cpu_top #(
     assign mem_req_write = mem_active ? mem_write_q : is_store_x;
     assign mem_req_mmio = mem_active ? mem_mmio_q : mmio_region_x;
     assign mem_external_x = (EXTERNAL_DMEM != 0) && !mem_req_mmio;
-    assign mem_req_ready = mem_external_x ? dmem_req_ready : local_req_ready;
+    assign mem_req_ready = mem_external_x ? dmem_req_ready :
+                           mem_req_mmio ? (mmio_endpoint_pending && local_req_ready) :
+                           local_req_ready;
     assign mem_req_fire = mem_req_valid && mem_req_ready;
+
+    // Accept MMIO only after the complete descriptor has crossed a clock
+    // edge. The original request/response wait parameters remain in the
+    // adapter. In particular, RAM never enters this MMIO-only stage.
+    assign local_endpoint_req_valid = mmio_endpoint_pending ||
+        (mem_req_valid && !mem_external_x && !mem_req_mmio);
+    assign local_endpoint_req_write = mmio_endpoint_pending ?
+        mmio_endpoint_write_q : mem_req_write;
+    assign local_endpoint_req_mmio = mmio_endpoint_pending ?
+        mmio_endpoint_is_mmio_q : mem_req_mmio;
+    // No EX-valid/decode signal feeds peripheral write enables. The staged
+    // request is independently owned until this local acceptance edge.
+    assign mmio_endpoint_decode_valid = mmio_endpoint_pending && mmio_endpoint_is_mmio_q;
+    assign mmio_endpoint_fire = rst_n && local_req_ready && mmio_endpoint_pending &&
+        mmio_endpoint_is_mmio_q;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            mmio_endpoint_pending <= 1'b0;
+            mmio_endpoint_addr_q <= 32'd0;
+            mmio_endpoint_wdata_q <= 32'd0;
+            mmio_endpoint_wstrb_q <= 4'd0;
+            mmio_endpoint_size_q <= 2'd0;
+            mmio_endpoint_write_q <= 1'b0;
+            mmio_endpoint_is_mmio_q <= 1'b0;
+        end else if (mmio_endpoint_fire) begin
+            mmio_endpoint_pending <= 1'b0;
+        end else if (mem_req_valid && mem_req_mmio && !mmio_endpoint_pending) begin
+            mmio_endpoint_pending <= 1'b1;
+            mmio_endpoint_addr_q <= mem_addr_x;
+            mmio_endpoint_wdata_q <= mem_wdata_x;
+            mmio_endpoint_wstrb_q <= mem_wstrb_x;
+            mmio_endpoint_size_q <= mem_size_x;
+            mmio_endpoint_write_q <= mem_req_write;
+            mmio_endpoint_is_mmio_q <= mem_req_mmio;
+        end
+    end
 
     // These are pure address/size predicates, not side-effect pulses.
     // External RAM legality is decided by its error response, not by the
     // internal teaching RAM's address range.
     assign mem_req_access_ok = mem_req_mmio ?
-        (mem_req_write ? (mmio_store_ok_x &&
+        (mmio_endpoint_write_q ? (mmio_store_ok_x &&
             (!mmio_putchar_addr_ok_x || !uart_busy)) : mmio_load_ok_x) :
         mem_access_ok_x;
 
@@ -1220,9 +1301,9 @@ module cpu_top #(
         .RSP_WAIT_CYCLES(DMEM_RSP_WAIT_CYCLES)
     ) u_data_bus_adapter (
         .clk(clk), .rst_n(rst_n),
-        .req_valid(mem_req_valid && !mem_external_x),
-        .req_ready(local_req_ready), .req_write(mem_req_write),
-        .req_mmio(mem_req_mmio), .req_access_ok(mem_req_access_ok),
+        .req_valid(local_endpoint_req_valid),
+        .req_ready(local_req_ready), .req_write(local_endpoint_req_write),
+        .req_mmio(local_endpoint_req_mmio), .req_access_ok(mem_req_access_ok),
         .mmio_rdata(mmio_read_data_x), .ram_rdata(mem_rdata_x),
         .rsp_valid(local_rsp_valid),
         .rsp_ready(mem_rsp_ready && !mem_rsp_external),
@@ -1291,7 +1372,8 @@ module cpu_top #(
             if (mem_req_fire) begin
                 req_sent <= 1'b1;
                 load_pending <= !mem_req_write;
-                load_mmio_data_q <= mmio_read_data_x;
+                if (mem_req_mmio)
+                    load_mmio_data_q <= mmio_read_data_x;
             end
             if (mem_rsp_fire) begin
                 mem_active <= 1'b0;
@@ -1308,7 +1390,7 @@ module cpu_top #(
     // synthesis translate_off
     always @(posedge clk) begin
         if (SIM_CONSOLE_ECHO && uart_write_accept_x)
-            $write("%c", mem_store_raw_x[7:0]);
+            $write("%c", mmio_endpoint_wdata_q[7:0]);
     end
     // synthesis translate_on
 
@@ -1326,7 +1408,7 @@ module cpu_top #(
             mmio_putchar_valid <= uart_write_accept_x;
 
             if (uart_write_accept_x)
-                mmio_putchar_data <= mem_store_raw_x[7:0];
+                mmio_putchar_data <= mmio_endpoint_wdata_q[7:0];
         end
     end
 
