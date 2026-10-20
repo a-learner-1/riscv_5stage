@@ -123,6 +123,27 @@ def bind_machine_irq_board_parameters(top):
     return top[:port_end] + parameters + "\n" + top[port_end:]
 
 
+def bind_axi_burst_demo_board_parameters(top):
+    """Keep the demo's real clock, memory map and hardware image immutable."""
+    from build_axi_burst_demo_images import validate_board_top
+    validate_board_top(top)
+    match = re.search(r"module board_top #\(\n(.*?)\n\) \(\n", top, re.S)
+    if not match:
+        raise RuntimeError("Unexpected AXI burst demo board parameter declaration")
+    parameters = match.group(1)
+    names = re.findall(r"\bparameter\s+(?:integer\s+)?(\w+)\s*=", parameters)
+    if set(names) != {"PROGRAM_FILE", "DATA_FILE", "RESET_HOLD_CYCLES"} or len(names) != 3:
+        raise RuntimeError("Unexpected AXI burst demo board overridable parameter")
+    parameters = re.sub(r",\n(?=\s*parameter\b)", ";\n", parameters)
+    parameters = re.sub(r"\bparameter\b", "localparam", parameters) + ";"
+    top = top[:match.start()] + "module board_top (\n" + top[match.end():]
+    port_end = top.find("\n);\n", match.start())
+    if port_end < 0:
+        raise RuntimeError("Unexpected AXI burst demo board ports")
+    port_end += len("\n);\n")
+    return top[:port_end] + parameters + "\n" + top[port_end:]
+
+
 def bind_coremark_axi_board_parameters(top, cache_mode, btb_mode="off", backend="axi"):
     """Fix the generated hardware to the verified firmware contract.
 
@@ -325,12 +346,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--stage", choices=["synth", "timing", "bitstream"],
                         default="synth")
-    parser.add_argument("--firmware", choices=["board_demo", "uart_rx_echo", "axi_control_board", "trap_board", "timer_irq_board", "machine_irq_board", "icache_board", "dcache_board", "btb_board",
+    parser.add_argument("--firmware", choices=["board_demo", "uart_rx_echo", "axi_control_board", "axi_burst_demo_board", "trap_board", "timer_irq_board", "machine_irq_board", "icache_board", "dcache_board", "btb_board",
                                               "coremark_performance", "coremark_validation",
                                               *sorted(COREMARK_AXI_FIRMWARE)],
                         default=None,
                         help="Default board_demo; dedicated variants select matching firmware")
-    parser.add_argument("--variant", choices=["default", "data_handshake", "fetch_handshake", "soc", "axi_control_board", "trap_board", "timer_irq_board", "machine_irq_board", "icache_board", "dcache_board", "btb_board", "coremark_board",
+    parser.add_argument("--variant", choices=["default", "data_handshake", "fetch_handshake", "soc", "axi_control_board", "axi_burst_demo_board", "trap_board", "timer_irq_board", "machine_irq_board", "icache_board", "dcache_board", "btb_board", "coremark_board",
                                              *COREMARK_AXI_VARIANTS],
                         default="default",
                         help="Isolate data/fetch handshake, SoC, AXI control, trap and timer IRQ board builds")
@@ -339,8 +360,8 @@ def main():
         args.firmware = (coremark_axi_firmware_name(args.variant, "performance")
                          if args.variant in COREMARK_AXI_VARIANTS else
                          "coremark_performance" if args.variant == "coremark_board" else
-                         args.variant if args.variant in {"axi_control_board", "trap_board", "timer_irq_board", "machine_irq_board", "icache_board", "dcache_board", "btb_board"} else "board_demo")
-    for dedicated in ("axi_control_board", "trap_board", "timer_irq_board", "machine_irq_board", "icache_board", "dcache_board", "btb_board"):
+                         args.variant if args.variant in {"axi_control_board", "axi_burst_demo_board", "trap_board", "timer_irq_board", "machine_irq_board", "icache_board", "dcache_board", "btb_board"} else "board_demo")
+    for dedicated in ("axi_control_board", "axi_burst_demo_board", "trap_board", "timer_irq_board", "machine_irq_board", "icache_board", "dcache_board", "btb_board"):
         if (args.variant == dedicated) != (args.firmware == dedicated):
             parser.error(dedicated + " firmware and variant must be selected together")
     if (args.variant == "coremark_board") != (args.firmware in {"coremark_performance", "coremark_validation"}):
@@ -352,6 +373,11 @@ def main():
         parser.error("CoreMark backend/Cache/BTB mode does not match the selected firmware")
     coremark_config = None
     coremark_report = None
+    burst_demo_config = None
+    burst_demo_report = None
+    if args.variant == "axi_burst_demo_board":
+        from build_axi_burst_demo_images import validate_axi_burst_demo_firmware
+        burst_demo_config, burst_demo_report = validate_axi_burst_demo_firmware(ROOT)
     if args.variant == "coremark_board":
         # Prevent loading a 100 MHz simulation image into the fixed 50 MHz top.
         coremark_config, coremark_report = validate_coremark_board_firmware(args.firmware)
@@ -389,6 +415,7 @@ def main():
                        if args.variant in COREMARK_AXI_VARIANTS else
                        "build_coremark.bat --profile " + args.firmware.removeprefix("coremark_")
                        if args.variant == "coremark_board" else
+                       "python tools/build_axi_burst_demo_images.py" if args.firmware == "axi_burst_demo_board" else
                        "build_btb_board.bat" if args.firmware == "btb_board" else
                        "build_dcache_board.bat" if args.firmware == "dcache_board" else
                        "build_icache_board.bat" if args.firmware == "icache_board" else
@@ -404,6 +431,7 @@ def main():
             raise RuntimeError(f"{path.name}: expected {words} complete hex words")
 
     build_name = ("pds_" + args.firmware if args.variant == "coremark_board" or args.variant in COREMARK_AXI_VARIANTS else
+                  "pds_axi_burst_demo_board" if args.variant == "axi_burst_demo_board" else
                   "pds_machine_irq_board" if args.variant == "machine_irq_board" else
                   "pds_btb_board" if args.variant == "btb_board" else
                   "pds_dcache_board" if args.variant == "dcache_board" else
@@ -439,7 +467,11 @@ def main():
     if args.variant in COREMARK_AXI_VARIANTS:
         rtl_names += ["instr_cache.v", "data_cache.v", "axi_lite_coremark_stats.v",
                       "axi_lite_1x2.v", "soc_coremark_axi_top.v"]
+    if args.variant == "axi_burst_demo_board":
+        from build_axi_burst_demo_images import RTL_SOURCES
+        rtl_names = list(RTL_SOURCES)
     top_name = ("coremark_axi_board_top" if args.variant in COREMARK_AXI_VARIANTS else
+                "axi_burst_demo_board_top" if args.variant == "axi_burst_demo_board" else
                 "coremark_board_top" if args.variant == "coremark_board" else
                 "btb_board_top" if args.variant == "btb_board" else
                 "dcache_board_top" if args.variant == "dcache_board" else
@@ -464,9 +496,11 @@ def main():
                                                  coremark_data_backend(args.variant))
     if args.variant == "machine_irq_board":
         top = bind_machine_irq_board_parameters(top)
+    if args.variant == "axi_burst_demo_board":
+        top = bind_axi_burst_demo_board_parameters(top)
     source_firmware = ("coremark_axi_cache_on_performance" if args.variant in COREMARK_AXI_VARIANTS else
                        "coremark_performance" if args.variant == "coremark_board" else
-                       args.variant if args.variant in {"axi_control_board", "trap_board", "timer_irq_board", "machine_irq_board", "icache_board", "dcache_board", "btb_board"} else "board_demo")
+                       args.variant if args.variant in {"axi_control_board", "axi_burst_demo_board", "trap_board", "timer_irq_board", "machine_irq_board", "icache_board", "dcache_board", "btb_board"} else "board_demo")
     for original, image in zip(
             ["programs/" + source_firmware + ".hex", "programs/" + source_firmware + "_data.hex"], images):
         if top.count(original) != 1:
@@ -574,7 +608,7 @@ def main():
             "final_sta_report_sha256": hashlib.sha256(final_report.read_bytes()).hexdigest(),
             "final_sta_route_sha256": hashlib.sha256((build / "place_route/board_top_pnr.adf").read_bytes()).hexdigest(),
         })
-    if args.variant == "coremark_d0_btb" and args.stage != "synth":
+    if args.variant in {"coremark_d0_btb", "axi_burst_demo_board"} and args.stage != "synth":
         # A positive total DRM count could be ROM, Cache or an unused memory.
         # Retain instance-level mapping and routed-netlist evidence so the
         # independent audit can prove the actual D0 data endpoint is BRAM.
@@ -582,6 +616,8 @@ def main():
             "synthesize/apm_drm_lutram_utilization.log",
             "place_route/board_top_pnr.netlist",
         )
+        if args.variant == "axi_burst_demo_board":
+            implementation_files += ("synthesize/board_top_syn.vm", "synthesize/board_top.snr")
         for name in implementation_files:
             path = build / name
             if not path.is_file() or path.stat().st_mtime < flow_started - 2:
@@ -597,12 +633,22 @@ def main():
             "final_sta_route_sha256": final_route_hash,
             "final_sta_from_bitstream_flow": True,
         })
-    if args.variant in {"trap_board", "timer_irq_board", "machine_irq_board", "icache_board", "dcache_board", "btb_board"} or args.variant in COREMARK_AXI_VARIANTS:
+    if args.variant in {"trap_board", "timer_irq_board", "machine_irq_board", "icache_board", "dcache_board", "btb_board", "axi_burst_demo_board"} or args.variant in COREMARK_AXI_VARIANTS:
         manifest.update({
             "enable_traps": 1,
             "pds_shell": str(exe.resolve()),
             "build_script_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
             "bitstreams": bitstream_outputs if args.stage == "bitstream" else {},
+        })
+    if args.variant == "axi_burst_demo_board":
+        from build_axi_burst_demo_images import CONTRACT
+        manifest.update({**CONTRACT,
+            "hardware_verified": False, "demonstration_only": True,
+            "source_top": "rtl/axi_burst_demo_board_top.v",
+            "firmware_config": {burst_demo_config.name: hashlib.sha256(burst_demo_config.read_bytes()).hexdigest()},
+            "firmware_build_report": {burst_demo_report.relative_to(ROOT).as_posix(): hashlib.sha256(burst_demo_report.read_bytes()).hexdigest()},
+            "contract_script_sha256": hashlib.sha256((ROOT / "tools/build_axi_burst_demo_images.py").read_bytes()).hexdigest(),
+            "generated_top_sha256": hashlib.sha256(generated_top.read_bytes()).hexdigest(),
         })
     if args.variant == "machine_irq_board":
         manifest.update({
