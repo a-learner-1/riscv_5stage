@@ -84,7 +84,7 @@ module if_stage #(
             // late redirect/ready/predictor path does not drive counter CEs.
             // All three events are delayed equally; fetch behavior is unchanged.
             reg lookup_event_q, hit_event_q, taken_event_q;
-            branch_predictor #(.BTB_ENTRIES(BTB_ENTRIES)) u_branch_predictor (
+            branch_predictor #(.BTB_ENTRIES(BTB_ENTRIES), .IMEM_WORDS(IMEM_WORDS)) u_branch_predictor (
                 // Query the registered fetch PC, keeping the late EX redirect
                 // off the BTB index/tag muxes. A fresh redirect request uses
                 // PC+4; held requests retain their original metadata.
