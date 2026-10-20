@@ -2,7 +2,6 @@
 import os
 from pathlib import Path
 import tempfile
-import time
 import unittest
 
 import build_pds_board as builder
@@ -26,10 +25,16 @@ class FinalStaGuardTests(unittest.TestCase):
         self.route = self.build / "place_route/board_top_pnr.adf"
         for path in (self.report, self.router, self.route):
             path.parent.mkdir(parents=True, exist_ok=True)
-        self.bit_started = time.time()
         self.report.write_text(sta_text(), encoding="utf-8")
         self.router.write_text(sta_text(slack="1.594", pulse_rows=0), encoding="utf-8")
         self.route.write_bytes(b"route used by the bitstream flow")
+        # File mtimes and time.time() can differ by one floating-point ULP on
+        # Windows even for a file written after the sampled start time. Make
+        # these three deliberately fresh fixtures strictly newer than their
+        # synthetic flow start; stale cases below still set start - 1 second.
+        # The production bitstream guard retains its zero mtime tolerance.
+        self.bit_started = min(path.stat().st_mtime for path in
+                               (self.report, self.router, self.route)) - 0.001
 
     def verify(self):
         return builder.verify_post_bitstream_timing(self.build, self.bit_started)

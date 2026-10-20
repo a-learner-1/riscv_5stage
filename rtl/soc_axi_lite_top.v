@@ -21,7 +21,8 @@ module soc_axi_lite_top #(
     parameter integer ICACHE_SETS = 64, ICACHE_LINE_WORDS = 4,
     parameter integer ENABLE_DCACHE = 0, DCACHE_SETS = 64, DCACHE_LINE_WORDS = 4,
     parameter integer ENABLE_BRANCH_PRED = 0, BTB_ENTRIES = 64,
-    parameter integer ENABLE_EXTERNAL_IRQ = 0, ENABLE_SOFTWARE_IRQ = 0
+    parameter integer ENABLE_EXTERNAL_IRQ = 0, ENABLE_SOFTWARE_IRQ = 0,
+    parameter integer ENABLE_D0_BRAM = 0
 ) (
     input  wire        clk,
     input  wire        rst_n,
@@ -181,14 +182,61 @@ module soc_axi_lite_top #(
         assign dmem_rsp_rdata=bridge_rsp_rdata,dmem_rsp_error=bridge_rsp_error;
         assign dcache_access_count=0,dcache_hit_count=0,dcache_miss_count=0,dcache_refill_word_count=0,dcache_error_count=0,dcache_write_count=0,dcache_bypass_count=0;
     end endgenerate
+    // bridge_* remains the cache backend interface for existing observers.
+    // D0 selects local synchronous RAM only after the D-cache; the original
+    // AXI bridge and every non-RAM address retain their existing interface.
+    wire axi_req_valid, axi_req_ready, axi_req_write;
+    wire [31:0] axi_req_addr, axi_req_wdata, axi_rsp_rdata;
+    wire [1:0] axi_req_size;
+    wire [3:0] axi_req_wstrb;
+    wire axi_rsp_valid, axi_rsp_ready, axi_rsp_error;
+    generate if (ENABLE_D0_BRAM) begin : g_d0_bram
+        wire ram_req_valid, ram_req_ready, ram_req_write;
+        wire [31:0] ram_req_addr, ram_req_wdata, ram_rsp_rdata;
+        wire [1:0] ram_req_size;
+        wire [3:0] ram_req_wstrb;
+        wire ram_rsp_valid, ram_rsp_ready, ram_rsp_error;
+        dmem_region_router #(.M0_BASE_ADDR(DMEM_BASE_ADDR), .M0_WORDS(DMEM_WORDS)) u_router (
+            .clk(clk), .rst_n(rst_n),
+            .req_valid(bridge_req_valid), .req_ready(bridge_req_ready),
+            .req_write(bridge_req_write), .req_addr(bridge_req_addr),
+            .req_size(bridge_req_size), .req_wdata(bridge_req_wdata), .req_wstrb(bridge_req_wstrb),
+            .rsp_valid(bridge_rsp_valid), .rsp_ready(bridge_rsp_ready),
+            .rsp_rdata(bridge_rsp_rdata), .rsp_error(bridge_rsp_error),
+            .m0_req_valid(ram_req_valid), .m0_req_ready(ram_req_ready),
+            .m0_req_write(ram_req_write), .m0_req_addr(ram_req_addr),
+            .m0_req_size(ram_req_size), .m0_req_wdata(ram_req_wdata), .m0_req_wstrb(ram_req_wstrb),
+            .m0_rsp_valid(ram_rsp_valid), .m0_rsp_ready(ram_rsp_ready),
+            .m0_rsp_rdata(ram_rsp_rdata), .m0_rsp_error(ram_rsp_error),
+            .m1_req_valid(axi_req_valid), .m1_req_ready(axi_req_ready),
+            .m1_req_write(axi_req_write), .m1_req_addr(axi_req_addr),
+            .m1_req_size(axi_req_size), .m1_req_wdata(axi_req_wdata), .m1_req_wstrb(axi_req_wstrb),
+            .m1_rsp_valid(axi_rsp_valid), .m1_rsp_ready(axi_rsp_ready),
+            .m1_rsp_rdata(axi_rsp_rdata), .m1_rsp_error(axi_rsp_error)
+        );
+        soc_data_mem #(.WORDS(DMEM_WORDS), .BASE_ADDR(DMEM_BASE_ADDR), .INIT_FILE(DATA_FILE)) u_ram (
+            .clk(clk), .rst_n(rst_n),
+            .req_valid(ram_req_valid), .req_ready(ram_req_ready),
+            .req_write(ram_req_write), .req_addr(ram_req_addr),
+            .req_size(ram_req_size), .req_wdata(ram_req_wdata), .req_wstrb(ram_req_wstrb),
+            .rsp_valid(ram_rsp_valid), .rsp_ready(ram_rsp_ready),
+            .rsp_rdata(ram_rsp_rdata), .rsp_error(ram_rsp_error)
+        );
+    end else begin : g_axi_data_backend
+        assign axi_req_valid=bridge_req_valid, bridge_req_ready=axi_req_ready;
+        assign axi_req_write=bridge_req_write, axi_req_addr=bridge_req_addr;
+        assign axi_req_size=bridge_req_size, axi_req_wdata=bridge_req_wdata, axi_req_wstrb=bridge_req_wstrb;
+        assign bridge_rsp_valid=axi_rsp_valid, axi_rsp_ready=bridge_rsp_ready;
+        assign bridge_rsp_rdata=axi_rsp_rdata, bridge_rsp_error=axi_rsp_error;
+    end endgenerate
     dmem_axi_lite_bridge u_bridge (
         .clk(clk), .rst_n(rst_n),
-        .req_valid(bridge_req_valid), .req_ready(bridge_req_ready),
-        .req_write(bridge_req_write), .req_addr(bridge_req_addr),
-        .req_size(bridge_req_size), .req_wdata(bridge_req_wdata),
-        .req_wstrb(bridge_req_wstrb), .rsp_valid(bridge_rsp_valid),
-        .rsp_ready(bridge_rsp_ready), .rsp_rdata(bridge_rsp_rdata),
-        .rsp_error(bridge_rsp_error),
+        .req_valid(axi_req_valid), .req_ready(axi_req_ready),
+        .req_write(axi_req_write), .req_addr(axi_req_addr),
+        .req_size(axi_req_size), .req_wdata(axi_req_wdata),
+        .req_wstrb(axi_req_wstrb), .rsp_valid(axi_rsp_valid),
+        .rsp_ready(axi_rsp_ready), .rsp_rdata(axi_rsp_rdata),
+        .rsp_error(axi_rsp_error),
         .m_axi_awaddr(m_axi_awaddr),
         .m_axi_awprot(m_axi_awprot),
         .m_axi_awvalid(m_axi_awvalid),

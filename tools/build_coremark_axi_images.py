@@ -70,7 +70,7 @@ HARDWARE_SOURCES = tuple("rtl/" + name for name in (
     "dmem_axi_lite_bridge.v", "axi_lite_ram.v", "soc_axi_lite_top.v",
     "instr_cache.v", "data_cache.v", "axi_lite_1x2.v",
     "axi_lite_coremark_stats.v", "soc_coremark_axi_top.v",
-    "coremark_axi_board_top.v"))
+    "coremark_axi_board_top.v", "soc_data_mem.v", "dmem_region_router.v"))
 # The wrapper includes the legacy C port; it must be hashed despite not being
 # listed as a separate GCC translation unit. Contract guards can reuse this set.
 INPUT_SOURCES = tuple(sorted(set(COMPILE_SOURCES + HARDWARE_SOURCES + (
@@ -86,10 +86,11 @@ INPUT_SOURCES = tuple(sorted(set(COMPILE_SOURCES + HARDWARE_SOURCES + (
 class BuildConfig(legacy.BuildConfig):
     cache_mode: str
     btb_mode: str = "off"
+    backend: str = "axi"
 
 
-def output_name(cache_mode, btb_mode, profile):
-    return ("axi_cache_" + cache_mode + ("_btb" if btb_mode == "on" else "") +
+def output_name(cache_mode, btb_mode, profile, backend="axi"):
+    return (("d0" if backend == "bram" else "axi") + "_cache_" + cache_mode + ("_btb" if btb_mode == "on" else "") +
             "_" + profile.replace("-", "_"))
 
 
@@ -99,6 +100,8 @@ def bp_config(config):
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
+    parser.add_argument("--backend", choices=("axi", "bram"), default="axi",
+                        help="bram selects the D0 SoC-local synchronous RAM backend after D-cache")
     parser.add_argument("--cache", choices=("off", "on", "both"), default="both")
     parser.add_argument("--btb", choices=("off", "on"), default="off",
                         help="BTB on requires --cache on; the original Cache comparison defaults to BTB off")
@@ -124,7 +127,7 @@ def parse_args(argv=None):
         (mode, args.btb) for mode in (("off", "on") if args.cache == "both" else (args.cache,)))
     configs = [BuildConfig(
         args.profile, 50000000, baud, iterations, formal, seeds,
-        output_name(cache_mode, btb_mode, args.profile), cache_mode, btb_mode)
+        output_name(cache_mode, btb_mode, args.profile, args.backend), cache_mode, btb_mode, args.backend)
         for cache_mode, btb_mode in modes]
     return configs, args.cross
 
@@ -144,15 +147,17 @@ def source_hashes(root=ROOT):
 
 
 def platform_name(config):
-    return "axi-cache-" + config.cache_mode + ("-btb" if config.btb_mode == "on" else "")
+    return ("d0" if config.backend == "bram" else "axi") + "-cache-" + config.cache_mode + ("-btb" if config.btb_mode == "on" else "")
 
 
 def memory_location(config):
     cache = ("I-cache 2 KiB 2-way 64 sets 16-byte line; "
              "D-cache 2 KiB 2-way 64 sets 16-byte line, write-through/no-write-allocate"
              if config.cache_mode == "on" else "I-cache disabled; D-cache disabled")
-    return ("Static; ROM 32 KiB @0x00000000 via request/response; "
-            "RAM 16 KiB @0x00010000 via AXI4-Lite; " + cache +
+    ram_route = (("RAM 16 KiB @0x00010000 via synchronous BRAM" +
+                  (" after D-cache" if config.cache_mode == "on" else "") + "; non-RAM via AXI4-Lite; ")
+                 if config.backend == "bram" else "RAM 16 KiB @0x00010000 via AXI4-Lite; ")
+    return ("Static; ROM 32 KiB @0x00000000 via request/response; " + ram_route + cache +
             ("; BTB 64 entries, 2-bit direction counters" if config.btb_mode == "on" else "; BTB disabled") +
             "; AXI AW/W/AR/B/R waits=0/0/0/0/0; core:memory clock=1:1")
 
@@ -168,6 +173,8 @@ def write_config_header(config, build_dir, version, cflags, ldflags):
              "#define COREMARK_PROFILE_NAME " + json.dumps(config.profile),
              "#define COREMARK_BUILD_PROFILE COREMARK_PROFILE_NAME",
              "#define COREMARK_PLATFORM_NAME " + json.dumps(platform_name(config)),
+             f"#define COREMARK_ENABLE_D0_BRAM {int(config.backend == 'bram')}",
+             f"#define COREMARK_DATA_BACKEND_ID {int(config.backend == 'bram')}u",
              f"#define COREMARK_ENABLE_ICACHE {enabled}",
              f"#define COREMARK_ENABLE_DCACHE {enabled}",
              f"#define COREMARK_ENABLE_BRANCH_PRED {int(config.btb_mode == 'on')}",
@@ -198,6 +205,8 @@ def write_verilog_config(config, symbols):
     enabled = int(config.cache_mode == "on")
     lines = [text,
              f'`define COREMARK_PLATFORM "{platform_name(config)}"\n',
+             f"`define COREMARK_ENABLE_D0_BRAM {int(config.backend == 'bram')}\n",
+             f"`define COREMARK_DATA_BACKEND_ID 32'd{int(config.backend == 'bram')}\n",
              f"`define COREMARK_CACHE_FLAGS 32'd{3 if enabled else 0}\n",
              f"`define COREMARK_ENABLE_BRANCH_PRED {int(config.btb_mode == 'on')}\n",
              f"`define COREMARK_BTB_ENTRIES {BTB_ENTRIES}\n",
@@ -219,11 +228,13 @@ def write_verilog_config(config, symbols):
 
 
 def build(config, cross=None):
+    if config.backend not in ("axi", "bram"):
+        raise RuntimeError("Select the AXI or D0 BRAM data backend")
     if config.cache_mode not in ("off", "on"):
         raise RuntimeError("One firmware build requires cache_mode off or on")
     if config.btb_mode not in ("off", "on") or (config.btb_mode == "on" and config.cache_mode != "on"):
         raise RuntimeError("BTB on is supported only by the Cache on comparison platform")
-    expected_name = output_name(config.cache_mode, config.btb_mode, config.profile)
+    expected_name = output_name(config.cache_mode, config.btb_mode, config.profile, config.backend)
     if config.profile not in PROFILES or config.name != expected_name or config.clock_hz != 50000000:
         raise RuntimeError("CoreMark AXI output name/profile/clock violates the fixed comparison contract")
     expected_baud, _, expected_formal, expected_seeds = PROFILES[config.profile]
@@ -320,6 +331,9 @@ def build(config, cross=None):
             "rom_bytes": ROM_WORDS * 4, "ram_bytes": RAM_WORDS * 4,
             "cache": bool(enabled), "core_memory_clock_ratio": "1:1", "timer_source": "64-bit mtime",
             "platform": platform_name(config), "cache_mode": config.cache_mode,
+            "data_backend": config.backend, "enable_d0_bram": int(config.backend == "bram"),
+            "data_backend_id": int(config.backend == "bram"),
+            "local_ram_base": "0x00010000", "local_ram_bytes": RAM_WORDS * 4 if config.backend == "bram" else 0,
             "enable_icache": enabled, "enable_dcache": enabled,
             "enable_branch_pred": int(config.btb_mode == "on"), "btb_entries": BTB_ENTRIES,
             "btb_mode": config.btb_mode, "stats_schema": STATS_SCHEMA,

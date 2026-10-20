@@ -3,6 +3,7 @@
 
 /* Generated metadata must describe the actual dedicated AXI hardware. */
 #if !defined(COREMARK_PLATFORM_NAME) || !defined(COREMARK_ENABLE_ICACHE) || \
+    !defined(COREMARK_ENABLE_D0_BRAM) || !defined(COREMARK_DATA_BACKEND_ID) || \
     !defined(COREMARK_ENABLE_DCACHE) || !defined(COREMARK_AXI_STATS_BASE) || \
     !defined(COREMARK_AXI_STATS_ID) || !defined(COREMARK_AXI_CACHE_GEOMETRY) || \
     !defined(COREMARK_ENABLE_BRANCH_PRED) || !defined(COREMARK_BTB_ENTRIES) || \
@@ -18,6 +19,10 @@
 #if (COREMARK_ENABLE_ICACHE != 0 && COREMARK_ENABLE_ICACHE != 1) || \
     (COREMARK_ENABLE_DCACHE != 0 && COREMARK_ENABLE_DCACHE != 1)
 #error "Cache switches must be zero or one"
+#endif
+#if (COREMARK_ENABLE_D0_BRAM != 0 && COREMARK_ENABLE_D0_BRAM != 1) || \
+    COREMARK_DATA_BACKEND_ID != COREMARK_ENABLE_D0_BRAM
+#error "D0 backend identity must match the selected RAM path"
 #endif
 #if (COREMARK_ENABLE_BRANCH_PRED != 0 && COREMARK_ENABLE_BRANCH_PRED != 1) || \
     COREMARK_BTB_ENTRIES < 1 || COREMARK_BTB_ENTRIES > 1024 || \

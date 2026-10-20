@@ -13,7 +13,8 @@ module coremark_axi_board_top #(
     parameter integer MMIO_REQ_WAIT_CYCLES = 0, MMIO_RSP_WAIT_CYCLES = 0,
     parameter integer RAM_AW_WAIT_CYCLES = 0, RAM_W_WAIT_CYCLES = 0,
     parameter integer RAM_AR_WAIT_CYCLES = 0, RAM_B_WAIT_CYCLES = 0,
-    parameter integer RAM_R_WAIT_CYCLES = 0
+    parameter integer RAM_R_WAIT_CYCLES = 0,
+    parameter integer ENABLE_D0_BRAM = 0
 ) (
     input wire clk_50m,
     input wire key1_n,
@@ -32,6 +33,7 @@ module coremark_axi_board_top #(
         .IMEM_WORDS(8192), .DMEM_WORDS(4096), .DMEM_BASE_ADDR(32'h00010000),
         .STATS_BASE_ADDR(32'h30000000),
         .ENABLE_ICACHE(ENABLE_ICACHE), .ENABLE_DCACHE(ENABLE_DCACHE),
+        .ENABLE_D0_BRAM(ENABLE_D0_BRAM),
         .ENABLE_BRANCH_PRED(ENABLE_BRANCH_PRED), .BTB_ENTRIES(BTB_ENTRIES),
         .ICACHE_SETS(64), .ICACHE_LINE_WORDS(4),
         .DCACHE_SETS(64), .DCACHE_LINE_WORDS(4),

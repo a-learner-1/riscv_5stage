@@ -13,7 +13,8 @@ module soc_coremark_axi_top #(
     parameter integer IMEM_REQ_WAIT_CYCLES=0, IMEM_RSP_WAIT_CYCLES=0,
     parameter integer MMIO_REQ_WAIT_CYCLES=0, MMIO_RSP_WAIT_CYCLES=0,
     parameter integer RAM_AW_WAIT_CYCLES=0, RAM_W_WAIT_CYCLES=0, RAM_AR_WAIT_CYCLES=0,
-    parameter integer RAM_B_WAIT_CYCLES=0, RAM_R_WAIT_CYCLES=0
+    parameter integer RAM_B_WAIT_CYCLES=0, RAM_R_WAIT_CYCLES=0,
+    parameter integer ENABLE_D0_BRAM=0
 ) (
     input wire clk,rst_n,uart_rx, input wire [7:0] gpio_in,
     output wire uart_tx, output wire [7:0] gpio_out,gpio_oe,
@@ -58,6 +59,7 @@ module soc_coremark_axi_top #(
         .ENABLE_TRAPS(1),.ENABLE_TIMER_IRQ(1),.ENABLE_ICACHE(ENABLE_ICACHE),
         .ICACHE_SETS(ICACHE_SETS),.ICACHE_LINE_WORDS(ICACHE_LINE_WORDS),
         .ENABLE_DCACHE(ENABLE_DCACHE),.DCACHE_SETS(DCACHE_SETS),.DCACHE_LINE_WORDS(DCACHE_LINE_WORDS),
+        .ENABLE_D0_BRAM(ENABLE_D0_BRAM),
         .ENABLE_BRANCH_PRED(ENABLE_BRANCH_PRED),.BTB_ENTRIES(BTB_ENTRIES)
     ) u_core (
         .clk(clk),.rst_n(rst_n),.uart_rx(uart_rx),.uart_tx(uart_tx),
@@ -157,24 +159,28 @@ module soc_coremark_axi_top #(
         .m1_axi_rvalid(stats_rvalid),
         .m1_axi_rready(stats_rready)
     );
-    axi_lite_ram #(.WORDS(DMEM_WORDS),.BASE_ADDR(DMEM_BASE_ADDR),.INIT_FILE(DATA_FILE),
+    // Preserve the legacy u_ram hierarchy and exact default topology. D0
+    // intercepts the entire RAM range before AXI, so disable this endpoint
+    // statically and reduce its unused backing array to a single zero word.
+    axi_lite_ram #(.WORDS(ENABLE_D0_BRAM ? 1 : DMEM_WORDS),.BASE_ADDR(DMEM_BASE_ADDR),
+        .INIT_FILE(ENABLE_D0_BRAM ? "" : DATA_FILE),
         .AW_WAIT_CYCLES(RAM_AW_WAIT_CYCLES),.W_WAIT_CYCLES(RAM_W_WAIT_CYCLES),
         .AR_WAIT_CYCLES(RAM_AR_WAIT_CYCLES),.B_WAIT_CYCLES(RAM_B_WAIT_CYCLES),.R_WAIT_CYCLES(RAM_R_WAIT_CYCLES)
     ) u_ram (.clk(clk),.rst_n(rst_n),
         .s_axi_awaddr(ram_awaddr),
         .s_axi_awprot(ram_awprot),
-        .s_axi_awvalid(ram_awvalid),
+        .s_axi_awvalid(ram_awvalid && (ENABLE_D0_BRAM == 0)),
         .s_axi_awready(ram_awready),
         .s_axi_wdata(ram_wdata),
         .s_axi_wstrb(ram_wstrb),
-        .s_axi_wvalid(ram_wvalid),
+        .s_axi_wvalid(ram_wvalid && (ENABLE_D0_BRAM == 0)),
         .s_axi_wready(ram_wready),
         .s_axi_bresp(ram_bresp),
         .s_axi_bvalid(ram_bvalid),
         .s_axi_bready(ram_bready),
         .s_axi_araddr(ram_araddr),
         .s_axi_arprot(ram_arprot),
-        .s_axi_arvalid(ram_arvalid),
+        .s_axi_arvalid(ram_arvalid && (ENABLE_D0_BRAM == 0)),
         .s_axi_arready(ram_arready),
         .s_axi_rdata(ram_rdata),
         .s_axi_rresp(ram_rresp),
@@ -183,6 +189,7 @@ module soc_coremark_axi_top #(
     );
     axi_lite_coremark_stats #(
         .BASE_ADDR(STATS_BASE_ADDR), .ENABLE_ICACHE(ENABLE_ICACHE), .ENABLE_DCACHE(ENABLE_DCACHE),
+        .DATA_BACKEND_ID(ENABLE_D0_BRAM ? 1 : 0),
         .ENABLE_BRANCH_PRED(ENABLE_BRANCH_PRED), .BTB_ENTRIES(BTB_ENTRIES),
         .ICACHE_SETS(ICACHE_SETS), .ICACHE_LINE_WORDS(ICACHE_LINE_WORDS),
         .DCACHE_SETS(DCACHE_SETS), .DCACHE_LINE_WORDS(DCACHE_LINE_WORDS)

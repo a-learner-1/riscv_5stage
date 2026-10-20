@@ -13,7 +13,8 @@ module axi_lite_coremark_stats #(
     parameter integer ENABLE_ICACHE = 1, ENABLE_DCACHE = 1,
     parameter integer ENABLE_BRANCH_PRED = 0, BTB_ENTRIES = 64,
     parameter integer ICACHE_SETS = 64, ICACHE_LINE_WORDS = 4,
-    parameter integer DCACHE_SETS = 64, DCACHE_LINE_WORDS = 4
+    parameter integer DCACHE_SETS = 64, DCACHE_LINE_WORDS = 4,
+    parameter integer DATA_BACKEND_ID = 0
 ) (
     input wire clk, rst_n,
     input wire [63:0] cycle_count, instret_count,
@@ -183,6 +184,12 @@ module axi_lite_coremark_stats #(
                     32'h10: s_axi_rdata <= D_GEOMETRY;
                     32'h14: s_axi_rdata <= PREDICTOR_CONFIG;
                     32'h18: s_axi_rdata <= 32'd3;
+                    // Optional D0 identity extension. Preserve the original
+                    // AXI-only register map (SLVERR here) when disabled.
+                    32'h1c: begin
+                        s_axi_rdata <= DATA_BACKEND_ID;
+                        if (DATA_BACKEND_ID == 0) s_axi_rresp <= 2'b10;
+                    end
                     32'h40: s_axi_rdata <= start_snapshot[0];
                     32'h44: s_axi_rdata <= start_snapshot[1];
                     32'h48: s_axi_rdata <= start_snapshot[2];

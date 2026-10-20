@@ -57,6 +57,12 @@ void portable_init(core_portable *portable, int *argc, char *argv[])
         coremark_axi_btb_delta[i] = 0u;
     coremark_axi_mode_seen = coremark_axi_read(8u);
     coremark_axi_btb_mode_seen = coremark_axi_read(20u);
+#if COREMARK_ENABLE_D0_BRAM
+    /* This read is outside the measured window. Reject a D0 image paired
+     * with a different physical data backend before accepting any score. */
+    if (coremark_axi_read(28u) != COREMARK_DATA_BACKEND_ID)
+        coremark_axi_platform_failed = coremark_failed = 1u;
+#endif
     if (coremark_axi_read(0u) != COREMARK_AXI_STATS_ID ||
         coremark_axi_mode_seen != COREMARK_AXI_EXPECTED_FLAGS ||
         coremark_axi_read(12u) != COREMARK_AXI_CACHE_GEOMETRY ||
@@ -131,6 +137,9 @@ void portable_fini(core_portable *portable)
     if (coremark_axi_platform_failed) coremark_failed = 1u;
 
     ee_printf("COREMARK platform=%s\n", COREMARK_PLATFORM_NAME);
+#if COREMARK_ENABLE_D0_BRAM
+    ee_printf("COREMARK data_backend=bram\n");
+#endif
     ee_printf("COREMARK cache_enable=%u\n", coremark_axi_mode_seen);
     ee_printf("COREMARK branch_pred_enable=%u\n", COREMARK_ENABLE_BRANCH_PRED);
     ee_printf("COREMARK btb_entries=%u\n", COREMARK_BTB_ENTRIES);
