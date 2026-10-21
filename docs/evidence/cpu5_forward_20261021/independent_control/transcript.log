@@ -1,0 +1,60 @@
+# Model Technology ModelSim SE-64 vmap 10.6e Lib Mapping Utility 2018.06 Jun 23 2018
+# vmap cpu5_forward_control_work build/cpu5_s3_control/work 
+# Modifying modelsim.ini
+# Model Technology ModelSim SE-64 vlog 10.6e Compiler 2018.06 Jun 23 2018
+# Start time: 21:23:23 on Oct 21,2026
+# vlog -sv -work cpu5_forward_control_work "+incdir+." rtl/alu.v rtl/regfile.v rtl/cpu5_hazard.v rtl/cpu5_alu_decode.v rtl/cpu5_alu_pipeline.v tb/cpu5_forward_control_tb.v 
+# -- Compiling module alu
+# -- Compiling module regfile
+# -- Compiling module cpu5_hazard
+# -- Compiling module cpu5_alu_decode
+# -- Compiling module cpu5_alu_pipeline
+# -- Compiling module cpu5_forward_control_tb
+# 
+# Top level modules:
+# 	cpu5_forward_control_tb
+# End time: 21:23:23 on Oct 21,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim -voptargs="+acc" -onfinish stop -wlf build/cpu5_s3_control/control.wlf cpu5_forward_control_work.cpu5_forward_control_tb 
+# Start time: 21:23:23 on Oct 21,2026
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# //  ModelSim SE-64 10.6e Jun 23 2018
+# //
+# //  Copyright 1991-2018 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  ModelSim SE-64 and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# Loading sv_std.std
+# Loading work.cpu5_forward_control_tb(fast)
+# Loading work.cpu5_alu_pipeline(fast)
+# Loading work.cpu5_alu_decode(fast)
+# Loading work.regfile(fast)
+# Loading work.alu(fast)
+# Loading work.cpu5_hazard(fast)
+# CPU5_FORWARD_CONTROL_CASE_PASS case=1 retire=9 wb=9 writes=8
+# CPU5_FORWARD_CONTROL_CASE_PASS case=2 retire=3 wb=3 writes=3
+# CPU5_FORWARD_CONTROL_CASE_PASS case=3 retire=3 wb=3 writes=3
+# CPU5_FORWARD_CONTROL_CASE_PASS case=4 retire=4 wb=4 writes=4
+# CPU5_FORWARD_CONTROL_CASE_PASS case=5 retire=2 wb=2 writes=2
+# CPU5_FORWARD_CONTROL_CASE_PASS case=6 retire=2 wb=2 writes=2
+# CPU5_FORWARD_CONTROL_CASE_PASS case=7 retire=3 wb=3 writes=3
+# CPU5_FORWARD_CONTROL_CASE_PASS case=8 retire=3 wb=3 writes=3
+# CPU5_FORWARD_CONTROL_CASE_PASS case=9 retire=2 wb=2 writes=2
+# CPU5_FORWARD_CONTROL_CASE_PASS case=10 retire=2 wb=2 writes=2
+# CPU5_FORWARD_CONTROL_CASE_PASS case=11 retire=5 wb=5 writes=5
+# CPU5_FORWARD_CONTROL_CASE_PASS case=12 retire=3 wb=3 writes=3
+# CPU5_FORWARD_CONTROL_CASE_PASS case=13 retire=3 wb=3 writes=3
+# CPU5_FORWARD_CONTROL_PASS cases=13 retire=44 wb=44 writes=43 accepted=46 blocked_edges=12 held_ex_edges=43
+# ** Note: $finish    : tb/cpu5_forward_control_tb.v(397)
+#    Time: 2147 ns  Iteration: 0  Instance: /cpu5_forward_control_tb
+# Break in Module cpu5_forward_control_tb at tb/cpu5_forward_control_tb.v line 397
+# Stopped at tb/cpu5_forward_control_tb.v line 397
+# End time: 21:23:24 on Oct 21,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0

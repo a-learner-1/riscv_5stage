@@ -1,0 +1,138 @@
+{
+  "scope": "CPU5 3A-2 directed forwarding controls; forced unready ALU is not LOAD execution",
+  "positive": {
+    "exit_code": 0,
+    "coverage": {
+      "cases": 13,
+      "retire": 44,
+      "wb_consume": 44,
+      "physical_writes": 43,
+      "id_accept": 46,
+      "no_bubble_accept": 9,
+      "mem_sources": 22,
+      "wb_sources": 11,
+      "zero_sources": 23,
+      "blocked_edges": 12,
+      "held_ex_edges": 43,
+      "held_mem_edges": 4,
+      "held_wb_edges": 4,
+      "wb_id_sources": 3,
+      "cross_epoch_mem_sources": 2,
+      "turnovers": 21,
+      "recovered_unready_cases": 3
+    },
+    "compile_errors": 0,
+    "compile_warnings": 0,
+    "source_sha256": {
+      "rtl/alu.v": "5442f0b5484053bf5bbbf6d4c8a81ad174cd8c1ea397c97076dbab59efe64173",
+      "rtl/regfile.v": "72222a39fefdedb25c9c045f641b1fa2e07492a155d16d9ee0333758bc22efb0",
+      "rtl/cpu5_hazard.v": "95723e90af47a50f9f58d87b1af41d283c31147939886941ba188fc97f562579",
+      "rtl/cpu5_alu_decode.v": "85dd75f4973988a0be806118351b642cefd730a2c5773fa063891fb4877754c8",
+      "rtl/cpu5_alu_pipeline.v": "07508c081be90277b1b5f8fb612c307204bfa915bbc23442b96c482d98c1bbd0",
+      "rtl/cpu5_pipeline_types.vh": "f6e7855a349b15464544a75d62ccb2b1d07d0305e6cd95ba1b08531049a75d41",
+      "tb/cpu5_forward_control_tb.v": "3417db7c9d535e9a54e54655bd167b03b7864675b45cc0f59b1c88b1c957e404",
+      "run_cpu5_forward_control.do": "d7c4c589f2ed32cc9b8ff0ad9984c8079b73ffc053bee9b1c03b16912c86b574"
+    },
+    "main_isolated_source_sha256": {
+      "rtl/alu.v": "5442f0b5484053bf5bbbf6d4c8a81ad174cd8c1ea397c97076dbab59efe64173",
+      "rtl/regfile.v": "72222a39fefdedb25c9c045f641b1fa2e07492a155d16d9ee0333758bc22efb0",
+      "rtl/cpu5_hazard.v": "95723e90af47a50f9f58d87b1af41d283c31147939886941ba188fc97f562579",
+      "rtl/cpu5_alu_decode.v": "85dd75f4973988a0be806118351b642cefd730a2c5773fa063891fb4877754c8",
+      "rtl/cpu5_alu_pipeline.v": "07508c081be90277b1b5f8fb612c307204bfa915bbc23442b96c482d98c1bbd0",
+      "rtl/cpu5_pipeline_types.vh": "f6e7855a349b15464544a75d62ccb2b1d07d0305e6cd95ba1b08531049a75d41",
+      "tb/cpu5_forward_control_tb.v": "3417db7c9d535e9a54e54655bd167b03b7864675b45cc0f59b1c88b1c957e404",
+      "run_cpu5_forward_control.do": "d7c4c589f2ed32cc9b8ff0ad9984c8079b73ffc053bee9b1c03b16912c86b574"
+    },
+    "source_bytes_match_main": true,
+    "trace_sha256": "27f31dfc3e73bd5842c1986e548caf20432b0d73a220fea49bbaaa0268b30ee9",
+    "transcript_sha256": "fc0584f16b3b6742e6bf72c2bc1144b213b1062b3ade6837fee134b123f72219",
+    "process_sha256": "e61d9ebd226ed4aa769168abf1c55bc5bb12d4a73934e396f13946a86d1dba47"
+  },
+  "negative_rtl": [
+    {
+      "name": "no_wb_to_id",
+      "changed_file": "rtl/cpu5_alu_pipeline.v",
+      "changed_sha256": "38beed69a520f8b5fd77c6edc1dda99f419a2b7368b5b6373b681ad937e60c4a",
+      "exit_code": 1,
+      "expected_assertion": "MEM identity/value mismatch case=1 index=3",
+      "expected_assertion_seen": true,
+      "overall_pass_marker_seen": false,
+      "compile_errors_zero": true,
+      "rejected_as_expected": true,
+      "log": "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s3\\control_mutations\\no_wb_to_id\\runner.log"
+    },
+    {
+      "name": "no_held_ex_capture",
+      "changed_file": "rtl/cpu5_alu_pipeline.v",
+      "changed_sha256": "26f2a590b8b20d8c3e982f5e1a6c9c4b25b783c2cf7e29ed02852214873c68b5",
+      "exit_code": 1,
+      "expected_assertion": "EX held operand was not retained across producer drain",
+      "expected_assertion_seen": true,
+      "overall_pass_marker_seen": false,
+      "compile_errors_zero": true,
+      "rejected_as_expected": true,
+      "log": "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s3\\control_mutations\\no_held_ex_capture\\runner.log"
+    },
+    {
+      "name": "capture_only_if_all_sources_ready",
+      "changed_file": "rtl/cpu5_alu_pipeline.v",
+      "changed_sha256": "968a5784da467bb40485b6813628c03688f55c41e31e1c08db5eb097e60549e3",
+      "exit_code": 1,
+      "expected_assertion": "resolved second source vanished during a different source's stall",
+      "expected_assertion_seen": true,
+      "overall_pass_marker_seen": false,
+      "compile_errors_zero": true,
+      "rejected_as_expected": true,
+      "log": "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s3\\control_mutations\\capture_only_if_all_sources_ready\\runner.log"
+    },
+    {
+      "name": "wb_ready_used_as_data_ready",
+      "changed_file": "rtl/cpu5_alu_pipeline.v",
+      "changed_sha256": "967d12a6dc603d05705589d86d350f6de221796ee625b9929717f171185e37b8",
+      "exit_code": 1,
+      "expected_assertion": "WB backpressure hid valid producer data",
+      "expected_assertion_seen": true,
+      "overall_pass_marker_seen": false,
+      "compile_errors_zero": true,
+      "rejected_as_expected": true,
+      "log": "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s3\\control_mutations\\wb_ready_used_as_data_ready\\runner.log"
+    },
+    {
+      "name": "unready_mem_falls_back_to_wb",
+      "changed_file": "rtl/cpu5_hazard.v",
+      "changed_sha256": "f802262a804e56070c1c3791e594aec46a7379f19d3baf7add0fe092a4f0bc09",
+      "exit_code": 1,
+      "expected_assertion": "unready latest MEM was bypassed or retired case=8",
+      "expected_assertion_seen": true,
+      "overall_pass_marker_seen": false,
+      "compile_errors_zero": true,
+      "rejected_as_expected": true,
+      "log": "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s3\\control_mutations\\unready_mem_falls_back_to_wb\\runner.log"
+    },
+    {
+      "name": "wb_wins_over_newer_mem",
+      "changed_file": "rtl/cpu5_hazard.v",
+      "changed_sha256": "2d676150006de35481afadf25123bc4e556588437943a84e3ac655d5164e175f",
+      "exit_code": 1,
+      "expected_assertion": "newest MEM did not beat matching old WB",
+      "expected_assertion_seen": true,
+      "overall_pass_marker_seen": false,
+      "compile_errors_zero": true,
+      "rejected_as_expected": true,
+      "log": "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s3\\control_mutations\\wb_wins_over_newer_mem\\runner.log"
+    },
+    {
+      "name": "capture_rs1_only_if_all_sources_ready",
+      "changed_file": "rtl/cpu5_alu_pipeline.v",
+      "changed_sha256": "9dc4800c94e4b56e0d29ef63a17cd47c7f6cbd8319519af8230f7a8a9bac35ce",
+      "exit_code": 1,
+      "expected_assertion": "resolved first source vanished during a different source's stall",
+      "expected_assertion_seen": true,
+      "overall_pass_marker_seen": false,
+      "compile_errors_zero": true,
+      "rejected_as_expected": true,
+      "log": "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s3\\control_mutations\\capture_rs1_only_if_all_sources_ready\\runner.log"
+    }
+  ],
+  "negative_passed": 7
+}

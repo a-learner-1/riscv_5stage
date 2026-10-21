@@ -1,5 +1,5 @@
 // SKELETON_ONLY=1 preserves the metadata-only scaffold. =0 enables stage3A-1:
-// 21 integer ALU instructions, conservative RAW waits, MEM retirement/GPR WB.
+// 21 ALU instructions, MEM retirement/GPR WB; ENABLE_FORWARDING=1 adds 3A-2.
 // Branch/D/M/CSR/Trap/IRQ/profile remain unimplemented and cannot produce effects.
 // No board/project references this module; cpu_top is the verified product.
 module cpu5_top #(
@@ -17,7 +17,9 @@ module cpu5_top #(
     // Provisional EX selection; no branch executor exists in this scaffold.
     // Keep both values elaboratable; final selection requires CPU5 A/B.
     parameter integer BRANCH_RESOLVE_IN_ID=0,
-    parameter integer SEQ_BITS=64, EPOCH_BITS=8, SKELETON_ONLY=1
+    parameter integer SEQ_BITS=64, EPOCH_BITS=8, SKELETON_ONLY=1,
+    // Opt-in 3A-2 EX/MEM and MEM/WB forwarding; zero preserves the 3A-1 reference.
+    parameter integer ENABLE_FORWARDING=0
 )(
     input wire clk,rst_n,
     output wire [31:0] pc_x,instr_x, output wire valid_x,
@@ -100,7 +102,7 @@ module cpu5_top #(
         .debug_ex_epoch(debug_ex_epoch));
 
     generate if(SKELETON_ONLY==0)begin:g_alu
-        cpu5_alu_pipeline #(.SEQ_BITS(SEQ_BITS),.EPOCH_BITS(EPOCH_BITS)) u_pipeline(
+        cpu5_alu_pipeline #(.SEQ_BITS(SEQ_BITS),.EPOCH_BITS(EPOCH_BITS),.ENABLE_FORWARDING(ENABLE_FORWARDING)) u_pipeline(
             .clk(clk),.rst_n(rst_n),.in_valid(ifid_valid_q),.in_ready(alu_ready),
             .in_pc(ifid_q.pc),.in_instr(ifid_q.instr),.in_pred_next_pc(ifid_q.pred_next_pc),
             .in_pred_taken(ifid_q.pred_taken),.in_pred_hit(ifid_q.pred_hit),
@@ -121,7 +123,7 @@ module cpu5_top #(
     end endgenerate
 
     // Forwarding hazard remains an independently verified interface placeholder.
-    // ALU mode uses conservative ID waits, not the stage3A-2 forwarding paths.
+    // The ALU pipeline owns the actual EX forwarding mux when explicitly enabled.
     wire [31:0] placeholder_rs1,placeholder_rs2;
     wire [2:0] placeholder_fwd1,placeholder_fwd2;
     wire placeholder_stall,unused_stall1,unused_stall2,unused_ex1,unused_ex2,unused_ex;
@@ -137,7 +139,7 @@ module cpu5_top #(
     assign wb_pc=alu_wb_pc;assign wb_rd=alu_wb_rd;assign wb_data=alu_wb_data;
     assign wb_we=alu_wb_we;assign retire_valid=alu_retire_valid;
     assign cycle_count=alu_cycle_count;assign instret_count=alu_instret_count;
-    // Full ten-class profiling is deliberately not connected in stage3A-1.
+    // Full ten-class profiling is not connected in this ALU-only subset.
     assign perf_cycle_events=0;
     assign {dmem_req_valid,dmem_req_write,dmem_req_addr,dmem_req_size,
             dmem_req_wdata,dmem_req_wstrb,dmem_rsp_ready,dmem_fault}=0;
@@ -148,6 +150,7 @@ module cpu5_top #(
     // synthesis translate_off
     initial begin
         if((SKELETON_ONLY!=0 && SKELETON_ONLY!=1) || EXTERNAL_IMEM!=1 || SEQ_BITS!=64 ||
+           (ENABLE_FORWARDING!=0 && ENABLE_FORWARDING!=1) ||
            (BRANCH_RESOLVE_IN_ID!=0 && BRANCH_RESOLVE_IN_ID!=1))
             $fatal(1,"cpu5_top requires external I, 64-bit age and a supported scaffold/ALU-subset mode");
     end

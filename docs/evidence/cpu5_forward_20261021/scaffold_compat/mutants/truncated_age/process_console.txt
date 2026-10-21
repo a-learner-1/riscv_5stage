@@ -1,0 +1,48 @@
+Reading D:/modeltech64_10.6e/tcl/vsim/pref.tcl
+
+# 10.6e
+
+# do {C:\Users\23123\.codex\visualizations\2026\10\19\01a151db-bb68-7633-bd17-5c52d2aa2890\cpu5_s3\work\build\cpu5_s1_scaffold\mutants\truncated_age\mutant.do}
+# 0
+# Model Technology ModelSim SE-64 vmap 10.6e Lib Mapping Utility 2018.06 Jun 23 2018
+# vmap cpu5_scaffold_mutant_truncated_age build/cpu5_s1_scaffold/mutants/truncated_age/work 
+# Modifying modelsim.ini
+# Model Technology ModelSim SE-64 vlog 10.6e Compiler 2018.06 Jun 23 2018
+# Start time: 21:24:14 on Oct 21,2026
+# vlog -sv "+incdir+." -work cpu5_scaffold_mutant_truncated_age build/cpu5_s1_scaffold/mutants/truncated_age/cpu5_pipeline_skeleton.v tb/cpu5_pipeline_skeleton_tb.v 
+# -- Compiling module cpu5_pipeline_skeleton
+# -- Compiling module cpu5_pipeline_skeleton_tb
+# 
+# Top level modules:
+# 	cpu5_pipeline_skeleton_tb
+# End time: 21:24:14 on Oct 21,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim -voptargs=""+acc"" -onfinish stop cpu5_scaffold_mutant_truncated_age.cpu5_pipeline_skeleton_tb "+SCAFFOLD_TRACE_DIR=build/cpu5_s1_scaffold/mutants/truncated_age" 
+# Start time: 21:24:14 on Oct 21,2026
+# ** Note: (vsim-8009) Loading existing optimized design _opt
+# //  ModelSim SE-64 10.6e Jun 23 2018
+# //
+# //  Copyright 1991-2018 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  ModelSim SE-64 and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# Loading sv_std.std
+# Loading work.cpu5_pipeline_skeleton_tb(fast)
+# Loading work.cpu5_pipeline_skeleton(fast)
+# ** Fatal: pipeline skeleton timeout accepted=3 delivered=0 head=0 tail=2
+#    Time: 100 us  Scope: cpu5_pipeline_skeleton_tb File: tb/cpu5_pipeline_skeleton_tb.v Line: 142
+# ** Note: $finish    : tb/cpu5_pipeline_skeleton_tb.v(142)
+#    Time: 100 us  Iteration: 0  Instance: /cpu5_pipeline_skeleton_tb
+# Break in Module cpu5_pipeline_skeleton_tb at tb/cpu5_pipeline_skeleton_tb.v line 142
+# Stopped at tb/cpu5_pipeline_skeleton_tb.v line 142
+# ** Error: Must-fail mutated pipeline
+# Executing ONERROR command at macro C:\Users\23123\.codex\visualizations\2026\10\19\01a151db-bb68-7633-bd17-5c52d2aa2890\cpu5_s3\work\build\cpu5_s1_scaffold\mutants\truncated_age\mutant.do line 8
+# End time: 21:24:14 on Oct 21,2026, Elapsed time: 0:00:00
+# Errors: 4, Warnings: 0

@@ -1,0 +1,48 @@
+{
+  "status": "PASS",
+  "rejected_count": 5,
+  "tests": [
+    {
+      "name": "wrong_wb_value",
+      "rejected": true,
+      "reason": "case0 row1 wb: value observed=1 expected=0",
+      "trace_sha256": "d2aa9284170ffd825391bd4f7ae5bb1d83a4c8f5b6574f19ffb8ce9398a99824",
+      "metrics_sha256": "c641e6a9d3bb64e72140e215f82d12783541289e9eb2801e16695e56d3e42270"
+    },
+    {
+      "name": "deleted_wb_packet",
+      "rejected": true,
+      "reason": "case0 row2 wb: extra/missing/reordered index",
+      "trace_sha256": "58ec88a88fdf6aaa428d6c58c249555b72cdbacf4de8f1b6f34ab4887a0a3cd5",
+      "metrics_sha256": "c641e6a9d3bb64e72140e215f82d12783541289e9eb2801e16695e56d3e42270"
+    },
+    {
+      "name": "wrong_retire_instret",
+      "rejected": true,
+      "reason": "case0 row0 retire: post-edge instret",
+      "trace_sha256": "12c4c02cf9cde28b41fe84f30461a340fdb2c48bdca6cff10bf6efc31e8d326f",
+      "metrics_sha256": "c641e6a9d3bb64e72140e215f82d12783541289e9eb2801e16695e56d3e42270"
+    },
+    {
+      "name": "forwarding_raw_wait_nonzero",
+      "rejected": true,
+      "reason": "case0: forwarding ALU subset must have zero RAW wait",
+      "trace_sha256": "39181137caf09458a9d71b64c78f543faf7f24f797d0b956ffb7317df0e263a7",
+      "metrics_sha256": "a9241fd37face5b67826418bb009c63b582d7b03d9d8a66be601ed32719dbe78"
+    },
+    {
+      "name": "baseline_raw_wait_zero",
+      "rejected": true,
+      "reason": "case48: conservative baseline RAW wait not exercised",
+      "trace_sha256": "e85936f3cc3ebecfb031372cbb98d8283791d792a3aeee6f96651d1c70846de2",
+      "metrics_sha256": "87212c93b2743243e8fe00bb294da03824cf2fc3e36d9aa16ecac3dec012602e"
+    }
+  ],
+  "original_good_artifacts_unchanged": true,
+  "source_sha256": {
+    "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s3\\work\\build\\cpu5_s3_forward\\case0_trace.csv": "39181137caf09458a9d71b64c78f543faf7f24f797d0b956ffb7317df0e263a7",
+    "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s3\\work\\build\\cpu5_s3_forward\\case0_metrics.csv": "c641e6a9d3bb64e72140e215f82d12783541289e9eb2801e16695e56d3e42270",
+    "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s3\\work\\build\\cpu5_s3_forward\\case48_trace.csv": "e85936f3cc3ebecfb031372cbb98d8283791d792a3aeee6f96651d1c70846de2",
+    "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s3\\work\\build\\cpu5_s3_forward\\case48_metrics.csv": "b7629545e85ba26f2d749685f43a9bf4e4b20908f00d9aa280c424211b69255b"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "baseline_commit": "c77b7ec8e70c4b06d2121856670231a74f15e799",
+  "baseline_archive_files_unchanged": 917,
+  "tested_source_identity_checks": 83,
+  "main_preexisting_files": 1111,
+  "authorized_updates": [
+    "rtl/cpu5_alu_pipeline.v",
+    "rtl/cpu5_top.v",
+    "tb/cpu5_alu_top_tb.v"
+  ],
+  "remaining_main_files_preserved": 1108,
+  "scope": "integer ALU forwarding subset; full 3A-2 LOAD-use/branch-use not implemented",
+  "full_A01_A16": "NOT RUN",
+  "STA": "NOT RUN",
+  "board": "NOT RUN"
+}

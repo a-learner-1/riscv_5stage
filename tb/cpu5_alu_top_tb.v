@@ -14,7 +14,10 @@ module cpu5_alu_top_tb;
     initial begin #2000000;$fatal(1,"CPU5 ALU TOP timeout done=%h",done);end
 endmodule
 
-module cpu5_alu_top_case #(parameter CASE_ID=0,KIND=0,INDEX=0,WAIT=0)(output reg done=0);
+module cpu5_alu_top_case #(
+    parameter CASE_ID=0,KIND=0,INDEX=0,WAIT=0,FORWARD=0,
+    parameter TRACE_DIR="build/cpu5_s2_alu"
+)(output reg done=0);
     reg clk=0,rst_n=0,pending=0;
     always #10 clk=~clk;
     wire qv,qr,sv,sr,rv,we,dqv,dqw,dsr,df,tf,ifault,tx;
@@ -56,7 +59,8 @@ module cpu5_alu_top_case #(parameter CASE_ID=0,KIND=0,INDEX=0,WAIT=0)(output reg
     assign qr=rst_n && (!pending||(sv&&sr)) && (!WAIT || cycles%7>=2);
     assign sv=pending && delay==0;
     cpu5_top #(.PROGRAM_FILE("programs/data_handshake_blank.hex"),.IMEM_WORDS(2048),
-        .SKELETON_ONLY(0),.ENABLE_BRANCH_PRED(WAIT),.BRANCH_RESOLVE_IN_ID(WAIT)) dut(
+        .SKELETON_ONLY(0),.ENABLE_FORWARDING(FORWARD),
+        .ENABLE_BRANCH_PRED(WAIT),.BRANCH_RESOLVE_IN_ID(WAIT)) dut(
         .clk(clk),.rst_n(rst_n),.pc_x(),.instr_x(),.valid_x(),
         .wb_pc(wpc),.wb_rd(wrd),.wb_data(wdata),.wb_we(we),.retire_valid(rv),
         .cycle_count(cc),.instret_count(ic),.uart_tx(tx),.uart_rx(1'b1),
@@ -73,28 +77,28 @@ module cpu5_alu_top_case #(parameter CASE_ID=0,KIND=0,INDEX=0,WAIT=0)(output reg
         .bp_mispredict_count(),.bp_direction_error_count(),.bp_target_error_count(),
         .irq_external(1'b1),.perf_cycle_events(perf));
     initial begin
-        $readmemh("build/cpu5_s2_alu/program.hex",program_words);
-        $readmemh("build/cpu5_s2_alu/if_fault_program.hex",fault_words);
-        $readmemh("build/cpu5_s2_alu/unsupported.hex",unsupported_words);
-        $readmemh("build/cpu5_s2_alu/final_gpr.hex",final_gpr);
+        $readmemh({TRACE_DIR,"/program.hex"},program_words);
+        $readmemh({TRACE_DIR,"/if_fault_program.hex"},fault_words);
+        $readmemh({TRACE_DIR,"/unsupported.hex"},unsupported_words);
+        $readmemh({TRACE_DIR,"/final_gpr.hex"},final_gpr);
         if(KIND==0)begin
             expected_count=`CPU5_ALU_RETIRE_COUNT;
-            $readmemh("build/cpu5_s2_alu/expected_pc.hex",expected_pc);
-            $readmemh("build/cpu5_s2_alu/expected_instr.hex",expected_instr);
-            $readmemh("build/cpu5_s2_alu/expected_rd.hex",expected_rd);
-            $readmemh("build/cpu5_s2_alu/expected_value.hex",expected_value);
-            $readmemh("build/cpu5_s2_alu/expected_writes.hex",expected_writes);
-            $readmemh("build/cpu5_s2_alu/expected_seq.hex",expected_seq);
-            $readmemh("build/cpu5_s2_alu/expected_nextpc.hex",expected_nextpc);
+            $readmemh({TRACE_DIR,"/expected_pc.hex"},expected_pc);
+            $readmemh({TRACE_DIR,"/expected_instr.hex"},expected_instr);
+            $readmemh({TRACE_DIR,"/expected_rd.hex"},expected_rd);
+            $readmemh({TRACE_DIR,"/expected_value.hex"},expected_value);
+            $readmemh({TRACE_DIR,"/expected_writes.hex"},expected_writes);
+            $readmemh({TRACE_DIR,"/expected_seq.hex"},expected_seq);
+            $readmemh({TRACE_DIR,"/expected_nextpc.hex"},expected_nextpc);
         end else if(KIND==1)begin
             expected_count=3;
-            $readmemh("build/cpu5_s2_alu/if_fault_expected_pc.hex",expected_pc,0,7);
-            $readmemh("build/cpu5_s2_alu/if_fault_expected_instr.hex",expected_instr,0,7);
-            $readmemh("build/cpu5_s2_alu/if_fault_expected_rd.hex",expected_rd,0,7);
-            $readmemh("build/cpu5_s2_alu/if_fault_expected_value.hex",expected_value,0,7);
-            $readmemh("build/cpu5_s2_alu/if_fault_expected_writes.hex",expected_writes,0,7);
-            $readmemh("build/cpu5_s2_alu/if_fault_expected_seq.hex",expected_seq,0,7);
-            $readmemh("build/cpu5_s2_alu/if_fault_expected_nextpc.hex",expected_nextpc,0,7);
+            $readmemh({TRACE_DIR,"/if_fault_expected_pc.hex"},expected_pc,0,7);
+            $readmemh({TRACE_DIR,"/if_fault_expected_instr.hex"},expected_instr,0,7);
+            $readmemh({TRACE_DIR,"/if_fault_expected_rd.hex"},expected_rd,0,7);
+            $readmemh({TRACE_DIR,"/if_fault_expected_value.hex"},expected_value,0,7);
+            $readmemh({TRACE_DIR,"/if_fault_expected_writes.hex"},expected_writes,0,7);
+            $readmemh({TRACE_DIR,"/if_fault_expected_seq.hex"},expected_seq,0,7);
+            $readmemh({TRACE_DIR,"/if_fault_expected_nextpc.hex"},expected_nextpc,0,7);
         end else begin
             expected_count=2;
             expected_pc[0]=0;expected_pc[1]=4;
@@ -103,7 +107,7 @@ module cpu5_alu_top_case #(parameter CASE_ID=0,KIND=0,INDEX=0,WAIT=0)(output reg
             expected_writes[0]=1;expected_writes[1]=1;expected_seq[0]=0;expected_seq[1]=1;
             expected_nextpc[0]=4;expected_nextpc[1]=8;
         end
-        fd=$fopen($sformatf("build/cpu5_s2_alu/case%0d_trace.csv",CASE_ID),"w");
+        fd=$fopen($sformatf("%s/case%0d_trace.csv",TRACE_DIR,CASE_ID),"w");
         $fwrite(fd,"kind,cycle,index,seq,pc,instr,rd,value,writes,instret,nextpc\n");
         repeat(4)@(negedge clk);rst_n=1;
     end
@@ -166,11 +170,12 @@ module cpu5_alu_top_case #(parameter CASE_ID=0,KIND=0,INDEX=0,WAIT=0)(output reg
             if(dut.g_alu.u_pipeline.halt_pc!==(KIND==0?`CPU5_ALU_HALT_PC:KIND==1?32'hc:32'h8) ||
                dut.g_alu.u_pipeline.halt_fetch_error!==(KIND==1))$fatal(1,"halt descriptor case=%0d pc=%h instr=%h supported=%b error=%b",CASE_ID,dut.g_alu.u_pipeline.halt_pc,dut.g_alu.u_pipeline.halt_instr,dut.g_alu.u_pipeline.exmem_supported_q,dut.g_alu.u_pipeline.halt_fetch_error);
             if(halt_cycles==6)begin
-                if(retired!=expected_count || wb_packets!=expected_count || ic!=expected_count || raw_waits==0)
+                if(retired!=expected_count || wb_packets!=expected_count || ic!=expected_count ||
+                   (FORWARD ? raw_waits!=0 : raw_waits==0))
                     $fatal(1,"retire/WB/count/stall ledger case=%0d retired=%0d WB=%0d expected=%0d",CASE_ID,retired,wb_packets,expected_count);
                 if(KIND==0)for(g=1;g<32;g=g+1)if(dut.g_alu.u_pipeline.u_regfile.regs[g]!==final_gpr[g])$fatal(1,"final GPR case=%0d x%0d",CASE_ID,g);
                 if(KIND==1 && (!ifault||ifpc!=12))$fatal(1,"sticky IF fault diagnostic");
-                metrics=$fopen($sformatf("build/cpu5_s2_alu/case%0d_metrics.csv",CASE_ID),"w");
+                metrics=$fopen($sformatf("%s/case%0d_metrics.csv",TRACE_DIR,CASE_ID),"w");
                 $fwrite(metrics,"case,retired,wb_packets,gpr_writes,raw_wait_cycles,cycles,requests,responses\n%0d,%0d,%0d,%0d,%0d,%0d,%0d,%0d\n",CASE_ID,retired,wb_packets,writes,raw_waits,cycles,requests,responses);
                 $fclose(metrics);$fclose(fd);done=1;
                 $display("CPU5 ALU CASE PASS case=%0d kind=%0d retired=%0d wb=%0d writes=%0d RAWwait=%0d cycles=%0d",CASE_ID,KIND,retired,wb_packets,writes,raw_waits,cycles);

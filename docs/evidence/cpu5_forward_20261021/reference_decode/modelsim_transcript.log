@@ -1,0 +1,43 @@
+# Model Technology ModelSim SE-64 vmap 10.6e Lib Mapping Utility 2018.06 Jun 23 2018
+# vmap cpu5_s2_decode_work build/cpu5_s2_decode/work 
+# Modifying modelsim.ini
+# Model Technology ModelSim SE-64 vlog 10.6e Compiler 2018.06 Jun 23 2018
+# Start time: 21:23:53 on Oct 21,2026
+# vlog -sv -work cpu5_s2_decode_work rtl/alu.v rtl/cpu5_alu_decode.v tb/cpu5_alu_decode_tb.v 
+# -- Compiling module alu
+# -- Compiling module cpu5_alu_decode
+# -- Compiling module cpu5_alu_decode_tb
+# 
+# Top level modules:
+# 	cpu5_alu_decode_tb
+# End time: 21:23:53 on Oct 21,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim -voptargs=""+acc"" -onfinish stop -wlf build/cpu5_s2_decode/decode.wlf cpu5_s2_decode_work.cpu5_alu_decode_tb 
+# Start time: 21:23:53 on Oct 21,2026
+# ** Note: (vsim-8009) Loading existing optimized design _opt
+# //  ModelSim SE-64 10.6e Jun 23 2018
+# //
+# //  Copyright 1991-2018 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  ModelSim SE-64 and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# Loading sv_std.std
+# Loading work.cpu5_alu_decode_tb(fast)
+# Loading work.cpu5_alu_decode(fast)
+# Loading work.alu(fast)
+# CPU5_ALU_DECODE PASS controls=34868 supported=25386 unsupported=9482 semantic=21
+# ** Note: $stop    : tb/cpu5_alu_decode_tb.v(208)
+#    Time: 34889 ns  Iteration: 0  Instance: /cpu5_alu_decode_tb
+# Break in Module cpu5_alu_decode_tb at tb/cpu5_alu_decode_tb.v line 208
+# Stopped at tb/cpu5_alu_decode_tb.v line 208
+# CPU5 21-INSTRUCTION ALU DECODE DIRECTED TEST PASS
+# End time: 21:23:54 on Oct 21,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# 0

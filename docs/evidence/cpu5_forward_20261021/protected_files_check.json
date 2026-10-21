@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "protected_files": 1111,
+  "unchanged_files": 1108,
+  "authorized_updates": [
+    {
+      "path": "D:\\FPGA\\riscv_3stage\\rtl\\cpu5_alu_pipeline.v",
+      "before_sha256": "dd890386011116f0d7c7b74b82c2eb2ce0dfb06d15c5eecb767ffa37a0b6b7a5",
+      "after_sha256": "07508c081be90277b1b5f8fb612c307204bfa915bbc23442b96c482d98c1bbd0"
+    },
+    {
+      "path": "D:\\FPGA\\riscv_3stage\\rtl\\cpu5_top.v",
+      "before_sha256": "962f833f209c7b4b4f7b2099ffdb65a0c4a9501b50686b33b274bb3a30c65293",
+      "after_sha256": "757a8151d8e81a2793798fd8ddbc13ee8ef2f867e1e96a47555abf62b7dff436"
+    },
+    {
+      "path": "D:\\FPGA\\riscv_3stage\\tb\\cpu5_alu_top_tb.v",
+      "before_sha256": "12135e3e3b8d0a67ec4505d7f102cb6ed4c3708ee7f516762575bee757fabaeb",
+      "after_sha256": "a5829f09e81cb82340fa90b63d6106895e2f2a955e15b6d447f8428fd830d260"
+    }
+  ],
+  "baseline_head": "c77b7ec8e70c4b06d2121856670231a74f15e799",
+  "current_head": "c77b7ec8e70c4b06d2121856670231a74f15e799",
+  "failures": []
+}
