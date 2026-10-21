@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "independent_human_transcribed_setup_hold_rows": 12,
+  "original_report_gzip_roundtrip": "byte SHA match",
+  "bad_report_cases_rejected": [
+    "wrong_top_slack",
+    "missing_one_path",
+    "wrong_cell_delay"
+  ],
+  "scope": "independent fixed expected tuple check and in-memory corruptions; original report/route untouched",
+  "script_sha256": "edcf23251f0a5635a32654a48c289b4cda9ff708513e5ee952cfa3a76925315d",
+  "result_sha256": "748e1f897284a2674c40baa5d9c7f7ada8f791ca536f31fc1da004fb6a0800bb"
+}

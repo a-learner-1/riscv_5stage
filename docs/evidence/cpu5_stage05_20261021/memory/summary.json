@@ -1,0 +1,1596 @@
+{
+  "schema": 1,
+  "status": "PASS",
+  "scope": "unchanged three-stage RV32IM; deterministic fixtures, not CoreMark score; non-RAM error endpoint is native surrogate, not AXI transport",
+  "cases": [
+    {
+      "case": 0,
+      "mode": "stream",
+      "request_wait": 0,
+      "response_wait": 0,
+      "requests": 30,
+      "backend_requests": 29,
+      "bram_requests": 28,
+      "same_edge_different_address_data_load_pairs": 18,
+      "reference_way_counts": {
+        "0": 18,
+        "1": 7,
+        "-1": 5
+      },
+      "class_counts": {
+        "miss": 6,
+        "hit": 16,
+        "write": 4,
+        "invalid": 3,
+        "bypass": 1
+      }
+    },
+    {
+      "case": 1,
+      "mode": "stream",
+      "request_wait": 2,
+      "response_wait": 3,
+      "requests": 30,
+      "backend_requests": 29,
+      "bram_requests": 28,
+      "same_edge_different_address_data_load_pairs": 18,
+      "reference_way_counts": {
+        "0": 18,
+        "1": 7,
+        "-1": 5
+      },
+      "class_counts": {
+        "miss": 6,
+        "hit": 16,
+        "write": 4,
+        "invalid": 3,
+        "bypass": 1
+      }
+    },
+    {
+      "case": 2,
+      "mode": "CPU",
+      "request_wait": 0,
+      "response_wait": 0,
+      "requests": 26,
+      "backend_requests": 29,
+      "bram_requests": 28,
+      "same_edge_different_address_data_load_pairs": 0,
+      "reference_way_counts": {
+        "0": 17,
+        "1": 7,
+        "-1": 2
+      },
+      "class_counts": {
+        "miss": 6,
+        "hit": 15,
+        "write": 4,
+        "bypass": 1
+      },
+      "independent_isa_retirements_checked": 36,
+      "hit_hit_long_intervals_with_ifetch_miss": [
+        {
+          "previous_pc": "0000002c",
+          "pc": "00000030",
+          "ii": 9,
+          "observed_ifetch_miss_cycle": 46,
+          "observed_ifetch_response_cycle": 55
+        }
+      ]
+    },
+    {
+      "case": 3,
+      "mode": "CPU",
+      "request_wait": 2,
+      "response_wait": 3,
+      "requests": 26,
+      "backend_requests": 28,
+      "bram_requests": 28,
+      "same_edge_different_address_data_load_pairs": 0,
+      "reference_way_counts": {
+        "0": 17,
+        "1": 7,
+        "-1": 2
+      },
+      "class_counts": {
+        "miss": 6,
+        "hit": 15,
+        "write": 4,
+        "invalid": 1
+      },
+      "independent_isa_retirements_checked": 35,
+      "hit_hit_long_intervals_with_ifetch_miss": [
+        {
+          "previous_pc": "0000002c",
+          "pc": "00000030",
+          "ii": 9,
+          "observed_ifetch_miss_cycle": 66,
+          "observed_ifetch_response_cycle": 75
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "case": 0,
+      "boundary": 0,
+      "requests": 30,
+      "responses": 30,
+      "simultaneous": 25,
+      "req_holds": 58,
+      "rsp_holds": 0,
+      "latency": {
+        "miss": {
+          "count": 6,
+          "min": 9,
+          "max": 9,
+          "histogram": {
+            "9": 6
+          }
+        },
+        "hit": {
+          "count": 16,
+          "min": 1,
+          "max": 1,
+          "histogram": {
+            "1": 16
+          }
+        },
+        "write": {
+          "count": 4,
+          "min": 2,
+          "max": 2,
+          "histogram": {
+            "2": 4
+          }
+        },
+        "invalid": {
+          "count": 3,
+          "min": 1,
+          "max": 1,
+          "histogram": {
+            "1": 3
+          }
+        },
+        "bypass": {
+          "count": 1,
+          "min": 3,
+          "max": 3,
+          "histogram": {
+            "3": 1
+          }
+        }
+      },
+      "initiation_interval": {
+        "LW-LW": {
+          "count": 19,
+          "min": 1,
+          "max": 9,
+          "histogram": {
+            "1": 13,
+            "3": 1,
+            "9": 5
+          }
+        },
+        "LW-SW": {
+          "count": 5,
+          "min": 1,
+          "max": 9,
+          "histogram": {
+            "1": 4,
+            "9": 1
+          }
+        },
+        "SW-LW": {
+          "count": 5,
+          "min": 1,
+          "max": 3,
+          "histogram": {
+            "1": 1,
+            "3": 4
+          }
+        }
+      },
+      "class_pair_interval": {
+        "miss->hit": {
+          "count": 5,
+          "min": 9,
+          "max": 9,
+          "histogram": {
+            "9": 5
+          }
+        },
+        "hit->hit": {
+          "count": 7,
+          "min": 1,
+          "max": 1,
+          "histogram": {
+            "1": 7
+          }
+        },
+        "hit->write": {
+          "count": 3,
+          "min": 1,
+          "max": 1,
+          "histogram": {
+            "1": 3
+          }
+        },
+        "write->hit": {
+          "count": 3,
+          "min": 3,
+          "max": 3,
+          "histogram": {
+            "3": 3
+          }
+        },
+        "hit->miss": {
+          "count": 4,
+          "min": 1,
+          "max": 1,
+          "histogram": {
+            "1": 4
+          }
+        },
+        "miss->write": {
+          "count": 1,
+          "min": 9,
+          "max": 9,
+          "histogram": {
+            "9": 1
+          }
+        },
+        "write->miss": {
+          "count": 1,
+          "min": 3,
+          "max": 3,
+          "histogram": {
+            "3": 1
+          }
+        },
+        "hit->invalid": {
+          "count": 1,
+          "min": 1,
+          "max": 1,
+          "histogram": {
+            "1": 1
+          }
+        },
+        "invalid->invalid": {
+          "count": 1,
+          "min": 1,
+          "max": 1,
+          "histogram": {
+            "1": 1
+          }
+        },
+        "invalid->bypass": {
+          "count": 1,
+          "min": 1,
+          "max": 1,
+          "histogram": {
+            "1": 1
+          }
+        },
+        "bypass->invalid": {
+          "count": 1,
+          "min": 3,
+          "max": 3,
+          "histogram": {
+            "3": 1
+          }
+        },
+        "invalid->hit": {
+          "count": 1,
+          "min": 1,
+          "max": 1,
+          "histogram": {
+            "1": 1
+          }
+        }
+      },
+      "minimum_ii": {
+        "count": 29,
+        "min": 1,
+        "max": 9,
+        "histogram": {
+          "1": 18,
+          "3": 5,
+          "9": 6
+        }
+      }
+    },
+    {
+      "case": 0,
+      "boundary": 1,
+      "requests": 29,
+      "responses": 29,
+      "simultaneous": 0,
+      "req_holds": 0,
+      "rsp_holds": 0,
+      "latency": {
+        "backend": {
+          "count": 29,
+          "min": 1,
+          "max": 1,
+          "histogram": {
+            "1": 29
+          }
+        }
+      },
+      "initiation_interval": {
+        "LW-LW": {
+          "count": 21,
+          "min": 2,
+          "max": 5,
+          "histogram": {
+            "2": 18,
+            "4": 2,
+            "5": 1
+          }
+        },
+        "LW-SW": {
+          "count": 3,
+          "min": 3,
+          "max": 8,
+          "histogram": {
+            "3": 1,
+            "4": 1,
+            "8": 1
+          }
+        },
+        "SW-SW": {
+          "count": 1,
+          "min": 5,
+          "max": 5,
+          "histogram": {
+            "5": 1
+          }
+        },
+        "SW-LW": {
+          "count": 3,
+          "min": 3,
+          "max": 6,
+          "histogram": {
+            "3": 1,
+            "4": 1,
+            "6": 1
+          }
+        }
+      },
+      "class_pair_interval": {
+        "backend->backend": {
+          "count": 28,
+          "min": 2,
+          "max": 8,
+          "histogram": {
+            "2": 18,
+            "3": 2,
+            "4": 4,
+            "5": 2,
+            "6": 1,
+            "8": 1
+          }
+        }
+      },
+      "minimum_ii": {
+        "count": 28,
+        "min": 2,
+        "max": 8,
+        "histogram": {
+          "2": 18,
+          "3": 2,
+          "4": 4,
+          "5": 2,
+          "6": 1,
+          "8": 1
+        }
+      }
+    },
+    {
+      "case": 0,
+      "boundary": 2,
+      "requests": 28,
+      "responses": 28,
+      "simultaneous": 0,
+      "req_holds": 0,
+      "rsp_holds": 0,
+      "latency": {
+        "backend": {
+          "count": 28,
+          "min": 1,
+          "max": 1,
+          "histogram": {
+            "1": 28
+          }
+        }
+      },
+      "initiation_interval": {
+        "LW-LW": {
+          "count": 21,
+          "min": 2,
+          "max": 5,
+          "histogram": {
+            "2": 18,
+            "4": 2,
+            "5": 1
+          }
+        },
+        "LW-SW": {
+          "count": 3,
+          "min": 3,
+          "max": 8,
+          "histogram": {
+            "3": 1,
+            "4": 1,
+            "8": 1
+          }
+        },
+        "SW-SW": {
+          "count": 1,
+          "min": 5,
+          "max": 5,
+          "histogram": {
+            "5": 1
+          }
+        },
+        "SW-LW": {
+          "count": 2,
+          "min": 3,
+          "max": 4,
+          "histogram": {
+            "3": 1,
+            "4": 1
+          }
+        }
+      },
+      "class_pair_interval": {
+        "backend->backend": {
+          "count": 27,
+          "min": 2,
+          "max": 8,
+          "histogram": {
+            "2": 18,
+            "3": 2,
+            "4": 4,
+            "5": 2,
+            "8": 1
+          }
+        }
+      },
+      "minimum_ii": {
+        "count": 27,
+        "min": 2,
+        "max": 8,
+        "histogram": {
+          "2": 18,
+          "3": 2,
+          "4": 4,
+          "5": 2,
+          "8": 1
+        }
+      }
+    },
+    {
+      "case": 1,
+      "boundary": 0,
+      "requests": 30,
+      "responses": 30,
+      "simultaneous": 25,
+      "req_holds": 219,
+      "rsp_holds": 16,
+      "latency": {
+        "miss": {
+          "count": 6,
+          "min": 29,
+          "max": 32,
+          "histogram": {
+            "29": 2,
+            "31": 2,
+            "32": 2
+          }
+        },
+        "hit": {
+          "count": 16,
+          "min": 1,
+          "max": 4,
+          "histogram": {
+            "1": 15,
+            "4": 1
+          }
+        },
+        "write": {
+          "count": 4,
+          "min": 7,
+          "max": 9,
+          "histogram": {
+            "7": 2,
+            "8": 1,
+            "9": 1
+          }
+        },
+        "invalid": {
+          "count": 3,
+          "min": 1,
+          "max": 1,
+          "histogram": {
+            "1": 3
+          }
+        },
+        "bypass": {
+          "count": 1,
+          "min": 8,
+          "max": 8,
+          "histogram": {
+            "8": 1
+          }
+        }
+      },
+      "initiation_interval": {
+        "LW-LW": {
+          "count": 19,
+          "min": 1,
+          "max": 32,
+          "histogram": {
+            "1": 12,
+            "4": 1,
+            "8": 1,
+            "29": 2,
+            "31": 2,
+            "32": 1
+          }
+        },
+        "LW-SW": {
+          "count": 5,
+          "min": 1,
+          "max": 32,
+          "histogram": {
+            "1": 4,
+            "32": 1
+          }
+        },
+        "SW-LW": {
+          "count": 5,
+          "min": 1,
+          "max": 10,
+          "histogram": {
+            "1": 1,
+            "8": 2,
+            "9": 1,
+            "10": 1
+          }
+        }
+      },
+      "class_pair_interval": {
+        "miss->hit": {
+          "count": 5,
+          "min": 29,
+          "max": 32,
+          "histogram": {
+            "29": 2,
+            "31": 2,
+            "32": 1
+          }
+        },
+        "hit->hit": {
+          "count": 7,
+          "min": 1,
+          "max": 4,
+          "histogram": {
+            "1": 6,
+            "4": 1
+          }
+        },
+        "hit->write": {
+          "count": 3,
+          "min": 1,
+          "max": 1,
+          "histogram": {
+            "1": 3
+          }
+        },
+        "write->hit": {
+          "count": 3,
+          "min": 8,
+          "max": 10,
+          "histogram": {
+            "8": 1,
+            "9": 1,
+            "10": 1
+          }
+        },
+        "hit->miss": {
+          "count": 4,
+          "min": 1,
+          "max": 1,
+          "histogram": {
+            "1": 4
+          }
+        },
+        "miss->write": {
+          "count": 1,
+          "min": 32,
+          "max": 32,
+          "histogram": {
+            "32": 1
+          }
+        },
+        "write->miss": {
+          "count": 1,
+          "min": 8,
+          "max": 8,
+          "histogram": {
+            "8": 1
+          }
+        },
+        "hit->invalid": {
+          "count": 1,
+          "min": 1,
+          "max": 1,
+          "histogram": {
+            "1": 1
+          }
+        },
+        "invalid->invalid": {
+          "count": 1,
+          "min": 1,
+          "max": 1,
+          "histogram": {
+            "1": 1
+          }
+        },
+        "invalid->bypass": {
+          "count": 1,
+          "min": 1,
+          "max": 1,
+          "histogram": {
+            "1": 1
+          }
+        },
+        "bypass->invalid": {
+          "count": 1,
+          "min": 8,
+          "max": 8,
+          "histogram": {
+            "8": 1
+          }
+        },
+        "invalid->hit": {
+          "count": 1,
+          "min": 1,
+          "max": 1,
+          "histogram": {
+            "1": 1
+          }
+        }
+      },
+      "minimum_ii": {
+        "count": 29,
+        "min": 1,
+        "max": 32,
+        "histogram": {
+          "1": 17,
+          "4": 1,
+          "8": 3,
+          "9": 1,
+          "10": 1,
+          "29": 2,
+          "31": 2,
+          "32": 2
+        }
+      }
+    },
+    {
+      "case": 1,
+      "boundary": 1,
+      "requests": 29,
+      "responses": 29,
+      "simultaneous": 0,
+      "req_holds": 58,
+      "rsp_holds": 3,
+      "latency": {
+        "backend": {
+          "count": 29,
+          "min": 4,
+          "max": 6,
+          "histogram": {
+            "4": 27,
+            "5": 1,
+            "6": 1
+          }
+        }
+      },
+      "initiation_interval": {
+        "LW-LW": {
+          "count": 21,
+          "min": 7,
+          "max": 13,
+          "histogram": {
+            "7": 18,
+            "11": 2,
+            "13": 1
+          }
+        },
+        "LW-SW": {
+          "count": 3,
+          "min": 9,
+          "max": 16,
+          "histogram": {
+            "9": 1,
+            "11": 1,
+            "16": 1
+          }
+        },
+        "SW-SW": {
+          "count": 1,
+          "min": 12,
+          "max": 12,
+          "histogram": {
+            "12": 1
+          }
+        },
+        "SW-LW": {
+          "count": 3,
+          "min": 8,
+          "max": 11,
+          "histogram": {
+            "8": 1,
+            "10": 1,
+            "11": 1
+          }
+        }
+      },
+      "class_pair_interval": {
+        "backend->backend": {
+          "count": 28,
+          "min": 7,
+          "max": 16,
+          "histogram": {
+            "7": 18,
+            "8": 1,
+            "9": 1,
+            "10": 1,
+            "11": 4,
+            "12": 1,
+            "13": 1,
+            "16": 1
+          }
+        }
+      },
+      "minimum_ii": {
+        "count": 28,
+        "min": 7,
+        "max": 16,
+        "histogram": {
+          "7": 18,
+          "8": 1,
+          "9": 1,
+          "10": 1,
+          "11": 4,
+          "12": 1,
+          "13": 1,
+          "16": 1
+        }
+      }
+    },
+    {
+      "case": 1,
+      "boundary": 2,
+      "requests": 28,
+      "responses": 28,
+      "simultaneous": 0,
+      "req_holds": 56,
+      "rsp_holds": 3,
+      "latency": {
+        "backend": {
+          "count": 28,
+          "min": 4,
+          "max": 6,
+          "histogram": {
+            "4": 26,
+            "5": 1,
+            "6": 1
+          }
+        }
+      },
+      "initiation_interval": {
+        "LW-LW": {
+          "count": 21,
+          "min": 7,
+          "max": 13,
+          "histogram": {
+            "7": 18,
+            "11": 2,
+            "13": 1
+          }
+        },
+        "LW-SW": {
+          "count": 3,
+          "min": 9,
+          "max": 16,
+          "histogram": {
+            "9": 1,
+            "11": 1,
+            "16": 1
+          }
+        },
+        "SW-SW": {
+          "count": 1,
+          "min": 12,
+          "max": 12,
+          "histogram": {
+            "12": 1
+          }
+        },
+        "SW-LW": {
+          "count": 2,
+          "min": 8,
+          "max": 10,
+          "histogram": {
+            "8": 1,
+            "10": 1
+          }
+        }
+      },
+      "class_pair_interval": {
+        "backend->backend": {
+          "count": 27,
+          "min": 7,
+          "max": 16,
+          "histogram": {
+            "7": 18,
+            "8": 1,
+            "9": 1,
+            "10": 1,
+            "11": 3,
+            "12": 1,
+            "13": 1,
+            "16": 1
+          }
+        }
+      },
+      "minimum_ii": {
+        "count": 27,
+        "min": 7,
+        "max": 16,
+        "histogram": {
+          "7": 18,
+          "8": 1,
+          "9": 1,
+          "10": 1,
+          "11": 3,
+          "12": 1,
+          "13": 1,
+          "16": 1
+        }
+      }
+    },
+    {
+      "case": 2,
+      "boundary": 0,
+      "requests": 26,
+      "responses": 26,
+      "simultaneous": 0,
+      "req_holds": 0,
+      "rsp_holds": 0,
+      "latency": {
+        "miss": {
+          "count": 6,
+          "min": 9,
+          "max": 9,
+          "histogram": {
+            "9": 6
+          }
+        },
+        "hit": {
+          "count": 15,
+          "min": 1,
+          "max": 1,
+          "histogram": {
+            "1": 15
+          }
+        },
+        "write": {
+          "count": 4,
+          "min": 2,
+          "max": 2,
+          "histogram": {
+            "2": 4
+          }
+        },
+        "bypass": {
+          "count": 1,
+          "min": 3,
+          "max": 3,
+          "histogram": {
+            "3": 1
+          }
+        }
+      },
+      "initiation_interval": {
+        "LW-LW": {
+          "count": 17,
+          "min": 2,
+          "max": 11,
+          "histogram": {
+            "2": 9,
+            "9": 2,
+            "10": 5,
+            "11": 1
+          }
+        },
+        "LW-SW": {
+          "count": 4,
+          "min": 2,
+          "max": 10,
+          "histogram": {
+            "2": 1,
+            "9": 2,
+            "10": 1
+          }
+        },
+        "SW-LW": {
+          "count": 4,
+          "min": 3,
+          "max": 9,
+          "histogram": {
+            "3": 3,
+            "9": 1
+          }
+        }
+      },
+      "class_pair_interval": {
+        "miss->hit": {
+          "count": 5,
+          "min": 10,
+          "max": 10,
+          "histogram": {
+            "10": 5
+          }
+        },
+        "hit->hit": {
+          "count": 7,
+          "min": 2,
+          "max": 9,
+          "histogram": {
+            "2": 6,
+            "9": 1
+          }
+        },
+        "hit->write": {
+          "count": 3,
+          "min": 2,
+          "max": 9,
+          "histogram": {
+            "2": 1,
+            "9": 2
+          }
+        },
+        "write->hit": {
+          "count": 3,
+          "min": 3,
+          "max": 9,
+          "histogram": {
+            "3": 2,
+            "9": 1
+          }
+        },
+        "hit->miss": {
+          "count": 4,
+          "min": 2,
+          "max": 9,
+          "histogram": {
+            "2": 3,
+            "9": 1
+          }
+        },
+        "miss->write": {
+          "count": 1,
+          "min": 10,
+          "max": 10,
+          "histogram": {
+            "10": 1
+          }
+        },
+        "write->miss": {
+          "count": 1,
+          "min": 3,
+          "max": 3,
+          "histogram": {
+            "3": 1
+          }
+        },
+        "hit->bypass": {
+          "count": 1,
+          "min": 11,
+          "max": 11,
+          "histogram": {
+            "11": 1
+          }
+        }
+      },
+      "minimum_ii": {
+        "count": 25,
+        "min": 2,
+        "max": 11,
+        "histogram": {
+          "2": 10,
+          "3": 3,
+          "9": 5,
+          "10": 6,
+          "11": 1
+        }
+      }
+    },
+    {
+      "case": 2,
+      "boundary": 1,
+      "requests": 29,
+      "responses": 29,
+      "simultaneous": 0,
+      "req_holds": 0,
+      "rsp_holds": 0,
+      "latency": {
+        "backend": {
+          "count": 29,
+          "min": 1,
+          "max": 1,
+          "histogram": {
+            "1": 29
+          }
+        }
+      },
+      "initiation_interval": {
+        "LW-LW": {
+          "count": 21,
+          "min": 2,
+          "max": 13,
+          "histogram": {
+            "2": 18,
+            "6": 1,
+            "8": 1,
+            "13": 1
+          }
+        },
+        "LW-SW": {
+          "count": 3,
+          "min": 4,
+          "max": 28,
+          "histogram": {
+            "4": 1,
+            "13": 1,
+            "28": 1
+          }
+        },
+        "SW-SW": {
+          "count": 1,
+          "min": 7,
+          "max": 7,
+          "histogram": {
+            "7": 1
+          }
+        },
+        "SW-LW": {
+          "count": 3,
+          "min": 3,
+          "max": 16,
+          "histogram": {
+            "3": 1,
+            "11": 1,
+            "16": 1
+          }
+        }
+      },
+      "class_pair_interval": {
+        "backend->backend": {
+          "count": 28,
+          "min": 2,
+          "max": 28,
+          "histogram": {
+            "2": 18,
+            "3": 1,
+            "4": 1,
+            "6": 1,
+            "7": 1,
+            "8": 1,
+            "11": 1,
+            "13": 2,
+            "16": 1,
+            "28": 1
+          }
+        }
+      },
+      "minimum_ii": {
+        "count": 28,
+        "min": 2,
+        "max": 28,
+        "histogram": {
+          "2": 18,
+          "3": 1,
+          "4": 1,
+          "6": 1,
+          "7": 1,
+          "8": 1,
+          "11": 1,
+          "13": 2,
+          "16": 1,
+          "28": 1
+        }
+      }
+    },
+    {
+      "case": 2,
+      "boundary": 2,
+      "requests": 28,
+      "responses": 28,
+      "simultaneous": 0,
+      "req_holds": 0,
+      "rsp_holds": 0,
+      "latency": {
+        "backend": {
+          "count": 28,
+          "min": 1,
+          "max": 1,
+          "histogram": {
+            "1": 28
+          }
+        }
+      },
+      "initiation_interval": {
+        "LW-LW": {
+          "count": 21,
+          "min": 2,
+          "max": 13,
+          "histogram": {
+            "2": 18,
+            "6": 1,
+            "8": 1,
+            "13": 1
+          }
+        },
+        "LW-SW": {
+          "count": 3,
+          "min": 4,
+          "max": 28,
+          "histogram": {
+            "4": 1,
+            "13": 1,
+            "28": 1
+          }
+        },
+        "SW-SW": {
+          "count": 1,
+          "min": 7,
+          "max": 7,
+          "histogram": {
+            "7": 1
+          }
+        },
+        "SW-LW": {
+          "count": 2,
+          "min": 3,
+          "max": 11,
+          "histogram": {
+            "3": 1,
+            "11": 1
+          }
+        }
+      },
+      "class_pair_interval": {
+        "backend->backend": {
+          "count": 27,
+          "min": 2,
+          "max": 28,
+          "histogram": {
+            "2": 18,
+            "3": 1,
+            "4": 1,
+            "6": 1,
+            "7": 1,
+            "8": 1,
+            "11": 1,
+            "13": 2,
+            "28": 1
+          }
+        }
+      },
+      "minimum_ii": {
+        "count": 27,
+        "min": 2,
+        "max": 28,
+        "histogram": {
+          "2": 18,
+          "3": 1,
+          "4": 1,
+          "6": 1,
+          "7": 1,
+          "8": 1,
+          "11": 1,
+          "13": 2,
+          "28": 1
+        }
+      }
+    },
+    {
+      "case": 3,
+      "boundary": 0,
+      "requests": 26,
+      "responses": 26,
+      "simultaneous": 0,
+      "req_holds": 0,
+      "rsp_holds": 0,
+      "latency": {
+        "miss": {
+          "count": 6,
+          "min": 29,
+          "max": 29,
+          "histogram": {
+            "29": 6
+          }
+        },
+        "hit": {
+          "count": 15,
+          "min": 1,
+          "max": 1,
+          "histogram": {
+            "1": 15
+          }
+        },
+        "write": {
+          "count": 4,
+          "min": 7,
+          "max": 7,
+          "histogram": {
+            "7": 4
+          }
+        },
+        "invalid": {
+          "count": 1,
+          "min": 1,
+          "max": 1,
+          "histogram": {
+            "1": 1
+          }
+        }
+      },
+      "initiation_interval": {
+        "LW-LW": {
+          "count": 17,
+          "min": 2,
+          "max": 30,
+          "histogram": {
+            "2": 10,
+            "9": 2,
+            "30": 5
+          }
+        },
+        "LW-SW": {
+          "count": 4,
+          "min": 2,
+          "max": 30,
+          "histogram": {
+            "2": 1,
+            "9": 2,
+            "30": 1
+          }
+        },
+        "SW-LW": {
+          "count": 4,
+          "min": 8,
+          "max": 9,
+          "histogram": {
+            "8": 3,
+            "9": 1
+          }
+        }
+      },
+      "class_pair_interval": {
+        "miss->hit": {
+          "count": 5,
+          "min": 30,
+          "max": 30,
+          "histogram": {
+            "30": 5
+          }
+        },
+        "hit->hit": {
+          "count": 7,
+          "min": 2,
+          "max": 9,
+          "histogram": {
+            "2": 6,
+            "9": 1
+          }
+        },
+        "hit->write": {
+          "count": 3,
+          "min": 2,
+          "max": 9,
+          "histogram": {
+            "2": 1,
+            "9": 2
+          }
+        },
+        "write->hit": {
+          "count": 3,
+          "min": 8,
+          "max": 9,
+          "histogram": {
+            "8": 2,
+            "9": 1
+          }
+        },
+        "hit->miss": {
+          "count": 4,
+          "min": 2,
+          "max": 9,
+          "histogram": {
+            "2": 3,
+            "9": 1
+          }
+        },
+        "miss->write": {
+          "count": 1,
+          "min": 30,
+          "max": 30,
+          "histogram": {
+            "30": 1
+          }
+        },
+        "write->miss": {
+          "count": 1,
+          "min": 8,
+          "max": 8,
+          "histogram": {
+            "8": 1
+          }
+        },
+        "hit->invalid": {
+          "count": 1,
+          "min": 2,
+          "max": 2,
+          "histogram": {
+            "2": 1
+          }
+        }
+      },
+      "minimum_ii": {
+        "count": 25,
+        "min": 2,
+        "max": 30,
+        "histogram": {
+          "2": 11,
+          "8": 3,
+          "9": 5,
+          "30": 6
+        }
+      }
+    },
+    {
+      "case": 3,
+      "boundary": 1,
+      "requests": 28,
+      "responses": 28,
+      "simultaneous": 0,
+      "req_holds": 56,
+      "rsp_holds": 0,
+      "latency": {
+        "backend": {
+          "count": 28,
+          "min": 4,
+          "max": 4,
+          "histogram": {
+            "4": 28
+          }
+        }
+      },
+      "initiation_interval": {
+        "LW-LW": {
+          "count": 21,
+          "min": 7,
+          "max": 18,
+          "histogram": {
+            "7": 18,
+            "11": 1,
+            "13": 1,
+            "18": 1
+          }
+        },
+        "LW-SW": {
+          "count": 3,
+          "min": 9,
+          "max": 33,
+          "histogram": {
+            "9": 1,
+            "18": 1,
+            "33": 1
+          }
+        },
+        "SW-SW": {
+          "count": 1,
+          "min": 12,
+          "max": 12,
+          "histogram": {
+            "12": 1
+          }
+        },
+        "SW-LW": {
+          "count": 2,
+          "min": 8,
+          "max": 11,
+          "histogram": {
+            "8": 1,
+            "11": 1
+          }
+        }
+      },
+      "class_pair_interval": {
+        "backend->backend": {
+          "count": 27,
+          "min": 7,
+          "max": 33,
+          "histogram": {
+            "7": 18,
+            "8": 1,
+            "9": 1,
+            "11": 2,
+            "12": 1,
+            "13": 1,
+            "18": 2,
+            "33": 1
+          }
+        }
+      },
+      "minimum_ii": {
+        "count": 27,
+        "min": 7,
+        "max": 33,
+        "histogram": {
+          "7": 18,
+          "8": 1,
+          "9": 1,
+          "11": 2,
+          "12": 1,
+          "13": 1,
+          "18": 2,
+          "33": 1
+        }
+      }
+    },
+    {
+      "case": 3,
+      "boundary": 2,
+      "requests": 28,
+      "responses": 28,
+      "simultaneous": 0,
+      "req_holds": 56,
+      "rsp_holds": 0,
+      "latency": {
+        "backend": {
+          "count": 28,
+          "min": 4,
+          "max": 4,
+          "histogram": {
+            "4": 28
+          }
+        }
+      },
+      "initiation_interval": {
+        "LW-LW": {
+          "count": 21,
+          "min": 7,
+          "max": 18,
+          "histogram": {
+            "7": 18,
+            "11": 1,
+            "13": 1,
+            "18": 1
+          }
+        },
+        "LW-SW": {
+          "count": 3,
+          "min": 9,
+          "max": 33,
+          "histogram": {
+            "9": 1,
+            "18": 1,
+            "33": 1
+          }
+        },
+        "SW-SW": {
+          "count": 1,
+          "min": 12,
+          "max": 12,
+          "histogram": {
+            "12": 1
+          }
+        },
+        "SW-LW": {
+          "count": 2,
+          "min": 8,
+          "max": 11,
+          "histogram": {
+            "8": 1,
+            "11": 1
+          }
+        }
+      },
+      "class_pair_interval": {
+        "backend->backend": {
+          "count": 27,
+          "min": 7,
+          "max": 33,
+          "histogram": {
+            "7": 18,
+            "8": 1,
+            "9": 1,
+            "11": 2,
+            "12": 1,
+            "13": 1,
+            "18": 2,
+            "33": 1
+          }
+        }
+      },
+      "minimum_ii": {
+        "count": 27,
+        "min": 7,
+        "max": 33,
+        "histogram": {
+          "7": 18,
+          "8": 1,
+          "9": 1,
+          "11": 2,
+          "12": 1,
+          "13": 1,
+          "18": 2,
+          "33": 1
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "CPU fixtures use original I-cache/ROM and D-cache parameters but are directed instruction streams, not a CoreMark-wide II distribution",
+    "non-RAM error endpoint bypasses production AXI transport; AXI regression is outside this measurement",
+    "CPU5 RTL/II and speculative request ownership are NOT IMPLEMENTED / NOT RUN",
+    "latency is response-consumption edge minus request-acceptance edge; response backpressure is included",
+    "II is adjacent accepted-request edge distance, including instruction supply and dependencies; it is not a pure endpoint capacity claim"
+  ],
+  "artifact_sha256": {
+    "analyzer_negative_checks.json": "d5e862a8910b5ac3ea88dc36d2f723bad3114d3631da41fcee7d1d505b6da1a1",
+    "case0_boundary0.csv": "b43fd6a601fc1873f35e99b0abf9e5def73e11b18614ac1349f034151ed2c7b5",
+    "case0_boundary1.csv": "a156e3404061fa40f2eab60ca73f3cea40184f6ba8f463dc06bc32656fca6790",
+    "case0_boundary2.csv": "bbda7febe11241eaf8e07ba41dda11286195d33c986dc3eb13cc1a8b7c7ad639",
+    "case0_metrics.csv": "011c3101ca6c1b7ae2bd2e361c35f3c66628084c2104fa75ffb0247202a46e38",
+    "case1_boundary0.csv": "657da2521795abf7a75d0d228340bf71c390b122ad1ceac7ba9bc5c02c86b3a4",
+    "case1_boundary1.csv": "5ae94448cdac10fd8d1d78d0a50fec62955f596910384287b6004b648e40cd90",
+    "case1_boundary2.csv": "b6c02a5ac7fb861efbef1ad028ccf024b0fafddca83abf3606cf32b57d394189",
+    "case1_metrics.csv": "d8633e75ae91affbca6cbcad0fbed5bdf822aa1272823483bb801e746b792ad7",
+    "case2_boundary0.csv": "16ffc5288a4f777b7be6d8ccc8105d7beac8e87b88dda74ae79b8d10a09c4c7c",
+    "case2_boundary1.csv": "7f2cd7ed246ae96b2a7961138211f714fc819e34f5167607230e138d19e500f3",
+    "case2_boundary2.csv": "45d3c24acc66fad664a281052af44b593be08d8264ac761473486e12e1e992d8",
+    "case2_ifetch.csv": "0cdafd35fc299e2119c3278906ea3c0d531af1a1e0907040265d14d5a7cca0cb",
+    "case2_metrics.csv": "696628550033239af9650e2b97b94c61faf77c9d0526337d3f8eb7e0dabb2bef",
+    "case2_retirement.csv": "b5ebb563466758cf3b7dc8050ccade04d96f1f6a7490e8d5f70f1d10e4af564a",
+    "case3_boundary0.csv": "e3c9773c5c9e0fb29ace3258cf78a32ff4841bad9b2566df1f7a9444645718c3",
+    "case3_boundary1.csv": "37571c448f5062dfcfbf2110b6dec3dc44fd38e45872f1fd11d5cb8a5dcd2d9f",
+    "case3_boundary2.csv": "3e483015161ea66ee794a8f10244385dcf479cfcb1288ae41cd6d2bd88404b67",
+    "case3_ifetch.csv": "00d62423c5047f1a6ddf909eec345ecaa9f1f5bffecd077abed0ca293c9939ca",
+    "case3_metrics.csv": "ca700c4d625952d0ff9f98ca80cc4ee7f844bad9753b93b4f7975f17e1ead3de",
+    "case3_retirement.csv": "015747d8168c67ef290fa0057abab5aca914ef6e7e6f57dd1ae7d698510f4ca7",
+    "cpu_illegal.hex": "9cc88b3541b5d5d5d37d7f6cb036dea5795c7d12e28de11c794cdd6c6930bfae",
+    "cpu_illegal_golden.json": "9f5bd5094044057034b559fbe1bfc1126db06163885d5e7de60750a9abf2597e",
+    "cpu_illegal_pc.hex": "451291cb5b21203baf5bbb214f511becc6b204cede4a60967f59f6a37eb157b3",
+    "cpu_illegal_rd.hex": "b71a5329da13f7dfa32ba2f9b64740d5f442576e0f4378025a6de7cd1b512ab0",
+    "cpu_illegal_value.hex": "42fdda76107f2d469c4946270874a9d26a9a94b53661c96d8b532cdae5e823a6",
+    "cpu_unaligned.hex": "c059a768471843b70612e0abcddbc75f3cf23314ec8525737ec8b9c8a09e7a75",
+    "cpu_unaligned_golden.json": "660bbc2f173232488c7fd5f3ac7ae6cf9cdc78e08dca866b77bd51c77fc29655",
+    "cpu_unaligned_pc.hex": "5576357058026b9292564de332e20f085454a7993b95f626ed6ef4667412d899",
+    "cpu_unaligned_rd.hex": "0f4e2ca8717972c4636baf847f3250decb8508e06162a370dd1c0d648adb6480",
+    "cpu_unaligned_value.hex": "f9bc0e7030b164123d5e89352e4724df494944153ac4b53a6e675091157a1ec3",
+    "input_manifest.json": "ee0f1404a0333016d3b46d0470ffbd8ab4227d1ccbe4c2494744c570b173cfa1",
+    "request_pairs.csv": "1329bf17764e5af0e8431689dc1b85e289e72a8dd6c671331160ea6be89157bb",
+    "transactions.csv": "7bc100ce9351559f00f43e809a6c2e8af4c0d09ccd1a0cb9ee7b24a4352e69bc",
+    "transcript.log": "89630fea9901fbf06be706e814ff1f6767449f1e7f72e2cfe909e9a7c2bfa45b"
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "status": "PASS",
+  "unit_cases": 14,
+  "cpu_owners": 393,
+  "latency_histogram": [
+    {
+      "op": "DIV",
+      "unit_done": 0,
+      "cpu_complete": 1,
+      "retire": 2,
+      "wait": 1,
+      "count": 5
+    },
+    {
+      "op": "DIV",
+      "unit_done": 32,
+      "cpu_complete": 33,
+      "retire": 34,
+      "wait": 33,
+      "count": 21
+    },
+    {
+      "op": "DIVU",
+      "unit_done": 0,
+      "cpu_complete": 1,
+      "retire": 2,
+      "wait": 1,
+      "count": 4
+    },
+    {
+      "op": "DIVU",
+      "unit_done": 32,
+      "cpu_complete": 33,
+      "retire": 34,
+      "wait": 33,
+      "count": 21
+    },
+    {
+      "op": "MUL",
+      "unit_done": 2,
+      "cpu_complete": 3,
+      "retire": 4,
+      "wait": 3,
+      "count": 121
+    },
+    {
+      "op": "MULH",
+      "unit_done": 2,
+      "cpu_complete": 3,
+      "retire": 4,
+      "wait": 3,
+      "count": 25
+    },
+    {
+      "op": "MULHSU",
+      "unit_done": 2,
+      "cpu_complete": 3,
+      "retire": 4,
+      "wait": 3,
+      "count": 25
+    },
+    {
+      "op": "MULHU",
+      "unit_done": 2,
+      "cpu_complete": 3,
+      "retire": 4,
+      "wait": 3,
+      "count": 121
+    },
+    {
+      "op": "REM",
+      "unit_done": 0,
+      "cpu_complete": 1,
+      "retire": 2,
+      "wait": 1,
+      "count": 5
+    },
+    {
+      "op": "REM",
+      "unit_done": 32,
+      "cpu_complete": 33,
+      "retire": 34,
+      "wait": 33,
+      "count": 20
+    },
+    {
+      "op": "REMU",
+      "unit_done": 0,
+      "cpu_complete": 1,
+      "retire": 2,
+      "wait": 1,
+      "count": 4
+    },
+    {
+      "op": "REMU",
+      "unit_done": 32,
+      "cpu_complete": 33,
+      "retire": 34,
+      "wait": 33,
+      "count": 21
+    }
+  ],
+  "scope": "existing three-stage CPU and rv32m_unit only; CPU5 killed/drain owner is not implemented or tested",
+  "raw_sha256": {
+    "cpu_directed/m_owners.csv": "6ff59f4e63b25624b7af93e2589057956cec862ac3dbf1be0358bdc3ebe19bd9",
+    "unit_directed/unit_directed.csv": "02e9a1af06bf2d9021f945b99e07d46fc676b17e3c1ab67c8ddea42fde6900be"
+  }
+}

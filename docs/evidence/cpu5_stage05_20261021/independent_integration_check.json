@@ -1,0 +1,184 @@
+{
+  "status": "PASS",
+  "m_raw_independent_arithmetic": [
+    {
+      "seed": "smoke",
+      "owners": 9396,
+      "mul_wait": 28188,
+      "window_cycles": 425003,
+      "work_minus_retired_residual": 0
+    },
+    {
+      "seed": "smoke_validation",
+      "owners": 9396,
+      "mul_wait": 28188,
+      "window_cycles": 425367,
+      "work_minus_retired_residual": 0
+    }
+  ],
+  "timing_original_bytes_sha256": "e9f50dfa8f1be039b4056225b87cfa36deec7e9682f0fdaa396bcccdf1702dd3",
+  "baseline_source_commit": "fa36f45761ed1de9a9d12fec77d4fed59edc9714",
+  "memory_raw_independent_counts": [
+    {
+      "case": 0,
+      "boundaries": [
+        {
+          "boundary": 0,
+          "requests": 30,
+          "responses": 30,
+          "same_edge_turnover": 25,
+          "hit_latency_histogram": {
+            "1": 16
+          },
+          "hit_pair_II_histogram": {
+            "1": 7
+          },
+          "refill_internal_II_histogram": {}
+        },
+        {
+          "boundary": 1,
+          "requests": 29,
+          "responses": 29,
+          "same_edge_turnover": 0,
+          "hit_latency_histogram": {},
+          "hit_pair_II_histogram": {},
+          "refill_internal_II_histogram": {
+            "2": 18
+          }
+        },
+        {
+          "boundary": 2,
+          "requests": 28,
+          "responses": 28,
+          "same_edge_turnover": 0,
+          "hit_latency_histogram": {},
+          "hit_pair_II_histogram": {},
+          "refill_internal_II_histogram": {}
+        }
+      ],
+      "retired": null
+    },
+    {
+      "case": 1,
+      "boundaries": [
+        {
+          "boundary": 0,
+          "requests": 30,
+          "responses": 30,
+          "same_edge_turnover": 25,
+          "hit_latency_histogram": {
+            "1": 15,
+            "4": 1
+          },
+          "hit_pair_II_histogram": {
+            "1": 6,
+            "4": 1
+          },
+          "refill_internal_II_histogram": {}
+        },
+        {
+          "boundary": 1,
+          "requests": 29,
+          "responses": 29,
+          "same_edge_turnover": 0,
+          "hit_latency_histogram": {},
+          "hit_pair_II_histogram": {},
+          "refill_internal_II_histogram": {
+            "7": 18
+          }
+        },
+        {
+          "boundary": 2,
+          "requests": 28,
+          "responses": 28,
+          "same_edge_turnover": 0,
+          "hit_latency_histogram": {},
+          "hit_pair_II_histogram": {},
+          "refill_internal_II_histogram": {}
+        }
+      ],
+      "retired": null
+    },
+    {
+      "case": 2,
+      "boundaries": [
+        {
+          "boundary": 0,
+          "requests": 26,
+          "responses": 26,
+          "same_edge_turnover": 0,
+          "hit_latency_histogram": {
+            "1": 15
+          },
+          "hit_pair_II_histogram": {
+            "9": 1,
+            "2": 6
+          },
+          "refill_internal_II_histogram": {}
+        },
+        {
+          "boundary": 1,
+          "requests": 29,
+          "responses": 29,
+          "same_edge_turnover": 0,
+          "hit_latency_histogram": {},
+          "hit_pair_II_histogram": {},
+          "refill_internal_II_histogram": {
+            "2": 18
+          }
+        },
+        {
+          "boundary": 2,
+          "requests": 28,
+          "responses": 28,
+          "same_edge_turnover": 0,
+          "hit_latency_histogram": {},
+          "hit_pair_II_histogram": {},
+          "refill_internal_II_histogram": {}
+        }
+      ],
+      "retired": 36
+    },
+    {
+      "case": 3,
+      "boundaries": [
+        {
+          "boundary": 0,
+          "requests": 26,
+          "responses": 26,
+          "same_edge_turnover": 0,
+          "hit_latency_histogram": {
+            "1": 15
+          },
+          "hit_pair_II_histogram": {
+            "9": 1,
+            "2": 6
+          },
+          "refill_internal_II_histogram": {}
+        },
+        {
+          "boundary": 1,
+          "requests": 28,
+          "responses": 28,
+          "same_edge_turnover": 0,
+          "hit_latency_histogram": {},
+          "hit_pair_II_histogram": {},
+          "refill_internal_II_histogram": {
+            "7": 18
+          }
+        },
+        {
+          "boundary": 2,
+          "requests": 28,
+          "responses": 28,
+          "same_edge_turnover": 0,
+          "hit_latency_histogram": {},
+          "hit_pair_II_histogram": {},
+          "refill_internal_II_histogram": {}
+        }
+      ],
+      "retired": 35
+    }
+  ],
+  "final_new_code_and_memory_input_identity_checks": 34
+}

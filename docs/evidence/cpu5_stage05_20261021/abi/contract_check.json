@@ -1,0 +1,70 @@
+{
+  "status": "PASS (static design contract only)",
+  "checks": {
+    "profile_words": 40,
+    "preserved_legacy_profile_words": 24,
+    "new_words_in_old_reserved_space": 16,
+    "legacy_decode_offsets": 78,
+    "new_rtl": "NOT IMPLEMENTED",
+    "new_rtl_snapshot_and_onehot_tests": "NOT RUN"
+  },
+  "inputs": [
+    {
+      "path": "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s05\\abi\\cpu5_cycle_profile_contract.json",
+      "sha256": "28c843279295f9dcb2c7c39fc92eb7e88c02a11a880df2a267213e0048056f49"
+    },
+    {
+      "path": "D:\\FPGA\\riscv_3stage\\rtl\\axi_lite_coremark_stats.v",
+      "sha256": "94530071a9b08921e09238712053891ecae1c9fc5b1d843f828588e8580ec439"
+    },
+    {
+      "path": "D:\\FPGA\\riscv_3stage\\rtl\\soc_coremark_axi_top.v",
+      "sha256": "6ae296042f46c3268ec41bf1eca71e315a1b2338f757b298d948ec2851fc8d3d"
+    },
+    {
+      "path": "D:\\FPGA\\riscv_3stage\\software\\coremark_port\\coremark_axi_stats.h",
+      "sha256": "964b888e1f32cba9c58eb1de3f39cff9c7434366b860a2dcf85e8b6e815d718c"
+    }
+  ],
+  "self_test": {
+    "valid_contract": "PASS",
+    "negative_contract_cases_rejected": 12
+  },
+  "legacy_compile_guards": {
+    "compiler": "D:\\Tools\\xpack-riscv-none-elf-gcc-15.2.0-1-win32-x64\\xpack-riscv-none-elf-gcc-15.2.0-1\\bin\\riscv-none-elf-gcc.exe",
+    "config_sha256": "ad8cd940811ec812c99ed7d1bd767f6149c1bc3f403b90a472c0173bdab8a4d2",
+    "cases": [
+      {
+        "case": "old_abi",
+        "exit_code": 0,
+        "expected_exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "case": "new_hardware_schema",
+        "exit_code": 1,
+        "expected_exit_code": 1,
+        "stderr": "In file included from <stdin>:4:\nD:/FPGA/riscv_3stage/software/coremark_port/coremark_axi_stats.h:34:2: error: #error \"CoreMark requires statistics schema 3 and matching BTB configuration\"\n   34 | #error \"CoreMark requires statistics schema 3 and matching BTB configuration\"\n      |  ^~~~~\n"
+      },
+      {
+        "case": "new_profile_schema",
+        "exit_code": 1,
+        "expected_exit_code": 1,
+        "stderr": "In file included from <stdin>:4:\nD:/FPGA/riscv_3stage/software/coremark_port/coremark_axi_stats.h:42:2: error: #error \"CoreMark requires the six-field 64-bit cycle profile and a 0x200-byte window\"\n   42 | #error \"CoreMark requires the six-field 64-bit cycle profile and a 0x200-byte window\"\n      |  ^~~~~\n"
+      },
+      {
+        "case": "ten_fields",
+        "exit_code": 1,
+        "expected_exit_code": 1,
+        "stderr": "In file included from <stdin>:4:\nD:/FPGA/riscv_3stage/software/coremark_port/coremark_axi_stats.h:42:2: error: #error \"CoreMark requires the six-field 64-bit cycle profile and a 0x200-byte window\"\n   42 | #error \"CoreMark requires the six-field 64-bit cycle profile and a 0x200-byte window\"\n      |  ^~~~~\n"
+      },
+      {
+        "case": "cpu5_abi",
+        "exit_code": 1,
+        "expected_exit_code": 1,
+        "stderr": "In file included from <stdin>:8:\nD:/FPGA/riscv_3stage/software/coremark_port/coremark_axi_stats.h:34:2: error: #error \"CoreMark requires statistics schema 3 and matching BTB configuration\"\n   34 | #error \"CoreMark requires statistics schema 3 and matching BTB configuration\"\n      |  ^~~~~\nD:/FPGA/riscv_3stage/software/coremark_port/coremark_axi_stats.h:42:2: error: #error \"CoreMark requires the six-field 64-bit cycle profile and a 0x200-byte window\"\n   42 | #error \"CoreMark requires the six-field 64-bit cycle profile and a 0x200-byte window\"\n      |  ^~~~~\n"
+      }
+    ],
+    "scope": "Old C compile guards only; new CPU5 firmware is NOT IMPLEMENTED / NOT RUN"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "contract_version": 1,
+  "status": "DESIGN CONTRACT ONLY; CPU5 RTL NOT IMPLEMENTED / NOT RUN",
+  "variant": "cpu5",
+  "hardware_schema": 4,
+  "cycle_profile_schema": 2,
+  "event_width": 10,
+  "counter_bits": 64,
+  "stats_base": "0x30000000",
+  "stats_window_bytes": 512,
+  "start_trigger": "0x000",
+  "stop_trigger": "0x004",
+  "schema_register": "0x018",
+  "counter_enable_rule": "Exactly one event bit per enabled counted CPU cycle; all zero when count_enable is false.",
+  "selection_rule": "First exclude causes masked by older blocking owners; select the cause preventing the oldest live progress, then use priority_order to break ties among eligible causes. Frontend causes require downstream capacity and consumption intent.",
+  "priority_order": ["local_mmio_wait", "data_write_wait", "data_read_wait", "mul_wait", "div_wait", "load_use_wait", "id_hazard_wait", "redirect_wait", "ifetch_wait", "work_other"],
+  "sampling_rule": "CPU events are registered with each counted edge. Stats consumes the previous registered event; snapshot profile_next (count + incoming registered event) on START/STOP AR handshake to align with the cycle_count input. Verify actual implementation edge-by-edge before claiming PASS.",
+  "window_rule": "Last START replaces all earlier START snapshots. STOP must occur exactly once after selected START. Require raw_start>=1, selected_start==1, selected_epoch==raw_start, stop==1, owner_crossings audited explicitly.",
+  "compatibility": "Keep old schema3/profile1 six-bit RTL, firmware, offsets and formal bitstreams unchanged. New firmware/reader/SoC variant must explicitly require schema4/profile2/ten bits. Never connect a ten-bit producer to a six-bit consumer or append fields using one linear bank stride.",
+  "classes": [
+    {"name":"work_other", "bit":0, "start_low":"0x100", "start_high":"0x104", "stop_low":"0x140", "stop_high":"0x144", "meaning":"All remaining counted cycles, including useful parallel work and unclassified startup/drain/control overhead."},
+    {"name":"ifetch_wait", "bit":1, "start_low":"0x108", "start_high":"0x10c", "stop_low":"0x148", "stop_high":"0x14c", "meaning":"Downstream has capacity and intent, no older cause blocks progress, but frontend has no usable instruction; include actual request/response/stale-drain gaps."},
+    {"name":"data_read_wait", "bit":2, "start_low":"0x110", "start_high":"0x114", "stop_low":"0x150", "stop_high":"0x154", "meaning":"Oldest blocking nonlocal LOAD/read-side-effect D transaction prevents MEM progress."},
+    {"name":"data_write_wait", "bit":3, "start_low":"0x118", "start_high":"0x11c", "stop_low":"0x158", "stop_high":"0x15c", "meaning":"Oldest blocking nonlocal STORE/write-side-effect D transaction prevents MEM progress."},
+    {"name":"local_mmio_wait", "bit":4, "start_low":"0x120", "start_high":"0x124", "stop_low":"0x160", "stop_high":"0x164", "meaning":"Oldest blocking local MMIO D transaction prevents MEM progress."},
+    {"name":"redirect_wait", "bit":5, "start_low":"0x128", "start_high":"0x12c", "stop_low":"0x168", "stop_high":"0x16c", "meaning":"An age-valid redirect actually creates an instruction supply gap; event counts are separate."},
+    {"name":"mul_wait", "bit":6, "start_low":"0x180", "start_high":"0x184", "stop_low":"0x1c0", "stop_high":"0x1c4", "meaning":"A live MUL-family owner actually blocks EX/MEM progress; no double count with its start/complete events."},
+    {"name":"div_wait", "bit":7, "start_low":"0x188", "start_high":"0x18c", "stop_low":"0x1c8", "stop_high":"0x1cc", "meaning":"A live DIV/REM-family owner actually blocks EX/MEM progress, including measured fast-path waits."},
+    {"name":"load_use_wait", "bit":8, "start_low":"0x190", "start_high":"0x194", "stop_low":"0x1d0", "stop_high":"0x1d4", "meaning":"A not-ready LOAD producer actually prevents ID/EX dependent progress and is not masked by an older cause."},
+    {"name":"id_hazard_wait", "bit":9, "start_low":"0x198", "start_high":"0x19c", "stop_low":"0x1d8", "stop_high":"0x1dc", "meaning":"Other actual ID RAW stalls, including branch/JALR dependency; excludes load_use_wait."}
+  ],
+  "independent_events": ["retire_valid", "mul_start", "mul_complete", "div_start", "div_complete", "raw_dependency", "redirect", "cache_req_fire", "cache_rsp_fire"],
+  "future_implementation_gates": [
+    "One-hot and sum==counter_cycles on every counted window, enable/reset and START/STOP edge alignment",
+    "Schema4/profile2 checked jointly by new RTL, generated config, firmware, reader and analyzer",
+    "Old reader rejects the new schema; old reserved offsets remain SLVERR in the old device",
+    "Age-first attribution, masked younger hazards, actual producer readiness and downstream frontend capacity",
+    "M owner start/done/complete/retire and killed/drain; crossing-window ownership audited",
+    "64-bit low/high snapshots stable during printing; all four noncontiguous extra bank offsets tested"
+  ]
+}

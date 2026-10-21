@@ -1,0 +1,15 @@
+case,op,lhs,rhs,result,start_to_unit_done_edges
+0,0,ffffffff,00000003,fffffffd,2
+1,1,ffffffff,00000003,ffffffff,2
+2,2,ffffffff,ffffffff,ffffffff,2
+3,3,ffffffff,ffffffff,fffffffe,2
+4,4,fffffff9,00000003,fffffffe,32
+5,5,fffffff9,00000003,55555553,32
+6,6,fffffff9,00000003,ffffffff,32
+7,7,fffffff9,00000003,00000000,32
+8,4,0000007b,00000000,ffffffff,0
+9,5,0000007b,00000000,ffffffff,0
+10,6,0000007b,00000000,0000007b,0
+11,7,0000007b,00000000,0000007b,0
+12,4,80000000,ffffffff,80000000,0
+13,6,80000000,ffffffff,00000000,0

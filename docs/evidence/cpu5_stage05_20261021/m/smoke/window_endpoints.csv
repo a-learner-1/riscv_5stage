@@ -1,0 +1,4 @@
+kind,edge,raw_starts,epoch,cycle_pre,instret_pre,owner,owner_start
+START,4009,1,1,3998,2462,0,0
+START,23264,2,2,23253,14758,0,15585
+STOP,448267,2,2,448256,304505,0,320420

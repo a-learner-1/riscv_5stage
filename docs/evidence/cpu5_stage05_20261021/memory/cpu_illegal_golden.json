@@ -1,0 +1,495 @@
+{
+  "instructions": [
+    65719,
+    69943,
+    324510391,
+    3186786963,
+    305419063,
+    1736639251,
+    195941303,
+    2950923155,
+    4276986935,
+    1436812307,
+    42243,
+    4236675,
+    8431107,
+    12625539,
+    42755,
+    4237187,
+    5284387,
+    4237443,
+    8431875,
+    6333987,
+    43523,
+    16820867,
+    21015299,
+    1073785731,
+    44035,
+    1077980291,
+    2147560707,
+    1073786243,
+    44547,
+    3228639267,
+    3221300483,
+    3225494915,
+    3229688355,
+    3225495171,
+    16819971,
+    328119,
+    110467
+  ],
+  "retirements": [
+    {
+      "pc": 0,
+      "rd": 1,
+      "write": 1,
+      "value": 65536
+    },
+    {
+      "pc": 4,
+      "rd": 2,
+      "write": 1,
+      "value": 69632
+    },
+    {
+      "pc": 8,
+      "rd": 5,
+      "write": 1,
+      "value": 324509696
+    },
+    {
+      "pc": 12,
+      "rd": 5,
+      "write": 1,
+      "value": 324508639
+    },
+    {
+      "pc": 16,
+      "rd": 6,
+      "write": 1,
+      "value": 305418240
+    },
+    {
+      "pc": 20,
+      "rd": 6,
+      "write": 1,
+      "value": 305419896
+    },
+    {
+      "pc": 24,
+      "rd": 7,
+      "write": 1,
+      "value": 195940352
+    },
+    {
+      "pc": 28,
+      "rd": 7,
+      "write": 1,
+      "value": 195939070
+    },
+    {
+      "pc": 32,
+      "rd": 8,
+      "write": 1,
+      "value": 4276985856
+    },
+    {
+      "pc": 36,
+      "rd": 8,
+      "write": 1,
+      "value": 4276987226
+    },
+    {
+      "pc": 40,
+      "rd": 10,
+      "write": 1,
+      "value": 2768240640
+    },
+    {
+      "pc": 44,
+      "rd": 11,
+      "write": 1,
+      "value": 2768306691
+    },
+    {
+      "pc": 48,
+      "rd": 12,
+      "write": 1,
+      "value": 2768372742
+    },
+    {
+      "pc": 52,
+      "rd": 13,
+      "write": 1,
+      "value": 2768438793
+    },
+    {
+      "pc": 56,
+      "rd": 14,
+      "write": 1,
+      "value": 2768240640
+    },
+    {
+      "pc": 60,
+      "rd": 15,
+      "write": 1,
+      "value": 2768306691
+    },
+    {
+      "pc": 64,
+      "rd": 0,
+      "write": 0,
+      "value": 0
+    },
+    {
+      "pc": 68,
+      "rd": 17,
+      "write": 1,
+      "value": 324508639
+    },
+    {
+      "pc": 72,
+      "rd": 18,
+      "write": 1,
+      "value": 2768372742
+    },
+    {
+      "pc": 76,
+      "rd": 0,
+      "write": 0,
+      "value": 0
+    },
+    {
+      "pc": 80,
+      "rd": 20,
+      "write": 1,
+      "value": 2768240640
+    },
+    {
+      "pc": 84,
+      "rd": 21,
+      "write": 1,
+      "value": 2768504844
+    },
+    {
+      "pc": 88,
+      "rd": 22,
+      "write": 1,
+      "value": 2768570895
+    },
+    {
+      "pc": 92,
+      "rd": 23,
+      "write": 1,
+      "value": 2751595264
+    },
+    {
+      "pc": 96,
+      "rd": 24,
+      "write": 1,
+      "value": 2768240640
+    },
+    {
+      "pc": 100,
+      "rd": 25,
+      "write": 1,
+      "value": 2751661315
+    },
+    {
+      "pc": 104,
+      "rd": 26,
+      "write": 1,
+      "value": 2802058752
+    },
+    {
+      "pc": 108,
+      "rd": 27,
+      "write": 1,
+      "value": 2751595264
+    },
+    {
+      "pc": 112,
+      "rd": 28,
+      "write": 1,
+      "value": 2768240640
+    },
+    {
+      "pc": 116,
+      "rd": 0,
+      "write": 0,
+      "value": 0
+    },
+    {
+      "pc": 120,
+      "rd": 10,
+      "write": 1,
+      "value": 195939070
+    },
+    {
+      "pc": 124,
+      "rd": 11,
+      "write": 1,
+      "value": 2785479427
+    },
+    {
+      "pc": 128,
+      "rd": 0,
+      "write": 0,
+      "value": 0
+    },
+    {
+      "pc": 132,
+      "rd": 13,
+      "write": 1,
+      "value": 4276987226
+    },
+    {
+      "pc": 136,
+      "rd": 14,
+      "write": 1,
+      "value": 2768504844
+    },
+    {
+      "pc": 140,
+      "rd": 3,
+      "write": 1,
+      "value": 327680
+    }
+  ],
+  "transactions": [
+    {
+      "owner": 0,
+      "pc": 40,
+      "write": 0,
+      "addr": 65536,
+      "data": 2768240640,
+      "error": 0,
+      "scenario": "cold"
+    },
+    {
+      "owner": 1,
+      "pc": 44,
+      "write": 0,
+      "addr": 65540,
+      "data": 2768306691,
+      "error": 0,
+      "scenario": "same_line"
+    },
+    {
+      "owner": 2,
+      "pc": 48,
+      "write": 0,
+      "addr": 65544,
+      "data": 2768372742,
+      "error": 0,
+      "scenario": "hit_stream"
+    },
+    {
+      "owner": 3,
+      "pc": 52,
+      "write": 0,
+      "addr": 65548,
+      "data": 2768438793,
+      "error": 0,
+      "scenario": "hit_stream"
+    },
+    {
+      "owner": 4,
+      "pc": 56,
+      "write": 0,
+      "addr": 65536,
+      "data": 2768240640,
+      "error": 0,
+      "scenario": "hit_stream"
+    },
+    {
+      "owner": 5,
+      "pc": 60,
+      "write": 0,
+      "addr": 65540,
+      "data": 2768306691,
+      "error": 0,
+      "scenario": "hit_stream"
+    },
+    {
+      "owner": 6,
+      "pc": 64,
+      "write": 1,
+      "addr": 65540,
+      "data": 324508639,
+      "error": 0,
+      "scenario": "lw_sw_same"
+    },
+    {
+      "owner": 7,
+      "pc": 68,
+      "write": 0,
+      "addr": 65540,
+      "data": 324508639,
+      "error": 0,
+      "scenario": "sw_lw_same"
+    },
+    {
+      "owner": 8,
+      "pc": 72,
+      "write": 0,
+      "addr": 65544,
+      "data": 2768372742,
+      "error": 0,
+      "scenario": "lw_lw_diff"
+    },
+    {
+      "owner": 9,
+      "pc": 76,
+      "write": 1,
+      "addr": 65548,
+      "data": 305419896,
+      "error": 0,
+      "scenario": "lw_sw_diff"
+    },
+    {
+      "owner": 10,
+      "pc": 80,
+      "write": 0,
+      "addr": 65536,
+      "data": 2768240640,
+      "error": 0,
+      "scenario": "sw_lw_diff"
+    },
+    {
+      "owner": 11,
+      "pc": 84,
+      "write": 0,
+      "addr": 65552,
+      "data": 2768504844,
+      "error": 0,
+      "scenario": "cross_line"
+    },
+    {
+      "owner": 12,
+      "pc": 88,
+      "write": 0,
+      "addr": 65556,
+      "data": 2768570895,
+      "error": 0,
+      "scenario": "new_line_hit"
+    },
+    {
+      "owner": 13,
+      "pc": 92,
+      "write": 0,
+      "addr": 66560,
+      "data": 2751595264,
+      "error": 0,
+      "scenario": "way1_fill"
+    },
+    {
+      "owner": 14,
+      "pc": 96,
+      "write": 0,
+      "addr": 65536,
+      "data": 2768240640,
+      "error": 0,
+      "scenario": "way0_hit"
+    },
+    {
+      "owner": 15,
+      "pc": 100,
+      "write": 0,
+      "addr": 66564,
+      "data": 2751661315,
+      "error": 0,
+      "scenario": "way1_hit"
+    },
+    {
+      "owner": 16,
+      "pc": 104,
+      "write": 0,
+      "addr": 67584,
+      "data": 2802058752,
+      "error": 0,
+      "scenario": "way_evict"
+    },
+    {
+      "owner": 17,
+      "pc": 108,
+      "write": 0,
+      "addr": 66560,
+      "data": 2751595264,
+      "error": 0,
+      "scenario": "way1_retained"
+    },
+    {
+      "owner": 18,
+      "pc": 112,
+      "write": 0,
+      "addr": 65536,
+      "data": 2768240640,
+      "error": 0,
+      "scenario": "evicted_miss"
+    },
+    {
+      "owner": 19,
+      "pc": 116,
+      "write": 1,
+      "addr": 68608,
+      "data": 195939070,
+      "error": 0,
+      "scenario": "write_no_allocate"
+    },
+    {
+      "owner": 20,
+      "pc": 120,
+      "write": 0,
+      "addr": 68608,
+      "data": 195939070,
+      "error": 0,
+      "scenario": "read_after_write_miss"
+    },
+    {
+      "owner": 21,
+      "pc": 124,
+      "write": 0,
+      "addr": 68612,
+      "data": 2785479427,
+      "error": 0,
+      "scenario": "hit_after_fill"
+    },
+    {
+      "owner": 22,
+      "pc": 128,
+      "write": 1,
+      "addr": 68612,
+      "data": 4276987226,
+      "error": 0,
+      "scenario": "write_hit"
+    },
+    {
+      "owner": 23,
+      "pc": 132,
+      "write": 0,
+      "addr": 68612,
+      "data": 4276987226,
+      "error": 0,
+      "scenario": "same_address_fresh"
+    },
+    {
+      "owner": 24,
+      "pc": 136,
+      "write": 0,
+      "addr": 65552,
+      "data": 2768504844,
+      "error": 0,
+      "scenario": "other_set_hit"
+    },
+    {
+      "owner": 25,
+      "pc": 144,
+      "write": 0,
+      "addr": 327680,
+      "data": 0,
+      "error": 1,
+      "scenario": "illegal"
+    }
+  ]
+}

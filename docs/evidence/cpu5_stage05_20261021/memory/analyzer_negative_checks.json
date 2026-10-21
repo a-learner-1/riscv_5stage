@@ -1,0 +1,35 @@
+{
+  "status": "PASS",
+  "trials": [
+    {
+      "mutation": "wrong_read_data",
+      "status": "REJECTED",
+      "reason": "actual read data mismatches independent model"
+    },
+    {
+      "mutation": "wrong_response_owner",
+      "status": "REJECTED",
+      "reason": "response changed owner metadata"
+    },
+    {
+      "mutation": "missing_response",
+      "status": "REJECTED",
+      "reason": "missing response"
+    },
+    {
+      "mutation": "duplicate_request",
+      "status": "REJECTED",
+      "reason": "multiple outstanding: C:\\Users\\23123\\AppData\\Local\\Temp\\cpu5_mem_negative_q15c63g_\\case0_boundary0.csv, {'case': 0, 'boundary': 0, 'cycle': 2, 'event': 'req', 'owner': 0, 'write': 0, 'addr': 65536, 'size': 2, 'wstrb': 0, 'data': 0, 'error': 0, 'class': 2, 'pc': 0}"
+    },
+    {
+      "mutation": "wrong_refill_address",
+      "status": "REJECTED",
+      "reason": "response changed owner metadata"
+    },
+    {
+      "mutation": "wrong_retirement_value",
+      "status": "REJECTED",
+      "reason": "ISA retirement register/data mismatch"
+    }
+  ]
+}
