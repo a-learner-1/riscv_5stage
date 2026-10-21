@@ -1,0 +1,38 @@
+{
+  "status": "PARTIAL VERIFIED: standalone IF adapter only",
+  "gates": 7,
+  "independent_ledger_checks": 457,
+  "public_port_edge_rows": 118,
+  "counters": {
+    "requests": 16,
+    "responses": 16,
+    "transfers": 5,
+    "fault_transfers": 1,
+    "redirects": 7,
+    "bp_updates": 4,
+    "same_edge": 1,
+    "stale_responses": 5
+  },
+  "negative_test": "PASS: expected seq exhaustion Fatal; response blocked; no return",
+  "full_cpu5": "NOT IMPLEMENTED / NOT RUN",
+  "sta": "NOT RUN",
+  "board": "NOT RUN",
+  "source_sha256": {
+    "rtl/if_stage.v": "c2dd341e85cd38a76f48ad495c5e5c5d4349854d293fe2e1779b9d783db2dbec",
+    "rtl/instr_mem.v": "b87b7ca6652da72bcd9951dfb5809d5d50331bc699dcedd73624645b7a193e07",
+    "rtl/instr_bus_adapter.v": "97b455c41481638e8a9813a89177700a7a33e7b7a2240830e4f4fe5e870b4f01",
+    "rtl/branch_predictor.v": "1a8e0324e5df358e94044e31deea05bce88547d485d42b183f94a917b104e783",
+    "rtl/cpu5_if_adapter.v": "3c9d383ec37b23586d6b3602cf43ba450cc76cb99de48b3a0f9512275b0b4667",
+    "tb/cpu5_if_adapter_tb.v": "8c691a2e498d10747cc4593ea476bd5b3d3e60028a61c94a02bbd863847d71cc",
+    "run_cpu5_if_adapter.do": "828008aaf2e94cb873d94f997e2348e9613bf162551273aa17826033e70d8bf8",
+    "tools/analyze_cpu5_if_adapter.py": "eaa23f38c456b66a7c2c35ab028b181eaf839ee9251fe0f8e2b14d0cb893404c"
+  },
+  "evidence_sha256": {
+    "events.csv": "3eb9e6b6110226b679be37c2e829295d405b11a670937c8c68d456e5702bc9a5",
+    "gates.csv": "2981431c983e4fa013d401809e1da2c515af5b97916ed2767c6c781b8fd394ee",
+    "modelsim_transcript.log": "aa2d1caa4075bd88d549b757b9eef5813f25361a93d918b99aae04195078215b",
+    "observation.wlf": "ede268634ea75a3492b96f00a1453cb0e7c6555d72f6d40041ae696094c3acd0",
+    "sequence_exhaustion_transcript.log": "fe0ae01a9261aca7ffb04493062bb19a0af08a5ac163f88aac564bd2e56f7167",
+    "sequence_exhaustion.wlf": "f73d03926663469830f510b1db6d247173763b0aeee9cdb990c3bddbf6328794"
+  }
+}

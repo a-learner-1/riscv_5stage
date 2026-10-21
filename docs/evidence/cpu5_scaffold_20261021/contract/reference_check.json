@@ -1,0 +1,368 @@
+{
+  "status": "PASS (design-reference consistency only)",
+  "assertion_IDs": 16,
+  "IRQ_reference_cases": [
+    {
+      "case": "new_irq_can_retire",
+      "inputs": [
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1
+      ],
+      "expected": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "reference": {
+        "sync_trap": false,
+        "retire": true,
+        "irq_take": false,
+        "arm_next": true
+      }
+    },
+    {
+      "case": "armed_alu_must_take",
+      "inputs": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1
+      ],
+      "expected": [
+        0,
+        0,
+        1,
+        0
+      ],
+      "reference": {
+        "sync_trap": false,
+        "retire": false,
+        "irq_take": true,
+        "arm_next": false
+      }
+    },
+    {
+      "case": "csr_enable_T0",
+      "inputs": [
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        1
+      ],
+      "expected": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "reference": {
+        "sync_trap": false,
+        "retire": true,
+        "irq_take": false,
+        "arm_next": true
+      }
+    },
+    {
+      "case": "csr_enable_T1",
+      "inputs": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1
+      ],
+      "expected": [
+        0,
+        0,
+        1,
+        0
+      ],
+      "reference": {
+        "sync_trap": false,
+        "retire": false,
+        "irq_take": true,
+        "arm_next": false
+      }
+    },
+    {
+      "case": "csr_disable_T0_unarmed",
+      "inputs": [
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0
+      ],
+      "expected": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "reference": {
+        "sync_trap": false,
+        "retire": true,
+        "irq_take": false,
+        "arm_next": false
+      }
+    },
+    {
+      "case": "csr_disabled_T1",
+      "inputs": [
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0
+      ],
+      "expected": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "reference": {
+        "sync_trap": false,
+        "retire": true,
+        "irq_take": false,
+        "arm_next": false
+      }
+    },
+    {
+      "case": "armed_irq_beats_unretired_disable",
+      "inputs": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0
+      ],
+      "expected": [
+        0,
+        0,
+        1,
+        0
+      ],
+      "reference": {
+        "sync_trap": false,
+        "retire": false,
+        "irq_take": true,
+        "arm_next": false
+      }
+    },
+    {
+      "case": "mret_enable_T0",
+      "inputs": [
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        1
+      ],
+      "expected": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "reference": {
+        "sync_trap": false,
+        "retire": true,
+        "irq_take": false,
+        "arm_next": true
+      }
+    },
+    {
+      "case": "mret_pending_T1",
+      "inputs": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1
+      ],
+      "expected": [
+        0,
+        0,
+        1,
+        0
+      ],
+      "reference": {
+        "sync_trap": false,
+        "retire": false,
+        "irq_take": true,
+        "arm_next": false
+      }
+    },
+    {
+      "case": "held_store",
+      "inputs": [
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "expected": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "reference": {
+        "sync_trap": false,
+        "retire": false,
+        "irq_take": false,
+        "arm_next": true
+      }
+    },
+    {
+      "case": "store_completes_before_IRQ",
+      "inputs": [
+        1,
+        1,
+        1,
+        0,
+        1,
+        0,
+        1
+      ],
+      "expected": [
+        0,
+        1,
+        0,
+        1
+      ],
+      "reference": {
+        "sync_trap": false,
+        "retire": true,
+        "irq_take": false,
+        "arm_next": true
+      }
+    },
+    {
+      "case": "after_store_safe_boundary",
+      "inputs": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1
+      ],
+      "expected": [
+        0,
+        0,
+        1,
+        0
+      ],
+      "reference": {
+        "sync_trap": false,
+        "retire": false,
+        "irq_take": true,
+        "arm_next": false
+      }
+    },
+    {
+      "case": "sync_fault_preempts_IRQ",
+      "inputs": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "expected": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "reference": {
+        "sync_trap": true,
+        "retire": false,
+        "irq_take": false,
+        "arm_next": false
+      }
+    },
+    {
+      "case": "source_disappears",
+      "inputs": [
+        1,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1
+      ],
+      "expected": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "reference": {
+        "sync_trap": false,
+        "retire": true,
+        "irq_take": false,
+        "arm_next": false
+      }
+    },
+    {
+      "case": "disabled_candidate",
+      "inputs": [
+        1,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0
+      ],
+      "expected": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "reference": {
+        "sync_trap": false,
+        "retire": true,
+        "irq_take": false,
+        "arm_next": false
+      }
+    }
+  ],
+  "CPU5_IRQ_RTL": "NOT IMPLEMENTED / NOT RUN",
+  "CPU5_A01_A16_complete_implementation": "NOT IMPLEMENTED / NOT RUN"
+}

@@ -1,0 +1,20 @@
+# vsim -voptargs=""+acc"" -onfinish stop -wlf build/cpu5_s1_if/sequence_exhaustion.wlf cpu5_s1_if_work.cpu5_if_adapter_tb "+IF_SEQ_EXHAUST" 
+# Start time: 20:01:14 on Oct 21,2026
+# ** Note: (vsim-8009) Loading existing optimized design _opt
+# Loading sv_std.std
+# Loading work.cpu5_if_adapter_tb(fast)
+# Loading work.cpu5_if_adapter(fast)
+# Loading work.if_stage(fast)
+# Loading work.branch_predictor(fast)
+# Loading work.instr_mem(fast)
+# Loading work.instr_bus_adapter(fast)
+# ** Fatal: CPU5 IF seq exhausted; drain and reset required
+#    Time: 65 ns  Scope: cpu5_if_adapter_tb.dut File: rtl/cpu5_if_adapter.v Line: 146
+# ** Note: $finish    : rtl/cpu5_if_adapter.v(146)
+#    Time: 65 ns  Iteration: 1  Instance: /cpu5_if_adapter_tb/dut
+# Break in Module cpu5_if_adapter at rtl/cpu5_if_adapter.v line 146
+# Stopped at rtl/cpu5_if_adapter.v line 146
+# CPU5 IF EXPECTED SEQUENCE EXHAUSTION REJECT PASS (one intentional Fatal)
+# End time: 20:01:15 on Oct 21,2026, Elapsed time: 0:00:01
+# Errors: 1, Warnings: 0
+# 0

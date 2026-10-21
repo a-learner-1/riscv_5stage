@@ -1,0 +1,12 @@
+{
+  "IF_initial_failure": "Initial G4 fixture did not hold ID before faulty response; only driver timing fixed, initial failing CSV/log/WLF retained.",
+  "scaffold_initial_launch": "First -l path parent did not exist; simulator did not start. Created build directory before launch.",
+  "review_fixes": [
+    "terminal seq exhaustion masks IFID valid, prevents repeated last-token transfer",
+    "preserve EXMEM pred_taken/pred_hit",
+    "64-bit age boundary tested",
+    "separate trace directory for each negative simulation",
+    "IRQ arm_next explicitly post-commit qualified; current take uses old committed state"
+  ],
+  "negative_fatals": "Expected seq exhaustion, six hazard and three scaffold mutations are deliberate rejection tests; not product regression failures."
+}

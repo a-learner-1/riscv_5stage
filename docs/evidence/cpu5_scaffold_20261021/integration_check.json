@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "baseline_commit": "b3cb00dcba871ebf2275965be69ace13cfd395ed",
+  "baseline_archive_files_unchanged_in_each_of_three_workspaces": 575,
+  "tested_input_identity_checks": 21,
+  "protected_main_files": 766,
+  "scope": "design contract + standalone IF/hazard + metadata skeleton only",
+  "ISA": "NOT IMPLEMENTED",
+  "full_A01_A16": "NOT IMPLEMENTED / NOT RUN"
+}

@@ -1,0 +1,4 @@
+gate,result,case
+1,PASS,ID stall response retention and IFID stability
+2,PASS,redirect plus stall preserves ID owner until transfer; older flush kills
+3,PASS,held and accepted stale drain; prediction metadata and epoch follow request

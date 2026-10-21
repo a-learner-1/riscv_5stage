@@ -1,0 +1,398 @@
+{
+  "contract_version": 1,
+  "date": "2026-10-21",
+  "scope": "scaffold / cpu5_arch_spec_v0_3 sections 10.1-2; not section 9 stage 1 PLL",
+  "design_status": "SPEC FROZEN: interface/owner/IRQ/expected-assertion design only",
+  "full_cpu5_implementation_status": "NOT IMPLEMENTED",
+  "full_cpu5_verification_status": "NOT RUN",
+  "current_scaffold_semantics": "metadata-only elastic pipeline; no ISA execution; retirement, GPR/CSR/MMIO/D/M/trap/BP architecture actions disabled",
+  "sampling": {
+    "edge": "posedge clk",
+    "decision": "pre-NBA valid/ready, owner and arbitration",
+    "registered_observation": "post-NBA reports decisions from the same edge; external pre-edge observations are one edge later",
+    "reset": "asynchronous active-low; assertions disabled while rst_n==0",
+    "retire_fire": "unique MEM normal architecture completion event; not wb_we",
+    "retire_valid": "registered retire_fire with same-event PC/instruction/seq",
+    "instret_increment": "exactly once from current retire_fire at decision edge; not again from delayed retire_valid",
+    "wb": "consumes previously retired MEM/WB owner once; older WB may write during younger trap"
+  },
+  "age": {
+    "seq_bits": 64,
+    "seq_signed": false,
+    "seq_reset_value": 0,
+    "allocation_event": "cpu5_ifid_accept: new packet first enters IF/ID; never reallocate a held packet",
+    "older_expression": "unsigned64(a) < unsigned64(b)",
+    "wrap_allowed": false,
+    "on_exhaustion": "all-ones seq is terminal reserved; mask IF/ID valid and stop response admission; simulation fatal; reset required, no normal progress or last-packet completion claim",
+    "flush_rule": "kill live packets younger than source seq; source consumption is event-specific; IRQ cancels all unretired cancellable packets",
+    "epoch_bits": 8,
+    "epoch_role": "IF request/response path generation only; held/outstanding stale is sticky until drained",
+    "owner_liveness": "seq age and killed; never owner_epoch!=current_fetch_epoch",
+    "skeleton_flush_cut": "first killed seq: branch source+1; sync Trap fault source; IRQ first unretired; upstream cancels killed IF/ID on the same flush protocol"
+  },
+  "frontend": {
+    "reuse": "old if_stage unchanged through cpu5_if_adapter; direct registered IF/ID alias, no unconditional extra data register",
+    "fault": "sticky imem_fault must become one correctly aged PC-bound fault packet; no early trap",
+    "gates": [
+      "IF01 ID hold while response arrives: no loss/overwrite",
+      "IF02 redirect plus hold: preserve accepted source and kill only younger work",
+      "IF03 held/outstanding stale response: drain without packet or fault admission",
+      "IF04 sticky fault: one packet with original PC; older work first",
+      "IF05 safe MEM BP training once; no duplicate or wrong-path update",
+      "IF06 request valid/address/metadata stable under long backpressure",
+      "IF07 old response plus new request at one edge: distinct old/new descriptors"
+    ]
+  },
+  "hazard": {
+    "priority": [
+      "unused source: no hazard",
+      "x0: zero",
+      "EX/MEM latest producer",
+      "MEM/WB producer",
+      "saved regfile operand"
+    ],
+    "latest_not_ready": "stall; never fall back to older same-rd WB",
+    "id_branch": "no long EX-to-ID combinational forwarding; matching EX producer stalls; ready MEM/WB may forward",
+    "branch_resolve_parameter": "BRANCH_RESOLVE_IN_ID retained for A/B; final selection NOT FROZEN",
+    "measured_raw_is_stall": false
+  },
+  "d_port": {
+    "outstanding_response_slots": 1,
+    "request_candidates": 1,
+    "descriptor_fields": [
+      "valid",
+      "owner_seq",
+      "owner_pc",
+      "owner_instr",
+      "class",
+      "is_write",
+      "addr",
+      "size",
+      "wdata",
+      "wstrb",
+      "load_funct3",
+      "fetch_epoch_trace_only",
+      "killed",
+      "req_sent",
+      "rsp_data",
+      "rsp_error"
+    ],
+    "states": [
+      "NONE",
+      "PRESENTED",
+      "ACCEPTED/RSP_PENDING",
+      "COMPLETE"
+    ],
+    "arbitration": [
+      "held request",
+      "oldest commit-qualified MEM",
+      "eligible EX pure RAM LOAD"
+    ],
+    "ex_speculation": "only aligned full-access-width-contained ordinary RAM LOAD in explicit non-overflowing whitelist",
+    "side_effect_classes": [
+      "RAM_STORE",
+      "LOCAL_MMIO_READ",
+      "LOCAL_MMIO_WRITE",
+      "STATS_AXI_READ",
+      "STATS_AXI_WRITE",
+      "OTHER_AXI",
+      "UNMAPPED"
+    ],
+    "side_effect_authorization": "oldest live MEM, commit-qualified, no known fault/older flush, before first valid presentation",
+    "old_store_device_barrier": "no younger EX LOAD presentation/fire until older STORE/MMIO/Stats/unknown transaction completed/drained; regardless of address alias",
+    "presented_request": "valid/address/write/size/wdata/wstrb stable until handshake; cannot be withdrawn on redirect/IRQ",
+    "same_edge_handoff": "only successful live old pure RAM LOAD response to new pure RAM LOAD; old response consumes old owner before new owner assignment",
+    "same_edge_forbidden_first_version": [
+      "STORE-to-LOAD",
+      "MMIO-to-LOAD",
+      "error-to-new-request",
+      "killed-drain-to-new-request"
+    ],
+    "killed_response": "drain/drop only; no retirement, GPR, CSR, BP or trap",
+    "atomic_rollback_claim": false,
+    "core_hit_ii1_status": "NOT IMPLEMENTED / NOT RUN"
+  },
+  "m_owner": {
+    "unit_modified": false,
+    "fields": [
+      "valid",
+      "seq",
+      "pc",
+      "op",
+      "killed",
+      "start_generation",
+      "result_generation",
+      "result_consumed",
+      "drain"
+    ],
+    "start": "once, idle resource, no old owner/drain, live EX M, no known older flush",
+    "initial_conservative_gate": "do not start younger M while older MEM has unresolved fault or memory risk; owner/killed still required",
+    "fast_path": "DIV/REM zero and signed INT_MIN/-1 may set done=1,busy=0 on accepted start edge; consume earliest next pre-edge",
+    "sticky_done": "same generation exactly once; never consume result on new start edge; do not require observable done-low/busy-high for fast path",
+    "killed": "retain owner, background drain/drop completion, no architected result; only new M waits for busy resource",
+    "progress": "trap, ordinary ALU and CSR must not be blocked forever by killed M; ISR M waits resource then starts with fresh generation"
+  },
+  "irq": {
+    "arbitration": [
+      "reset",
+      "oldest MEM synchronous fault",
+      "armed eligible safe IRQ",
+      "normal MEM retirement including CSR/MRET",
+      "younger branch redirect"
+    ],
+    "arm": "previous-edge qualified candidate, always rechecked using current committed state",
+    "eligibility": "current pre-edge committed mstatus/mie/mip; recheck and cancel invalid candidate",
+    "priority": [
+      "MEIP",
+      "MSIP",
+      "MTIP"
+    ],
+    "mutual_exclusion": "!(irq_take && retire_fire)",
+    "mepc": "pre-edge arch_next_pc_q, not speculative PC or unretired MEM PC",
+    "irrevocable_transaction": "presented/accepted incomplete STORE/device drains before IRQ; completion retires once, IRQ at next safe edge",
+    "csr_mret_boundary": "T0 retirement updates CSR and arch_next_pc; T1 eligibility and mepc use newly committed values",
+    "armed_before_disable": "if eligible and safe, IRQ wins before unretired CSR-disable/MRET; it cannot alter committed state in advance",
+    "continuous_alu_bound": "after first sampled persistent synchronized pending, take by next edge if eligibility and safe boundary persist",
+    "blocked_bound": "no numeric bound with unbounded endpoint backpressure; take first safe edge after drain completes",
+    "arm_next": "pending_sync && eligible(post_commit_CSR) after normal retirement; otherwise current CSR; trap/IRQ entry clears MIE and arm. Post-state is used only for next arm, never current take."
+  },
+  "clarifications": [
+    "spec 4.2 IF epoch-valid cannot veto an issued D/M owner because its fetch epoch differs",
+    "spec 6 IRQ row does not permit same-edge retirement; section 5 is the unique truth table",
+    "incomplete irrevocable request waits; its successful completion may retire before later IRQ",
+    "a held valid pure read can finish handshake after age-kill and must drain; newly wrong-path requests cannot first present"
+  ],
+  "assertions": [
+    {
+      "id": "A01",
+      "first_stage": "3A-1",
+      "complete_stage": "4B",
+      "check": "bubble/invalid has no retire/GPR/CSR/device write",
+      "tests": [
+        "T01 reset/bubble",
+        "invalid side-effect injection"
+      ],
+      "implementation": "NOT IMPLEMENTED",
+      "run": "NOT RUN"
+    },
+    {
+      "id": "A02",
+      "first_stage": "3A-1",
+      "complete_stage": "4B",
+      "check": "strictly increasing unique retirement seq; fault source never retires",
+      "tests": [
+        "T02 hold/flush retirement oracle",
+        "duplicate/out-of-order seq injection"
+      ],
+      "implementation": "NOT IMPLEMENTED",
+      "run": "NOT RUN"
+    },
+    {
+      "id": "A03",
+      "first_stage": "3B",
+      "complete_stage": "4B",
+      "check": "age-killed young packet has no GPR/STORE/MMIO/CSR/BP side effect",
+      "tests": [
+        "T03 ECALL with young SW/CSR/branch",
+        "wrong-path action injection"
+      ],
+      "implementation": "NOT IMPLEMENTED",
+      "run": "NOT RUN"
+    },
+    {
+      "id": "A04",
+      "first_stage": "3A-1/2",
+      "complete_stage": "4B",
+      "check": "wb_we implies rd!=0; x0 reads zero and cannot create hazard",
+      "tests": [
+        "T04 x0 writes/reads/producers",
+        "x0 write injection"
+      ],
+      "implementation": "NOT IMPLEMENTED",
+      "run": "NOT RUN"
+    },
+    {
+      "id": "A05",
+      "first_stage": "3A-2",
+      "complete_stage": "4A/4B",
+      "check": "latest producer priority; not-ready latest never falls back to old WB; ID EX RAW waits",
+      "tests": [
+        "T05 two same-rd producers and unready LOAD",
+        "wrong forwarding injection"
+      ],
+      "implementation": "NOT IMPLEMENTED",
+      "run": "NOT RUN"
+    },
+    {
+      "id": "A06",
+      "first_stage": "3A-3/3B",
+      "complete_stage": "4B",
+      "check": "presented D descriptor stable while ready low until accepted",
+      "tests": [
+        "T06 long backpressure redirect/IRQ",
+        "address/data mutation injection"
+      ],
+      "implementation": "NOT IMPLEMENTED",
+      "run": "NOT RUN"
+    },
+    {
+      "id": "A07",
+      "first_stage": "3A-3/3B",
+      "complete_stage": "4B",
+      "check": "request once; response has accepted owner once; simultaneous old/new ownership correct",
+      "tests": [
+        "T07 distinct A/B same-edge LOAD",
+        "duplicate request/orphan response injection"
+      ],
+      "implementation": "NOT IMPLEMENTED",
+      "run": "NOT RUN"
+    },
+    {
+      "id": "A08",
+      "first_stage": "3B RAM subset",
+      "complete_stage": "4B",
+      "check": "side-effect first-presentation and fire oldest+commit-qualified+live",
+      "tests": [
+        "T08 ECALL MEM and young SW/Stats",
+        "younger port theft injection"
+      ],
+      "implementation": "NOT IMPLEMENTED",
+      "run": "NOT RUN"
+    },
+    {
+      "id": "A09",
+      "first_stage": "3A-3 RAM subset",
+      "complete_stage": "4B",
+      "check": "actual STORE/FIFO-pop once; response backpressure never replays",
+      "tests": [
+        "T09 physical write/pop counters",
+        "duplicate endpoint pulse injection"
+      ],
+      "implementation": "NOT IMPLEMENTED",
+      "run": "NOT RUN"
+    },
+    {
+      "id": "A10",
+      "first_stage": "3B",
+      "complete_stage": "4B",
+      "check": "killed pure LOAD drains, error cannot trap, no WB/retire; original owner PC stable",
+      "tests": [
+        "T10 wrong-path LOAD success/error",
+        "fault leak injection"
+      ],
+      "implementation": "NOT IMPLEMENTED",
+      "run": "NOT RUN"
+    },
+    {
+      "id": "A11",
+      "first_stage": "3B sync subset",
+      "complete_stage": "4A/4B",
+      "check": "oldest fault wins younger redirect/CSR/store; trap descriptor correct owner",
+      "tests": [
+        "T11 old LOAD error plus young JAL/CSR",
+        "wrong priority/PC injection"
+      ],
+      "implementation": "NOT IMPLEMENTED",
+      "run": "NOT RUN"
+    },
+    {
+      "id": "A12",
+      "first_stage": "3A/3B subset only",
+      "complete_stage": "4A/4B",
+      "check": "arch_next_pc retirement oracle; IRQ mepc previous committed next PC; MRET correct; no IRQ+retire",
+      "tests": [
+        "T12 sequential/branch/trap",
+        "T16 MRET/IRQ",
+        "same-edge retirement injection"
+      ],
+      "implementation": "NOT IMPLEMENTED",
+      "run": "NOT RUN"
+    },
+    {
+      "id": "A13",
+      "first_stage": "3A-3/3B RAM subset",
+      "complete_stage": "4B",
+      "check": "older STORE/device blocks younger LOAD; same-address LOAD sees new STORE data",
+      "tests": [
+        "T13 same/different-address SW then LW",
+        "younger read bypass injection"
+      ],
+      "implementation": "NOT IMPLEMENTED",
+      "run": "NOT RUN"
+    },
+    {
+      "id": "A14",
+      "first_stage": "4A",
+      "complete_stage": "4B",
+      "check": "matching live M generation consumed once; killed drain only; old sticky done cannot complete new M; progress",
+      "tests": [
+        "T14 fast/sticky cases",
+        "conservative gate: DIV must not start",
+        "if overlap enabled: running DIV kill plus ISR MUL"
+      ],
+      "implementation": "NOT IMPLEMENTED",
+      "run": "NOT RUN"
+    },
+    {
+      "id": "A15",
+      "first_stage": "3B D subset",
+      "complete_stage": "4A/4B",
+      "check": "fetch epoch only stales IF; younger redirect cannot kill older D/M or mask older LOAD fault",
+      "tests": [
+        "T15 old EX LOAD and young ID redirect",
+        "epoch-based kill injection"
+      ],
+      "implementation": "NOT IMPLEMENTED",
+      "run": "NOT RUN"
+    },
+    {
+      "id": "A16",
+      "first_stage": "4A",
+      "complete_stage": "4B",
+      "check": "IRQ sync/requalification, mutual exclusion, bounded safe entry, post-CSR/MRET new state at next edge",
+      "tests": [
+        "T16 continuous ALU IRQ/CSR enable-disable/MRET/held STORE",
+        "starvation or stale-CSR injection"
+      ],
+      "implementation": "NOT IMPLEMENTED",
+      "run": "NOT RUN"
+    }
+  ],
+  "source_sha256": [
+    {
+      "source": "cpu5_arch_spec_v0_3.md",
+      "sha256": "bc4898b62a77fe2d9382ee1111dbe63a13bd4420936efba1756fb3fa090e8d6f"
+    },
+    {
+      "source": "rtl/cpu_top.v",
+      "sha256": "80355b3dbfa93d3f22508dafe38737657172731aec2be3f1674ff674bcbf3a6b"
+    },
+    {
+      "source": "rtl/if_stage.v",
+      "sha256": "c2dd341e85cd38a76f48ad495c5e5c5d4349854d293fe2e1779b9d783db2dbec"
+    },
+    {
+      "source": "rtl/rv32m_unit.v",
+      "sha256": "e496552f58197203697e4589ffe0bedca85178a7806ad732e18888c677e1638c"
+    },
+    {
+      "source": "docs/cpu5_stage0_20261021.md",
+      "sha256": "69ea95f340e29d963882a5f6454790bb9e05b6187565734cc667e8adb52ad86e"
+    },
+    {
+      "source": "docs/cpu5_stage05_20261021.md",
+      "sha256": "0489c48539cfd45dbd44d2cd92b360295a2122282a14d0c0f3b6b9ff253fcc03"
+    }
+  ],
+  "review_record": {
+    "date": "2026-10-21",
+    "scope": "design review only; local IF/hazard/scaffold tests are separate",
+    "resolved": [
+      "post-commit arm_next permits T0 CSR/MRET -> T1 IRQ without same-edge retire/take",
+      "seq terminal masks output to avoid repeated transfer",
+      "64-bit inclusive first-killed age cut; no epoch kills issued D/M",
+      "EX/MEM retains pred_taken/pred_hit"
+    ],
+    "full_CPU5": "NOT IMPLEMENTED / NOT RUN"
+  }
+}

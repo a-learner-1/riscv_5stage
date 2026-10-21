@@ -1,0 +1,64 @@
+{
+  "positive_cases": 442418,
+  "positive_source_checks": 1769672,
+  "named_cases": 50,
+  "modes": 2,
+  "oracle": "unordered register versions chosen by maximum dynamic producer age",
+  "mutations": [
+    {
+      "mutation": "newest_not_ready_falls_to_WB",
+      "returncode": 1,
+      "expected_rejection": true,
+      "failure": "# HAZARD FAIL case=3 named=newest blocks older WB mode=0 flags=x shape=x pattern=x consumer=x rs=5/6",
+      "source_sha256": "2610fd57a82adfa5e97b6b83f7a99b064a180375a5916aeb8ee88a5a3458ef4b",
+      "log_sha256": "6cda7b58a06bd1ab9dad8ee9990ab8d773d59216016e1dbe38533cf3b75eb1ab"
+    },
+    {
+      "mutation": "x0_not_constant",
+      "returncode": 1,
+      "expected_rejection": true,
+      "failure": "# HAZARD FAIL case=11 named=x0 masks every producer mode=0 flags=x shape=x pattern=x consumer=x rs=0/0",
+      "source_sha256": "2762784a5be17893c9e053dc01b5a83db60eb8ebcb98ff6550499c5e5e08c164",
+      "log_sha256": "7f9e2b6bc6c8bacfa801e0df413577d3c1d35baca6ab5a4d9f9f0519b1e9aedb"
+    },
+    {
+      "mutation": "unused_source_compared",
+      "returncode": 1,
+      "expected_rejection": true,
+      "failure": "# HAZARD FAIL case=12 named=unused operands ignore RAW mode=0 flags=x shape=x pattern=x consumer=x rs=5/6",
+      "source_sha256": "41eb9e0e7070f4371510ef248a83f058a2c0a02e7ef0b2b2173902d16049f0d6",
+      "log_sha256": "a69d2488b1b5cd76246048297ac9307b9ec109e9302b7cad59bcaec96f017fd9"
+    },
+    {
+      "mutation": "WB_beats_newer_MEM",
+      "returncode": 1,
+      "expected_rejection": true,
+      "failure": "# HAZARD FAIL case=4 named=newest ready beats older WB mode=0 flags=x shape=x pattern=x consumer=x rs=5/6",
+      "source_sha256": "96546c24e485dee46ad794b441e8b6729cbc3e45f32dc4f2f060bf78121a8cf1",
+      "log_sha256": "a34a42d9f7fb9545beb1b79954f83e5728d8df056d27fc147362bf39c16cba3d"
+    },
+    {
+      "mutation": "ready_EX_forwards_to_ID",
+      "returncode": 1,
+      "expected_rejection": true,
+      "failure": "# HAZARD FAIL case=5 named=EX blocks ID even ready mode=1 flags=x shape=x pattern=x consumer=x rs=5/6",
+      "source_sha256": "8c3423392ae3c68f85fbf21879f00eea6d93f4ef3b7ba658cff0cbcf9f8cdfd1",
+      "log_sha256": "aaaeb36d41ee710d492c699d9915469ea7f9730cf8f6c6a0033c00cb4731d764"
+    },
+    {
+      "mutation": "rs2_incorrectly_reuses_rs1",
+      "returncode": 1,
+      "expected_rejection": true,
+      "failure": "# HAZARD FAIL case=0 named=RF only mode=0 flags=x shape=x pattern=x consumer=x rs=5/6",
+      "source_sha256": "5e8e81d8e5966dd25482687193503648ee9662ab43918356ccc0f7b79420d11b",
+      "log_sha256": "40e74d607284060f63e1c08edf8befaceafa057e55ee3d7f275d685493ae2034"
+    }
+  ],
+  "input_sha256": {
+    "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+    "tb/cpu5_hazard_tb.v": "c8c3fc3ef12fe1ca2a4d7a5ed323a55e12ad2ed80d2764b407daf44606415470",
+    "run_cpu5_hazard.do": "f737b8eda612fddc7c2f95ca8febad6654e98a362e11aaaf3e1c453c9e24b2d7"
+  },
+  "positive_returncode": 0,
+  "positive_log_sha256": "38f544058977b53053f91d40b011afb8a2a89eccdd50436d9294bb563c76893b"
+}

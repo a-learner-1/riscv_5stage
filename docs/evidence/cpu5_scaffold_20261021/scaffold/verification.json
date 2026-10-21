@@ -1,0 +1,59 @@
+{
+  "status": "PARTIAL VERIFIED: metadata scaffold only",
+  "processes": [
+    {
+      "case": "original",
+      "exit_code": 0,
+      "status": "PASS",
+      "warnings": 0
+    },
+    {
+      "case": "truncated_age",
+      "exit_code": 1,
+      "status": "REJECTED AS EXPECTED",
+      "fatal_lines": [
+        "# ** Fatal: pipeline skeleton timeout accepted=3 delivered=0 head=0 tail=2"
+      ]
+    },
+    {
+      "case": "repeat_wb",
+      "exit_code": 1,
+      "status": "REJECTED AS EXPECTED",
+      "fatal_lines": [
+        "# ** Fatal: queue identity lost/replayed wb=00000000ffffffff expected=0000000100000000"
+      ]
+    },
+    {
+      "case": "fault_to_wb",
+      "exit_code": 1,
+      "status": "REJECTED AS EXPECTED",
+      "fatal_lines": [
+        "# ** Fatal: fault escaped MEM or descriptor corrupted"
+      ]
+    }
+  ],
+  "independent_pipeline_ledger": {
+    "accepted": 29,
+    "released": 21,
+    "age_killed": 5,
+    "reset_discarded": 3
+  },
+  "positive_pipeline_trace_sha256": "b825160f8ab416bfd7f1bbc5a13ec82372f5e05b08ce8d22d251380c04b6568b",
+  "source_sha256": {
+    "rtl/cpu5_pipeline_skeleton.v": "4e82307ff7b4de70b7bd0884c0aa4635237a173df3be4605c75357b37d3100f9",
+    "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+    "rtl/cpu5_top.v": "57616d1fe93849cf627bde3ac94b5aeb940c78d7213c2204980a053fe2db018a",
+    "rtl/cpu5_if_adapter.v": "3c9d383ec37b23586d6b3602cf43ba450cc76cb99de48b3a0f9512275b0b4667",
+    "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+    "rtl/if_stage.v": "c2dd341e85cd38a76f48ad495c5e5c5d4349854d293fe2e1779b9d783db2dbec",
+    "tb/cpu5_pipeline_skeleton_tb.v": "9b480c19aaf9f2f68ef8b208df239865057435292613b1aaed3353f614517132",
+    "tb/cpu5_top_scaffold_tb.v": "533d631d4345feee1e00a79cb11058b99b87c85faa62d4cf168527186220a1f3",
+    "run_cpu5_scaffold.do": "5ee218df9b8142cc5818db504811461731789dd94bf87b1ed30d5d829afa1d73",
+    "tools/verify_cpu5_scaffold.py": "8d847361ed7f7186a975e7a345dc34a77ae1e1a8ee5aa71c7482c8baa0bd4cb5"
+  },
+  "isa_execution": "NOT IMPLEMENTED",
+  "architecture_retirement": "NOT IMPLEMENTED",
+  "D_M_CSR_IRQ_Trap": "NOT IMPLEMENTED",
+  "STA": "NOT RUN",
+  "board": "NOT RUN"
+}
