@@ -1,0 +1,7 @@
+{
+  "status": "FAIL",
+  "scope": "recording harness warning expectation only",
+  "reason": "Expected exactly four inherited warnings, but cached ModelSim design reuse emitted zero warnings. Simulator returncode zero had already passed before this check.",
+  "product_rtl_changed": false,
+  "legacy_verification_gates_changed": false
+}

@@ -1,0 +1,253 @@
+{
+  "date": "2026-10-21",
+  "scope": "cpu5_arch_spec_v0_3.md section 10.0: verified CPU3 baseline, dynamic RAW D and profiler E only",
+  "status": "FIRST_STEP_PASS",
+  "states": {
+    "baseline_identity_and_local_tag": "PASS",
+    "dynamic_branch_raw_D": "PASS",
+    "profiler_inventory_and_semantic_mapping_E": "PASS",
+    "baseline_six_class_audit_A": "PASS (historical formal UART rechecked; fresh short runs also close)",
+    "independent_MUL_DIV_breakdown_A_prime": "NOT RUN",
+    "memory_latency_and_II_B": "NOT RUN",
+    "routed_top3_export_C": "NOT RUN",
+    "CPU5_design_freeze": "NOT ASSERTED",
+    "CPU5_RTL": "NOT IMPLEMENTED",
+    "CPU5_hazard_cycles": "NOT RUN",
+    "CPU5_A01_A16": "NOT IMPLEMENTED / NOT RUN",
+    "fresh_PDS_or_STA": "NOT RUN",
+    "PLL_and_ILA": "NOT RUN",
+    "hardware_access": "NOT RUN"
+  },
+  "freeze_tag": {
+    "name": "cpu3-rv32im-board-20261021",
+    "object_sha": "766cf9b15e56c05b84ad4750c2a24719b55520cc",
+    "target_commit": "347982c30c88095d4a6406bd26c535b7b9f468b5",
+    "evidence_commit": "ab8e3f61664792e0379f08294adf55635c4f8b1e",
+    "tag_object": "object 347982c30c88095d4a6406bd26c535b7b9f468b5\ntype commit\ntag cpu3-rv32im-board-20261021\ntagger lucky <17739228286@163.com> 1792564971 +0800\n\nFrozen verified RV32IM CPU3 board baseline before CPU5 work.\nClient date: 2026-10-21; MES50HP; 50 MHz; RV32IM; GCC 15.2.0; O2.\nSource commit: 347982c30c88095d4a6406bd26c535b7b9f468b5\nFormal board evidence commit: ab8e3f61664792e0379f08294adf55635c4f8b1e\nM work start (not the accepted M implementation): 75c43aabb0581ec303664e0f51b48c387e1962db\nPerformance: 117.958048697 CoreMark; 2.359160974 CoreMark/MHz.\nPerformance SBIT SHA256: 89dae084687d4614ee4d38928c594dbea71c78fa6858f4a3d8dd29e49fe523df\nValidation SBIT SHA256: 6cd716153fe82d290234cc6e72a73f6503b104a600191645b8127d50673a8cc9\nRead-only source/release/evidence audit: 845 PASS, zero failures.\nAudit manifest SHA256: 0021a70bd15d8690133a9f004400a2e0e2c673ed63f5e0a96281305b0d331629\nNo historical source, bitstream or UART evidence was replaced. User operated downloads.\n",
+    "created_locally": true,
+    "pushed": false,
+    "baseline_audit_sha256": "0021a70bd15d8690133a9f004400a2e0e2c673ed63f5e0a96281305b0d331629"
+  },
+  "new_observation_sources": {
+    "tb/cpu5_baseline_raw_tb.v": "35f93da07f12d2fe740ae4e9f90c8eb9833147e282c5ab3ef45c73fb72859de9",
+    "tools/analyze_cpu5_baseline_raw.py": "4ecf6dfd7b4f95db5887846954c7e6595036fa59cec733b690fcf2d79cdeb8f1",
+    "run_cpu5_baseline_raw.do": "c27780fd42acbac62ac803dcce760252165e0fec7ac5e88704e315197626c709"
+  },
+  "profiles": {
+    "smoke": {
+      "groups": {
+        "all": {
+          "branch_total": 56850,
+          "branch_gpr_sources": 56850,
+          "redirect_events": 8727,
+          "no_prior_writer": 0,
+          "source_dependencies": 87553,
+          "nearest_distance1_raw": 24197,
+          "distance1_raw": 24197,
+          "distance3plus_raw": 38702,
+          "raw_from_alu": 35827,
+          "raw_from_load": 35001,
+          "distance1_from_alu": 10665,
+          "cross_start_writer_branches": 1,
+          "distance1_from_load": 13532,
+          "nearest_distance3plus_raw": 21926,
+          "raw_from_link": 1663,
+          "nearest_distance2_raw": 10727,
+          "distance2_raw": 14967
+        },
+        "conditional": {
+          "branch_total": 53208,
+          "branch_gpr_sources": 53208,
+          "redirect_events": 5085,
+          "no_prior_writer": 0,
+          "source_dependencies": 83911,
+          "nearest_distance1_raw": 22693,
+          "distance1_raw": 22693,
+          "distance3plus_raw": 36564,
+          "raw_from_alu": 34107,
+          "raw_from_load": 34742,
+          "distance1_from_alu": 9161,
+          "cross_start_writer_branches": 0,
+          "distance1_from_load": 13532,
+          "nearest_distance3plus_raw": 19788,
+          "nearest_distance2_raw": 10727,
+          "distance2_raw": 14967
+        },
+        "jalr": {
+          "branch_total": 3642,
+          "branch_gpr_sources": 3642,
+          "redirect_events": 3642,
+          "no_prior_writer": 0,
+          "source_dependencies": 3642,
+          "nearest_distance3plus_raw": 2138,
+          "distance3plus_raw": 2138,
+          "raw_from_link": 1663,
+          "cross_start_writer_branches": 1,
+          "nearest_distance1_raw": 1504,
+          "distance1_raw": 1504,
+          "raw_from_alu": 1720,
+          "distance1_from_alu": 1504,
+          "raw_from_load": 259
+        }
+      },
+      "window": {
+        "raw_starts": 2,
+        "selected_epoch": 2,
+        "stop_triggers": 1,
+        "start_edge": 23264,
+        "stop_edge": 448267,
+        "frozen_cycles": 425003,
+        "frozen_retired": 289747,
+        "frozen_resolved": 57268,
+        "frozen_mismatch": 9176,
+        "frozen_direrr": 5534,
+        "trace_retirements": 304505,
+        "original_workload_pass": 1,
+        "cycle_class_0": 317935,
+        "cycle_class_1": 10311,
+        "cycle_class_2": 56911,
+        "cycle_class_3": 28362,
+        "cycle_class_4": 12,
+        "cycle_class_5": 11472,
+        "stop_edge_exclusive": 448267
+      },
+      "reconciliation": {
+        "resolved_execution_window": 57268,
+        "mismatch_execution_window": 9176,
+        "direrr_execution_window": 5534,
+        "R_execution_other": 0,
+        "retired": 289747,
+        "resolved_retirement_window": 57268,
+        "mismatch_retirement_window": 9176,
+        "direrr_retirement_window": 5534,
+        "R_retirement_other": 0,
+        "R_execution_conditional": 5085,
+        "R_retirement_conditional": 5085,
+        "R_execution_jalr": 3642,
+        "R_retirement_jalr": 3642,
+        "R_execution_jal": 449,
+        "R_retirement_jal": 449,
+        "resolved_boundary_adjustment": 0,
+        "mismatch_boundary_adjustment": 0
+      },
+      "firmware_sha256": "7fa5ff3c33916dd30024ede1a0291b67c2e9017f41bfba4f68b9cc17db45ed4d"
+    },
+    "smoke_validation": {
+      "groups": {
+        "all": {
+          "branch_total": 56994,
+          "branch_gpr_sources": 56994,
+          "redirect_events": 8684,
+          "no_prior_writer": 0,
+          "source_dependencies": 87726,
+          "nearest_distance1_raw": 24496,
+          "distance3plus_raw": 38694,
+          "distance1_raw": 24496,
+          "raw_from_load": 35222,
+          "raw_from_alu": 35829,
+          "distance1_from_alu": 10614,
+          "cross_start_writer_branches": 1,
+          "distance1_from_load": 13882,
+          "nearest_distance3plus_raw": 22271,
+          "raw_from_link": 1646,
+          "nearest_distance2_raw": 10227,
+          "distance2_raw": 14501
+        },
+        "conditional": {
+          "branch_total": 53380,
+          "branch_gpr_sources": 53380,
+          "redirect_events": 5070,
+          "no_prior_writer": 0,
+          "source_dependencies": 84112,
+          "nearest_distance1_raw": 23006,
+          "distance3plus_raw": 36570,
+          "distance1_raw": 23006,
+          "raw_from_load": 34952,
+          "raw_from_alu": 34131,
+          "distance1_from_alu": 9124,
+          "cross_start_writer_branches": 0,
+          "distance1_from_load": 13882,
+          "nearest_distance3plus_raw": 20147,
+          "nearest_distance2_raw": 10227,
+          "distance2_raw": 14501
+        },
+        "jalr": {
+          "branch_total": 3614,
+          "branch_gpr_sources": 3614,
+          "redirect_events": 3614,
+          "no_prior_writer": 0,
+          "source_dependencies": 3614,
+          "nearest_distance3plus_raw": 2124,
+          "distance3plus_raw": 2124,
+          "raw_from_link": 1646,
+          "cross_start_writer_branches": 1,
+          "nearest_distance1_raw": 1490,
+          "distance1_raw": 1490,
+          "raw_from_alu": 1698,
+          "distance1_from_alu": 1490,
+          "raw_from_load": 270
+        }
+      },
+      "window": {
+        "raw_starts": 2,
+        "selected_epoch": 2,
+        "stop_triggers": 1,
+        "start_edge": 23498,
+        "stop_edge": 448865,
+        "frozen_cycles": 425367,
+        "frozen_retired": 289855,
+        "frozen_resolved": 57370,
+        "frozen_mismatch": 9130,
+        "frozen_direrr": 5516,
+        "trace_retirements": 304729,
+        "original_workload_pass": 1,
+        "cycle_class_0": 318043,
+        "cycle_class_1": 10293,
+        "cycle_class_2": 57481,
+        "cycle_class_3": 28152,
+        "cycle_class_4": 12,
+        "cycle_class_5": 11386,
+        "stop_edge_exclusive": 448865
+      },
+      "reconciliation": {
+        "resolved_execution_window": 57370,
+        "mismatch_execution_window": 9130,
+        "direrr_execution_window": 5516,
+        "R_execution_other": 0,
+        "retired": 289855,
+        "resolved_retirement_window": 57370,
+        "mismatch_retirement_window": 9130,
+        "direrr_retirement_window": 5516,
+        "R_retirement_other": 0,
+        "R_execution_conditional": 5070,
+        "R_retirement_conditional": 5070,
+        "R_execution_jalr": 3614,
+        "R_retirement_jalr": 3614,
+        "R_execution_jal": 446,
+        "R_retirement_jal": 446,
+        "resolved_boundary_adjustment": 0,
+        "mismatch_boundary_adjustment": 0
+      },
+      "firmware_sha256": "6a63456668e1eab63d54f680a4eec918b074b7d981303760f0a186761ccc1693"
+    }
+  },
+  "preservation": {
+    "original_tracked_dirty": {
+      "docs/regression.md": {
+        "sha256": "5d642b102ff37fbd8608289757b7fbf1b2cadbd32f4d0bb0b5ac424ffd77eb26",
+        "bytes": 8052
+      },
+      "tb/coremark_axi_tb.v": {
+        "sha256": "d623e1daf08c35a39a73387375890e03a74940fda7c5e5a2af91ee3369db12fc",
+        "bytes": 22783
+      },
+      "tools/regression_suites.json": {
+        "sha256": "88334d3eab21b9a83bbbc89bdf827777fdead493c3598dbb48335e81ebd27101",
+        "bytes": 51952
+      }
+    },
+    "original_untracked_count": 182,
+    "all_original_files_unchanged_before_delivery": true
+  },
+  "next": "Complete section 0.5 A-prime/B/C and freeze design contracts before CPU5 RTL skeleton. Retain switchable ID/EX branch resolution; RAW distance is not measured CPU5 stall or speedup."
+}

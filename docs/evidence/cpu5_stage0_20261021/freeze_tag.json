@@ -1,0 +1,10 @@
+{
+  "name": "cpu3-rv32im-board-20261021",
+  "object_sha": "766cf9b15e56c05b84ad4750c2a24719b55520cc",
+  "target_commit": "347982c30c88095d4a6406bd26c535b7b9f468b5",
+  "evidence_commit": "ab8e3f61664792e0379f08294adf55635c4f8b1e",
+  "tag_object": "object 347982c30c88095d4a6406bd26c535b7b9f468b5\ntype commit\ntag cpu3-rv32im-board-20261021\ntagger lucky <17739228286@163.com> 1792564971 +0800\n\nFrozen verified RV32IM CPU3 board baseline before CPU5 work.\nClient date: 2026-10-21; MES50HP; 50 MHz; RV32IM; GCC 15.2.0; O2.\nSource commit: 347982c30c88095d4a6406bd26c535b7b9f468b5\nFormal board evidence commit: ab8e3f61664792e0379f08294adf55635c4f8b1e\nM work start (not the accepted M implementation): 75c43aabb0581ec303664e0f51b48c387e1962db\nPerformance: 117.958048697 CoreMark; 2.359160974 CoreMark/MHz.\nPerformance SBIT SHA256: 89dae084687d4614ee4d38928c594dbea71c78fa6858f4a3d8dd29e49fe523df\nValidation SBIT SHA256: 6cd716153fe82d290234cc6e72a73f6503b104a600191645b8127d50673a8cc9\nRead-only source/release/evidence audit: 845 PASS, zero failures.\nAudit manifest SHA256: 0021a70bd15d8690133a9f004400a2e0e2c673ed63f5e0a96281305b0d331629\nNo historical source, bitstream or UART evidence was replaced. User operated downloads.\n",
+  "created_locally": true,
+  "pushed": false,
+  "baseline_audit_sha256": "0021a70bd15d8690133a9f004400a2e0e2c673ed63f5e0a96281305b0d331629"
+}

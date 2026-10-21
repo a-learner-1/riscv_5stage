@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "C:\\Users\\23123\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+    "-X",
+    "utf8",
+    "-B",
+    "tools/analyze_cpu5_baseline_raw.py",
+    "--self-test"
+  ],
+  "returncode": 0,
+  "stdout": "{\"self_tests\": \"PASS\", \"cases\": 16, \"scope\": \"hand-derived closest-writer, overwrite, dual source, x0, classification, boundary\"}\n",
+  "stderr": ""
+}

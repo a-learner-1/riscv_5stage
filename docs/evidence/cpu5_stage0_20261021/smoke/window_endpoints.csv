@@ -1,0 +1,4 @@
+kind,edge,raw_starts,epoch,cycle_pre,instret_pre,resolved_pre,mismatch_pre,direrr_pre,retire_pre,resolve_pre,normal_redirect_pre
+START,4009,1,1,3998,2462,1142,11,9,0,0,0
+START,23264,2,2,23253,14758,3518,750,515,0,0,0
+STOP,448267,2,2,448256,304505,60786,9926,6049,0,0,0

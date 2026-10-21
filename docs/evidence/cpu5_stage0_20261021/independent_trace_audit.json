@@ -1,0 +1,32 @@
+{
+  "method": "Closest-writer oracle driven by observed wb_we/wb_rd, independent of static producer-write decoder",
+  "profiles": {
+    "smoke": {
+      "status": "PASS",
+      "counts": {
+        "retired": 289747,
+        "branch_total": 56850,
+        "distance1_raw": 24197,
+        "distance2_raw": 14967,
+        "distance3plus_raw": 38702,
+        "redirect_events": 8727,
+        "both_distance1_and_distance2": 4240
+      },
+      "trace_sha256": "e80bcf8f87d00f592d2a683f9465ae8b5ac95fbe5862e60cf0487c5db9d94728"
+    },
+    "smoke_validation": {
+      "status": "PASS",
+      "counts": {
+        "retired": 289855,
+        "branch_total": 56994,
+        "distance1_raw": 24496,
+        "distance2_raw": 14501,
+        "distance3plus_raw": 38694,
+        "redirect_events": 8684,
+        "both_distance1_and_distance2": 4274
+      },
+      "trace_sha256": "b81c6b191ff5407d602bc4d3ad6ff1a6ced98e5f6a39609ac5a4ee43bcec166f"
+    }
+  },
+  "status": "PASS"
+}

@@ -1,0 +1,372 @@
+# Model Technology ModelSim SE-64 vmap 10.6e Lib Mapping Utility 2018.06 Jun 23 2018
+# vmap -c 
+# Copying D:/modeltech64_10.6e/win64/../modelsim.ini to modelsim.ini
+# AXI CoreMark firmware metadata matched: C:\Users\23123\.codex\visualizations\2026\10\19\01a151db-bb68-7633-bd17-5c52d2aa2890\cpu5_s0\work\build\coremark\d0_m_cache_on_btb_smoke\build_report.json
+# Model Technology ModelSim SE-64 vlog 10.6e Compiler 2018.06 Jun 23 2018
+# Start time: 12:36:43 on Oct 21,2026
+# vlog -sv -work cpu5_baseline_raw_smoke_work "+define+COREMARK_CONFIG="programs/coremark_d0_m_cache_on_btb_smoke_config.vh"" rtl/instr_mem.v rtl/instr_bus_adapter.v rtl/if_stage.v rtl/regfile.v rtl/decoder.v rtl/alu.v rtl/rv32m_unit.v rtl/data_mem.v rtl/data_bus_adapter.v rtl/uart_tx.v rtl/gpio_mmio.v rtl/uart_rx.v rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v rtl/machine_timer.v rtl/branch_predictor.v rtl/cpu_top.v rtl/soc_instr_mem.v rtl/soc_data_mem.v rtl/dmem_region_router.v rtl/dmem_axi_lite_bridge.v rtl/axi_lite_ram.v rtl/instr_cache.v rtl/data_cache.v rtl/soc_axi_lite_top.v rtl/axi_lite_1x2.v rtl/axi_lite_coremark_stats.v rtl/soc_coremark_axi_top.v tb/coremark_d0_workload_tb.v tb/cpu5_baseline_raw_tb.v 
+# -- Compiling module instr_mem
+# -- Compiling module instr_bus_adapter
+# -- Compiling module if_stage
+# -- Compiling module regfile
+# -- Compiling module decoder
+# -- Compiling module alu
+# -- Compiling module rv32m_unit
+# -- Compiling module data_mem
+# -- Compiling module data_bus_adapter
+# -- Compiling module uart_tx
+# -- Compiling module gpio_mmio
+# -- Compiling module uart_rx
+# -- Compiling module uart_rx_fifo
+# -- Compiling module uart_rx_mmio
+# -- Compiling module machine_timer
+# -- Compiling module branch_predictor
+# -- Compiling module cpu_top
+# -- Compiling module soc_instr_mem
+# -- Compiling module soc_data_mem
+# -- Compiling module dmem_region_router
+# -- Compiling module dmem_axi_lite_bridge
+# -- Compiling module axi_lite_ram
+# -- Compiling module instr_cache
+# -- Compiling module data_cache
+# -- Compiling module soc_axi_lite_top
+# -- Compiling module axi_lite_1x2
+# -- Compiling module axi_lite_coremark_stats
+# -- Compiling module soc_coremark_axi_top
+# -- Compiling module coremark_d0_workload_tb
+# -- Compiling module cpu5_baseline_raw_tb
+# 
+# Top level modules:
+# 	cpu5_baseline_raw_tb
+# End time: 12:36:43 on Oct 21,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim -voptargs=""+acc"" -onfinish stop -wlf build/cpu5_stage0_measure/smoke/observation.wlf cpu5_baseline_raw_smoke_work.cpu5_baseline_raw_tb "+RAW_OUTPUT=build/cpu5_stage0_measure/smoke" 
+# Start time: 12:36:44 on Oct 21,2026
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Note: (vopt-143) Recognized 1 FSM in module "coremark_d0_workload_tb(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "data_cache(fast)".
+# ** Note: (vopt-143) Recognized 2 FSMs in module "axi_lite_1x2(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "instr_cache(fast)".
+# ** Warning: rtl/soc_coremark_axi_top.v(66): (vopt-2685) [TFMPC] - Too few port connections for 'u_core'.  Expected 64, found 63.
+# ** Warning: rtl/soc_coremark_axi_top.v(66): (vopt-2718) [TFMPC] - Missing connection for port 'irq_external'.
+# ** Note: (vopt-143) Recognized 1 FSM in module "dmem_axi_lite_bridge(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "rv32m_unit(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "uart_rx(fast)".
+# //  ModelSim SE-64 10.6e Jun 23 2018
+# //
+# //  Copyright 1991-2018 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  ModelSim SE-64 and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# Loading sv_std.std
+# Loading work.cpu5_baseline_raw_tb(fast)
+# Loading work.coremark_d0_workload_tb(fast)
+# Loading work.soc_coremark_axi_top(fast)
+# Loading work.soc_axi_lite_top(fast)
+# Loading work.cpu_top(fast)
+# Loading work.if_stage(fast)
+# Loading work.branch_predictor(fast)
+# Loading work.instr_mem(fast)
+# Loading work.instr_bus_adapter(fast)
+# Loading work.decoder(fast)
+# Loading work.regfile(fast)
+# Loading work.alu(fast)
+# Loading work.rv32m_unit(fast)
+# Loading work.uart_rx_mmio(fast)
+# Loading work.uart_rx(fast)
+# Loading work.uart_rx_fifo(fast)
+# Loading work.gpio_mmio(fast)
+# Loading work.machine_timer(fast)
+# Loading work.uart_tx(fast)
+# Loading work.data_bus_adapter(fast)
+# Loading work.data_mem(fast)
+# Loading work.instr_cache(fast)
+# Loading work.soc_instr_mem(fast)
+# Loading work.instr_mem(fast__1)
+# Loading work.data_cache(fast)
+# Loading work.dmem_region_router(fast)
+# Loading work.soc_data_mem(fast)
+# Loading work.data_mem(fast__1)
+# Loading work.dmem_axi_lite_bridge(fast)
+# Loading work.axi_lite_1x2(fast)
+# Loading work.axi_lite_ram(fast)
+# Loading work.data_mem(fast__2)
+# Loading work.axi_lite_coremark_stats(fast)
+# 2K performance run parameters for coremark.
+# CoreMark Size    : 666
+# Total ticks      : 424892
+# Total time (secs): 0.008498
+# Iterations/Sec   : 117.676963
+# ERROR! Must execute for at least 10 secs for a valid result!
+# Iterations       : 1
+# Compiler version : riscv-none-elf-gcc (xPack GNU RISC-V Embedded GCC x86_64) 15.2.0
+# Compiler flags   : -march=rv32im -mabi=ilp32 -O2 -ffreestanding -fno-builtin -fno-stack-protector -fno-pic -msmall-data-limit=0 -mno-relax -ffunction-sections -fdata-sections -Wall -Wextra -Wno-maybe-uninitialized -DITERATIONS=1 -DPERFORMANCE_RUN=1 -DTOTAL_DATA_SIZE=2000 -Ibuild/coremark/d0_m_cache_on_btb_smoke -Ibenchmarks/coremark -Isoftware/coremark_port -Isoftware -nostdlib -nostartfiles -static -Wl,-T,software/link.ld -Wl,--gc-sections -Wl,--no-relax -Wl,-Map,build/coremark/d0_m_cache_on_btb_smoke/coremark.map -lgcc
+# Memory location  : Static; ROM 32 KiB @0x00000000 via request/response; RAM 16 KiB @0x00010000 via synchronous BRAM after D-cache; non-RAM via AXI4-Lite; I-cache 2 KiB 2-way 64 sets 16-byte line; D-cache 2 KiB 2-way 64 sets 16-byte line, write-through/no-write-allocate; BTB 64 entries, 2-bit direction counters; AXI AW/W/AR/B/R waits=0/0/0/0/0; core:memory clock=1:1
+# seedcrc          : 0xe9f5
+# [0]crclist       : 0xe714
+# [0]crcmatrix     : 0x1fd7
+# [0]crcstate      : 0x8e3a
+# [0]crcfinal      : 0xe714
+# Errors detected
+# COREMARK platform=d0-m-cache-on-btb
+# COREMARK isa=rv32im
+# COREMARK data_backend=bram
+# COREMARK cache_enable=3
+# COREMARK branch_pred_enable=1
+# COREMARK btb_entries=64
+# COREMARK btb_config=4194305
+# COREMARK counter_window=START-before-mtime;STOP-after-mtime;includes-boundary-overhead
+# COREMARK counter_valid=1
+# COREMARK counter_cycles=425003
+# COREMARK counter_retired=289747
+# COREMARK counter_cpi=1.466807249
+# COREMARK cycle_profile_schema=1
+# COREMARK cycle_profile_valid=1
+# COREMARK cycle_work_other=317935
+# COREMARK cycle_ifetch_wait=10311
+# COREMARK cycle_data_read_wait=56911
+# COREMARK cycle_data_write_wait=28362
+# COREMARK cycle_local_mmio_wait=12
+# COREMARK cycle_redirect_wait=11472
+# COREMARK cycle_profile_sum=425003
+# COREMARK icache_access=298923
+# COREMARK icache_hit=297296
+# COREMARK icache_miss=1627
+# COREMARK icache_refill_words=6505
+# COREMARK icache_errors=0
+# COREMARK dcache_access=68887
+# COREMARK dcache_hit=54430
+# COREMARK dcache_miss=275
+# COREMARK dcache_refill_words=1100
+# COREMARK dcache_errors=0
+# COREMARK dcache_write=14181
+# COREMARK dcache_bypass=1
+# COREMARK bp_lookup=298923
+# COREMARK bp_hit=54251
+# COREMARK bp_predicted_taken=32248
+# COREMARK bp_resolved=57268
+# COREMARK bp_next_pc_mismatch=9176
+# COREMARK bp_direction_error=5534
+# COREMARK bp_target_error=0
+# COREMARK cache_state=fixed-iterations;no-explicit-flush
+# COREMARK predictor_state=fixed-iterations;no-explicit-reset
+# COREMARK profile=smoke
+# COREMARK mode=smoke
+# COREMARK run=performance
+# COREMARK cpu_hz=50000000
+# COREMARK uart_baud=5000000
+# COREMARK iterations_requested=1
+# COREMARK iterations=1
+# COREMARK raw_ticks=424892
+# COREMARK seconds=0.008497840
+# COREMARK iterations_per_second=117.676962616
+# COREMARK coremark_per_mhz=2.353539252
+# COREMARK seed1=0x0000
+# COREMARK seed2=0x0000
+# COREMARK seed3=0x0066
+# COREMARK seedcrc=0xe9f5
+# COREMARK crclist=0xe714
+# COREMARK crcmatrix=0x1fd7
+# COREMARK crcstate=0x8e3a
+# COREMARK compiler=riscv-none-elf-gcc (xPack GNU RISC-V Embedded GCC x86_64) 15.2.0
+# COREMARK flags=-march=rv32im -mabi=ilp32 -O2 -ffreestanding -fno-builtin -fno-stack-protector -fno-pic -msmall-data-limit=0 -mno-relax -ffunction-sections -fdata-sections -Wall -Wextra -Wno-maybe-uninitialized -DITERATIONS=1 -DPERFORMANCE_RUN=1 -DTOTAL_DATA_SIZE=2000 -Ibuild/coremark/d0_m_cache_on_btb_smoke -Ibenchmarks/coremark -Isoftware/coremark_port -Isoftware -nostdlib -nostartfiles -static -Wl,-T,software/link.ld -Wl,--gc-sections -Wl,--no-relax -Wl,-Map,build/coremark/d0_m_cache_on_btb_smoke/coremark.map -lgcc
+# COREMARK memory=Static; ROM 32 KiB @0x00000000 via request/response; RAM 16 KiB @0x00010000 via synchronous BRAM after D-cache; non-RAM via AXI4-Lite; I-cache 2 KiB 2-way 64 sets 16-byte line; D-cache 2 KiB 2-way 64 sets 16-byte line, write-through/no-write-allocate; BTB 64 entries, 2-bit direction counters; AXI AW/W/AR/B/R waits=0/0/0/0/0; core:memory clock=1:1
+# NOTE: smoke timing is a functional observation; it is not a formal score.
+# COREMARK RESULT: SMOKE PASS
+# 
+# PASS: AXI CoreMark smoke flags=3 BP=1 real C CRCs, successful CPU tohost, mtime and frozen I/D/BP statistics
+# PASS: AXI CoreMark cycle profile six 64-bit classes exactly partition the frozen cycle window and UART/RAM deltas
+# CPU5 BASELINE RAW PASS profile=smoke edges=425003 retired=289747 resolved=57268 mismatch=9176
+# ** Note: $stop    : tb/cpu5_baseline_raw_tb.v(142)
+#    Time: 22015780 ns  Iteration: 1  Instance: /cpu5_baseline_raw_tb
+# Break in Module cpu5_baseline_raw_tb at tb/cpu5_baseline_raw_tb.v line 142
+# Stopped at tb/cpu5_baseline_raw_tb.v line 142
+# CPU5 BASELINE RAW smoke ORIGINAL WORKLOAD + OBSERVER PASS
+# AXI CoreMark firmware metadata matched: C:\Users\23123\.codex\visualizations\2026\10\19\01a151db-bb68-7633-bd17-5c52d2aa2890\cpu5_s0\work\build\coremark\d0_m_cache_on_btb_smoke_validation\build_report.json
+# End time: 12:37:07 on Oct 21,2026, Elapsed time: 0:00:23
+# Errors: 0, Warnings: 2
+# Model Technology ModelSim SE-64 vlog 10.6e Compiler 2018.06 Jun 23 2018
+# Start time: 12:37:07 on Oct 21,2026
+# vlog -sv -work cpu5_baseline_raw_smoke_validation_work "+define+COREMARK_CONFIG="programs/coremark_d0_m_cache_on_btb_smoke_validation_config.vh"" rtl/instr_mem.v rtl/instr_bus_adapter.v rtl/if_stage.v rtl/regfile.v rtl/decoder.v rtl/alu.v rtl/rv32m_unit.v rtl/data_mem.v rtl/data_bus_adapter.v rtl/uart_tx.v rtl/gpio_mmio.v rtl/uart_rx.v rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v rtl/machine_timer.v rtl/branch_predictor.v rtl/cpu_top.v rtl/soc_instr_mem.v rtl/soc_data_mem.v rtl/dmem_region_router.v rtl/dmem_axi_lite_bridge.v rtl/axi_lite_ram.v rtl/instr_cache.v rtl/data_cache.v rtl/soc_axi_lite_top.v rtl/axi_lite_1x2.v rtl/axi_lite_coremark_stats.v rtl/soc_coremark_axi_top.v tb/coremark_d0_workload_tb.v tb/cpu5_baseline_raw_tb.v 
+# -- Compiling module instr_mem
+# -- Compiling module instr_bus_adapter
+# -- Compiling module if_stage
+# -- Compiling module regfile
+# -- Compiling module decoder
+# -- Compiling module alu
+# -- Compiling module rv32m_unit
+# -- Compiling module data_mem
+# -- Compiling module data_bus_adapter
+# -- Compiling module uart_tx
+# -- Compiling module gpio_mmio
+# -- Compiling module uart_rx
+# -- Compiling module uart_rx_fifo
+# -- Compiling module uart_rx_mmio
+# -- Compiling module machine_timer
+# -- Compiling module branch_predictor
+# -- Compiling module cpu_top
+# -- Compiling module soc_instr_mem
+# -- Compiling module soc_data_mem
+# -- Compiling module dmem_region_router
+# -- Compiling module dmem_axi_lite_bridge
+# -- Compiling module axi_lite_ram
+# -- Compiling module instr_cache
+# -- Compiling module data_cache
+# -- Compiling module soc_axi_lite_top
+# -- Compiling module axi_lite_1x2
+# -- Compiling module axi_lite_coremark_stats
+# -- Compiling module soc_coremark_axi_top
+# -- Compiling module coremark_d0_workload_tb
+# -- Compiling module cpu5_baseline_raw_tb
+# 
+# Top level modules:
+# 	cpu5_baseline_raw_tb
+# End time: 12:37:07 on Oct 21,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim -voptargs=""+acc"" -onfinish stop -wlf build/cpu5_stage0_measure/smoke_validation/observation.wlf cpu5_baseline_raw_smoke_validation_work.cpu5_baseline_raw_tb "+RAW_OUTPUT=build/cpu5_stage0_measure/smoke_validation" 
+# Start time: 12:37:07 on Oct 21,2026
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Note: (vopt-143) Recognized 1 FSM in module "coremark_d0_workload_tb(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "data_cache(fast)".
+# ** Note: (vopt-143) Recognized 2 FSMs in module "axi_lite_1x2(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "instr_cache(fast)".
+# ** Warning: rtl/soc_coremark_axi_top.v(66): (vopt-2685) [TFMPC] - Too few port connections for 'u_core'.  Expected 64, found 63.
+# ** Warning: rtl/soc_coremark_axi_top.v(66): (vopt-2718) [TFMPC] - Missing connection for port 'irq_external'.
+# ** Note: (vopt-143) Recognized 1 FSM in module "dmem_axi_lite_bridge(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "rv32m_unit(fast)".
+# ** Note: (vopt-143) Recognized 1 FSM in module "uart_rx(fast)".
+# Loading sv_std.std
+# Loading work.cpu5_baseline_raw_tb(fast)
+# Loading work.coremark_d0_workload_tb(fast)
+# Loading work.soc_coremark_axi_top(fast)
+# Loading work.soc_axi_lite_top(fast)
+# Loading work.cpu_top(fast)
+# Loading work.if_stage(fast)
+# Loading work.branch_predictor(fast)
+# Loading work.instr_mem(fast)
+# Loading work.instr_bus_adapter(fast)
+# Loading work.decoder(fast)
+# Loading work.regfile(fast)
+# Loading work.alu(fast)
+# Loading work.rv32m_unit(fast)
+# Loading work.uart_rx_mmio(fast)
+# Loading work.uart_rx(fast)
+# Loading work.uart_rx_fifo(fast)
+# Loading work.gpio_mmio(fast)
+# Loading work.machine_timer(fast)
+# Loading work.uart_tx(fast)
+# Loading work.data_bus_adapter(fast)
+# Loading work.data_mem(fast)
+# Loading work.instr_cache(fast)
+# Loading work.soc_instr_mem(fast)
+# Loading work.instr_mem(fast__1)
+# Loading work.data_cache(fast)
+# Loading work.dmem_region_router(fast)
+# Loading work.soc_data_mem(fast)
+# Loading work.data_mem(fast__1)
+# Loading work.dmem_axi_lite_bridge(fast)
+# Loading work.axi_lite_1x2(fast)
+# Loading work.axi_lite_ram(fast)
+# Loading work.data_mem(fast__2)
+# Loading work.axi_lite_coremark_stats(fast)
+# 2K validation run parameters for coremark.
+# CoreMark Size    : 666
+# Total ticks      : 425254
+# Total time (secs): 0.008505
+# Iterations/Sec   : 117.576789
+# ERROR! Must execute for at least 10 secs for a valid result!
+# Iterations       : 1
+# Compiler version : riscv-none-elf-gcc (xPack GNU RISC-V Embedded GCC x86_64) 15.2.0
+# Compiler flags   : -march=rv32im -mabi=ilp32 -O2 -ffreestanding -fno-builtin -fno-stack-protector -fno-pic -msmall-data-limit=0 -mno-relax -ffunction-sections -fdata-sections -Wall -Wextra -Wno-maybe-uninitialized -DITERATIONS=1 -DVALIDATION_RUN=1 -DTOTAL_DATA_SIZE=2000 -Ibuild/coremark/d0_m_cache_on_btb_smoke_validation -Ibenchmarks/coremark -Isoftware/coremark_port -Isoftware -nostdlib -nostartfiles -static -Wl,-T,software/link.ld -Wl,--gc-sections -Wl,--no-relax -Wl,-Map,build/coremark/d0_m_cache_on_btb_smoke_validation/coremark.map -lgcc
+# Memory location  : Static; ROM 32 KiB @0x00000000 via request/response; RAM 16 KiB @0x00010000 via synchronous BRAM after D-cache; non-RAM via AXI4-Lite; I-cache 2 KiB 2-way 64 sets 16-byte line; D-cache 2 KiB 2-way 64 sets 16-byte line, write-through/no-write-allocate; BTB 64 entries, 2-bit direction counters; AXI AW/W/AR/B/R waits=0/0/0/0/0; core:memory clock=1:1
+# seedcrc          : 0x18f2
+# [0]crclist       : 0xe3c1
+# [0]crcmatrix     : 0x0747
+# [0]crcstate      : 0x8d84
+# [0]crcfinal      : 0xe3c1
+# Errors detected
+# COREMARK platform=d0-m-cache-on-btb
+# COREMARK isa=rv32im
+# COREMARK data_backend=bram
+# COREMARK cache_enable=3
+# COREMARK branch_pred_enable=1
+# COREMARK btb_entries=64
+# COREMARK btb_config=4194305
+# COREMARK counter_window=START-before-mtime;STOP-after-mtime;includes-boundary-overhead
+# COREMARK counter_valid=1
+# COREMARK counter_cycles=425367
+# COREMARK counter_retired=289855
+# COREMARK counter_cpi=1.467516517
+# COREMARK cycle_profile_schema=1
+# COREMARK cycle_profile_valid=1
+# COREMARK cycle_work_other=318043
+# COREMARK cycle_ifetch_wait=10293
+# COREMARK cycle_data_read_wait=57481
+# COREMARK cycle_data_write_wait=28152
+# COREMARK cycle_local_mmio_wait=12
+# COREMARK cycle_redirect_wait=11386
+# COREMARK cycle_profile_sum=425367
+# COREMARK icache_access=298985
+# COREMARK icache_hit=297360
+# COREMARK icache_miss=1625
+# COREMARK icache_refill_words=6503
+# COREMARK icache_errors=0
+# COREMARK dcache_access=69208
+# COREMARK dcache_hit=54838
+# COREMARK dcache_miss=293
+# COREMARK dcache_refill_words=1172
+# COREMARK dcache_errors=0
+# COREMARK dcache_write=14076
+# COREMARK dcache_bypass=1
+# COREMARK bp_lookup=298985
+# COREMARK bp_hit=54399
+# COREMARK bp_predicted_taken=32418
+# COREMARK bp_resolved=57370
+# COREMARK bp_next_pc_mismatch=9130
+# COREMARK bp_direction_error=5516
+# COREMARK bp_target_error=0
+# COREMARK cache_state=fixed-iterations;no-explicit-flush
+# COREMARK predictor_state=fixed-iterations;no-explicit-reset
+# COREMARK profile=smoke-validation
+# COREMARK mode=smoke
+# COREMARK run=validation
+# COREMARK cpu_hz=50000000
+# COREMARK uart_baud=5000000
+# COREMARK iterations_requested=1
+# COREMARK iterations=1
+# COREMARK raw_ticks=425254
+# COREMARK seconds=0.008505080
+# COREMARK iterations_per_second=117.576789401
+# COREMARK coremark_per_mhz=2.351535788
+# COREMARK seed1=0x3415
+# COREMARK seed2=0x3415
+# COREMARK seed3=0x0066
+# COREMARK seedcrc=0x18f2
+# COREMARK crclist=0xe3c1
+# COREMARK crcmatrix=0x0747
+# COREMARK crcstate=0x8d84
+# COREMARK compiler=riscv-none-elf-gcc (xPack GNU RISC-V Embedded GCC x86_64) 15.2.0
+# COREMARK flags=-march=rv32im -mabi=ilp32 -O2 -ffreestanding -fno-builtin -fno-stack-protector -fno-pic -msmall-data-limit=0 -mno-relax -ffunction-sections -fdata-sections -Wall -Wextra -Wno-maybe-uninitialized -DITERATIONS=1 -DVALIDATION_RUN=1 -DTOTAL_DATA_SIZE=2000 -Ibuild/coremark/d0_m_cache_on_btb_smoke_validation -Ibenchmarks/coremark -Isoftware/coremark_port -Isoftware -nostdlib -nostartfiles -static -Wl,-T,software/link.ld -Wl,--gc-sections -Wl,--no-relax -Wl,-Map,build/coremark/d0_m_cache_on_btb_smoke_validation/coremark.map -lgcc
+# COREMARK memory=Static; ROM 32 KiB @0x00000000 via request/response; RAM 16 KiB @0x00010000 via synchronous BRAM after D-cache; non-RAM via AXI4-Lite; I-cache 2 KiB 2-way 64 sets 16-byte line; D-cache 2 KiB 2-way 64 sets 16-byte line, write-through/no-write-allocate; BTB 64 entries, 2-bit direction counters; AXI AW/W/AR/B/R waits=0/0/0/0/0; core:memory clock=1:1
+# NOTE: smoke timing is a functional observation; it is not a formal score.
+# COREMARK RESULT: SMOKE PASS
+# 
+# PASS: AXI CoreMark smoke-validation flags=3 BP=1 real C CRCs, successful CPU tohost, mtime and frozen I/D/BP statistics
+# PASS: AXI CoreMark cycle profile six 64-bit classes exactly partition the frozen cycle window and UART/RAM deltas
+# CPU5 BASELINE RAW PASS profile=smoke-validation edges=425367 retired=289855 resolved=57370 mismatch=9130
+# ** Note: $stop    : tb/cpu5_baseline_raw_tb.v(142)
+#    Time: 22204660 ns  Iteration: 1  Instance: /cpu5_baseline_raw_tb
+# Break in Module cpu5_baseline_raw_tb at tb/cpu5_baseline_raw_tb.v line 142
+# Stopped at tb/cpu5_baseline_raw_tb.v line 142
+# CPU5 BASELINE RAW smoke_validation ORIGINAL WORKLOAD + OBSERVER PASS
+# CPU5 BASELINE RAW DUAL SEED PASS (one iteration; no CPU5 stall/Fmax claim)
+# End time: 12:37:29 on Oct 21,2026, Elapsed time: 0:00:22
+# Errors: 0, Warnings: 2
+# 0

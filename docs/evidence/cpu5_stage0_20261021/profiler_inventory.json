@@ -1,0 +1,2211 @@
+{
+  "audit_schema": 1,
+  "date": "2026-10-21",
+  "scope": "v0.3 sections 8.5/8.6 E and 10.0; source inspection only",
+  "audit_status": "SOURCE_INVENTORY_AND_SEMANTIC_MAPPING_COMPLETE",
+  "design_freeze_status": "NOT CLAIMED",
+  "cpu5_rtl_status": "NOT IMPLEMENTED",
+  "cpu5_simulation_status": "NOT RUN",
+  "legacy_simulations_in_this_audit": "NOT RUN",
+  "main_repository": "D:\\FPGA\\riscv_3stage",
+  "head": "1b7cb1251f5ff589ab1a6be8537b3362cc3f3a73",
+  "specification": {
+    "path": "C:\\Users\\23123\\Downloads\\cpu5_arch_spec_v0_3.md",
+    "sha256": "bc4898b62a77fe2d9382ee1111dbe63a13bd4420936efba1756fb3fa090e8d6f"
+  },
+  "groups": {
+    "d1_m1_m2": [
+      "run_coremark_d1_measure.do",
+      "tb/coremark_d1_measure_tb.v",
+      "tools/analyze_d1_measure.py"
+    ],
+    "synthetic_axi_write": [
+      "run_axi_write_profile.do",
+      "tb/axi_write_profile_tb.v",
+      "tools/analyze_axi_write_profile.py",
+      "docs/axi_write_profile.md"
+    ],
+    "real_coremark_axi_write": [
+      "run_coremark_axi_write_profile.do",
+      "tb/coremark_axi_write_profile_tb.v",
+      "tools/analyze_coremark_axi_write_profile.py",
+      "docs/coremark_axi_write_profile.md"
+    ],
+    "d0_native_write": [
+      "run_coremark_d0_measure.do",
+      "tb/coremark_d0_measure_tb.v",
+      "tools/analyze_coremark_d0_measure.py"
+    ],
+    "cycle_profile": [
+      "run_cpu_cycle_profile.do",
+      "tb/cpu_cycle_profile_tb.v",
+      "docs/cycle_profile.md"
+    ],
+    "workload": [
+      "run_coremark_m.do",
+      "tb/coremark_axi_tb.v",
+      "tb/coremark_d0_workload_tb.v",
+      "tools/coremark_axi_contract.py",
+      "tools/regression_suites.json"
+    ],
+    "semantic_sources": [
+      "rtl/cpu_top.v",
+      "rtl/if_stage.v",
+      "rtl/branch_predictor.v",
+      "rtl/soc_axi_lite_top.v",
+      "rtl/soc_coremark_axi_top.v",
+      "rtl/axi_lite_coremark_stats.v",
+      "rtl/machine_timer.v",
+      "rtl/rv32m_unit.v",
+      "rtl/data_cache.v",
+      "rtl/dmem_region_router.v",
+      "rtl/soc_data_mem.v",
+      "software/coremark_port/core_portme.c",
+      "software/coremark_port/core_portme_axi.c",
+      "software/coremark_port/coremark_axi_stats.h",
+      "software/timer.h"
+    ],
+    "cpu5_planned_only": [
+      "rtl/cpu5_top.v",
+      "rtl/cpu5_cycle_profile.v",
+      "rtl/axi_lite_coremark_stats5.v",
+      "rtl/cpu5_m_owner.v"
+    ]
+  },
+  "files": [
+    {
+      "path": "run_coremark_d1_measure.do",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\run_coremark_d1_measure.do",
+      "exists": true,
+      "tracked": true,
+      "bytes": 2884,
+      "sha256": "febdf03c79e3c0ca0a023da8ff54c24435cef04e3f4b11301e194be43de5472e",
+      "canonical_lf_sha256": "1ee41bb8eac269da29703023ec726cc0b9a76506f5ce0df95d5f1ac4218428d7",
+      "line_count": 55,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "e631614b17ea71180d514031fe675670d4c21cfd",
+      "head_blob_sha256": "1ee41bb8eac269da29703023ec726cc0b9a76506f5ce0df95d5f1ac4218428d7",
+      "head_blob_canonical_lf_sha256": "1ee41bb8eac269da29703023ec726cc0b9a76506f5ce0df95d5f1ac4218428d7",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "347982c30c88095d4a6406bd26c535b7b9f468b5",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "tb/coremark_d1_measure_tb.v",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\tb\\coremark_d1_measure_tb.v",
+      "exists": true,
+      "tracked": true,
+      "bytes": 17519,
+      "sha256": "f84411cd94d337d99876ede6bfe861a99146f92d83f1f89270b4546cf5eb5760",
+      "canonical_lf_sha256": "f84411cd94d337d99876ede6bfe861a99146f92d83f1f89270b4546cf5eb5760",
+      "line_count": 335,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "707a813d77784df443857cc05ea3a26f1e79356f",
+      "head_blob_sha256": "f84411cd94d337d99876ede6bfe861a99146f92d83f1f89270b4546cf5eb5760",
+      "head_blob_canonical_lf_sha256": "f84411cd94d337d99876ede6bfe861a99146f92d83f1f89270b4546cf5eb5760",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "590531c605c47d936aa1955ff2daecc7ba5fabbe",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [
+        {
+          "line": 19,
+          "text": "`define D1_CPU  workload.dut.u_core.u_cpu"
+        },
+        {
+          "line": 20,
+          "text": "`define D1_IF   workload.dut.u_core.u_cpu.u_if_stage"
+        },
+        {
+          "line": 21,
+          "text": "`define D1_BP   workload.dut.u_core.u_cpu.u_if_stage.g_branch_predictor.u_branch_predictor"
+        },
+        {
+          "line": 22,
+          "text": "`define D1_SOC  workload.dut"
+        },
+        {
+          "line": 23,
+          "text": "`define D1_STAT workload.dut.u_stats"
+        },
+        {
+          "line": 44,
+          "text": "integer start_triggers = 0, stop_triggers = 0, crossings = 0, epoch = 0;"
+        },
+        {
+          "line": 46,
+          "text": "integer selected_start_triggers = 0;"
+        },
+        {
+          "line": 68,
+          "text": "wire ev_mem    = `D1_CPU.mem_start_x && !`D1_CPU.mem_req_mmio;"
+        },
+        {
+          "line": 69,
+          "text": "wire ev_store  = `D1_CPU.mem_start_x && `D1_CPU.is_store_x && !`D1_CPU.mem_req_mmio;"
+        },
+        {
+          "line": 70,
+          "text": "wire m2_pred   = `D1_CPU.bp_resolve_valid && `D1_CPU.bp_predictable_x;"
+        },
+        {
+          "line": 71,
+          "text": "wire m2_direrr = m2_pred && `D1_CPU.bp_direction_error_x;"
+        },
+        {
+          "line": 100,
+          "text": "selected_start_triggers = 0;"
+        },
+        {
+          "line": 121,
+          "text": "always @(posedge clk) begin"
+        },
+        {
+          "line": 132,
+          "text": "start_triggers = start_triggers + 1;"
+        },
+        {
+          "line": 133,
+          "text": "if (stop_triggers != 0 || start_triggers > 2 ||"
+        },
+        {
+          "line": 134,
+          "text": "epoch != start_triggers - 1 ||"
+        },
+        {
+          "line": 135,
+          "text": "(start_triggers == 1 && window_live) ||"
+        },
+        {
+          "line": 136,
+          "text": "(start_triggers == 2 && !window_live)) begin"
+        },
+        {
+          "line": 139,
+          "text": "start_triggers, epoch, stop_triggers, window_live);"
+        },
+        {
+          "line": 143,
+          "text": "selected_start_triggers = 1;"
+        },
+        {
+          "line": 148,
+          "text": "$display(\"COREMARK D1 ENDPOINT START profile=%0s edge=%0d sim_time=%0t raw_start=%0d selected_start=%0d epoch=%0d bp_resolve_valid=%b bp_predictable=%b m2_pred=%b m2_direrr=%b bp_resolved_pre=%0d bp_direrr_pre=%0d\","
+        },
+        {
+          "line": 149,
+          "text": "`COREMARK_PROFILE, t64, $time, start_triggers,"
+        },
+        {
+          "line": 150,
+          "text": "selected_start_triggers, epoch, `D1_CPU.bp_resolve_valid,"
+        },
+        {
+          "line": 151,
+          "text": "`D1_CPU.bp_predictable_x, m2_pred, m2_direrr,"
+        },
+        {
+          "line": 155,
+          "text": "if (stop_triggers != 1 || !window_live || start_triggers != 2 ||"
+        },
+        {
+          "line": 156,
+          "text": "selected_start_triggers != 1 || epoch != 2) begin"
+        },
+        {
+          "line": 159,
+          "text": "start_triggers, selected_start_triggers, epoch,"
+        },
+        {
+          "line": 164,
+          "text": "$display(\"COREMARK D1 ENDPOINT STOP profile=%0s edge=%0d sim_time=%0t raw_start=%0d selected_start=%0d epoch=%0d bp_resolve_valid=%b bp_predictable=%b m2_pred=%b m2_direrr=%b bp_resolved_pre=%0d bp_direrr_pre=%0d measured_resolved=%0d measured_direrr=%0d\","
+        },
+        {
+          "line": 165,
+          "text": "`COREMARK_PROFILE, t64, $time, start_triggers,"
+        },
+        {
+          "line": 166,
+          "text": "selected_start_triggers, epoch, `D1_CPU.bp_resolve_valid,"
+        },
+        {
+          "line": 167,
+          "text": "`D1_CPU.bp_predictable_x, m2_pred, m2_direrr,"
+        },
+        {
+          "line": 226,
+          "text": "if (m2_pred) begin"
+        },
+        {
+          "line": 234,
+          "text": "if (m2_direrr) begin"
+        },
+        {
+          "line": 243,
+          "text": "// Only JALR: bp_resolve_valid also covers ordinary instructions."
+        },
+        {
+          "line": 244,
+          "text": "if (`D1_CPU.bp_resolve_valid && `D1_CPU.is_jalr_x)"
+        },
+        {
+          "line": 263,
+          "text": "$fwrite(wf, \"key,value\\n\");"
+        },
+        {
+          "line": 264,
+          "text": "$fwrite(wf, \"profile,%0s\\n\", `COREMARK_PROFILE);"
+        },
+        {
+          "line": 266,
+          "text": "$fwrite(wf, \"start_triggers,%0d\\nstop_triggers,%0d\\nepoch,%0d\\ncrossings,%0d\\n\","
+        },
+        {
+          "line": 267,
+          "text": "start_triggers, stop_triggers, epoch, crossings);"
+        },
+        {
+          "line": 268,
+          "text": "$fwrite(wf, \"selected_start_triggers,%0d\\n\", selected_start_triggers);"
+        },
+        {
+          "line": 288,
+          "text": "$fwrite(bf, \"key,count\\n\");"
+        },
+        {
+          "line": 299,
+          "text": "// Explicit G4 amendment: preserve raw START=2; select latest epoch only."
+        },
+        {
+          "line": 300,
+          "text": "if (start_triggers != 2 || selected_start_triggers != 1 || epoch != 2 ||"
+        },
+        {
+          "line": 303,
+          "text": "start_triggers, selected_start_triggers, epoch,"
+        },
+        {
+          "line": 321,
+          "text": "`COREMARK_PROFILE, start_triggers, selected_start_triggers,"
+        }
+      ],
+      "macro_bindings": [
+        {
+          "line": 19,
+          "macro": "D1_CPU",
+          "expansion": "workload.dut.u_core.u_cpu"
+        },
+        {
+          "line": 20,
+          "macro": "D1_IF",
+          "expansion": "workload.dut.u_core.u_cpu.u_if_stage"
+        },
+        {
+          "line": 21,
+          "macro": "D1_BP",
+          "expansion": "workload.dut.u_core.u_cpu.u_if_stage.g_branch_predictor.u_branch_predictor"
+        },
+        {
+          "line": 22,
+          "macro": "D1_SOC",
+          "expansion": "workload.dut"
+        },
+        {
+          "line": 23,
+          "macro": "D1_STAT",
+          "expansion": "workload.dut.u_stats"
+        }
+      ],
+      "csv_literal_headers": [
+        {
+          "line": 263,
+          "stream": "wf",
+          "columns": [
+            "key",
+            "value"
+          ]
+        },
+        {
+          "line": 288,
+          "stream": "bf",
+          "columns": [
+            "key",
+            "count"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tools/analyze_d1_measure.py",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\tools\\analyze_d1_measure.py",
+      "exists": true,
+      "tracked": true,
+      "bytes": 7324,
+      "sha256": "c393007de9066af3014adb0816741504f7a65d967f1b202277e1dd94aa0cdc93",
+      "canonical_lf_sha256": "c393007de9066af3014adb0816741504f7a65d967f1b202277e1dd94aa0cdc93",
+      "line_count": 150,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "7932d52a81fb859e5f4970726d186a07d8ea7f19",
+      "head_blob_sha256": "c393007de9066af3014adb0816741504f7a65d967f1b202277e1dd94aa0cdc93",
+      "head_blob_canonical_lf_sha256": "c393007de9066af3014adb0816741504f7a65d967f1b202277e1dd94aa0cdc93",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "590531c605c47d936aa1955ff2daecc7ba5fabbe",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [
+        {
+          "line": 75,
+          "text": "if (number(w,\"start_triggers\") != 2 or"
+        },
+        {
+          "line": 76,
+          "text": "number(w,\"selected_start_triggers\") != 1 or"
+        },
+        {
+          "line": 79,
+          "text": "raise ValueError(\"invalid revised G4 lifecycle: require raw START=2, selected START=1, epoch=2, STOP=1, crossings=0\")"
+        },
+        {
+          "line": 99,
+          "text": "print(\"G4 REVISED PASS: raw START=2, selected START=1, epoch=2, STOP=1, crossings=0; latest START bank\")"
+        }
+      ],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "run_axi_write_profile.do",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\run_axi_write_profile.do",
+      "exists": true,
+      "tracked": true,
+      "bytes": 2636,
+      "sha256": "fb86bb51d001a86323f00a7754e13a99a61a19a66658030fcbfe1b7cddd9140d",
+      "canonical_lf_sha256": "13185d3dd166acdddf70159613011b277b3fae31aa60a595f3bd910c94a25669",
+      "line_count": 43,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "21b4cbcae0e5f42924e8dc1fa12033ee586a4d74",
+      "head_blob_sha256": "13185d3dd166acdddf70159613011b277b3fae31aa60a595f3bd910c94a25669",
+      "head_blob_canonical_lf_sha256": "13185d3dd166acdddf70159613011b277b3fae31aa60a595f3bd910c94a25669",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "347982c30c88095d4a6406bd26c535b7b9f468b5",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "tb/axi_write_profile_tb.v",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\tb\\axi_write_profile_tb.v",
+      "exists": true,
+      "tracked": true,
+      "bytes": 25473,
+      "sha256": "6a48f60739f1f5062fe3b20c8e64f82939a48ed8e27409037667106aabb8ecfd",
+      "canonical_lf_sha256": "6a48f60739f1f5062fe3b20c8e64f82939a48ed8e27409037667106aabb8ecfd",
+      "line_count": 442,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "c77372b7c7fb95bad44a84ead01e6a56e7226530",
+      "head_blob_sha256": "6a48f60739f1f5062fe3b20c8e64f82939a48ed8e27409037667106aabb8ecfd",
+      "head_blob_canonical_lf_sha256": "6a48f60739f1f5062fe3b20c8e64f82939a48ed8e27409037667106aabb8ecfd",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "96517c5ea317479394e70701fbc32687b41524d7",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [
+        {
+          "line": 29,
+          "text": "#1; $stop;"
+        },
+        {
+          "line": 97,
+          "text": "always @(posedge clk) begin"
+        },
+        {
+          "line": 145,
+          "text": "always @(posedge clk) begin"
+        },
+        {
+          "line": 249,
+          "text": "$fwrite(tx_file,\"case_id,cache,scenario,epoch,transaction,status,pc,addr,wdata,wstrb,cache_hit,launch,cpu_req,bridge_req,up_aw,up_w,up_pair,down_aw,down_w,down_pair,ram_commit,ram_b_first,router_b_first,bridge_b_first,down_b_handshake,up_b_handshake,bridge_rsp_first,bridge_rsp,cpu_rsp_first,cpu_rsp,retire,ram_effects,data_write_wait\\n\");"
+        },
+        {
+          "line": 250,
+          "text": "$fwrite(stats_file,\"case_id,cache,scenario,metric,classification,count,min_cycles,max_cycles,mean_cycles,total_cycles\\n\");"
+        },
+        {
+          "line": 364,
+          "text": "always @(posedge clk) begin"
+        },
+        {
+          "line": 374,
+          "text": "if(cpu.mem_start_x && cpu.is_store_x) begin"
+        },
+        {
+          "line": 381,
+          "text": "if(active && cpu.stall_x && (cpu.mem_active || cpu.mem_start_x) && cpu.mem_req_write)"
+        },
+        {
+          "line": 419,
+          "text": "#1;"
+        }
+      ],
+      "macro_bindings": [],
+      "csv_literal_headers": [
+        {
+          "line": 249,
+          "stream": "tx_file",
+          "columns": [
+            "case_id",
+            "cache",
+            "scenario",
+            "epoch",
+            "transaction",
+            "status",
+            "pc",
+            "addr",
+            "wdata",
+            "wstrb",
+            "cache_hit",
+            "launch",
+            "cpu_req",
+            "bridge_req",
+            "up_aw",
+            "up_w",
+            "up_pair",
+            "down_aw",
+            "down_w",
+            "down_pair",
+            "ram_commit",
+            "ram_b_first",
+            "router_b_first",
+            "bridge_b_first",
+            "down_b_handshake",
+            "up_b_handshake",
+            "bridge_rsp_first",
+            "bridge_rsp",
+            "cpu_rsp_first",
+            "cpu_rsp",
+            "retire",
+            "ram_effects",
+            "data_write_wait"
+          ]
+        },
+        {
+          "line": 250,
+          "stream": "stats_file",
+          "columns": [
+            "case_id",
+            "cache",
+            "scenario",
+            "metric",
+            "classification",
+            "count",
+            "min_cycles",
+            "max_cycles",
+            "mean_cycles",
+            "total_cycles"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tools/analyze_axi_write_profile.py",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\tools\\analyze_axi_write_profile.py",
+      "exists": false,
+      "tracked": false,
+      "status": "NOT FOUND"
+    },
+    {
+      "path": "docs/axi_write_profile.md",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\docs\\axi_write_profile.md",
+      "exists": true,
+      "tracked": true,
+      "bytes": 8255,
+      "sha256": "242acac9ec87c7b4316451a0187737ff17397441d291c5898a7a5e38df3127ad",
+      "canonical_lf_sha256": "242acac9ec87c7b4316451a0187737ff17397441d291c5898a7a5e38df3127ad",
+      "line_count": 92,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "fdc963b05aec466babe027e8c1d1cbb9bd59f6d9",
+      "head_blob_sha256": "242acac9ec87c7b4316451a0187737ff17397441d291c5898a7a5e38df3127ad",
+      "head_blob_canonical_lf_sha256": "242acac9ec87c7b4316451a0187737ff17397441d291c5898a7a5e38df3127ad",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "96517c5ea317479394e70701fbc32687b41524d7",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [
+        {
+          "line": 28,
+          "text": "| STORE 发起 | CPU `mem_start_x` 且本指令为 STORE，保存 PC、地址、数据、字节掩码 |"
+        }
+      ],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "run_coremark_axi_write_profile.do",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\run_coremark_axi_write_profile.do",
+      "exists": true,
+      "tracked": false,
+      "bytes": 2826,
+      "sha256": "dd989e7d3f570d094a11bd64e42534891f1c086b8ce599551f2b21cc6c3077dd",
+      "canonical_lf_sha256": "dd989e7d3f570d094a11bd64e42534891f1c086b8ce599551f2b21cc6c3077dd",
+      "line_count": 45,
+      "git_status_porcelain": "?? run_coremark_axi_write_profile.do",
+      "origin": "pre-existing untracked workspace file; no committed provenance; inventoried, not installed or validated",
+      "anchors": [],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "tb/coremark_axi_write_profile_tb.v",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\tb\\coremark_axi_write_profile_tb.v",
+      "exists": true,
+      "tracked": false,
+      "bytes": 28061,
+      "sha256": "25535286471bb0dae1cdaf2d15db820cbcf0bb0e904c7560b86aca31c17c60f7",
+      "canonical_lf_sha256": "25535286471bb0dae1cdaf2d15db820cbcf0bb0e904c7560b86aca31c17c60f7",
+      "line_count": 444,
+      "git_status_porcelain": "?? tb/coremark_axi_write_profile_tb.v",
+      "origin": "pre-existing untracked workspace file; no committed provenance; inventoried, not installed or validated",
+      "anchors": [
+        {
+          "line": 12,
+          "text": "`define CMW_CPU workload.dut.u_core.u_cpu"
+        },
+        {
+          "line": 13,
+          "text": "`define CMW_CORE workload.dut.u_core"
+        },
+        {
+          "line": 14,
+          "text": "`define CMW_SOC workload.dut"
+        },
+        {
+          "line": 15,
+          "text": "`define CMW_RAM workload.dut.u_ram"
+        },
+        {
+          "line": 16,
+          "text": "`define CMW_STATS workload.dut.u_stats"
+        },
+        {
+          "line": 36,
+          "text": "integer start_edge=-1,stop_edge=-1,start_triggers=0,stop_triggers=0,crossings=0;"
+        },
+        {
+          "line": 236,
+          "text": "$fwrite(tx_file,\"profile,transaction,status,in_window,window_epoch,region,cache_class,pc,addr,wdata,wstrb,launch,cpu_req,bridge_req,up_aw,up_w,up_pair,down_aw,down_w,down_pair,ram_commit,ram_b_first,router_b_first,bridge_b_first,down_b_handshake,up_b_handshake,bridge_rsp_first,bridge_rsp,cpu_rsp_first,cpu_rsp,retire,ram_effects,data_write_wait,window_data_write_wait,total_cycles\\n\");"
+        },
+        {
+          "line": 237,
+          "text": "$fwrite(summary_file,\"profile,group,metric,classification,count,min_cycles,max_cycles,mean_cycles,total_cycles\\n\");"
+        },
+        {
+          "line": 238,
+          "text": "$fwrite(window_file,\"key,value\\n\");"
+        },
+        {
+          "line": 242,
+          "text": "start_triggers<1 || stop_triggers!=1 || window_live || crossings!=0 || window_stores==0)"
+        },
+        {
+          "line": 264,
+          "text": "$fwrite(window_file,\"profile,%0s\\nstart_edge,%0d\\nstop_edge,%0d\\nstart_counter,%0d\\nstop_counter,%0d\\nwindow_cycles,%0d\\n\","
+        },
+        {
+          "line": 266,
+          "text": "$fwrite(window_file,\"start_triggers,%0d\\nstop_triggers,%0d\\nselected_epoch,%0d\\n\",start_triggers,stop_triggers,window_epoch);"
+        },
+        {
+          "line": 285,
+          "text": "always @(posedge clk) begin"
+        },
+        {
+          "line": 297,
+          "text": "start_triggers=start_triggers+1;"
+        },
+        {
+          "line": 298,
+          "text": "if(stop_triggers!=0 || active || (`CMW_CPU.mem_start_x && `CMW_CPU.is_store_x)) begin"
+        },
+        {
+          "line": 305,
+          "text": "if(stop_triggers!=1 || !window_live || active || (`CMW_CPU.mem_start_x && `CMW_CPU.is_store_x)) begin"
+        },
+        {
+          "line": 313,
+          "text": "`CMW_CPU.stall_x && (`CMW_CPU.mem_active || `CMW_CPU.mem_start_x) && !`CMW_CPU.mem_req_mmio && `CMW_CPU.mem_req_write;"
+        },
+        {
+          "line": 315,
+          "text": "`CMW_CPU.stall_x && (`CMW_CPU.mem_active || `CMW_CPU.mem_start_x) && `CMW_CPU.mem_req_mmio && `CMW_CPU.mem_req_write;"
+        },
+        {
+          "line": 316,
+          "text": "if(`CMW_CPU.mem_start_x && `CMW_CPU.is_store_x) begin"
+        },
+        {
+          "line": 392,
+          "text": "#1;"
+        }
+      ],
+      "macro_bindings": [
+        {
+          "line": 12,
+          "macro": "CMW_CPU",
+          "expansion": "workload.dut.u_core.u_cpu"
+        },
+        {
+          "line": 13,
+          "macro": "CMW_CORE",
+          "expansion": "workload.dut.u_core"
+        },
+        {
+          "line": 14,
+          "macro": "CMW_SOC",
+          "expansion": "workload.dut"
+        },
+        {
+          "line": 15,
+          "macro": "CMW_RAM",
+          "expansion": "workload.dut.u_ram"
+        },
+        {
+          "line": 16,
+          "macro": "CMW_STATS",
+          "expansion": "workload.dut.u_stats"
+        }
+      ],
+      "csv_literal_headers": [
+        {
+          "line": 236,
+          "stream": "tx_file",
+          "columns": [
+            "profile",
+            "transaction",
+            "status",
+            "in_window",
+            "window_epoch",
+            "region",
+            "cache_class",
+            "pc",
+            "addr",
+            "wdata",
+            "wstrb",
+            "launch",
+            "cpu_req",
+            "bridge_req",
+            "up_aw",
+            "up_w",
+            "up_pair",
+            "down_aw",
+            "down_w",
+            "down_pair",
+            "ram_commit",
+            "ram_b_first",
+            "router_b_first",
+            "bridge_b_first",
+            "down_b_handshake",
+            "up_b_handshake",
+            "bridge_rsp_first",
+            "bridge_rsp",
+            "cpu_rsp_first",
+            "cpu_rsp",
+            "retire",
+            "ram_effects",
+            "data_write_wait",
+            "window_data_write_wait",
+            "total_cycles"
+          ]
+        },
+        {
+          "line": 237,
+          "stream": "summary_file",
+          "columns": [
+            "profile",
+            "group",
+            "metric",
+            "classification",
+            "count",
+            "min_cycles",
+            "max_cycles",
+            "mean_cycles",
+            "total_cycles"
+          ]
+        },
+        {
+          "line": 238,
+          "stream": "window_file",
+          "columns": [
+            "key",
+            "value"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tools/analyze_coremark_axi_write_profile.py",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\tools\\analyze_coremark_axi_write_profile.py",
+      "exists": true,
+      "tracked": false,
+      "bytes": 14719,
+      "sha256": "e7937e4f66f5d3c09178f7cd7c1a1b43cf328f651d77a50d5c228fa04c2f6a1a",
+      "canonical_lf_sha256": "e7937e4f66f5d3c09178f7cd7c1a1b43cf328f651d77a50d5c228fa04c2f6a1a",
+      "line_count": 244,
+      "git_status_porcelain": "?? tools/analyze_coremark_axi_write_profile.py",
+      "origin": "pre-existing untracked workspace file; no committed provenance; inventoried, not installed or validated",
+      "anchors": [
+        {
+          "line": 114,
+          "text": "\"stage_wait_sum\", \"boundary_residual\", \"boundary_crossings\", \"canceled\", \"errors\", \"start_triggers\", \"stop_triggers\", \"selected_epoch\","
+        },
+        {
+          "line": 122,
+          "text": "start, stop, epoch = numbers[\"start_edge\"], numbers[\"stop_edge\"], numbers[\"selected_epoch\"]"
+        },
+        {
+          "line": 126,
+          "text": "require(epoch == numbers[\"start_triggers\"] and epoch > 0, \"START re-arm epoch mismatch\")"
+        },
+        {
+          "line": 204,
+          "text": "\"start_triggers\": epoch, \"window_cycles\": cycles, \"window_instret\": numbers[\"window_instret\"],"
+        },
+        {
+          "line": 231,
+          "text": "result = {\"schema_version\": 1, \"verification\": \"PASS\","
+        }
+      ],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "docs/coremark_axi_write_profile.md",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\docs\\coremark_axi_write_profile.md",
+      "exists": true,
+      "tracked": false,
+      "bytes": 8632,
+      "sha256": "bbd0e25eb0e15feb72188893087e475550e54a7f2f8c14300d53fee3a66c5878",
+      "canonical_lf_sha256": "bbd0e25eb0e15feb72188893087e475550e54a7f2f8c14300d53fee3a66c5878",
+      "line_count": 94,
+      "git_status_porcelain": "?? docs/coremark_axi_write_profile.md",
+      "origin": "pre-existing untracked workspace file; no committed provenance; inventoried, not installed or validated",
+      "anchors": [
+        {
+          "line": 29,
+          "text": "初始化读取统计 ID 也会触发一次 START，随后 `start_time()` 再触发 START。与硬件快照一致，监控器在 STOP 前每次 START 重置窗口账本，以最后一次 START 为最终起点。原始事务保留 `window_epoch`；汇总只选择 `in_window=1` 且 `window_epoch=selected_epoch`，初始化阶段的早期代次不会计入最终结果。"
+        }
+      ],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "run_coremark_d0_measure.do",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\run_coremark_d0_measure.do",
+      "exists": true,
+      "tracked": true,
+      "bytes": 2163,
+      "sha256": "0ecc656a91331af3bda45383ff84af58e7bc9baa6c24bd40583ddb9ee34e89af",
+      "canonical_lf_sha256": "6ccf514bd6bdd88fffc73642719199102396456f3a779631e9bcb1d5bca4cd1d",
+      "line_count": 25,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "ae258318320373631b93b1e2bd19984019560f7a",
+      "head_blob_sha256": "6ccf514bd6bdd88fffc73642719199102396456f3a779631e9bcb1d5bca4cd1d",
+      "head_blob_canonical_lf_sha256": "6ccf514bd6bdd88fffc73642719199102396456f3a779631e9bcb1d5bca4cd1d",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "347982c30c88095d4a6406bd26c535b7b9f468b5",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "tb/coremark_d0_measure_tb.v",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\tb\\coremark_d0_measure_tb.v",
+      "exists": true,
+      "tracked": true,
+      "bytes": 9796,
+      "sha256": "aa4e95a282752b983605c3ac0c24bcd4bb807cd5aa0661e56128d3749597d173",
+      "canonical_lf_sha256": "aa4e95a282752b983605c3ac0c24bcd4bb807cd5aa0661e56128d3749597d173",
+      "line_count": 124,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "c72d21510ed662c948932a07dd98653a85237c4a",
+      "head_blob_sha256": "aa4e95a282752b983605c3ac0c24bcd4bb807cd5aa0661e56128d3749597d173",
+      "head_blob_canonical_lf_sha256": "aa4e95a282752b983605c3ac0c24bcd4bb807cd5aa0661e56128d3749597d173",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "f115192264d205c149d4c8473d035c10d5fb9f01",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [
+        {
+          "line": 6,
+          "text": "`define D0_CPU workload.dut.u_core.u_cpu"
+        },
+        {
+          "line": 7,
+          "text": "`define D0_CORE workload.dut.u_core"
+        },
+        {
+          "line": 8,
+          "text": "`define D0_RAM workload.dut.u_core.g_d0_bram.u_ram"
+        },
+        {
+          "line": 9,
+          "text": "`define D0_STATS workload.dut.u_stats"
+        },
+        {
+          "line": 12,
+          "text": "coremark_d0_workload_tb #(.STOP_ON_PASS(0),.ENABLE_D0_BRAM(1)) workload();"
+        },
+        {
+          "line": 15,
+          "text": "integer edge_number=0,transaction=0,epoch=0,starts=0,stops=0,start_edge=-1,stop_edge=-1;"
+        },
+        {
+          "line": 28,
+          "text": "$fwrite(tx_file,\"profile,transaction,epoch,in_window,pc,addr,wdata,wstrb,size,hit,launch,cpu_accept,backend_accept,commit,cpu_response,retire,effects,data_write_wait,total_cycles\\n\");"
+        },
+        {
+          "line": 31,
+          "text": "if(active||completed!=transaction||completed!=total_effects||starts<1||stops!=1||epoch!=starts||live||window_stores==0)"
+        },
+        {
+          "line": 39,
+          "text": "$fwrite(window_file,\"key,value\\nprofile,%0s\\nstart_triggers,%0d\\nselected_start_triggers,1\\nstop_triggers,%0d\\nepoch,%0d\\nstart_edge,%0d\\nstop_edge,%0d\\nstart_counter,%0d\\nstop_counter,%0d\\nwindow_cycles,%0d\\nwindow_instret,%0d\\nstores_total,%0d\\neffects_total,%0d\\nstores_window,%0d\\neffects_window,%0d\\nmeasured_data_write_wait,%0d\\nfrozen_data_write_wait,%0d\\nboundary_crossings,0\\nerrors,0\\ncanceled,0\\n\","
+        },
+        {
+          "line": 49,
+          "text": "always @(posedge clk) begin"
+        },
+        {
+          "line": 57,
+          "text": "starts=starts+1;epoch=epoch+1;start_edge=edge_number;start_counter=workload.cycle_count;live=1;"
+        },
+        {
+          "line": 67,
+          "text": "`D0_CPU.stall_x&&(`D0_CPU.mem_active||`D0_CPU.mem_start_x)&&!`D0_CPU.mem_req_mmio&&`D0_CPU.mem_req_write;"
+        },
+        {
+          "line": 70,
+          "text": "if(`D0_CPU.mem_start_x&&`D0_CPU.is_store_x&&!`D0_CPU.mem_req_mmio) begin"
+        },
+        {
+          "line": 103,
+          "text": "#1;"
+        }
+      ],
+      "macro_bindings": [
+        {
+          "line": 6,
+          "macro": "D0_CPU",
+          "expansion": "workload.dut.u_core.u_cpu"
+        },
+        {
+          "line": 7,
+          "macro": "D0_CORE",
+          "expansion": "workload.dut.u_core"
+        },
+        {
+          "line": 8,
+          "macro": "D0_RAM",
+          "expansion": "workload.dut.u_core.g_d0_bram.u_ram"
+        },
+        {
+          "line": 9,
+          "macro": "D0_STATS",
+          "expansion": "workload.dut.u_stats"
+        }
+      ],
+      "csv_literal_headers": [
+        {
+          "line": 28,
+          "stream": "tx_file",
+          "columns": [
+            "profile",
+            "transaction",
+            "epoch",
+            "in_window",
+            "pc",
+            "addr",
+            "wdata",
+            "wstrb",
+            "size",
+            "hit",
+            "launch",
+            "cpu_accept",
+            "backend_accept",
+            "commit",
+            "cpu_response",
+            "retire",
+            "effects",
+            "data_write_wait",
+            "total_cycles"
+          ]
+        },
+        {
+          "line": 39,
+          "stream": "window_file",
+          "columns": [
+            "key",
+            "value"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tools/analyze_coremark_d0_measure.py",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\tools\\analyze_coremark_d0_measure.py",
+      "exists": true,
+      "tracked": true,
+      "bytes": 5984,
+      "sha256": "847799e4f24263ee9a1ff1faede35a615d20ee4f90f9b4821444b7352a666ca8",
+      "canonical_lf_sha256": "847799e4f24263ee9a1ff1faede35a615d20ee4f90f9b4821444b7352a666ca8",
+      "line_count": 71,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "43e23d5ce952c727377203fb5c3b3eba2678301e",
+      "head_blob_sha256": "847799e4f24263ee9a1ff1faede35a615d20ee4f90f9b4821444b7352a666ca8",
+      "head_blob_canonical_lf_sha256": "847799e4f24263ee9a1ff1faede35a615d20ee4f90f9b4821444b7352a666ca8",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "f115192264d205c149d4c8473d035c10d5fb9f01",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [
+        {
+          "line": 28,
+          "text": "require(n['start_triggers']>=1 and n['selected_start_triggers']==1 and n['epoch']==n['start_triggers'] and n['stop_triggers']==1,'latest-START lifecycle invalid')"
+        },
+        {
+          "line": 60,
+          "text": "'unknown_data_stores_window':unknown,'start_triggers':n['start_triggers'],'selected_epoch':n['epoch'],"
+        },
+        {
+          "line": 67,
+          "text": "result={'schema_version':1,'verification':'PASS','profiles':[analyze(args.directory,name) for name in ('smoke','smoke-validation')]}"
+        }
+      ],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "run_cpu_cycle_profile.do",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\run_cpu_cycle_profile.do",
+      "exists": true,
+      "tracked": true,
+      "bytes": 1248,
+      "sha256": "d071d1c4e71312cfa82b7230c7bf48e5eb5d56fcdabfb7cf983abdb110e2268c",
+      "canonical_lf_sha256": "2a662b1df8f6bf7022b77361a5fe13d3e6f72e053bfed40c727ae70c9109a671",
+      "line_count": 25,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "3646d1a25b0577c6fe11ec9154cf5feefdcaed6e",
+      "head_blob_sha256": "2a662b1df8f6bf7022b77361a5fe13d3e6f72e053bfed40c727ae70c9109a671",
+      "head_blob_canonical_lf_sha256": "2a662b1df8f6bf7022b77361a5fe13d3e6f72e053bfed40c727ae70c9109a671",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "347982c30c88095d4a6406bd26c535b7b9f468b5",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "tb/cpu_cycle_profile_tb.v",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\tb\\cpu_cycle_profile_tb.v",
+      "exists": true,
+      "tracked": true,
+      "bytes": 17037,
+      "sha256": "676f708c77347ffa6b68ae0ccc5a7eee6e93b919bbe14123c047b014377ecfe6",
+      "canonical_lf_sha256": "676f708c77347ffa6b68ae0ccc5a7eee6e93b919bbe14123c047b014377ecfe6",
+      "line_count": 351,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "31508563c7d4714d2dabe380c83d90ffa9d30403",
+      "head_blob_sha256": "676f708c77347ffa6b68ae0ccc5a7eee6e93b919bbe14123c047b014377ecfe6",
+      "head_blob_canonical_lf_sha256": "676f708c77347ffa6b68ae0ccc5a7eee6e93b919bbe14123c047b014377ecfe6",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "8777e7bad29a2be5df1f0eb6ecd6be30a54ef719",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [
+        {
+          "line": 112,
+          "text": "#1;"
+        },
+        {
+          "line": 160,
+          "text": "always @(posedge clk) begin"
+        },
+        {
+          "line": 199,
+          "text": "always @(posedge clk) begin"
+        },
+        {
+          "line": 211,
+          "text": "if (dut.stall_x && (dut.mem_active || dut.mem_start_x)) begin"
+        },
+        {
+          "line": 245,
+          "text": "#1;"
+        },
+        {
+          "line": 258,
+          "text": "if (retire_valid) begin"
+        },
+        {
+          "line": 314,
+          "text": "always @(posedge clk) begin"
+        },
+        {
+          "line": 336,
+          "text": "#1; previous_cycles = cycles;"
+        },
+        {
+          "line": 338,
+          "text": "@(posedge clk); #1;"
+        },
+        {
+          "line": 345,
+          "text": "#1;"
+        }
+      ],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "docs/cycle_profile.md",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\docs\\cycle_profile.md",
+      "exists": true,
+      "tracked": true,
+      "bytes": 7116,
+      "sha256": "3d425ebfbb6e4d7a0d5ab5b5234f965a4b3f74d2b4557b4d8fa950c3941516ee",
+      "canonical_lf_sha256": "3d425ebfbb6e4d7a0d5ab5b5234f965a4b3f74d2b4557b4d8fa950c3941516ee",
+      "line_count": 83,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "6c5f28e17983043954b3a0e3797bdac930424e51",
+      "head_blob_sha256": "3d425ebfbb6e4d7a0d5ab5b5234f965a4b3f74d2b4557b4d8fa950c3941516ee",
+      "head_blob_canonical_lf_sha256": "3d425ebfbb6e4d7a0d5ab5b5234f965a4b3f74d2b4557b4d8fa950c3941516ee",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "b3b3c242d76380ac1714eebf5b368d88fbbce27d",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [
+        {
+          "line": 18,
+          "text": "数据等待的精确条件为 `stall_x && (mem_active || mem_start_x)`，使用当前或已锁存的事务方向及本地 MMIO 属性。成功响应使 `stall_x` 解除，该完成边沿归入 `work_other`。分类包括 CPU 端看到的 Cache 命中延迟、缺失填充和 AXI 延迟，不能直接等同于 AXI 单独的开销。统计从设备位于 `0x30000000`，访问它产生的少量边界周期也属于非本地数据等待。"
+        }
+      ],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "run_coremark_m.do",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\run_coremark_m.do",
+      "exists": true,
+      "tracked": true,
+      "bytes": 1848,
+      "sha256": "3c9ddf0b374c74d2cddb826a9877fd7616562c016e4e93fa3dda6377b729218f",
+      "canonical_lf_sha256": "3798b8787740a0fdddbc90fa7abced5e09ce064775ca28675236a5e59ca67633",
+      "line_count": 23,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "e29910ae96e852b2717d1cd31e4bd519117ffa51",
+      "head_blob_sha256": "3798b8787740a0fdddbc90fa7abced5e09ce064775ca28675236a5e59ca67633",
+      "head_blob_canonical_lf_sha256": "3798b8787740a0fdddbc90fa7abced5e09ce064775ca28675236a5e59ca67633",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "347982c30c88095d4a6406bd26c535b7b9f468b5",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "tb/coremark_axi_tb.v",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\tb\\coremark_axi_tb.v",
+      "exists": true,
+      "tracked": true,
+      "bytes": 22783,
+      "sha256": "d623e1daf08c35a39a73387375890e03a74940fda7c5e5a2af91ee3369db12fc",
+      "canonical_lf_sha256": "8692019a55d08ed2977d79da323485225fd634e060339ea9ce0580e2a5aeed3e",
+      "line_count": 380,
+      "git_status_porcelain": "M tb/coremark_axi_tb.v",
+      "head_blob_sha1": "175e237924ed18297bc26f6236078f6baaaea8ec",
+      "head_blob_sha256": "5efaccdd46ad6c192eecd2562934c4a3063ad789efdfdbc60e4daefb015e72a6",
+      "head_blob_canonical_lf_sha256": "5efaccdd46ad6c192eecd2562934c4a3063ad789efdfdbc60e4daefb015e72a6",
+      "worktree_matches_head_canonical_lf": false,
+      "last_commit": "347982c30c88095d4a6406bd26c535b7b9f468b5",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [
+        {
+          "line": 112,
+          "text": "always @(posedge clk) if (rst_n) begin"
+        },
+        {
+          "line": 167,
+          "text": "#1;"
+        },
+        {
+          "line": 228,
+          "text": "expected_cycle_delta = {dut.u_stats.stop_snapshot[1], dut.u_stats.stop_snapshot[0]} -"
+        },
+        {
+          "line": 229,
+          "text": "{dut.u_stats.start_snapshot[1], dut.u_stats.start_snapshot[0]};"
+        },
+        {
+          "line": 253,
+          "text": "profile_start_sum !== {dut.u_stats.start_snapshot[1], dut.u_stats.start_snapshot[0]} ||"
+        },
+        {
+          "line": 254,
+          "text": "profile_stop_sum !== {dut.u_stats.stop_snapshot[1], dut.u_stats.stop_snapshot[0]})"
+        }
+      ],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "tb/coremark_d0_workload_tb.v",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\tb\\coremark_d0_workload_tb.v",
+      "exists": true,
+      "tracked": true,
+      "bytes": 24453,
+      "sha256": "dcb7b94e0a43cd3258d3b7fd05f013506111c7fe1704868afbb26e0ac6a6d0fa",
+      "canonical_lf_sha256": "3ddb28da28279238869fdbbb51bcc05efa78be61517c422d0916b8fda857bf27",
+      "line_count": 414,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "74ea147ecf12537e81463fddadce4633f775fd74",
+      "head_blob_sha256": "3ddb28da28279238869fdbbb51bcc05efa78be61517c422d0916b8fda857bf27",
+      "head_blob_canonical_lf_sha256": "3ddb28da28279238869fdbbb51bcc05efa78be61517c422d0916b8fda857bf27",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "347982c30c88095d4a6406bd26c535b7b9f468b5",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [
+        {
+          "line": 66,
+          "text": ".ENABLE_D0_BRAM(ENABLE_D0_BRAM),"
+        },
+        {
+          "line": 131,
+          "text": "always @(posedge clk) if (rst_n) begin"
+        },
+        {
+          "line": 195,
+          "text": "#1;"
+        },
+        {
+          "line": 256,
+          "text": "expected_cycle_delta = {dut.u_stats.stop_snapshot[1], dut.u_stats.stop_snapshot[0]} -"
+        },
+        {
+          "line": 257,
+          "text": "{dut.u_stats.start_snapshot[1], dut.u_stats.start_snapshot[0]};"
+        },
+        {
+          "line": 281,
+          "text": "profile_start_sum !== {dut.u_stats.start_snapshot[1], dut.u_stats.start_snapshot[0]} ||"
+        },
+        {
+          "line": 282,
+          "text": "profile_stop_sum !== {dut.u_stats.stop_snapshot[1], dut.u_stats.stop_snapshot[0]})"
+        }
+      ],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "tools/coremark_axi_contract.py",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\tools\\coremark_axi_contract.py",
+      "exists": true,
+      "tracked": true,
+      "bytes": 10168,
+      "sha256": "6af891479986f4595f5b64867da3b4d8eaffdc6090778b464fb151d4ce26dcfe",
+      "canonical_lf_sha256": "dd38fd7eb61ec4151d81f32b4a19ae001a67ab0ad1ec93d0e3f1cb9393ebc478",
+      "line_count": 176,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "6145cc4937bb8e4ea45f35e5bdf264deaedf1e17",
+      "head_blob_sha256": "dd38fd7eb61ec4151d81f32b4a19ae001a67ab0ad1ec93d0e3f1cb9393ebc478",
+      "head_blob_canonical_lf_sha256": "dd38fd7eb61ec4151d81f32b4a19ae001a67ab0ad1ec93d0e3f1cb9393ebc478",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "347982c30c88095d4a6406bd26c535b7b9f468b5",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "tools/regression_suites.json",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\tools\\regression_suites.json",
+      "exists": true,
+      "tracked": true,
+      "bytes": 51952,
+      "sha256": "88334d3eab21b9a83bbbc89bdf827777fdead493c3598dbb48335e81ebd27101",
+      "canonical_lf_sha256": "2889ff5ac40c786844fd9b1a9dc4cd52d30af8a60fa1d100d23387d9d2e497a4",
+      "line_count": 1215,
+      "git_status_porcelain": "M tools/regression_suites.json",
+      "head_blob_sha1": "f97e7a2e0d7f04c1e40b0974d01f858ccc7cffb4",
+      "head_blob_sha256": "7e59eb6df5ddc0e069fd3651a98c22cfad8dc72477df32430bb1237691a7f221",
+      "head_blob_canonical_lf_sha256": "7e59eb6df5ddc0e069fd3651a98c22cfad8dc72477df32430bb1237691a7f221",
+      "worktree_matches_head_canonical_lf": false,
+      "last_commit": "96517c5ea317479394e70701fbc32687b41524d7",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [
+        {
+          "line": 2,
+          "text": "\"schema_version\": 1,"
+        }
+      ],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "rtl/cpu_top.v",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\rtl\\cpu_top.v",
+      "exists": true,
+      "tracked": true,
+      "bytes": 64127,
+      "sha256": "80355b3dbfa93d3f22508dafe38737657172731aec2be3f1674ff674bcbf3a6b",
+      "canonical_lf_sha256": "fcde55d0e42b9b5cb3f1d2ace371610b363aab4593fcdf0c3d8712000852e6ac",
+      "line_count": 1676,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "ec3d62cddb522618930b0b2c60734a99aa2ad004",
+      "head_blob_sha256": "fcde55d0e42b9b5cb3f1d2ace371610b363aab4593fcdf0c3d8712000852e6ac",
+      "head_blob_canonical_lf_sha256": "fcde55d0e42b9b5cb3f1d2ace371610b363aab4593fcdf0c3d8712000852e6ac",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "347982c30c88095d4a6406bd26c535b7b9f468b5",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [
+        {
+          "line": 227,
+          "text": "wire        mem_start_x;"
+        },
+        {
+          "line": 244,
+          "text": "wire        mmio_endpoint_fire;"
+        },
+        {
+          "line": 266,
+          "text": "wire        retire_to_wb;"
+        },
+        {
+          "line": 374,
+          "text": "always @(posedge clk or negedge rst_n) begin"
+        },
+        {
+          "line": 387,
+          "text": "always @(posedge clk or negedge rst_n) begin"
+        },
+        {
+          "line": 429,
+          "text": "wire        bp_resolve_valid, bp_predictable_x, bp_actual_taken_x;"
+        },
+        {
+          "line": 430,
+          "text": "wire        bp_next_mismatch_x, bp_direction_error_x, bp_target_error_x;"
+        },
+        {
+          "line": 473,
+          "text": ".bp_update_valid((ENABLE_BRANCH_PRED != 0) && bp_resolve_valid),"
+        },
+        {
+          "line": 794,
+          "text": "assign bp_resolve_valid = rst_n && !dmem_fault && valid_x &&"
+        },
+        {
+          "line": 799,
+          "text": "assign bp_predictable_x = is_branch_x || is_jal_x;"
+        },
+        {
+          "line": 801,
+          "text": "assign bp_next_mismatch_x = (predicted_next_pc_x != actual_next_pc_x);"
+        },
+        {
+          "line": 802,
+          "text": "assign bp_direction_error_x = bp_predictable_x &&"
+        },
+        {
+          "line": 804,
+          "text": "assign bp_target_error_x = bp_predictable_x && prediction_taken_x &&"
+        },
+        {
+          "line": 805,
+          "text": "bp_actual_taken_x && bp_next_mismatch_x;"
+        },
+        {
+          "line": 807,
+          "text": "(bp_resolve_valid && bp_next_mismatch_x) :"
+        },
+        {
+          "line": 878,
+          "text": "always @(posedge clk or negedge rst_n) begin"
+        },
+        {
+          "line": 884,
+          "text": "end else if ((ENABLE_BRANCH_PRED != 0) && bp_resolve_valid) begin"
+        },
+        {
+          "line": 885,
+          "text": "if (bp_predictable_x) bp_resolved_count <= bp_resolved_count + 1;"
+        },
+        {
+          "line": 886,
+          "text": "if (bp_next_mismatch_x) bp_mispredict_count <= bp_mispredict_count + 1;"
+        },
+        {
+          "line": 892,
+          "text": "always @(posedge clk or negedge rst_n) begin"
+        },
+        {
+          "line": 940,
+          "text": "always @(posedge clk or negedge rst_n) begin"
+        },
+        {
+          "line": 947,
+          "text": "else if (retire_to_wb) begin"
+        },
+        {
+          "line": 1012,
+          "text": "always @(posedge clk or negedge rst_n) begin"
+        },
+        {
+          "line": 1153,
+          "text": "assign mmio_putchar_write_x = mmio_endpoint_fire && mmio_endpoint_write_q &&"
+        },
+        {
+          "line": 1159,
+          "text": "assign mmio_gpio_write_x = mmio_endpoint_fire && mmio_endpoint_write_q &&"
+        },
+        {
+          "line": 1163,
+          "text": "assign mmio_uart_rx_write_x = mmio_endpoint_fire && mmio_endpoint_write_q &&"
+        },
+        {
+          "line": 1167,
+          "text": "assign mmio_timer_write_x = mmio_endpoint_fire && mmio_endpoint_write_q &&"
+        },
+        {
+          "line": 1171,
+          "text": "assign mmio_msip_write_x = mmio_endpoint_fire && mmio_endpoint_write_q &&"
+        },
+        {
+          "line": 1192,
+          "text": ".read_enable(mmio_endpoint_fire && !mmio_endpoint_write_q && mmio_load_ok_x),"
+        },
+        {
+          "line": 1249,
+          "text": "assign mem_start_x = rst_n && !dmem_fault && !mem_active && valid_x &&"
+        },
+        {
+          "line": 1252,
+          "text": "(mem_active || mem_start_x);"
+        },
+        {
+          "line": 1273,
+          "text": "assign mmio_endpoint_fire = rst_n && local_req_ready && mmio_endpoint_pending &&"
+        },
+        {
+          "line": 1276,
+          "text": "always @(posedge clk or negedge rst_n) begin"
+        },
+        {
+          "line": 1285,
+          "text": "end else if (mmio_endpoint_fire) begin"
+        },
+        {
+          "line": 1335,
+          "text": "((mem_active || mem_start_x) && !mem_rsp_success);"
+        },
+        {
+          "line": 1372,
+          "text": "always @(posedge clk or negedge rst_n) begin"
+        },
+        {
+          "line": 1393,
+          "text": "load_mmio_data_q <= 32'd0;"
+        },
+        {
+          "line": 1395,
+          "text": "if (mem_start_x) begin"
+        },
+        {
+          "line": 1418,
+          "text": "load_mmio_data_q <= mmio_read_data_x;"
+        },
+        {
+          "line": 1433,
+          "text": "always @(posedge clk) begin"
+        },
+        {
+          "line": 1445,
+          "text": "always @(posedge clk or negedge rst_n) begin"
+        },
+        {
+          "line": 1487,
+          "text": "always @(posedge clk) begin"
+        },
+        {
+          "line": 1543,
+          "text": "always @(posedge clk or negedge rst_n) begin"
+        },
+        {
+          "line": 1592,
+          "text": "always @(posedge clk or negedge rst_n) begin"
+        },
+        {
+          "line": 1594,
+          "text": "perf_cycle_events <= 6'b000000;"
+        },
+        {
+          "line": 1607,
+          "text": "perf_cycle_events <= 6'b000000;"
+        },
+        {
+          "line": 1609,
+          "text": "if (stall_x && (mem_active || mem_start_x)) begin"
+        },
+        {
+          "line": 1611,
+          "text": "perf_cycle_events <= 6'b010000;"
+        },
+        {
+          "line": 1613,
+          "text": "perf_cycle_events <= 6'b001000;"
+        },
+        {
+          "line": 1615,
+          "text": "perf_cycle_events <= 6'b000100;"
+        },
+        {
+          "line": 1619,
+          "text": "perf_cycle_events <= 6'b100000;"
+        },
+        {
+          "line": 1621,
+          "text": "perf_cycle_events <= 6'b000010;"
+        },
+        {
+          "line": 1623,
+          "text": "perf_cycle_events <= 6'b000001;"
+        },
+        {
+          "line": 1628,
+          "text": "assign retire_to_wb ="
+        },
+        {
+          "line": 1641,
+          "text": "always @(posedge clk or negedge rst_n) begin"
+        },
+        {
+          "line": 1643,
+          "text": "retire_valid     <= 1'b0;"
+        },
+        {
+          "line": 1648,
+          "text": "retire_valid <= retire_to_wb;"
+        },
+        {
+          "line": 1659,
+          "text": "if (retire_valid)"
+        }
+      ],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "rtl/if_stage.v",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\rtl\\if_stage.v",
+      "exists": true,
+      "tracked": true,
+      "bytes": 12571,
+      "sha256": "c2dd341e85cd38a76f48ad495c5e5c5d4349854d293fe2e1779b9d783db2dbec",
+      "canonical_lf_sha256": "028464cec28c3e8348fc06d970740726cfe3664ccd8fc93aae343e301ee61927",
+      "line_count": 274,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "a68330da40b1666eb7754a3ccdec098e94a2ea9c",
+      "head_blob_sha256": "028464cec28c3e8348fc06d970740726cfe3664ccd8fc93aae343e301ee61927",
+      "head_blob_canonical_lf_sha256": "028464cec28c3e8348fc06d970740726cfe3664ccd8fc93aae343e301ee61927",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "7e4b7854c69cbc249045890e8be65bb2d475de0f",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [
+        {
+          "line": 101,
+          "text": "always @(posedge clk or negedge rst_n) begin"
+        },
+        {
+          "line": 174,
+          "text": "always @(posedge clk or negedge rst_n) begin"
+        }
+      ],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "rtl/branch_predictor.v",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\rtl\\branch_predictor.v",
+      "exists": true,
+      "tracked": true,
+      "bytes": 6420,
+      "sha256": "27d6ab676db29b48a902e7ae68775e736e7be354b4c61dba495353fd537df578",
+      "canonical_lf_sha256": "27d6ab676db29b48a902e7ae68775e736e7be354b4c61dba495353fd537df578",
+      "line_count": 131,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "2a775ce8e5329f47f70b37d03dc0a465ae26ce80",
+      "head_blob_sha256": "27d6ab676db29b48a902e7ae68775e736e7be354b4c61dba495353fd537df578",
+      "head_blob_canonical_lf_sha256": "27d6ab676db29b48a902e7ae68775e736e7be354b4c61dba495353fd537df578",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "7e4b7854c69cbc249045890e8be65bb2d475de0f",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [
+        {
+          "line": 86,
+          "text": "always @(posedge clk or negedge rst_n) begin"
+        }
+      ],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "rtl/soc_axi_lite_top.v",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\rtl\\soc_axi_lite_top.v",
+      "exists": true,
+      "tracked": true,
+      "bytes": 14953,
+      "sha256": "225b0b69b0cd2b4b29cd17e064fef10bd4df4dd9c8c514c34e8c9195344acc76",
+      "canonical_lf_sha256": "ef2c4edabadd2e09ea702c4e0dd81d0f841378dee67418f73f03e7822d4355c3",
+      "line_count": 269,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "701e685a9f6281ad42fb1b1e4f1fc49dc78d75ea",
+      "head_blob_sha256": "ef2c4edabadd2e09ea702c4e0dd81d0f841378dee67418f73f03e7822d4355c3",
+      "head_blob_canonical_lf_sha256": "ef2c4edabadd2e09ea702c4e0dd81d0f841378dee67418f73f03e7822d4355c3",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "347982c30c88095d4a6406bd26c535b7b9f468b5",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "rtl/soc_coremark_axi_top.v",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\rtl\\soc_coremark_axi_top.v",
+      "exists": true,
+      "tracked": true,
+      "bytes": 12562,
+      "sha256": "6ae296042f46c3268ec41bf1eca71e315a1b2338f757b298d948ec2851fc8d3d",
+      "canonical_lf_sha256": "86709be8b417990cf86ba7eb308510f04ca5ebe068718ed3fe544b65665e6eb8",
+      "line_count": 242,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "ff4c908d2ed5c95a23f21968a04dd96fbef2d1bf",
+      "head_blob_sha256": "86709be8b417990cf86ba7eb308510f04ca5ebe068718ed3fe544b65665e6eb8",
+      "head_blob_canonical_lf_sha256": "86709be8b417990cf86ba7eb308510f04ca5ebe068718ed3fe544b65665e6eb8",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "347982c30c88095d4a6406bd26c535b7b9f468b5",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [
+        {
+          "line": 63,
+          "text": ".ENABLE_D0_BRAM(ENABLE_D0_BRAM),"
+        }
+      ],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "rtl/axi_lite_coremark_stats.v",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\rtl\\axi_lite_coremark_stats.v",
+      "exists": true,
+      "tracked": true,
+      "bytes": 15861,
+      "sha256": "94530071a9b08921e09238712053891ecae1c9fc5b1d843f828588e8580ec439",
+      "canonical_lf_sha256": "94530071a9b08921e09238712053891ecae1c9fc5b1d843f828588e8580ec439",
+      "line_count": 284,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "8ee2120826e95cfa622970c6f8e2811985297b4a",
+      "head_blob_sha256": "94530071a9b08921e09238712053891ecae1c9fc5b1d843f828588e8580ec439",
+      "head_blob_canonical_lf_sha256": "94530071a9b08921e09238712053891ecae1c9fc5b1d843f828588e8580ec439",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "f115192264d205c149d4c8473d035c10d5fb9f01",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [
+        {
+          "line": 75,
+          "text": "assign profile_next[profile_index] = profile_count[profile_index] +"
+        },
+        {
+          "line": 86,
+          "text": "always @(posedge clk or negedge rst_n) begin"
+        },
+        {
+          "line": 110,
+          "text": "profile_count[index] <= profile_next[index];"
+        },
+        {
+          "line": 128,
+          "text": "start_snapshot[0] <= cycle_count[31:0];"
+        },
+        {
+          "line": 144,
+          "text": "bp_start_snapshot[0] <= ENABLE_BRANCH_PRED != 0 ? bp_lookup_count : 32'd0;"
+        },
+        {
+          "line": 152,
+          "text": "cycle_start_snapshot[index] <= profile_next[index];"
+        },
+        {
+          "line": 156,
+          "text": "stop_snapshot[0] <= cycle_count[31:0];"
+        },
+        {
+          "line": 172,
+          "text": "bp_stop_snapshot[0] <= ENABLE_BRANCH_PRED != 0 ? bp_lookup_count : 32'd0;"
+        },
+        {
+          "line": 180,
+          "text": "cycle_stop_snapshot[index] <= profile_next[index];"
+        },
+        {
+          "line": 193,
+          "text": "32'h40: s_axi_rdata <= start_snapshot[0];"
+        },
+        {
+          "line": 209,
+          "text": "32'h80: s_axi_rdata <= stop_snapshot[0];"
+        },
+        {
+          "line": 225,
+          "text": "32'hc0: s_axi_rdata <= bp_start_snapshot[0];"
+        },
+        {
+          "line": 232,
+          "text": "32'he0: s_axi_rdata <= bp_stop_snapshot[0];"
+        },
+        {
+          "line": 239,
+          "text": "32'h100: s_axi_rdata <= cycle_start_snapshot[0][31:0];"
+        },
+        {
+          "line": 240,
+          "text": "32'h104: s_axi_rdata <= cycle_start_snapshot[0][63:32];"
+        },
+        {
+          "line": 251,
+          "text": "32'h140: s_axi_rdata <= cycle_stop_snapshot[0][31:0];"
+        },
+        {
+          "line": 252,
+          "text": "32'h144: s_axi_rdata <= cycle_stop_snapshot[0][63:32];"
+        }
+      ],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "rtl/machine_timer.v",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\rtl\\machine_timer.v",
+      "exists": true,
+      "tracked": true,
+      "bytes": 2200,
+      "sha256": "3d3a4ae9e6b47088f9ed8ad05d906aa608148cb0c9c250fa26c736d88afe45c5",
+      "canonical_lf_sha256": "3d3a4ae9e6b47088f9ed8ad05d906aa608148cb0c9c250fa26c736d88afe45c5",
+      "line_count": 51,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "efbf82a2f43a3558934fa41e68513090041de64b",
+      "head_blob_sha256": "3d3a4ae9e6b47088f9ed8ad05d906aa608148cb0c9c250fa26c736d88afe45c5",
+      "head_blob_canonical_lf_sha256": "3d3a4ae9e6b47088f9ed8ad05d906aa608148cb0c9c250fa26c736d88afe45c5",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "c64e55346dc948092a67734e695835c9c5715069",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [
+        {
+          "line": 31,
+          "text": "always @(posedge clk or negedge rst_n) begin"
+        }
+      ],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "rtl/rv32m_unit.v",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\rtl\\rv32m_unit.v",
+      "exists": true,
+      "tracked": true,
+      "bytes": 4247,
+      "sha256": "e496552f58197203697e4589ffe0bedca85178a7806ad732e18888c677e1638c",
+      "canonical_lf_sha256": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+      "line_count": 83,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "e936fb20b5d173afc29d979657c2f9d9da1081eb",
+      "head_blob_sha256": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+      "head_blob_canonical_lf_sha256": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "347982c30c88095d4a6406bd26c535b7b9f468b5",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [
+        {
+          "line": 39,
+          "text": "always @(posedge clk or negedge rst_n) begin"
+        }
+      ],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "rtl/data_cache.v",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\rtl\\data_cache.v",
+      "exists": true,
+      "tracked": true,
+      "bytes": 10167,
+      "sha256": "291e851888e7cd56787ad73ee7af095a5c2010f3edaea716da76c849a7fb036b",
+      "canonical_lf_sha256": "291e851888e7cd56787ad73ee7af095a5c2010f3edaea716da76c849a7fb036b",
+      "line_count": 190,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "ebe6203f315dd06cae01a79941433132b8101638",
+      "head_blob_sha256": "291e851888e7cd56787ad73ee7af095a5c2010f3edaea716da76c849a7fb036b",
+      "head_blob_canonical_lf_sha256": "291e851888e7cd56787ad73ee7af095a5c2010f3edaea716da76c849a7fb036b",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "38c609406370f4f147ce26fed66412fead758b16",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [
+        {
+          "line": 84,
+          "text": "always @(posedge clk) begin"
+        },
+        {
+          "line": 105,
+          "text": "always @(posedge clk or negedge rst_n) begin"
+        }
+      ],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "rtl/dmem_region_router.v",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\rtl\\dmem_region_router.v",
+      "exists": true,
+      "tracked": true,
+      "bytes": 3564,
+      "sha256": "3277da11f17a1a1d2ae6a9475934d5c2b2123a4ebb1b869fa0c02b1a44f452ba",
+      "canonical_lf_sha256": "3277da11f17a1a1d2ae6a9475934d5c2b2123a4ebb1b869fa0c02b1a44f452ba",
+      "line_count": 76,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "a9e38373cd86ec613b49db43ac092a7a56298382",
+      "head_blob_sha256": "3277da11f17a1a1d2ae6a9475934d5c2b2123a4ebb1b869fa0c02b1a44f452ba",
+      "head_blob_canonical_lf_sha256": "3277da11f17a1a1d2ae6a9475934d5c2b2123a4ebb1b869fa0c02b1a44f452ba",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "f115192264d205c149d4c8473d035c10d5fb9f01",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [
+        {
+          "line": 57,
+          "text": "always @(posedge clk or negedge rst_n) begin"
+        }
+      ],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "rtl/soc_data_mem.v",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\rtl\\soc_data_mem.v",
+      "exists": true,
+      "tracked": true,
+      "bytes": 2561,
+      "sha256": "93c6dc2089ca9ed3dfff95079463a82e7b57d4a3216e3becb1bf57d8b8551d25",
+      "canonical_lf_sha256": "93c6dc2089ca9ed3dfff95079463a82e7b57d4a3216e3becb1bf57d8b8551d25",
+      "line_count": 63,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "96c4258fecd6e5f5b9ccc457013408611038abc8",
+      "head_blob_sha256": "93c6dc2089ca9ed3dfff95079463a82e7b57d4a3216e3becb1bf57d8b8551d25",
+      "head_blob_canonical_lf_sha256": "93c6dc2089ca9ed3dfff95079463a82e7b57d4a3216e3becb1bf57d8b8551d25",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "a23d2715452c645e8328d120884101f9bb511666",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "software/coremark_port/core_portme.c",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\software\\coremark_port\\core_portme.c",
+      "exists": true,
+      "tracked": true,
+      "bytes": 16420,
+      "sha256": "3e61e45fcdb3e1b18f466251a60bf7a77933e61422a141b2d079059a49ce124c",
+      "canonical_lf_sha256": "49ad5d5034f0f1daa1f18efb45782f3ea15665dce3e380ecab1810391d220ab2",
+      "line_count": 488,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "da4769c24dc5731058cf064560c0d1d366b86924",
+      "head_blob_sha256": "49ad5d5034f0f1daa1f18efb45782f3ea15665dce3e380ecab1810391d220ab2",
+      "head_blob_canonical_lf_sha256": "49ad5d5034f0f1daa1f18efb45782f3ea15665dce3e380ecab1810391d220ab2",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "56f09c0dd891c5a2e94f641feaf9acfce754b8e8",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [
+        {
+          "line": 383,
+          "text": "void start_time(void)"
+        },
+        {
+          "line": 385,
+          "text": "start_ticks = timer_read_time();"
+        },
+        {
+          "line": 388,
+          "text": "void stop_time(void)"
+        },
+        {
+          "line": 390,
+          "text": "stop_ticks = timer_read_time();"
+        }
+      ],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "software/coremark_port/core_portme_axi.c",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\software\\coremark_port\\core_portme_axi.c",
+      "exists": true,
+      "tracked": true,
+      "bytes": 10588,
+      "sha256": "78d5f38c29ef241b230f378884eff51d7589b3d2970ea48d00483eaee8143c4f",
+      "canonical_lf_sha256": "3e132d34ab2c7064a16bb0f865219a2ea97344a9fbc5da41d713792d0673d486",
+      "line_count": 197,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "ab3e72da5d33a9849b24911b7205a3bf55b84cde",
+      "head_blob_sha256": "3e132d34ab2c7064a16bb0f865219a2ea97344a9fbc5da41d713792d0673d486",
+      "head_blob_canonical_lf_sha256": "3e132d34ab2c7064a16bb0f865219a2ea97344a9fbc5da41d713792d0673d486",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "347982c30c88095d4a6406bd26c535b7b9f468b5",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [
+        {
+          "line": 28,
+          "text": "void start_time(void)"
+        },
+        {
+          "line": 32,
+          "text": "if (coremark_axi_read(0u) != COREMARK_AXI_STATS_ID)"
+        },
+        {
+          "line": 37,
+          "text": "void stop_time(void)"
+        },
+        {
+          "line": 40,
+          "text": "if (coremark_axi_read(4u) != COREMARK_AXI_STATS_ID)"
+        },
+        {
+          "line": 66,
+          "text": "if (coremark_axi_read(0u) != COREMARK_AXI_STATS_ID ||"
+        }
+      ],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "software/coremark_port/coremark_axi_stats.h",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\software\\coremark_port\\coremark_axi_stats.h",
+      "exists": true,
+      "tracked": true,
+      "bytes": 2833,
+      "sha256": "964b888e1f32cba9c58eb1de3f39cff9c7434366b860a2dcf85e8b6e815d718c",
+      "canonical_lf_sha256": "964b888e1f32cba9c58eb1de3f39cff9c7434366b860a2dcf85e8b6e815d718c",
+      "line_count": 63,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "c827a94c9d7cb05e8b8e73253b08e0317c81360e",
+      "head_blob_sha256": "964b888e1f32cba9c58eb1de3f39cff9c7434366b860a2dcf85e8b6e815d718c",
+      "head_blob_canonical_lf_sha256": "964b888e1f32cba9c58eb1de3f39cff9c7434366b860a2dcf85e8b6e815d718c",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "f115192264d205c149d4c8473d035c10d5fb9f01",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "software/timer.h",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\software\\timer.h",
+      "exists": true,
+      "tracked": true,
+      "bytes": 1198,
+      "sha256": "974fadf5ac88dcabd6c76319303026436262845be62c0ca08c3725601ca71338",
+      "canonical_lf_sha256": "974fadf5ac88dcabd6c76319303026436262845be62c0ca08c3725601ca71338",
+      "line_count": 41,
+      "git_status_porcelain": "",
+      "head_blob_sha1": "d7921e34fe819e843bdcb83f5338fc4ca4e93eea",
+      "head_blob_sha256": "974fadf5ac88dcabd6c76319303026436262845be62c0ca08c3725601ca71338",
+      "head_blob_canonical_lf_sha256": "974fadf5ac88dcabd6c76319303026436262845be62c0ca08c3725601ca71338",
+      "worktree_matches_head_canonical_lf": true,
+      "last_commit": "c64e55346dc948092a67734e695835c9c5715069",
+      "origin": "tracked Git file; worktree identity above controls this audit",
+      "anchors": [
+        {
+          "line": 16,
+          "text": "static inline timer_u64 timer_read_time(void)"
+        }
+      ],
+      "macro_bindings": [],
+      "csv_literal_headers": []
+    },
+    {
+      "path": "rtl/cpu5_top.v",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\rtl\\cpu5_top.v",
+      "exists": false,
+      "tracked": false,
+      "status": "NOT IMPLEMENTED"
+    },
+    {
+      "path": "rtl/cpu5_cycle_profile.v",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\rtl\\cpu5_cycle_profile.v",
+      "exists": false,
+      "tracked": false,
+      "status": "NOT IMPLEMENTED"
+    },
+    {
+      "path": "rtl/axi_lite_coremark_stats5.v",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\rtl\\axi_lite_coremark_stats5.v",
+      "exists": false,
+      "tracked": false,
+      "status": "NOT IMPLEMENTED"
+    },
+    {
+      "path": "rtl/cpu5_m_owner.v",
+      "absolute_path": "D:\\FPGA\\riscv_3stage\\rtl\\cpu5_m_owner.v",
+      "exists": false,
+      "tracked": false,
+      "status": "NOT IMPLEMENTED"
+    }
+  ],
+  "signal_mapping": [
+    {
+      "id": "S01",
+      "old": "D1_CPU.mem_start_x && D1_CPU.is_store_x && !D1_CPU.mem_req_mmio",
+      "binding": "workload.dut.u_core.u_cpu",
+      "source": "tb/coremark_d1_measure_tb.v:68-70; rtl/cpu_top.v:1249-1259",
+      "age": "current valid EX instruction, before its transaction is latched; not a D request handshake",
+      "sample": "posedge PRE-NBA",
+      "window": "last START inclusive, STOP exclusive [S,T); D1 fixed raw=2, selected=1, epoch=2",
+      "output": "M1 gap buckets, next non-local EX memory launch",
+      "cpu5_planned": "cpu5_mem_launch_valid/pc/seq/is_store plus a separately defined launch stage; or cpu5_d_req_fire+owner_is_store with a NEW metric/schema",
+      "reuse": "ADAPT REQUIRED; CPU5 MEM STORE cannot be paired with EX is_store; moving launch to handshake changes measured S",
+      "cpu5_implementation_status": "NOT IMPLEMENTED",
+      "cpu5_execution_status": "NOT RUN"
+    },
+    {
+      "id": "S02",
+      "old": "D1_CPU.bp_resolve_valid && D1_CPU.bp_predictable_x",
+      "binding": "workload.dut.u_core.u_cpu",
+      "source": "tb/coremark_d1_measure_tb.v:70-71,225-245; rtl/cpu_top.v:794-805,884-889",
+      "age": "completed architectural instruction; predictable set is conditional branch OR JAL, excludes JALR",
+      "sample": "posedge PRE-NBA, same combinational event as counter update; counter values before increment",
+      "window": "[S,T), endpoint pre-counter differences must reconcile",
+      "output": "e_resolved / direction error decomposition / hit and relearn / separate JALR count",
+      "cpu5_planned": "cpu5_bp_resolve_commit, owner seq/PC/op, prediction metadata, direction/target/mismatch and eligible-set flags",
+      "reuse": "ADAPT REQUIRED; retain eligible set and retirement ownership; no speculative younger training",
+      "cpu5_implementation_status": "NOT IMPLEMENTED",
+      "cpu5_execution_status": "NOT RUN"
+    },
+    {
+      "id": "S03",
+      "old": "D1_IF.prediction_hit_x/prediction_taken_x; D1_BP.update_match",
+      "binding": "workload.dut.u_core.u_cpu.u_if_stage[.g_branch_predictor.u_branch_predictor]",
+      "source": "tb/coremark_d1_measure_tb.v:19-21,228-241; rtl/if_stage.v:81-96; rtl/branch_predictor.v:83",
+      "age": "IF-latched prediction metadata transported with the same EX instruction; update_match is current predictor table match at update",
+      "sample": "posedge PRE-NBA",
+      "window": "[S,T), gated by S02",
+      "output": "M2 miss/hit-wrong-direction/relearn buckets",
+      "cpu5_planned": "retired owner prediction_hit/taken and commit update_match metadata",
+      "reuse": "ADAPT REQUIRED; IF/ID live metadata must not be combined with MEM control instruction",
+      "cpu5_implementation_status": "NOT IMPLEMENTED",
+      "cpu5_execution_status": "NOT RUN"
+    },
+    {
+      "id": "S04",
+      "old": "bp_resolve_valid && bp_next_mismatch_x / bp_mispredict_count",
+      "binding": "workload.dut.u_core.u_cpu",
+      "source": "rtl/cpu_top.v:794-807,884-889",
+      "age": "all completed supported instructions with actual next PC, not just predictable branch/JAL; JALR mismatch can count",
+      "sample": "event PRE-NBA; counter increment visible POST-NBA",
+      "window": "event [S,T) agrees pre-counter STOP-START; post-NBA registered trace must align owner",
+      "output": "redirect events distinct from redirect_wait cycle count",
+      "cpu5_planned": "cpu5_bp_mispredict_commit with opcode/PC/seq; optional speculative redirect issue separate",
+      "reuse": "ADAPT REQUIRED; preserve all-instruction mismatch vs control-only R denominator distinction",
+      "cpu5_implementation_status": "NOT IMPLEMENTED",
+      "cpu5_execution_status": "NOT RUN"
+    },
+    {
+      "id": "S05",
+      "old": "retire_valid + wb_pc (+wb_rd/wb_data/wb_we)",
+      "binding": "workload.{retire_valid,wb_pc} / workload.dut.u_core.u_cpu",
+      "source": "rtl/cpu_top.v:1543-1575,1628-1660; tb/coremark_d0_measure_tb.v:103-117; tb/coremark_axi_write_profile_tb.v:392-435",
+      "age": "instruction completed at this edge; registered retire_valid and WB metadata correspond after NBA",
+      "sample": "POST-NBA #1 in existing STORE observers; PRE-NBA sampling observes previous edge completed instruction, valid if deliberately aligned; instret_count increments from PRE-NBA retire_valid",
+      "window": "do not mix physical completion [S,T) with delayed observation without explicit edge/owner alignment",
+      "output": "STORE retirement timestamp; new RAW trace must PC-decode same ROM and must not substitute live instr_x",
+      "cpu5_planned": "cpu5_mem_commit_valid plus commit PC/instr/seq/rd/value, and separately WB-stage write; explicit output latency",
+      "reuse": "ADAPT REQUIRED; MEM retirement may precede WB GPR write, retire_valid is not wb_we",
+      "cpu5_implementation_status": "NOT IMPLEMENTED",
+      "cpu5_execution_status": "NOT RUN"
+    },
+    {
+      "id": "S06",
+      "old": "dmem_req_valid&&ready / bridge_req_valid&&ready / dmem_rsp_valid&&ready",
+      "binding": "workload.dut.u_core.*",
+      "source": "tb/coremark_d0_measure_tb.v:79-101; tb/coremark_axi_write_profile_tb.v:330-369; rtl/soc_axi_lite_top.v:167-220",
+      "age": "current one-outstanding transaction owner, descriptor frozen from EX launch",
+      "sample": "posedge PRE-NBA",
+      "window": "transaction epoch/launch membership; boundary-crossing checks; response/retire timestamp separate",
+      "output": "cpu_accept/backend_accept/cpu_response; AXI timestamp chain only when AXI backend selected",
+      "cpu5_planned": "cpu5_d_req_fire, cpu5_d_rsp_fire, separate old rsp_owner/new req_owner seq/PC/op/class; killed/drain flag",
+      "reuse": "ADAPT REQUIRED; same-cycle A response/B request must not use one live owner or EX PC",
+      "cpu5_implementation_status": "NOT IMPLEMENTED",
+      "cpu5_execution_status": "NOT RUN"
+    },
+    {
+      "id": "S07",
+      "old": "actual BRAM mem_we / AXI RAM u_data_mem.we; AW/W/B handshake and first VALID",
+      "binding": "D0_RAM=workload.dut.u_core.g_d0_bram.u_ram; CMW_RAM=workload.dut.u_ram; synthetic case.ram",
+      "source": "tb/coremark_d0_measure_tb.v:89-105; tb/coremark_axi_write_profile_tb.v:342-403; tb/axi_write_profile_tb.v:390-426",
+      "age": "irreversible write belongs to accepted transaction descriptor; AW/W pairs timestamp=max(AW,W)",
+      "sample": "WE and handshake PRE-NBA; RAM readback and first VALID POST-NBA #1",
+      "window": "native D0 forbids ordinary RAM leak to AXI; synthetic epochs are reset epochs, not START banks",
+      "output": "one physical effect per store, byte-mask verification, additive vs diagnostic stages",
+      "cpu5_planned": "backend effect probe plus owner identity/class; younger requests require MEM oldest authorization",
+      "reuse": "backend physical probes conditionally reusable if backend unchanged; timing equality/CPU owner adapters must change",
+      "cpu5_implementation_status": "NOT IMPLEMENTED",
+      "cpu5_execution_status": "NOT RUN"
+    },
+    {
+      "id": "S08",
+      "old": "stats_arvalid&&stats_arready at 0x30000000 / 0x30000004",
+      "binding": "workload.dut.* and workload.dut.u_stats",
+      "source": "rtl/axi_lite_coremark_stats.v:122-180; software/coremark_port/core_portme_axi.c:28-41,66; tb/coremark_d0_measure_tb.v:54-65",
+      "age": "device read has snapshot side effect; AR acceptance edge, not R response or retirement",
+      "sample": "posedge PRE-NBA at AR; snapshot registers written NBA",
+      "window": "portable_init ID read is a real START; later START re-arms and supersedes bank; last START selected; STOP exactly once",
+      "output": "frozen cycle/instret/cache/BP and cycle-profile banks",
+      "cpu5_planned": "MEM-authorized STATS transaction acceptance + snapshot event IDs and aligned counters; independent stats5/schema",
+      "reuse": "address/effect contract may survive; CPU5 timing/counter ABI must be revalidated; never EX speculative stats read",
+      "cpu5_implementation_status": "NOT IMPLEMENTED",
+      "cpu5_execution_status": "NOT RUN"
+    },
+    {
+      "id": "S09",
+      "old": "perf_cycle_events[5:0] and profile_next[0:5]",
+      "binding": "workload.dut.u_core.u_cpu / workload.dut.u_stats",
+      "source": "rtl/cpu_top.v:1587-1624; rtl/axi_lite_coremark_stats.v:65-76,151-152,179-180; tb/coremark_axi_write_profile_tb.v:280-284,392-429",
+      "age": "one registered attribution per counted physical CPU edge; six-class one-hot, includes M waits in work_other",
+      "sample": "CPU computes pre-edge predicate -> event POST-NBA; stats consumes old registered event with profile_next at same snapshot edge",
+      "window": "physical attribution edges [S,T) correspond to PRE-NBA registered-event samples (S,T]; POST-NBA observer samples [S,T)",
+      "output": "six counters sum to cycle_count delta; event counter NOT additive with nonexclusive BP/M/retire events",
+      "cpu5_planned": "cpu5 ten-bit registered main attribution, hardware schema4/profile schema2 (planned), explicit count enable and snapshot alignment",
+      "reuse": "NOT BINARY COMPATIBLE; dedicated stats/firmware/guard/analyzer; do not silently truncate high bits or require other==instret",
+      "cpu5_implementation_status": "NOT IMPLEMENTED",
+      "cpu5_execution_status": "NOT RUN"
+    },
+    {
+      "id": "S10",
+      "old": "timer_mtime / mem_req_fire && timer_read_hit_x / load_mmio_data_q",
+      "binding": "workload.dut.u_core.u_cpu.g_machine_timer.u_timer (generate instance verify source) and MMIO endpoint descriptor",
+      "source": "software/timer.h:15-24; software/coremark_port/core_portme.c:383-391; software/coremark_port/core_portme_axi.c:28-41; rtl/cpu_top.v:1175-1193,1272-1294,1414-1418; rtl/machine_timer.v:24-43",
+      "age": "actual LOCAL MMIO endpoint request owner; hi/lo/hi are separate accepted reads, low captures PRE-increment mtime and retry on high rollover",
+      "sample": "endpoint fire/read data PRE-NBA; load_mmio_data_q captures same edge NBA; mtime increments NBA",
+      "window": "START before mtime sample and STOP after mtime sample; counter_cycles can exceed raw_ticks by boundary overhead, do not equate them",
+      "output": "raw_ticks/seconds vs frozen counter window; workload checks actual high-low-high samples",
+      "cpu5_planned": "MEM-authorized local endpoint fire + read/write descriptor, pre-pop UART head/data capture; mtime and stats remain separate devices",
+      "reuse": "timer helper/endpoint behavior reusable if contract unchanged; five-stage timing and UART pop require new tests",
+      "cpu5_implementation_status": "NOT IMPLEMENTED",
+      "cpu5_execution_status": "NOT RUN"
+    },
+    {
+      "id": "S11",
+      "old": "m_start_x/m_complete_x/m_wait_x + instr_x[14:12]",
+      "binding": "workload.dut.u_core.u_cpu[.g_m.u_muldiv]",
+      "source": "rtl/cpu_top.v:996-1016; rtl/rv32m_unit.v",
+      "age": "held EX M owner in three-stage CPU; start/complete events distinct from actual wait cycles; sticky unit done",
+      "sample": "posedge PRE-NBA for control event; done/result POST-NBA from unit then CPU completion at later edge",
+      "window": "count start/complete/wait separately and record boundary-spanning owner; not equal to all work_other-retired by assumption",
+      "output": "current profiler set has no complete standalone MUL/DIV measurement export; planned observation",
+      "cpu5_planned": "m owner valid/seq/pc/op/killed/start accepted/result consumed and independent mul/div wait/complete",
+      "reuse": "ADAPT REQUIRED; killed owner drains, unit resource busy and architectural blocking are different",
+      "cpu5_implementation_status": "NOT IMPLEMENTED",
+      "cpu5_execution_status": "NOT RUN"
+    }
+  ],
+  "cpu5_source_matches": [],
+  "migration_status": "PROPOSED MAPPING ONLY; no prefix-only substitution authorized; CPU5 timing/schema must be tested",
+  "known_legacy_restrictions": {
+    "d1_fixed_two_raw_starts": {
+      "tb": "tb/coremark_d1_measure_tb.v:133-156,299-301",
+      "analyzer": "tools/analyze_d1_measure.py:73-79",
+      "formula": "raw==2 && selected==1 && epoch==2 && stop==1 && crossings==0",
+      "generalization": "NOT IMPLEMENTED in this audit"
+    },
+    "d0_generic_latest_start": {
+      "tb": "tb/coremark_d0_measure_tb.v:31,54-65",
+      "analyzer": "tools/analyze_coremark_d0_measure.py:28",
+      "formula": "raw>=1 && selected==1 && epoch==raw && stop==1 && crossings==0"
+    },
+    "real_axi_write_generic_latest_start": {
+      "tb": "tb/coremark_axi_write_profile_tb.v:295-311",
+      "analyzer": "tools/analyze_coremark_axi_write_profile.py:122-127",
+      "formula": "raw>=1 && selected_epoch==raw && stop==1; rejects boundary crossings"
+    },
+    "synthetic_axi_python_analyzer": "tools/analyze_axi_write_profile.py NOT FOUND; checks, metrics and summaries are implemented inside TB; do not conflate with real-CoreMark analyzer",
+    "d0_fixed_store_latency": "D0 native observer/analyzer currently require latency==write_wait==2 and response edge==retirement edge; CPU5 may change this, so logic cannot be copied unchanged",
+    "old_axi_workload_not_d0": "tb/coremark_axi_tb.v does not pass ENABLE_D0_BRAM; use tb/coremark_d0_workload_tb.v for M/D0 configuration",
+    "csv_versioning": "existing CSV text has no explicit schema column; header/hash identify format. Analyzer JSON schema_version=1 is not hardware stats schema3 or profile schema1"
+  },
+  "future_contract_tests": [
+    {
+      "id": "E-T01",
+      "description": "Three raw START triggers -> final epoch selected; one raw START accepted; STOP=1; active STORE crossing START/STOP rejected; no combined reset epochs.",
+      "status": "NOT IMPLEMENTED / NOT RUN for CPU5"
+    },
+    {
+      "id": "E-T02",
+      "description": "At S/T inject distinct pre-edge and post-edge BP/retire/profile events; prove physical [S,T) and delayed registered events (S,T] with integer endpoint ledgers.",
+      "status": "NOT IMPLEMENTED / NOT RUN for CPU5"
+    },
+    {
+      "id": "E-T03",
+      "description": "MEM older STORE with EX younger ALU or STORE: launch/op/PC/seq stay same owner; never combine MEM mem_start alias and EX is_store.",
+      "status": "NOT IMPLEMENTED / NOT RUN for CPU5"
+    },
+    {
+      "id": "E-T04",
+      "description": "RSP(A)+REQ(B) same edge, A error/kill and B ready/backpressure: old response and new request carry distinct owners, each completes once.",
+      "status": "NOT IMPLEMENTED / NOT RUN for CPU5"
+    },
+    {
+      "id": "E-T05",
+      "description": "EX older RAM LOAD + ID younger redirect: D owner survives fetch-epoch change; older LOAD error still traps; wrong-path younger LOAD drains without Trap/WB.",
+      "status": "NOT IMPLEMENTED / NOT RUN for CPU5"
+    },
+    {
+      "id": "E-T06",
+      "description": "Retire instructions with rd=x0, STORE, CSR and M; one retire pulse independent of wb_we; MEM retirement vs later WB observed with explicit latency.",
+      "status": "NOT IMPLEMENTED / NOT RUN for CPU5"
+    },
+    {
+      "id": "E-T07",
+      "description": "MUL vs DIV/REM including divide-by-zero, INT_MIN/-1, sticky done, killed DIV then ISR MUL: per-owner start/complete/wait and drain partition.",
+      "status": "NOT IMPLEMENTED / NOT RUN for CPU5"
+    },
+    {
+      "id": "E-T08",
+      "description": "BP branch/JAL/JALR/non-control stale prediction cases: eligible-set counters, mismatch events and redirect wait cycles separately reconciled; no killed younger training.",
+      "status": "NOT IMPLEMENTED / NOT RUN for CPU5"
+    },
+    {
+      "id": "E-T09",
+      "description": "UART RX pop/head capture and every MMIO write enable at one authorized endpoint edge; local timer high-low-high rollover; STATS read never speculative.",
+      "status": "NOT IMPLEMENTED / NOT RUN for CPU5"
+    },
+    {
+      "id": "E-T10",
+      "description": "Ten-class one-hot/count-enable, reserved-address collision negatives, schema4/2 rejection by old guards and old six-class firmware unchanged.",
+      "status": "NOT IMPLEMENTED / NOT RUN for CPU5"
+    },
+    {
+      "id": "E-T11",
+      "description": "Native D0 RAM write effect readback vs AXI write effect readback: no invented AXI phases on BRAM traffic; latency equality constraints versioned for CPU5.",
+      "status": "NOT IMPLEMENTED / NOT RUN for CPU5"
+    },
+    {
+      "id": "E-T12",
+      "description": "Dynamic RAW shadowed writer, both-source overlap, x0 and unused operands: distance2 is exact closest-writer distance only, never producer-unready inference.",
+      "status": "NOT IMPLEMENTED / NOT RUN for CPU5"
+    }
+  ],
+  "main_head_and_git_status_unchanged_during_audit": true,
+  "audited_files_unchanged_at_end": true
+}

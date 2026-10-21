@@ -1,0 +1,132 @@
+{
+  "started_at_utc": "2026-10-21T06:44:31.118276+00:00",
+  "source_sha256_before": {
+    "benchmarks/coremark/core_list_join.c": "1c8aa83861634d6a33cb11c785b738ac205404e2e9222571465dc02156f9154d",
+    "benchmarks/coremark/core_main.c": "eaffa2c0ec253d25a348d24ea16ead8d439c1110ad636d7cddbb15efb9e1caf1",
+    "benchmarks/coremark/core_matrix.c": "acf3fe63db2ddd929f405b67fd273e49f558871f0bf8d51a6814cdd881b602c8",
+    "benchmarks/coremark/core_state.c": "02a6e604d852a2806a8eb2a455c924b0483a8042cfe96478009821558cf35521",
+    "benchmarks/coremark/core_util.c": "f8479f7a4e100ded31e2ebecf1f37ffff8904d88314188b0a85d32687e3ca813",
+    "benchmarks/coremark/coremark.h": "d3031335e6e1b5e05d07681357e8e00a70ab60b0524b92d088e546c0ff7f56d6",
+    "build/coremark/d0_m_cache_on_btb_smoke/coremark_build_config.h": "ad8cd940811ec812c99ed7d1bd767f6149c1bc3f403b90a472c0173bdab8a4d2",
+    "build/coremark/d0_m_cache_on_btb_smoke_validation/coremark_build_config.h": "6005143ebb14661d7cd1ac552bb7d366376c809c0fff69342e882381d0bcc64c",
+    "rtl/alu.v": "5442f0b5484053bf5bbbf6d4c8a81ad174cd8c1ea397c97076dbab59efe64173",
+    "rtl/axi_lite_1x2.v": "d0dbdd63a432bc375e379d0936d7de47f55b002f2bf3bbbe274fbcfb182fa524",
+    "rtl/axi_lite_coremark_stats.v": "2899b33a9157bee49da1d1d783da7e89a74bb2f1c6724abf6a0b53302271e450",
+    "rtl/axi_lite_ram.v": "0c409f91eba265ee22acf88e38cf83b8b8e92a9b98873c29f40ac57082183440",
+    "rtl/board_reset.v": "e6a20856eaecaf0661013f31ebb5e4892c2c773f5db072b19588e1baad98f1f9",
+    "rtl/branch_predictor.v": "1a8e0324e5df358e94044e31deea05bce88547d485d42b183f94a917b104e783",
+    "rtl/coremark_axi_board_top.v": "436bea32c9c035594dc2639996d649660531ddbcc31b5fa950a60f64aa72372b",
+    "rtl/cpu_top.v": "80355b3dbfa93d3f22508dafe38737657172731aec2be3f1674ff674bcbf3a6b",
+    "rtl/data_bus_adapter.v": "860e9f898a66cbd1cbead89cc89531e6f4361093fc9871ccb372124e823f455b",
+    "rtl/data_cache.v": "441444df3c0635f0247ad8405d83e99d013166315e27f5c9731cca072ee02a79",
+    "rtl/data_mem.v": "6f2f1ffe3509177ff549c9ee7dc4ebb0b02347b5575894da1001b743d3267255",
+    "rtl/decoder.v": "dd3730f39bc14c8014eaa54cd5a921a66b8078079730a0846d5a4e795b352840",
+    "rtl/dmem_axi_lite_bridge.v": "fdf933bcf61f3072a062095ce267908ba49a0467e3796789ffcd5b66634c6557",
+    "rtl/dmem_region_router.v": "01dcb96a84b9b3af6c169f685efe120aee70d8db3b9c39b3a15d0334dc55c5e9",
+    "rtl/gpio_mmio.v": "659df2e7ac65655692262c7e1f96c9d49890cabf900f4fe8b32cb45e1628cd9a",
+    "rtl/if_stage.v": "c2dd341e85cd38a76f48ad495c5e5c5d4349854d293fe2e1779b9d783db2dbec",
+    "rtl/instr_bus_adapter.v": "97b455c41481638e8a9813a89177700a7a33e7b7a2240830e4f4fe5e870b4f01",
+    "rtl/instr_cache.v": "2d3577543d8e938c3b0346c9532b04ed4336d1a84d565bffef38ad30ca2be709",
+    "rtl/instr_mem.v": "b87b7ca6652da72bcd9951dfb5809d5d50331bc699dcedd73624645b7a193e07",
+    "rtl/machine_timer.v": "4f3cc2f977ebac66aaffc0faf3bfbdd033a5fd04b9f487ac77494570d078d085",
+    "rtl/regfile.v": "72222a39fefdedb25c9c045f641b1fa2e07492a155d16d9ee0333758bc22efb0",
+    "rtl/rv32m_unit.v": "e496552f58197203697e4589ffe0bedca85178a7806ad732e18888c677e1638c",
+    "rtl/soc_axi_lite_top.v": "225b0b69b0cd2b4b29cd17e064fef10bd4df4dd9c8c514c34e8c9195344acc76",
+    "rtl/soc_coremark_axi_top.v": "6ae296042f46c3268ec41bf1eca71e315a1b2338f757b298d948ec2851fc8d3d",
+    "rtl/soc_data_mem.v": "d81587e984a1fc41e094e93ce3c548c60747b9066bfdf7f799522f2cd30dabf0",
+    "rtl/soc_instr_mem.v": "1624997900e23df8ede430a4c7df49e28e6d364722dbedf760f9dd9751e6cc84",
+    "rtl/uart_rx.v": "7df9b043a03c0556ff74c4fea6beb7d396c423ff09b66542aa7fb247b8dc4dcb",
+    "rtl/uart_rx_fifo.v": "0ad9eefb62ffac4ad2fee8fe748e92a591b244d757cf1775762a2c28b12f8ac1",
+    "rtl/uart_rx_mmio.v": "4923964c066b1fe44ce50023a125c2d1a56289669373451b7f0c419122f46489",
+    "rtl/uart_tx.v": "f7eae98429c76a5cd8e63c5b93f0b335c1ac11031806fbd42dd40a662bca2b2d",
+    "run_cpu5_baseline_raw.do": "c27780fd42acbac62ac803dcce760252165e0fec7ac5e88704e315197626c709",
+    "software/coremark_port/core_portme.c": "b2338033a7633bdf4f2fc6aeb0223ac953bf91e99e2373309218f784df8034d5",
+    "software/coremark_port/core_portme.h": "dc6674042072337f6a419ad9b2b4ff73513cb0ff0c256a0daee1f620e4ce9e5e",
+    "software/coremark_port/core_portme_axi.c": "78d5f38c29ef241b230f378884eff51d7589b3d2970ea48d00483eaee8143c4f",
+    "software/coremark_port/coremark_axi_stats.h": "c779ca1f4eb5ffc7a8659ba37c5fe62a494e57bc5cdd6e9bfa3fbf24a121249f",
+    "software/coremark_port/start_coremark.S": "74c59d03211026b43c6dbf26c69893f6c433a03e0178caa26ceb2ef3e217ca8d",
+    "software/link.ld": "b81e4aa3bb612a62698afca1e1152ed0e11f8b27e832278cdd6530f06ac4d451",
+    "software/mmio.h": "cf596473beb0ebf92f2df1bb635b57d4e2375fc8471b15ef2c6f9d2608022e51",
+    "software/timer.h": "c95da14968d2d683f5e705bb0eaf4ad1779907bc8a70d42a5ddb4d85c1b1b461",
+    "tb/cpu5_baseline_raw_tb.v": "35f93da07f12d2fe740ae4e9f90c8eb9833147e282c5ab3ef45c73fb72859de9",
+    "tools/analyze_cpu5_baseline_raw.py": "4ecf6dfd7b4f95db5887846954c7e6595036fa59cec733b690fcf2d79cdeb8f1",
+    "tools/bin_to_hex.py": "54f3c99d48a4559ce6a8a004d5bf2c783b986aa15d2b45ab5b9c16e6e95d5fdd",
+    "tools/build_coremark_axi_images.py": "94ba980a9a2afcbd8f135c9040148677b1016aa2a9b013b3b2646840972dbea4",
+    "tools/build_coremark_images.py": "d1f8640314822977f2ecb609d9d184fbbb13e4a6925aaa52f6b827100284a8d0",
+    "tools/coremark_axi_contract.py": "6af891479986f4595f5b64867da3b4d8eaffdc6090778b464fb151d4ce26dcfe"
+  },
+  "command": [
+    "D:\\modeltech64_10.6e\\win64\\vsim.exe",
+    "-c",
+    "-do",
+    "do run_cpu5_baseline_raw.do"
+  ],
+  "cwd": "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s0\\work",
+  "initial_run_archive": "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s0\\work\\build\\cpu5_stage0_initial_observation",
+  "initial_run_note": "Initial successful transcript and all observation files preserved. This run explicitly records OS process exit and deterministic trace identity.",
+  "simulator_returncode": 0,
+  "simulator_stdout": {
+    "file": "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s0\\modelsim_verified_process.log",
+    "sha256": "68fd809e6adebb12c73251611bddf9e04917fa9e0949ba3b71578186c3146c91"
+  },
+  "warnings": [],
+  "initial_warnings": [
+    "# ** Warning: rtl/soc_coremark_axi_top.v(66): (vopt-2685) [TFMPC] - Too few port connections for 'u_core'.  Expected 64, found 63.",
+    "# ** Warning: rtl/soc_coremark_axi_top.v(66): (vopt-2718) [TFMPC] - Missing connection for port 'irq_external'.",
+    "# ** Warning: rtl/soc_coremark_axi_top.v(66): (vopt-2685) [TFMPC] - Too few port connections for 'u_core'.  Expected 64, found 63.",
+    "# ** Warning: rtl/soc_coremark_axi_top.v(66): (vopt-2718) [TFMPC] - Missing connection for port 'irq_external'."
+  ],
+  "warning_scope": "Initial compilation emitted two inherited optional irq_external connection warnings per seed. Cached design reuse may emit none; the warning has not been fixed.",
+  "prior_harness_failure": {
+    "path": "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s0\\verification_harness_initial_warning_check",
+    "reason": "Initial recording-harness warning expectation rejected zero repeated diagnostics on cached designs. Only the harness expectation was corrected; product RTL and legacy gates were unchanged."
+  },
+  "deterministic_trace_checks": {
+    "smoke/retirement_trace.csv": "e80bcf8f87d00f592d2a683f9465ae8b5ac95fbe5862e60cf0487c5db9d94728",
+    "smoke/window_endpoints.csv": "9f381fa3558c8cce5fb80177bd1167d598d78d970e6522be93decfdad84fedc7",
+    "smoke/observer_metadata.csv": "489a46c45774cb536f9613ded1ad3613462da8abc96fa1ce3213e1720c113b2f",
+    "smoke_validation/retirement_trace.csv": "b81c6b191ff5407d602bc4d3ad6ff1a6ced98e5f6a39609ac5a4ee43bcec166f",
+    "smoke_validation/window_endpoints.csv": "8e439c8c014f8b3fe3c73b2ad04450442718cd2f8ee08efebc95026473a7676b",
+    "smoke_validation/observer_metadata.csv": "4d4a0c17bb5e5ced4443c665a7532354a7a90c5e9acba8bf419906e6f9e21ceb"
+  },
+  "analysis": [
+    {
+      "argv": [
+        "C:\\Users\\23123\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "tools/analyze_cpu5_baseline_raw.py",
+        "--profile",
+        "smoke",
+        "--directory",
+        "build/cpu5_stage0_measure/smoke"
+      ],
+      "returncode": 0,
+      "stdout": "{\"profile\": \"smoke\", \"checks\": \"PASS\", \"cycles\": 425003, \"groups\": {\"all\": {\"branch_total\": 56850, \"branch_gpr_sources\": 56850, \"redirect_events\": 8727, \"no_prior_writer\": 0, \"source_dependencies\": 87553, \"nearest_distance1_raw\": 24197, \"distance1_raw\": 24197, \"distance3plus_raw\": 38702, \"raw_from_alu\": 35827, \"raw_from_load\": 35001, \"distance1_from_alu\": 10665, \"cross_start_writer_branches\": 1, \"distance1_from_load\": 13532, \"nearest_distance3plus_raw\": 21926, \"raw_from_link\": 1663, \"nearest_distance2_raw\": 10727, \"distance2_raw\": 14967}, \"conditional\": {\"branch_total\": 53208, \"branch_gpr_sources\": 53208, \"redirect_events\": 5085, \"no_prior_writer\": 0, \"source_dependencies\": 83911, \"nearest_distance1_raw\": 22693, \"distance1_raw\": 22693, \"distance3plus_raw\": 36564, \"raw_from_alu\": 34107, \"raw_from_load\": 34742, \"distance1_from_alu\": 9161, \"cross_start_writer_branches\": 0, \"distance1_from_load\": 13532, \"nearest_distance3plus_raw\": 19788, \"nearest_distance2_raw\": 10727, \"distance2_raw\": 14967}, \"jalr\": {\"branch_total\": 3642, \"branch_gpr_sources\": 3642, \"redirect_events\": 3642, \"no_prior_writer\": 0, \"source_dependencies\": 3642, \"nearest_distance3plus_raw\": 2138, \"distance3plus_raw\": 2138, \"raw_from_link\": 1663, \"cross_start_writer_branches\": 1, \"nearest_distance1_raw\": 1504, \"distance1_raw\": 1504, \"raw_from_alu\": 1720, \"distance1_from_alu\": 1504, \"raw_from_load\": 259}}, \"reconciliation\": {\"resolved_execution_window\": 57268, \"mismatch_execution_window\": 9176, \"direrr_execution_window\": 5534, \"R_execution_other\": 0, \"retired\": 289747, \"resolved_retirement_window\": 57268, \"mismatch_retirement_window\": 9176, \"direrr_retirement_window\": 5534, \"R_retirement_other\": 0, \"R_execution_conditional\": 5085, \"R_retirement_conditional\": 5085, \"R_execution_jalr\": 3642, \"R_retirement_jalr\": 3642, \"R_execution_jal\": 449, \"R_retirement_jal\": 449, \"resolved_boundary_adjustment\": 0, \"mismatch_boundary_adjustment\": 0}}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "C:\\Users\\23123\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "-X",
+        "utf8",
+        "-B",
+        "tools/analyze_cpu5_baseline_raw.py",
+        "--profile",
+        "smoke-validation",
+        "--directory",
+        "build/cpu5_stage0_measure/smoke_validation"
+      ],
+      "returncode": 0,
+      "stdout": "{\"profile\": \"smoke-validation\", \"checks\": \"PASS\", \"cycles\": 425367, \"groups\": {\"all\": {\"branch_total\": 56994, \"branch_gpr_sources\": 56994, \"redirect_events\": 8684, \"no_prior_writer\": 0, \"source_dependencies\": 87726, \"nearest_distance1_raw\": 24496, \"distance3plus_raw\": 38694, \"distance1_raw\": 24496, \"raw_from_load\": 35222, \"raw_from_alu\": 35829, \"distance1_from_alu\": 10614, \"cross_start_writer_branches\": 1, \"distance1_from_load\": 13882, \"nearest_distance3plus_raw\": 22271, \"raw_from_link\": 1646, \"nearest_distance2_raw\": 10227, \"distance2_raw\": 14501}, \"conditional\": {\"branch_total\": 53380, \"branch_gpr_sources\": 53380, \"redirect_events\": 5070, \"no_prior_writer\": 0, \"source_dependencies\": 84112, \"nearest_distance1_raw\": 23006, \"distance3plus_raw\": 36570, \"distance1_raw\": 23006, \"raw_from_load\": 34952, \"raw_from_alu\": 34131, \"distance1_from_alu\": 9124, \"cross_start_writer_branches\": 0, \"distance1_from_load\": 13882, \"nearest_distance3plus_raw\": 20147, \"nearest_distance2_raw\": 10227, \"distance2_raw\": 14501}, \"jalr\": {\"branch_total\": 3614, \"branch_gpr_sources\": 3614, \"redirect_events\": 3614, \"no_prior_writer\": 0, \"source_dependencies\": 3614, \"nearest_distance3plus_raw\": 2124, \"distance3plus_raw\": 2124, \"raw_from_link\": 1646, \"cross_start_writer_branches\": 1, \"nearest_distance1_raw\": 1490, \"distance1_raw\": 1490, \"raw_from_alu\": 1698, \"distance1_from_alu\": 1490, \"raw_from_load\": 270}}, \"reconciliation\": {\"resolved_execution_window\": 57370, \"mismatch_execution_window\": 9130, \"direrr_execution_window\": 5516, \"R_execution_other\": 0, \"retired\": 289855, \"resolved_retirement_window\": 57370, \"mismatch_retirement_window\": 9130, \"direrr_retirement_window\": 5516, \"R_retirement_other\": 0, \"R_execution_conditional\": 5070, \"R_retirement_conditional\": 5070, \"R_execution_jalr\": 3614, \"R_retirement_jalr\": 3614, \"R_execution_jal\": 446, \"R_retirement_jal\": 446, \"resolved_boundary_adjustment\": 0, \"mismatch_boundary_adjustment\": 0}}\n",
+      "stderr": ""
+    }
+  ],
+  "status": "PASS",
+  "completed_at_utc": "2026-10-21T06:45:22.602911+00:00",
+  "inputs_unchanged": true,
+  "changed_synthesizable_rtl": false,
+  "formal_score_measured": false,
+  "cpu5_implemented": false
+}
