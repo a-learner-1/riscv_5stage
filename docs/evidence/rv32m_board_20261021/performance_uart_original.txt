@@ -1,0 +1,90 @@
+
+[09:57:42.712]收←◆2K performance run parameters for coremark.
+CoreMark Size    : 666
+Total ticks      : 847759022
+Total time (secs): 16.955180
+Iterations/Sec   : 117.958049
+Iterations       : 2000
+Compiler version : riscv-none-elf-gcc (xPack GNU RISC-V Embedded GCC x86_64) 15.2.0
+Compiler flags   : -march=rv32im -mabi=ilp32 -O2 -ffreestanding -fno-builtin -fno-stack-protector -fno-pic -msmall-data-limit=0 -mno-relax -ffunction-sections -fdata-sections -Wall -Wextra -Wno-maybe-uninitialized -DITERATIONS=0 -DPERFORMANCE_RUN=1 
+[09:57:42.756]收←◆-DTOTAL_DATA_SIZE=2000 -Ibuild/coremark/d0_m_cache_on_btb_performance -Ibenchmarks/coremark -Isoftware/coremark_port -Isoftware -nostdlib -nostartfiles -static -Wl,-T,software/link.ld -Wl,--gc-sections -Wl,--no-relax -Wl,-Map,build/coremark/d0_m_cache_on_btb_performance/coremark.map -lgcc
+Memory location  : Static; ROM 32 KiB @0x00000000 via request/response; RAM 16 KiB @0x00010000 via synchronous BRAM after D-cache; non-RAM via AXI4-Lite; I-cache 2 KiB 2-way 64 sets 16-byte line; D-cache 2 KiB 2-way 64 set
+[09:57:42.801]收←◆s 16-byte line, write-through/no-write-allocate; BTB 64 entries, 2-bit direction counters; AXI AW/W/AR/B/R waits=0/0/0/0/0; core:memory clock=1:1
+seedcrc          : 0xe9f5
+[0]crclist       : 0xe714
+[0]crcmatrix     : 0x1fd7
+[0]crcstate      : 0x8e3a
+[0]crcfinal      : 0x4983
+Correct operation validated. See readme.txt for run and reporting rules.
+CoreMark 1.0 : 117.958049 / riscv-none-elf-gcc (xPack GNU RISC-V Embedded GCC x86_64) 15.2.0 -march=rv32im -mabi=ilp32 -O2 -ffreestanding -fno-builtin -fno-stack-p
+[09:57:42.845]收←◆rotector -fno-pic -msmall-data-limit=0 -mno-relax -ffunction-sections -fdata-sections -Wall -Wextra -Wno-maybe-uninitialized -DITERATIONS=0 -DPERFORMANCE_RUN=1 -DTOTAL_DATA_SIZE=2000 -Ibuild/coremark/d0_m_cache_on_btb_performance -Ibenchmarks/coremark -Isoftware/coremark_port -Isoftware -nostdlib -nostartfiles -static -Wl,-T,software/link.ld -Wl,--gc-sections -Wl,--no-relax -Wl,-Map,build/coremark/d0_m_cache_on_btb_performance/coremark.map -lgcc / Static; ROM 32 KiB @0x00000000 via request/response; RAM 16 
+[09:57:42.890]收←◆KiB @0x00010000 via synchronous BRAM after D-cache; non-RAM via AXI4-Lite; I-cache 2 KiB 2-way 64 sets 16-byte line; D-cache 2 KiB 2-way 64 sets 16-byte line, write-through/no-write-allocate; BTB 64 entries, 2-bit direction counters; AXI AW/W/AR/B/R waits=0/0/0/0/0; core:memory clock=1:1
+COREMARK platform=d0-m-cache-on-btb
+COREMARK isa=rv32im
+COREMARK data_backend=bram
+COREMARK cache_enable=3
+COREMARK branch_pred_enable=1
+COREMARK btb_entries=64
+COREMARK btb_config=4194305
+COREMARK counter_window=START-befo
+[09:57:42.934]收←◆re-mtime;STOP-after-mtime;includes-boundary-overhead
+COREMARK counter_valid=1
+COREMARK counter_cycles=847759143
+COREMARK counter_retired=579416342
+COREMARK counter_cpi=1.463126049
+COREMARK cycle_profile_schema=1
+COREMARK cycle_profile_valid=1
+COREMARK cycle_work_other=635792342
+COREMARK cycle_ifetch_wait=19964531
+COREMARK cycle_data_read_wait=112902261
+COREMARK cycle_data_write_wait=56669428
+COREMARK cycle_local_mmio_wait=12
+COREMARK cycle_redirect_wait=22430569
+COREMARK cycle_profile_sum=847759143
+COREMARK
+[09:57:42.979]收←◆ icache_access=597739631
+COREMARK icache_hit=594632220
+COREMARK icache_miss=3107411
+COREMARK icache_refill_words=12429644
+COREMARK icache_errors=0
+COREMARK dcache_access=137732314
+COREMARK dcache_hit=108959517
+COREMARK dcache_miss=438082
+COREMARK dcache_refill_words=1752328
+COREMARK dcache_errors=0
+COREMARK dcache_write=28334714
+COREMARK dcache_bypass=1
+COREMARK bp_lookup=597739631
+COREMARK bp_hit=108538592
+COREMARK bp_predicted_taken=64529286
+COREMARK bp_resolved=114542873
+COREMARK bp_next_pc_mismatch=1832
+[09:57:43.022]收←◆3289
+COREMARK bp_direction_error=11042333
+COREMARK bp_target_error=0
+COREMARK cache_state=automatic-calibration-warmed;no-explicit-flush
+COREMARK predictor_state=automatic-calibration-trained;no-explicit-reset
+COREMARK profile=performance
+COREMARK mode=formal
+COREMARK run=performance
+COREMARK cpu_hz=50000000
+COREMARK uart_baud=115200
+COREMARK iterations_requested=0
+COREMARK iterations=2000
+COREMARK raw_ticks=847759022
+COREMARK seconds=16.955180440
+COREMARK iterations_per_second=117.958048697
+COREMARK corema
+[09:57:43.067]收←◆rk_per_mhz=2.359160974
+COREMARK seed1=0x0000
+COREMARK seed2=0x0000
+COREMARK seed3=0x0066
+COREMARK seedcrc=0xe9f5
+COREMARK crclist=0xe714
+COREMARK crcmatrix=0x1fd7
+COREMARK crcstate=0x8e3a
+COREMARK compiler=riscv-none-elf-gcc (xPack GNU RISC-V Embedded GCC x86_64) 15.2.0
+COREMARK flags=-march=rv32im -mabi=ilp32 -O2 -ffreestanding -fno-builtin -fno-stack-protector -fno-pic -msmall-data-limit=0 -mno-relax -ffunction-sections -fdata-sections -Wall -Wextra -Wno-maybe-uninitialized -DITERATIONS=0 -DPERFORMANCE_RU
+[09:57:43.111]收←◆N=1 -DTOTAL_DATA_SIZE=2000 -Ibuild/coremark/d0_m_cache_on_btb_performance -Ibenchmarks/coremark -Isoftware/coremark_port -Isoftware -nostdlib -nostartfiles -static -Wl,-T,software/link.ld -Wl,--gc-sections -Wl,--no-relax -Wl,-Map,build/coremark/d0_m_cache_on_btb_performance/coremark.map -lgcc
+COREMARK memory=Static; ROM 32 KiB @0x00000000 via request/response; RAM 16 KiB @0x00010000 via synchronous BRAM after D-cache; non-RAM via AXI4-Lite; I-cache 2 KiB 2-way 64 sets 16-byte line; D-cache 2 KiB 2-way 64 sets 16-byte line, write-through/no-write-allocate; BTB 64 entries, 2-bit direction counters; AXI AW/W/AR/B/R waits=0/0/0/0/0; core:memory clock=1:1
+COREMARK RESULT: FORMAL PASS

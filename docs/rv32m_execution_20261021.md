@@ -23,7 +23,7 @@ M 指令等待时保持 EX，不重复写回、退休或预测器解析；开始
 
 权威完整回归为 `20261020T150812Z_7d6a039dcc8f`：全局及各 case 前后 486 个输入文件哈希一致，退出码/完成标记/诊断门通过。更早因并行生成固件和补充测试而失去来源闭合的 `145350Z` 运行保留为 FAIL，没有混入最终通过结论。
 
-主工程合入后另运行 `run_rv32m.do` 和 `run_coremark_m.do`，退出码 0，全部 M 单元、CPU 和双种子 CoreMark 通过。M 单元/CPU 为 0 Error、0 Warning；CoreMark 保留每个 seed 原有的两条 `irq_external` 未连接告警。没有宣称完成综合网表功能仿真或新版本板测。
+主工程合入后另运行 `run_rv32m.do` 和 `run_coremark_m.do`，退出码 0，全部 M 单元、CPU 和双种子 CoreMark 通过。M 单元/CPU 为 0 Error、0 Warning；CoreMark 保留每个 seed 原有的两条 `irq_external` 未连接告警。未执行综合网表功能仿真；正式板测结果见下文。
 
 ## CoreMark 短程结果
 
@@ -40,7 +40,36 @@ M 指令等待时保持 EX，不重复写回、退休或预测器解析；开始
 
 M CPI 分别为 1.466807249/1.467516517。M 多周期等待计入原 schema 的 work_other，因此该项不再等于退休数；这不破坏六类互斥分区。不同指令集减少了每轮指令数，不能用 CPI 单项判断收益。
 
-这些是一迭代功能仿真结果，不能替代不少于 10 秒的正式上板成绩。当前已确认的旧版板测 performance 分数仍是 55.333377791 CoreMark / 1.106667556 CoreMark/MHz；新的 M 正式成绩尚未测得。未执行热点测量。
+以上是一迭代功能仿真结果；不少于 10 秒的正式上板成绩与旧版对照见下一节。未执行热点测量。
+
+## 正式上板结果（2026-10-21）
+
+用户在 MES50HP 上分别下载两份正式位流，返回 performance、validation 串口日志。两组均使用 50 MHz、UART 115200、RV32IM/ilp32、GCC 15.2.0、O2、D0 同步 BRAM、两路 I/D Cache 和 64 项 BTB；自动校准为各 2,000 次迭代。两组均打印 `Correct operation validated` 与 `COREMARK RESULT: FORMAL PASS`，同配置双种子正式验收完成。
+
+| 指标 | performance | validation |
+|---|---:|---:|
+| mtime ticks | 847,759,022 | 849,160,244 |
+| 时间（秒） | 16.955180440 | 16.983204880 |
+| CoreMark（迭代/秒） | 117.958048697 | 117.763402970 |
+| CoreMark/MHz | 2.359160974 | 2.355268059 |
+| counter_cycles | 847,759,143 | 849,160,358 |
+| counter_retired | 579,416,342 | 579,870,971 |
+| CPI | 1.463126049 | 1.464395358 |
+
+正式性能成绩采用 **performance：117.958048697 CoreMark / 2.359160974 CoreMark/MHz**。validation 验证另一组种子，不参与性能分数平均。相对旧 D0/RV32I 正式 performance 的 55.333377791 CoreMark / 1.106667556 CoreMark/MHz，整版速度为 **2.131770252 倍，提升 113.1770%**；每轮耗时减少 53.0906%。旧版 1,100 次与本版 2,000 次按迭代速率比较，不能直接比较总周期。该对照包含 RV32IM 硬件及对应固件编译的整体变化。
+
+复核结果：
+
+- performance CRC：e9f5 / e714 / 1fd7 / 8e3a；validation CRC：18f2 / e3c1 / 0747 / 8d84，均正确，且运行超过 10 秒。
+- 六类周期总和分别等于 counter_cycles；counter 与 mtime 的窗口边界开销为 121 / 114 拍。
+- I/D Cache 账本闭合，错误计数均为 0。validation 的 I-cache refill 为 `12,537,939 = 4 × 3,134,484 + 3`，+3 属跨窗口填充边界差。
+- STORE 等待分别为 `56,669,428 = 2 × 28,334,714`、`56,291,304 = 2 × 28,145,652`，保持两拍。
+- 两组 `work_other − retired` 均为 56,376,000；work_other 包含 M 多周期等待，CPI 不能单独用于跨 ISA 性能比较。
+- 两套交付构建的 31 项 RTL/约束哈希相同，48 项公共固件源文件哈希相同；ISA、编译器、完整 flags 和内存描述均与各自构建报告相符，profile 宏、种子和镜像路径为预期差异。
+
+长期证据保存在 [docs/evidence/rv32m_board_20261021](evidence/rv32m_board_20261021/)：两组原始分包日志、归一化日志、单次复核快照、[配对结果](evidence/rv32m_board_20261021/pair_result.json)及 SHA-256 清单。原单次快照保留当时的配对待完成状态，配对结果中的 `configuration_pair_complete=true` 为最终结论。记录内绝对路径保留本机历史来源，随仓库保存的日志副本可直接核验哈希。
+
+位流由用户下载，代理未访问 JTAG 或串口；日志与预期交付配置一致，UART 文本本身不自证实际下载文件的 SHA。原构建清单中的板测未运行状态保留为构建时快照，本节及配对记录给出后续实测结论。
 
 ## 独立实现与资源
 
@@ -82,7 +111,7 @@ Router 的 Hold 为 +0.014/+0.012 ns；Router 八项、最终 STA 八项与两�
 
 两份位流已做独立只读审计，31 项 PDS 源码/约束、48 项公共固件源码、初始化镜像、最终 route/RTR 与 SBIT 哈希闭合。`release_manifest.json` 保留原始构建来源；主工程镜像记录见 `build/verification/rv32m_20261021/`。原 RV32I 发布目录没有覆盖。
 
-用户自行下载；没有执行 JTAG 下载、Flash 烧写或串口访问。下载后应分别确认 `COREMARK isa=rv32im`、CRC、运行不少于 10 秒、`Correct operation validated` 和 `COREMARK RESULT: FORMAL PASS`。
+用户自行下载；代理没有执行 JTAG 下载、Flash 烧写或串口访问。本次已收到并复核两组正式板测日志；后续复跑应分别确认 `COREMARK isa=rv32im`、CRC、运行不少于 10 秒、`Correct operation validated` 和 `COREMARK RESULT: FORMAL PASS`。
 
 ## 复跑入口
 

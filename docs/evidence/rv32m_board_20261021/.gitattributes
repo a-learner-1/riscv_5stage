@@ -1,0 +1,4 @@
+# Preserve evidence bytes and their SHA-256 across Git checkouts.
+* -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+# Original UART packets retain received spaces at packet boundaries.
+*_uart_original.txt -whitespace

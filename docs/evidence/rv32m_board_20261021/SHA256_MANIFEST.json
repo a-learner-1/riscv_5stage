@@ -1,0 +1,11 @@
+{
+  "performance_uart_original.txt": "0c6c2a41b81d82b5daec78bf97c0413d155b4b43056f2368547731e3d8bd68d1",
+  "performance_uart_normalized.txt": "8fc4cd2a4d98e419a15f6080d8c9c6c8ceac5e781a902361efb3a83b6de82895",
+  "performance_result.json": "e08e5e69149a7b30422d8478f360798ab148f887a48b1f4739f1abeaf1546e0e",
+  "validation_uart_original.txt": "b2a6ce95f2faf8bca27a11159abd4930719120a224375da8187a427f2626dc2e",
+  "validation_uart_normalized.txt": "d8df9b7f9e5aba4f0b87a3d73c6a8c19eeda5ae5bd827f2e9450dea6f9cc60b8",
+  "validation_result.json": "77dc89e9c6ab1279bbd312a7691896d7161e55edfbd9727cfa539b7e33cf91ae",
+  "pair_result.json": "9b750002cdc7afa5e736fe05d879c2e0c36ebd458f0bf2575a6de39472ee698d",
+  ".gitattributes": "813b5d4d5f2210c02e6c28047a47c54792aa02791394d342c74e9bc65122a84f",
+  "README.md": "25f84a09180fbd70c77b3f30541b77ba834388fd5261836974c5596e9f69d96d"
+}
