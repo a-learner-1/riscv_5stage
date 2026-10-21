@@ -17,7 +17,7 @@ SOURCES = [
     "software/timer.h", "software/gpio.h", "software/mmio.h", "software/link_btb.ld",
     "tools/build_timer_images.py", "tools/build_coremark_images.py",
     "tools/build_btb_board_images.py", "rtl/btb_board_top.v",
-    "rtl/branch_predictor.v", "rtl/if_stage.v", "rtl/cpu_top.v", "rtl/board_reset.v",
+    "rtl/branch_predictor.v", "rtl/if_stage.v", "rtl/cpu_top.v", "rtl/rv32m_unit.v", "rtl/board_reset.v",
 ]
 SYMBOL_MACROS = {
     "btb_board_failed": "BTB_BOARD_FAILED",

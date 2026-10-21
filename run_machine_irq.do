@@ -13,7 +13,7 @@ vlog -sv -work machine_irq_work \
     rtl/instr_mem.v rtl/instr_bus_adapter.v rtl/branch_predictor.v rtl/if_stage.v \
     rtl/regfile.v rtl/decoder.v rtl/alu.v rtl/data_mem.v rtl/data_bus_adapter.v \
     rtl/uart_tx.v rtl/uart_rx.v rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v \
-    rtl/gpio_mmio.v rtl/machine_timer.v rtl/cpu_top.v rtl/axi_lite_irq_demo.v \
+    rtl/gpio_mmio.v rtl/machine_timer.v rtl/rv32m_unit.v rtl/cpu_top.v rtl/axi_lite_irq_demo.v \
     tb/machine_irq_cpu_tb.v tb/axi_lite_irq_demo_tb.v
 foreach machine_irq_bench {axi_lite_irq_demo_tb machine_irq_cpu_tb} {
     catch {quit -sim}

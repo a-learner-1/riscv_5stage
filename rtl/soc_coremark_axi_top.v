@@ -14,7 +14,8 @@ module soc_coremark_axi_top #(
     parameter integer MMIO_REQ_WAIT_CYCLES=0, MMIO_RSP_WAIT_CYCLES=0,
     parameter integer RAM_AW_WAIT_CYCLES=0, RAM_W_WAIT_CYCLES=0, RAM_AR_WAIT_CYCLES=0,
     parameter integer RAM_B_WAIT_CYCLES=0, RAM_R_WAIT_CYCLES=0,
-    parameter integer ENABLE_D0_BRAM=0
+    parameter integer ENABLE_D0_BRAM=0,
+    parameter integer ENABLE_M=0
 ) (
     input wire clk,rst_n,uart_rx, input wire [7:0] gpio_in,
     output wire uart_tx, output wire [7:0] gpio_out,gpio_oe,
@@ -60,6 +61,7 @@ module soc_coremark_axi_top #(
         .ICACHE_SETS(ICACHE_SETS),.ICACHE_LINE_WORDS(ICACHE_LINE_WORDS),
         .ENABLE_DCACHE(ENABLE_DCACHE),.DCACHE_SETS(DCACHE_SETS),.DCACHE_LINE_WORDS(DCACHE_LINE_WORDS),
         .ENABLE_D0_BRAM(ENABLE_D0_BRAM),
+        .ENABLE_M(ENABLE_M),
         .ENABLE_BRANCH_PRED(ENABLE_BRANCH_PRED),.BTB_ENTRIES(BTB_ENTRIES)
     ) u_core (
         .clk(clk),.rst_n(rst_n),.uart_rx(uart_rx),.uart_tx(uart_tx),

@@ -11,7 +11,7 @@ vlog -sv -work $soc_lib \
     rtl/instr_mem.v rtl/instr_bus_adapter.v rtl/if_stage.v \
     rtl/regfile.v rtl/decoder.v rtl/alu.v \
     rtl/data_mem.v rtl/data_bus_adapter.v rtl/uart_tx.v rtl/uart_rx.v \
-    rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v rtl/gpio_mmio.v rtl/cpu_top.v \
+    rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v rtl/gpio_mmio.v rtl/rv32m_unit.v rtl/cpu_top.v \
     rtl/soc_instr_mem.v rtl/soc_data_mem.v rtl/soc_top.v \
     rtl/board_reset.v rtl/soc_board_top.v \
     tb/soc_memory_tb.v tb/soc_top_tb.v tb/soc_board_tb.v tb/soc_fault_tb.v

@@ -15,7 +15,7 @@ vlog -sv -work $btb_board_lib \
     rtl/uart_tx.v rtl/uart_rx.v rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v \
     rtl/instr_mem.v rtl/instr_bus_adapter.v rtl/branch_predictor.v rtl/if_stage.v \
     rtl/regfile.v rtl/decoder.v rtl/alu.v rtl/data_mem.v rtl/data_bus_adapter.v \
-    rtl/gpio_mmio.v rtl/machine_timer.v rtl/cpu_top.v \
+    rtl/gpio_mmio.v rtl/machine_timer.v rtl/rv32m_unit.v rtl/cpu_top.v \
     rtl/board_reset.v rtl/btb_board_top.v tb/btb_board_tb.v
 vsim -voptargs="+acc" -onfinish stop -wlf btb_board_run.wlf $btb_board_lib.btb_board_tb
 add wave sim:/btb_board_tb/done sim:/btb_board_tb/test_pass

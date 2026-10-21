@@ -11,7 +11,7 @@ if {![file exists $uart_lib]} {vlib $uart_lib}
 vmap $uart_lib $uart_lib
 vlog -sv -work $uart_lib \
     rtl/uart_tx.v rtl/instr_mem.v rtl/instr_bus_adapter.v rtl/if_stage.v rtl/regfile.v \
-    rtl/decoder.v rtl/alu.v rtl/data_mem.v rtl/data_bus_adapter.v rtl/gpio_mmio.v rtl/uart_rx.v rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v rtl/cpu_top.v tb/uart_cpu_tb.v
+    rtl/decoder.v rtl/alu.v rtl/data_mem.v rtl/data_bus_adapter.v rtl/gpio_mmio.v rtl/uart_rx.v rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v rtl/rv32m_unit.v rtl/cpu_top.v tb/uart_cpu_tb.v
 
 vsim -voptargs="+acc" -onfinish stop -wlf uart_cpu_run.wlf uart_work.uart_cpu_tb
 add wave sim:/uart_cpu_tb/clk

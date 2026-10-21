@@ -11,23 +11,34 @@ import sys
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
-RTL = ["instr_mem.v", "instr_bus_adapter.v", "branch_predictor.v", "if_stage.v", "regfile.v", "decoder.v", "alu.v",
+RTL = ["instr_mem.v", "instr_bus_adapter.v", "branch_predictor.v", "if_stage.v", "regfile.v", "decoder.v", "alu.v", "rv32m_unit.v",
        "data_mem.v", "data_bus_adapter.v", "uart_tx.v", "uart_rx.v", "uart_rx_fifo.v", "uart_rx_mmio.v",
        "gpio_mmio.v", "machine_timer.v", "cpu_top.v", "board_reset.v"]
 COREMARK_AXI_VARIANTS = {"coremark_axi_off": "off", "coremark_axi_on": "on",
-                         "coremark_axi_btb": "on", "coremark_d0_btb": "on"}
+                         "coremark_axi_btb": "on", "coremark_d0_btb": "on", "coremark_d0_m_btb": "on"}
 
 
 def coremark_data_backend(variant):
-    return "bram" if variant == "coremark_d0_btb" else "axi"
+    return "bram" if variant in {"coremark_d0_btb", "coremark_d0_m_btb"} else "axi"
+
+
+def coremark_isa(variant):
+    return "rv32im" if variant == "coremark_d0_m_btb" else "rv32i"
+
+
+def place_route_command(variant):
+    # The M target needs independent placement/routing: seed 0 missed the
+    # router hold gate. Seed 1 passed both router and independent multi-corner
+    # STA; retain the exact documented command for timing and bitstream runs.
+    return "pnr -gplace_seed 1 -groute_seed 1" if variant == "coremark_d0_m_btb" else "pnr"
 
 
 def coremark_axi_btb_mode(variant):
-    return "on" if variant in {"coremark_axi_btb", "coremark_d0_btb"} else "off"
+    return "on" if variant in {"coremark_axi_btb", "coremark_d0_btb", "coremark_d0_m_btb"} else "off"
 
 
 def coremark_axi_firmware_name(variant, profile):
-    prefix = "coremark_d0_cache_" if coremark_data_backend(variant) == "bram" else "coremark_axi_cache_"
+    prefix = "coremark_" + ("d0" if coremark_data_backend(variant) == "bram" else "axi") + ("_m" if coremark_isa(variant) == "rv32im" else "") + "_cache_"
     return (prefix + COREMARK_AXI_VARIANTS[variant] +
             ("_btb" if coremark_axi_btb_mode(variant) == "on" else "") + "_" + profile)
 
@@ -144,7 +155,7 @@ def bind_axi_burst_demo_board_parameters(top):
     return top[:port_end] + parameters + "\n" + top[port_end:]
 
 
-def bind_coremark_axi_board_parameters(top, cache_mode, btb_mode="off", backend="axi"):
+def bind_coremark_axi_board_parameters(top, cache_mode, btb_mode="off", backend="axi", isa="rv32i"):
     """Fix the generated hardware to the verified firmware contract.
 
     The portable source keeps parameters for simulation. The synthesis copy
@@ -153,6 +164,8 @@ def bind_coremark_axi_board_parameters(top, cache_mode, btb_mode="off", backend=
     """
     if cache_mode not in {"off", "on"}:
         raise RuntimeError("Unknown CoreMark AXI cache mode: " + str(cache_mode))
+    if isa not in {"rv32i", "rv32im"}:
+        raise RuntimeError("Unknown CoreMark hardware ISA: " + str(isa))
     if btb_mode not in {"off", "on"} or (btb_mode == "on" and cache_mode != "on"):
         raise RuntimeError("BTB on requires the Cache on AXI hardware platform")
     if backend not in {"axi", "bram"} or (backend == "bram" and (cache_mode != "on" or btb_mode != "on")):
@@ -163,6 +176,7 @@ def bind_coremark_axi_board_parameters(top, cache_mode, btb_mode="off", backend=
         "ICACHE_SETS": r"64", "ICACHE_LINE_WORDS": r"4",
         "DCACHE_SETS": r"64", "DCACHE_LINE_WORDS": r"4",
         "ENABLE_D0_BRAM": r"ENABLE_D0_BRAM",
+        "ENABLE_M": r"ENABLE_M",
     }
     for name, value in geometry.items():
         if len(re.findall(r"\." + name + r"\s*\(\s*" + value + r"\s*\)", top)) != 1:
@@ -182,6 +196,7 @@ def bind_coremark_axi_board_parameters(top, cache_mode, btb_mode="off", backend=
         "RAM_AR_WAIT_CYCLES": 0, "RAM_B_WAIT_CYCLES": 0,
         "RAM_R_WAIT_CYCLES": 0,
         "ENABLE_D0_BRAM": 0,
+        "ENABLE_M": 0,
     }
     for name, default in expected.items():
         value = re.search(r"\b" + name + r"\s*=\s*(\d+)\b", parameters)
@@ -190,7 +205,8 @@ def bind_coremark_axi_board_parameters(top, cache_mode, btb_mode="off", backend=
     enable = 1 if cache_mode == "on" else 0
     for name, value in (("ENABLE_ICACHE", enable), ("ENABLE_DCACHE", enable),
                         ("ENABLE_BRANCH_PRED", int(btb_mode == "on")), ("BTB_ENTRIES", 64),
-                        ("ENABLE_D0_BRAM", int(backend == "bram"))):
+                        ("ENABLE_D0_BRAM", int(backend == "bram")),
+                        ("ENABLE_M", int(isa == "rv32im"))):
         parameters, count = re.subn(r"(\b" + name + r"\s*=\s*)\d+\b",
                                    lambda m: m.group(1) + str(value), parameters)
         if count != 1:
@@ -385,7 +401,8 @@ def main():
         from coremark_axi_contract import validate_coremark_axi_firmware
         coremark_config, coremark_report = validate_coremark_axi_firmware(
             args.firmware, COREMARK_AXI_VARIANTS[args.variant], root=ROOT,
-            btb_mode=coremark_axi_btb_mode(args.variant), backend=coremark_data_backend(args.variant))
+            btb_mode=coremark_axi_btb_mode(args.variant), backend=coremark_data_backend(args.variant),
+            isa=coremark_isa(args.variant))
     timer_irq_report = (validate_timer_irq_board_firmware()
                         if args.variant == "timer_irq_board" else None)
     icache_report = validate_icache_board_firmware() if args.variant == "icache_board" else None
@@ -411,6 +428,7 @@ def main():
             builder = ("build_coremark_axi.bat --cache " + COREMARK_AXI_VARIANTS[args.variant] +
                        " --btb " + coremark_axi_btb_mode(args.variant) +
                        " --backend " + coremark_data_backend(args.variant) +
+                       " --isa " + coremark_isa(args.variant) +
                        " --profile " + args.firmware.rsplit("_", 1)[1]
                        if args.variant in COREMARK_AXI_VARIANTS else
                        "build_coremark.bat --profile " + args.firmware.removeprefix("coremark_")
@@ -493,7 +511,7 @@ def main():
     if args.variant in COREMARK_AXI_VARIANTS:
         top = bind_coremark_axi_board_parameters(top, COREMARK_AXI_VARIANTS[args.variant],
                                                  coremark_axi_btb_mode(args.variant),
-                                                 coremark_data_backend(args.variant))
+                                                 coremark_data_backend(args.variant), coremark_isa(args.variant))
     if args.variant == "machine_irq_board":
         top = bind_machine_irq_board_parameters(top)
     if args.variant == "axi_burst_demo_board":
@@ -521,7 +539,7 @@ def main():
                  # Only synthesizable RTL is added; board_top is the sole root.
                  "synthesize -ads -selected_syn_tool_opt 2"]
     if args.stage in ["timing", "bitstream"]:
-        commands += ["dev_map", "pnr", "report_timing"]
+        commands += ["dev_map", place_route_command(args.variant), "report_timing"]
     script = build / "board_generated.tcl"
     script.write_text("\n".join(commands) + "\n", encoding="utf-8")
     command = [str(exe), "-file", str(script), "-work_dir", str(build),
@@ -582,6 +600,11 @@ def main():
     manifest = {
         "base_target": "PGL50H-6IFBG484", "clock_hz": 50000000,
         "requested_stage": args.stage, "pds_returncode": result.returncode,
+        "pnr_command": place_route_command(args.variant),
+        "placement_seed": 1 if args.variant == "coremark_d0_m_btb" else None,
+        "route_seed": 1 if args.variant == "coremark_d0_m_btb" else None,
+        "builder_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        "generated_flow_tcl_sha256": hashlib.sha256(script.read_bytes()).hexdigest(),
         "firmware": args.firmware,
         "variant": args.variant,
         "enable_branch_pred": 1 if args.variant == "btb_board" else 0,
@@ -608,7 +631,7 @@ def main():
             "final_sta_report_sha256": hashlib.sha256(final_report.read_bytes()).hexdigest(),
             "final_sta_route_sha256": hashlib.sha256((build / "place_route/board_top_pnr.adf").read_bytes()).hexdigest(),
         })
-    if args.variant in {"coremark_d0_btb", "axi_burst_demo_board"} and args.stage != "synth":
+    if args.variant in {"coremark_d0_btb", "coremark_d0_m_btb", "axi_burst_demo_board"} and args.stage != "synth":
         # A positive total DRM count could be ROM, Cache or an unused memory.
         # Retain instance-level mapping and routed-netlist evidence so the
         # independent audit can prove the actual D0 data endpoint is BRAM.
@@ -733,7 +756,8 @@ def main():
         pred_enable = int(coremark_axi_btb_mode(args.variant) == "on")
         backend = coremark_data_backend(args.variant)
         manifest.update({
-            "coremark_platform": ("d0-cache-" if backend == "bram" else "axi-cache-") + COREMARK_AXI_VARIANTS[args.variant] + ("-btb" if pred_enable else ""),
+            "coremark_platform": ("d0" if backend == "bram" else "axi") + ("-m" if coremark_isa(args.variant) == "rv32im" else "") + "-cache-" + COREMARK_AXI_VARIANTS[args.variant] + ("-btb" if pred_enable else ""),
+            "march": coremark_isa(args.variant), "enable_m": int(coremark_isa(args.variant) == "rv32im"),
             "backend": backend, "data_backend": backend,
             "enable_d0_bram": int(backend == "bram"),
             "data_backend_id": int(backend == "bram"),

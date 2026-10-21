@@ -21,7 +21,7 @@ vlog -sv -work $coremark_lib $coremark_define \
     rtl/instr_mem.v rtl/instr_bus_adapter.v rtl/if_stage.v rtl/regfile.v rtl/decoder.v \
     rtl/alu.v rtl/data_mem.v rtl/data_bus_adapter.v rtl/uart_tx.v rtl/gpio_mmio.v \
     rtl/uart_rx.v rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v rtl/machine_timer.v \
-    rtl/cpu_top.v tb/coremark_tb.v
+    rtl/rv32m_unit.v rtl/cpu_top.v tb/coremark_tb.v
 vsim -voptargs="+acc" -onfinish stop -wlf build/${coremark_stem}.wlf $coremark_lib.coremark_tb
 add wave sim:/coremark_tb/test_pass
 foreach signal {clk rst_n pc_x instr_x retire_valid wb_pc cycle_count instret_count snapshots observed_start observed_stop stored_total} {

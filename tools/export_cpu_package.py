@@ -27,7 +27,7 @@ REQUIRED = (
     "tools/export_cpu_package.py", "docs/cpu_handoff.md", "software/start.S",
     "software/link.ld", "software/mmio.h", "pds/board_top.fdc",
     "benchmarks/coremark/LICENSE.md", "benchmarks/coremark/SOURCE.md",
-    "rtl/cpu_top.v", "rtl/soc_axi_lite_top.v", "rtl/dmem_axi_lite_bridge.v",
+    "rtl/cpu_top.v", "rtl/rv32m_unit.v", "rtl/soc_axi_lite_top.v", "rtl/dmem_axi_lite_bridge.v",
     "rtl/instr_mem.v", "rtl/if_stage.v", "rtl/decoder.v", "rtl/regfile.v",
     "rtl/alu.v", "rtl/data_mem.v", "rtl/data_bus_adapter.v", "rtl/instr_bus_adapter.v",
     "rtl/uart_tx.v", "rtl/uart_rx.v", "rtl/uart_rx_fifo.v", "rtl/uart_rx_mmio.v",

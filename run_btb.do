@@ -12,7 +12,7 @@ vlog -sv -work $btb_lib \
     rtl/uart_tx.v rtl/uart_rx.v rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v \
     rtl/instr_mem.v rtl/instr_bus_adapter.v rtl/branch_predictor.v rtl/if_stage.v \
     rtl/regfile.v rtl/decoder.v rtl/alu.v rtl/data_mem.v \
-    rtl/data_bus_adapter.v rtl/gpio_mmio.v rtl/machine_timer.v rtl/cpu_top.v \
+    rtl/data_bus_adapter.v rtl/gpio_mmio.v rtl/machine_timer.v rtl/rv32m_unit.v rtl/cpu_top.v \
     tb/branch_predictor_tb.v tb/btb_cpu_tb.v
 vsim -voptargs="+acc" -onfinish stop -wlf btb_unit_run.wlf $btb_lib.branch_predictor_tb
 add wave sim:/branch_predictor_tb/done sim:/branch_predictor_tb/test_pass

@@ -23,7 +23,9 @@ module cpu_top #(
     parameter integer BTB_ENTRIES = 64,
     // Independent machine interrupt sources; existing targets leave both off.
     parameter integer ENABLE_EXTERNAL_IRQ = 0,
-    parameter integer ENABLE_SOFTWARE_IRQ = 0
+    parameter integer ENABLE_SOFTWARE_IRQ = 0,
+    // Full RV32M is opt-in; legacy RV32I targets retain identical behavior.
+    parameter integer ENABLE_M = 0
 ) (
     input wire clk,
     input wire rst_n,
@@ -198,6 +200,14 @@ module cpu_top #(
 
     wire load_issue_x;
     wire stall_x;
+    wire is_m_encoded_x;
+    wire is_m_x = (ENABLE_M != 0) && is_m_encoded_x;
+    reg m_active;
+    reg [31:0] m_pc_q;
+    reg [4:0] m_rd_q;
+    wire m_start_x, m_complete_x, m_wait_x;
+    wire m_busy, m_done;
+    wire [31:0] m_result;
 
     // A memory descriptor is captured on its FIRST EX edge, including
     // operands forwarded from WB. It must not change while ready is low.
@@ -537,7 +547,8 @@ module cpu_top #(
         .is_ecall (is_ecall_x),
         .is_ebreak(is_ebreak_x),
         .is_mret  (is_mret_x),
-        .is_csr   (is_csr_x)
+        .is_csr   (is_csr_x),
+        .is_m     (is_m_encoded_x)
     );
 
     /*
@@ -619,6 +630,7 @@ module cpu_top #(
         is_sra_x |
         is_slt_x |
         is_sltu_x |
+        is_m_x |
         is_branch_x |
         is_store_x;
 
@@ -667,6 +679,7 @@ module cpu_top #(
         is_jump_x |
         is_load_x |
         is_store_x |
+        is_m_x |
         system_enabled_x;
 
     assign system_enabled_x = (ENABLE_TRAPS != 0) &&
@@ -694,9 +707,9 @@ module cpu_top #(
         case (csr_addr_x)
             12'h300: csr_read_data_x = csr_mstatus;
             12'h301: begin
-                // Fixed RV32I WARL value. Writes are legal and ignored;
+                // Fixed RV32I/RV32IM WARL value. Writes are legal and ignored;
                 // Zicsr and M privilege are not ISA extension letter bits.
-                csr_read_data_x = 32'h40000100;
+                csr_read_data_x = (ENABLE_M != 0) ? 32'h40001100 : 32'h40000100;
             end
             12'h304: begin
                 csr_known_x = (MACHINE_IRQ_ENABLED != 0);
@@ -780,7 +793,9 @@ module cpu_top #(
     // synchronous exception and MRET use their existing priority path instead.
     assign bp_resolve_valid = rst_n && !dmem_fault && valid_x &&
         !trap_event && !mret_commit_x &&
-        (mem_rsp_success || (!mem_active && !is_load_x && !is_store_x && instr_supported_x));
+        (mem_rsp_success || m_complete_x ||
+         (!mem_active && !m_active && !is_m_x &&
+          !is_load_x && !is_store_x && instr_supported_x));
     assign bp_predictable_x = is_branch_x || is_jal_x;
     assign bp_actual_taken_x = branch_taken_x || is_jal_x;
     assign bp_next_mismatch_x = (predicted_next_pc_x != actual_next_pc_x);
@@ -833,7 +848,7 @@ module cpu_top #(
     // Only recognized synchronous exceptions outrank this interrupt. A raw
     // younger IF response not yet in EX can be discarded as stale by redirect;
     // MRET refetches the architectural next PC and redetects any access fault.
-    assign irq_event = rst_n && irq_pending && !dmem_fault && !mem_active &&
+    assign irq_event = rst_n && irq_pending && !dmem_fault && !mem_active && !m_active &&
                        !sync_trap_event;
     assign trap_event = sync_trap_event || irq_event;
     assign trap_event_pc = data_exception ? mem_pc_q :
@@ -974,6 +989,33 @@ module cpu_top #(
         .alu_op (alu_op_x),
         .result (alu_result_x)
     );
+
+    // Snapshot forwarded operands on the first EX edge. A completed result
+    // stays owned through its retirement edge; interrupts wait until the next
+    // architectural boundary, and cannot cancel or replay an accepted M op.
+    assign m_start_x = rst_n && !dmem_fault && !mem_active && !m_active &&
+        valid_x && is_m_x && !trap_event;
+    assign m_complete_x = rst_n && !dmem_fault && m_active && m_done;
+    assign m_wait_x = (m_active || (valid_x && is_m_x)) && !m_complete_x;
+    generate if(ENABLE_M != 0) begin: g_m
+        rv32m_unit u_muldiv (
+            .clk(clk),.rst_n(rst_n),.start(m_start_x),.op(instr_x[14:12]),
+            .lhs(rs1_value_x),.rhs(rs2_value_x),
+            .busy(m_busy),.done(m_done),.result(m_result)
+        );
+    end else begin: g_no_m
+        assign m_busy=1'b0;
+        assign m_done=1'b0;
+        assign m_result=32'd0;
+    end endgenerate
+
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n) begin m_active<=0;m_pc_q<=0;m_rd_q<=0;end
+        else if(m_complete_x) m_active<=0;
+        else if(m_start_x) begin
+            m_active<=1;m_pc_q<=pc_x;m_rd_q<=rd_addr_x;
+        end
+    end
 
     /*
      * ???????
@@ -1289,7 +1331,7 @@ module cpu_top #(
     // Legacy errors halt; trap-mode errors drain and redirect on this edge.
     // FENCE can only enter EX after the older data response completed, so
     // its conservative full ordering requires no additional bus request.
-    assign stall_x = dmem_fault ||
+    assign stall_x = dmem_fault || m_wait_x ||
                      ((mem_active || mem_start_x) && !mem_rsp_success);
     assign mem_re_x = load_issue_x && !mem_req_mmio &&
                       (EXTERNAL_DMEM == 0);
@@ -1509,8 +1551,13 @@ module cpu_top #(
             wb_rd   <= mem_rd_q;
             wb_data <= load_data_x;
             wb_we   <= !mem_write_q && (mem_rd_q != 5'd0);
-        end else if (!dmem_fault && !mem_active && valid_x && !trap_event &&
-                     !is_load_x && !is_store_x) begin
+        end else if (m_complete_x) begin
+            wb_pc<=m_pc_q;
+            wb_rd<=m_rd_q;
+            wb_data<=m_result;
+            wb_we<=(m_rd_q!=0);
+        end else if (!dmem_fault && !mem_active && !m_active && valid_x && !trap_event &&
+                     !is_load_x && !is_store_x && !is_m_x) begin
             wb_pc <= pc_x;
             wb_rd <= rd_addr_x;
 
@@ -1579,11 +1626,12 @@ module cpu_top #(
     end
 
     assign retire_to_wb =
-        mem_rsp_success ||
+        mem_rsp_success || m_complete_x ||
         (
             !dmem_fault &&
             valid_x &&
             !mem_active &&
+            !m_active && !is_m_x &&
             !trap_event &&
             !is_load_x &&
             !is_store_x &&
@@ -1615,6 +1663,8 @@ module cpu_top #(
 
     // synthesis translate_off
     initial begin
+        if (ENABLE_M != 0 && ENABLE_M != 1)
+            $fatal(1, "cpu_top ENABLE_M must be zero or one");
         if ((ENABLE_EXTERNAL_IRQ != 0 && ENABLE_EXTERNAL_IRQ != 1) ||
             (ENABLE_SOFTWARE_IRQ != 0 && ENABLE_SOFTWARE_IRQ != 1))
             $fatal(1, "cpu_top machine interrupt switches must be zero or one");

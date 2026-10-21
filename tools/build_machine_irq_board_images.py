@@ -21,7 +21,7 @@ SOURCES = COMPILE_SOURCES + [
     "machine_irq_board_top.v", "axi_lite_irq_demo.v", "axi_lite_1x2.v", "axi_lite_ram.v",
     "soc_axi_lite_top.v", "soc_instr_mem.v", "dmem_axi_lite_bridge.v", "board_reset.v",
     "instr_mem.v", "instr_bus_adapter.v", "branch_predictor.v", "if_stage.v", "regfile.v",
-    "decoder.v", "alu.v", "data_mem.v", "data_bus_adapter.v", "uart_tx.v", "uart_rx.v",
+    "decoder.v", "alu.v", "rv32m_unit.v", "data_mem.v", "data_bus_adapter.v", "uart_tx.v", "uart_rx.v",
     "uart_rx_fifo.v", "uart_rx_mmio.v", "gpio_mmio.v", "machine_timer.v", "cpu_top.v",
     "instr_cache.v", "data_cache.v",
 )]

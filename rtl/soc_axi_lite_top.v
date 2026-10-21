@@ -22,7 +22,8 @@ module soc_axi_lite_top #(
     parameter integer ENABLE_DCACHE = 0, DCACHE_SETS = 64, DCACHE_LINE_WORDS = 4,
     parameter integer ENABLE_BRANCH_PRED = 0, BTB_ENTRIES = 64,
     parameter integer ENABLE_EXTERNAL_IRQ = 0, ENABLE_SOFTWARE_IRQ = 0,
-    parameter integer ENABLE_D0_BRAM = 0
+    parameter integer ENABLE_D0_BRAM = 0,
+    parameter integer ENABLE_M = 0
 ) (
     input  wire        clk,
     input  wire        rst_n,
@@ -89,6 +90,7 @@ module soc_axi_lite_top #(
     wire [31:0] dmem_rsp_rdata;
 
     cpu_top #(
+        .ENABLE_M(ENABLE_M),
         .PROGRAM_FILE(PROGRAM_FILE), .DATA_FILE(DATA_FILE),
         .IMEM_WORDS(IMEM_WORDS), .DMEM_WORDS(DMEM_WORDS),
         .DMEM_BASE_ADDR(DMEM_BASE_ADDR),

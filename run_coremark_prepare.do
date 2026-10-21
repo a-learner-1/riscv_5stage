@@ -21,7 +21,7 @@ vlog -sv -work coremark_board_work \
     rtl/instr_mem.v rtl/instr_bus_adapter.v rtl/if_stage.v rtl/regfile.v rtl/decoder.v \
     rtl/alu.v rtl/data_mem.v rtl/data_bus_adapter.v rtl/uart_tx.v rtl/gpio_mmio.v \
     rtl/uart_rx.v rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v rtl/machine_timer.v \
-    rtl/cpu_top.v rtl/board_reset.v rtl/coremark_board_top.v tb/coremark_prepare_tb.v
+    rtl/rv32m_unit.v rtl/cpu_top.v rtl/board_reset.v rtl/coremark_board_top.v tb/coremark_prepare_tb.v
 vsim -voptargs="+acc" -onfinish stop -wlf build/coremark_board_startup.wlf coremark_board_work.coremark_prepare_tb
 add wave sim:/coremark_prepare_tb/test_pass
 foreach signal {clk key1_n led tx} {add wave sim:/coremark_prepare_tb/$signal}

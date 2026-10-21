@@ -17,7 +17,7 @@ NAME = 'axi_burst_demo_board'
 BUILD_REL = 'build/axi_burst_demo_board_firmware'
 RTL_SOURCES = (
     'instr_mem.v', 'instr_bus_adapter.v', 'branch_predictor.v', 'if_stage.v',
-    'regfile.v', 'decoder.v', 'alu.v', 'data_mem.v', 'data_bus_adapter.v',
+    'regfile.v', 'decoder.v', 'alu.v', 'rv32m_unit.v', 'data_mem.v', 'data_bus_adapter.v',
     'uart_tx.v', 'uart_rx.v', 'uart_rx_fifo.v', 'uart_rx_mmio.v', 'gpio_mmio.v',
     'machine_timer.v', 'cpu_top.v', 'board_reset.v', 'soc_instr_mem.v',
     'soc_data_mem.v', 'dmem_region_router.v', 'dmem_axi_lite_bridge.v',

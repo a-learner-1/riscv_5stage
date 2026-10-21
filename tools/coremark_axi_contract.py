@@ -17,7 +17,7 @@ REQUIRED_SOURCES = {
     "rtl/cpu_top.v", "rtl/soc_axi_lite_top.v", "rtl/soc_instr_mem.v",
     "rtl/dmem_axi_lite_bridge.v", "rtl/axi_lite_ram.v", "rtl/axi_lite_1x2.v",
     "rtl/instr_mem.v", "rtl/instr_bus_adapter.v", "rtl/branch_predictor.v", "rtl/if_stage.v",
-    "rtl/regfile.v", "rtl/decoder.v", "rtl/alu.v", "rtl/data_mem.v",
+    "rtl/regfile.v", "rtl/decoder.v", "rtl/alu.v", "rtl/rv32m_unit.v", "rtl/data_mem.v",
     "rtl/data_bus_adapter.v", "rtl/uart_tx.v", "rtl/uart_rx.v",
     "rtl/uart_rx_fifo.v", "rtl/uart_rx_mmio.v", "rtl/gpio_mmio.v",
     "rtl/machine_timer.v", "rtl/board_reset.v",
@@ -49,16 +49,18 @@ def checked_hashes(root, mapping, required, label):
             raise RuntimeError("Stale AXI CoreMark " + label + ": " + name)
 
 
-def validate_coremark_axi_firmware(firmware, cache_mode, root=ROOT, simulation=False, btb_mode="off", backend="axi"):
+def validate_coremark_axi_firmware(firmware, cache_mode, root=ROOT, simulation=False, btb_mode="off", backend="axi", isa="rv32i"):
+    if isa not in {"rv32i", "rv32im"}:
+        raise RuntimeError("Select a known CoreMark instruction set")
     if backend not in {"axi", "bram"}:
         raise RuntimeError("Select a known CoreMark data backend")
     if cache_mode not in {"off", "on"}:
         raise RuntimeError("Select one AXI Cache mode: off or on")
     if btb_mode not in {"off", "on"} or (btb_mode == "on" and cache_mode != "on"):
         raise RuntimeError("BTB on requires the Cache on AXI comparison platform")
-    prefix = "coremark_" + ("d0" if backend == "bram" else "axi") + "_cache_" + cache_mode + ("_btb" if btb_mode == "on" else "") + "_"
+    prefix = "coremark_" + ("d0" if backend == "bram" else "axi") + ("_m" if isa == "rv32im" else "") + "_cache_" + cache_mode + ("_btb" if btb_mode == "on" else "") + "_"
     if not firmware.startswith(prefix):
-        raise RuntimeError("AXI CoreMark firmware does not match the hardware Cache/BTB modes")
+        raise RuntimeError("AXI CoreMark firmware does not match the hardware ISA/Cache/BTB modes")
     profile = firmware[len(prefix):].replace("_", "-")
     allowed = {"smoke", "smoke-validation"} if simulation else {"performance", "validation"}
     if profile not in allowed:
@@ -78,17 +80,18 @@ def validate_coremark_axi_firmware(firmware, cache_mode, root=ROOT, simulation=F
     seeds = "validation" if "validation" in profile else "performance"
     expected = {
         "profile": profile, "output_name": name, "cache_mode": cache_mode,
-        "platform": ("d0" if backend == "bram" else "axi") + "-cache-" + cache_mode + ("-btb" if pred_enabled else ""), "formal": not simulation,
+        "platform": ("d0" if backend == "bram" else "axi") + ("-m" if isa == "rv32im" else "") + "-cache-" + cache_mode + ("-btb" if pred_enabled else ""), "formal": not simulation,
         "data_backend": backend, "enable_d0_bram": int(backend == "bram"),
         "data_backend_id": int(backend == "bram"),
         "local_ram_base": "0x00010000", "local_ram_bytes": 16384 if backend == "bram" else 0,
         "clock_hz": 50000000, "tick_hz": 50000000,
         "uart_baud": 5000000 if simulation else 115200,
         "seed_profile": seeds, "rom_bytes": 32768, "ram_bytes": 16384,
-        "march": "rv32i", "mabi": "ilp32",
+        "march": isa, "enable_m": int(isa == "rv32im"), "mabi": "ilp32",
         "optimization": "O2", "contexts": 1, "total_data_size": 2000,
         "timer_source": "64-bit mtime", "core_memory_clock_ratio": "1:1",
-        "all_linked_text_checked_rv32i": True,
+        "all_linked_text_checked_rv32i": isa == "rv32i",
+        "all_linked_text_checked_rv32im": isa == "rv32im",
         "enable_icache": enabled, "enable_dcache": enabled,
         "enable_branch_pred": pred_enabled, "btb_entries": 64, "btb_mode": btb_mode,
         "stats_schema": 3, "bp_config": f"0x{predictor_config:08x}",
@@ -112,6 +115,7 @@ def validate_coremark_axi_firmware(firmware, cache_mode, root=ROOT, simulation=F
         raise RuntimeError("Incompatible AXI CoreMark clock/profile/Cache/memory metadata")
     text = config.read_text(encoding="ascii")
     for macro, value in {
+        "COREMARK_ENABLE_M": int(isa == "rv32im"),
         "COREMARK_ENABLE_D0_BRAM": int(backend == "bram"),
         "COREMARK_DATA_BACKEND_ID": int(backend == "bram"),
         "COREMARK_CLOCK_HZ": 50000000,
@@ -156,10 +160,11 @@ def main():
     parser.add_argument("--cache", choices=["off", "on"], required=True)
     parser.add_argument("--btb", choices=["off", "on"], default="off")
     parser.add_argument("--backend", choices=["axi", "bram"], default="axi")
+    parser.add_argument("--isa", choices=["rv32i", "rv32im"], default="rv32i")
     parser.add_argument("--simulation", action="store_true")
     args = parser.parse_args()
     _, report = validate_coremark_axi_firmware(args.firmware, args.cache,
-                                             simulation=args.simulation, btb_mode=args.btb, backend=args.backend)
+                                             simulation=args.simulation, btb_mode=args.btb, backend=args.backend, isa=args.isa)
     print("AXI CoreMark firmware metadata matched: " + str(report))
 
 

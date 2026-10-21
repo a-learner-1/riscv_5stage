@@ -24,7 +24,7 @@ foreach d1_profile {smoke smoke_validation} {
         rtl/instr_mem.v rtl/instr_bus_adapter.v rtl/if_stage.v rtl/regfile.v rtl/decoder.v \
         rtl/alu.v rtl/data_mem.v rtl/data_bus_adapter.v rtl/uart_tx.v rtl/gpio_mmio.v \
         rtl/uart_rx.v rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v rtl/machine_timer.v \
-        rtl/branch_predictor.v rtl/cpu_top.v rtl/soc_instr_mem.v rtl/dmem_axi_lite_bridge.v \
+        rtl/branch_predictor.v rtl/rv32m_unit.v rtl/cpu_top.v rtl/soc_instr_mem.v rtl/dmem_axi_lite_bridge.v \
         rtl/axi_lite_ram.v rtl/instr_cache.v rtl/data_cache.v rtl/soc_axi_lite_top.v \
         rtl/axi_lite_1x2.v rtl/axi_lite_coremark_stats.v rtl/soc_coremark_axi_top.v \
         tb/coremark_axi_tb.v tb/coremark_d1_measure_tb.v

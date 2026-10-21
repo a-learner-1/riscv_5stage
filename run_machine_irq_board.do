@@ -21,7 +21,7 @@ vlog -sv -work machine_irq_board_work \
     rtl/instr_mem.v rtl/instr_bus_adapter.v rtl/branch_predictor.v rtl/if_stage.v \
     rtl/regfile.v rtl/decoder.v rtl/alu.v rtl/data_mem.v rtl/data_bus_adapter.v \
     rtl/uart_tx.v rtl/uart_rx.v rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v rtl/gpio_mmio.v \
-    rtl/machine_timer.v rtl/cpu_top.v rtl/board_reset.v rtl/soc_instr_mem.v \
+    rtl/machine_timer.v rtl/rv32m_unit.v rtl/cpu_top.v rtl/board_reset.v rtl/soc_instr_mem.v \
     rtl/instr_cache.v rtl/data_cache.v rtl/dmem_axi_lite_bridge.v \
     rtl/axi_lite_1x2.v rtl/axi_lite_ram.v rtl/axi_lite_irq_demo.v \
     rtl/soc_axi_lite_top.v rtl/machine_irq_board_top.v tb/machine_irq_board_tb.v

@@ -137,6 +137,9 @@ void portable_fini(core_portable *portable)
     if (coremark_axi_platform_failed) coremark_failed = 1u;
 
     ee_printf("COREMARK platform=%s\n", COREMARK_PLATFORM_NAME);
+#if COREMARK_ENABLE_M
+    ee_printf("COREMARK isa=rv32im\n");
+#endif
 #if COREMARK_ENABLE_D0_BRAM
     ee_printf("COREMARK data_backend=bram\n");
 #endif

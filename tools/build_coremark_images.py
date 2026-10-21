@@ -1,6 +1,6 @@
 """Build separate CoreMark functional checks and formal measurement firmware."""
 import argparse
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import hashlib
 import json
 import os
@@ -47,6 +47,7 @@ class BuildConfig:
     formal: bool
     seeds: str
     name: str
+    isa: str = field(default="rv32i", kw_only=True)
 
 
 def parse_args(argv=None):
@@ -57,6 +58,7 @@ def parse_args(argv=None):
     parser.add_argument("--clock-hz", type=int, help="positive signed 32-bit timer/core clock frequency")
     parser.add_argument("--uart-baud", type=int, help="positive signed 32-bit UART baud rate")
     parser.add_argument("--cross", help="RISC-V executable prefix, including the final dash")
+    parser.add_argument("--isa", choices=("rv32i", "rv32im"), default="rv32i")
     parser.add_argument("--name", help="distinct output name: ASCII letter then letters/digits/_")
     args = parser.parse_args(argv)
     default_clock, default_baud, iterations, formal, seeds = PROFILES[args.profile]
@@ -73,12 +75,14 @@ def parse_args(argv=None):
         parser.error("--iterations must fit the nonnegative signed 32-bit seed4")
     if iterations == 0 and not formal:
         parser.error("--iterations=0 is only allowed for formal profiles")
-    name = args.name if args.name is not None else args.profile.replace("-", "_")
+    name = args.name if args.name is not None else (("m_" if args.isa == "rv32im" else "") + args.profile.replace("-", "_"))
     if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]{0,63}", name):
         parser.error("--name must be an ASCII identifier of at most 64 characters")
     reserved_names = {profile.replace("-", "_"): profile for profile in PROFILES}
     reserved = name.lower()
     if reserved in reserved_names:
+        if args.isa != "rv32i":
+            parser.error("RV32IM requires a distinct output name")
         if reserved_names[reserved] != args.profile:
             parser.error("--name is reserved for profile " + reserved_names[reserved])
         if name != reserved:
@@ -87,7 +91,7 @@ def parse_args(argv=None):
             clock_hz != default_clock or uart_baud != default_baud):
         if args.name is None or reserved == args.profile:
             parser.error("Nondefault formal clock/baud requires --name with a distinct output name")
-    return BuildConfig(args.profile, clock_hz, uart_baud, iterations, formal, seeds, name), args.cross
+    return BuildConfig(args.profile, clock_hz, uart_baud, iterations, formal, seeds, name, isa=args.isa), args.cross
 
 
 def sha256(payload):
@@ -148,17 +152,20 @@ def image(payload, target, words, fill):
     target.write_text("".join(f"{word:08x}\n" for word in data), encoding="ascii")
 
 
-def validate_rv32i(text):
+def validate_linked_text(text, isa="rv32i"):
     """Check every linked instruction, including pulled-in libgcc code."""
+    if isa not in ("rv32i", "rv32im"):
+        raise RuntimeError("Unsupported linked-text ISA: " + str(isa))
     if len(text) % 4:
-        raise RuntimeError("RV32I .text is not a multiple of four bytes")
+        raise RuntimeError(isa.upper() + " .text is not a multiple of four bytes")
     allowed = {0x03, 0x0f, 0x13, 0x17, 0x23, 0x33, 0x37, 0x63, 0x67, 0x6f, 0x73}
     for address in range(0, len(text), 4):
         word = int.from_bytes(text[address:address + 4], "little")
         opcode, funct3, funct7 = word & 0x7f, (word >> 12) & 7, word >> 25
         valid = word & 3 == 3 and opcode in allowed
         if opcode == 0x33:
-            valid &= funct7 == 0 or (funct7 == 0x20 and funct3 in (0, 5))
+            valid &= (funct7 == 0 or (funct7 == 0x20 and funct3 in (0, 5)) or
+                      (isa == "rv32im" and funct7 == 1))
         if opcode == 0x13 and funct3 in (1, 5):
             valid &= funct7 == 0 or (funct3 == 5 and funct7 == 0x20)
         if opcode == 0x03:
@@ -175,12 +182,28 @@ def validate_rv32i(text):
         if opcode == 0x0f:
             valid &= funct3 == 0
         if not valid:
-            raise RuntimeError(f"Non-RV32I instruction 0x{word:08x} at 0x{address:08x}")
+            raise RuntimeError(f"Non-{isa.upper()} instruction 0x{word:08x} at 0x{address:08x}")
+
+
+def validate_rv32i(text):
+    """Compatibility entry point: legacy builders must never accept M."""
+    validate_linked_text(text, "rv32i")
+
+
+def validate_multilib(isa, selected, available):
+    """Reject a fallback library with C, CSR, floating-point or another ABI."""
+    if isa not in ("rv32i", "rv32im"):
+        raise RuntimeError("Unsupported compiler ISA: " + str(isa))
+    entry = next((line for line in available.splitlines() if line.split(";")[0] == selected), "")
+    switches = set(entry.split(";", 1)[1].split("@")) if ";" in entry else set()
+    if switches != {"", "march=" + isa, "mabi=ilp32"}:
+        raise RuntimeError("GCC must select an explicit " + isa + "/ilp32 multilib; selected " + selected)
+    return entry
 
 
 def compiler_flags(config, build_dir):
     seed_flag = "-D" + config.seeds.upper() + "_RUN=1"
-    return ["-march=rv32i", "-mabi=ilp32", "-O2", "-ffreestanding", "-fno-builtin",
+    return ["-march=" + config.isa, "-mabi=ilp32", "-O2", "-ffreestanding", "-fno-builtin",
             "-fno-stack-protector", "-fno-pic", "-msmall-data-limit=0", "-mno-relax",
             "-ffunction-sections", "-fdata-sections", "-Wall", "-Wextra",
             "-Wno-maybe-uninitialized", f"-DITERATIONS={config.iterations}", seed_flag,
@@ -219,6 +242,7 @@ def write_verilog_config(config, symbols):
              f"`define COREMARK_UART_BAUD 32'd{config.uart_baud}\n",
              f"`define COREMARK_ITERATIONS 32'd{config.iterations}\n",
              f"`define COREMARK_FORMAL {int(config.formal)}\n",
+             f"`define COREMARK_ENABLE_M {int(config.isa == 'rv32im')}\n",
              "`define COREMARK_TOTAL_DATA_SIZE 32'd2000\n",
              "`define COREMARK_SUCCESS 32'd1\n", "`define COREMARK_REJECTED 32'd2\n"]
     for name, macro in SYMBOL_MACROS.items():
@@ -247,13 +271,10 @@ def build(config, cross=None):
     commands, inputs = [], source_hashes()
     with (build_dir / "build.log").open("w", encoding="utf-8") as log:
         version = run([tool + "gcc", "--version"], log, commands).strip()
-        options = ["-march=rv32i", "-mabi=ilp32"]
+        options = ["-march=" + config.isa, "-mabi=ilp32"]
         selected = run([tool + "gcc", *options, "-print-multi-directory"], log, commands).strip()
         available = run([tool + "gcc", "-print-multi-lib"], log, commands).strip()
-        entry = next((line for line in available.splitlines() if line.split(";")[0] == selected), "")
-        switches = set(entry.split(";", 1)[1].split("@")) if ";" in entry else set()
-        if switches != {"", "march=rv32i", "mabi=ilp32"}:
-            raise RuntimeError("GCC must select an explicit rv32i/ilp32 multilib; selected " + selected)
+        entry = validate_multilib(config.isa, selected, available)
         libgcc = Path(run([tool + "gcc", *options, "-print-libgcc-file-name"], log, commands).strip()).resolve()
         if not libgcc.is_file():
             raise RuntimeError("Selected libgcc does not exist: " + str(libgcc))
@@ -291,7 +312,7 @@ def build(config, cross=None):
         for name in SYMBOL_MACROS:
             if not 0x10000 <= symbols[name] < 0x14000:
                 raise RuntimeError("Observation symbol is outside RAM: " + name)
-        validate_rv32i(binaries["text"])
+        validate_linked_text(binaries["text"], config.isa)
         for name, digest in inputs.items():
             if sha256((ROOT / name).read_bytes()) != digest:
                 raise RuntimeError("Build input changed during compilation: " + name)
@@ -312,7 +333,7 @@ def build(config, cross=None):
             "clock_hz": config.clock_hz, "tick_hz": config.clock_hz, "uart_baud": config.uart_baud,
             "compiler": version.splitlines()[0], "compiler_version_full": version,
             "compiler_flags": cflags, "linker_flags": ldflags, "linked_libraries": ["-lgcc"],
-            "march": "rv32i", "mabi": "ilp32", "optimization": "O2",
+            "march": config.isa, "enable_m": int(config.isa == "rv32im"), "mabi": "ilp32", "optimization": "O2",
             "multilib_selected": selected, "multilib_entry": entry, "multilib_available": available,
             "libgcc_path": str(libgcc), "libgcc_sha256": sha256(libgcc.read_bytes()),
             "tools": {name: {"path": str(path), "sha256": sha256(path.read_bytes())}
@@ -322,7 +343,8 @@ def build(config, cross=None):
             "text_bytes": len(binaries["text"]), "data_bytes": len(binaries["data"]),
             "bss_bytes": symbols["__bss_end"] - symbols["__bss_start"],
             "stack_headroom_bytes": headroom, "minimum_stack_headroom_bytes": MIN_STACK_BYTES,
-            "all_linked_text_checked_rv32i": True, "size_output": size_output.strip(),
+            "all_linked_text_checked_rv32i": config.isa == "rv32i",
+            "all_linked_text_checked_rv32im": config.isa == "rv32im", "size_output": size_output.strip(),
             "text_sha256": sha256(binaries["text"]), "data_sha256": sha256(binaries["data"]),
             "sources_sha256": inputs, "images_sha256": {rel(path): sha256(path.read_bytes()) for path in images},
             "elf_sha256": sha256(elf.read_bytes()), "map_sha256": sha256((build_dir / "coremark.map").read_bytes()),

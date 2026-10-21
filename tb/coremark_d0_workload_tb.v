@@ -64,7 +64,7 @@ module coremark_d0_workload_tb #(
         .IMEM_WORDS(8192), .DMEM_WORDS(4096), .DMEM_BASE_ADDR(32'h10000),
         .ENABLE_ICACHE(CACHE_ENABLED), .ENABLE_DCACHE(CACHE_ENABLED),
         .ENABLE_D0_BRAM(ENABLE_D0_BRAM),
-        .ENABLE_BRANCH_PRED(BP_ENABLED), .BTB_ENTRIES(`COREMARK_BTB_ENTRIES),
+        .ENABLE_M(`COREMARK_ENABLE_M), .ENABLE_BRANCH_PRED(BP_ENABLED), .BTB_ENTRIES(`COREMARK_BTB_ENTRIES),
         .UART_CLOCK_HZ(`COREMARK_CLOCK_HZ), .UART_BAUD(`COREMARK_UART_BAUD),
         .SIM_CONSOLE_ECHO(0)
     ) dut (
@@ -330,6 +330,7 @@ module coremark_d0_workload_tb #(
             require_text("COREMARK data_backend=bram\n");
         end
         require_text($sformatf("COREMARK platform=%s\n", `COREMARK_PLATFORM));
+        if (`COREMARK_ENABLE_M) require_text("COREMARK isa=rv32im\n");
         require_text($sformatf("COREMARK cache_enable=%0d", `COREMARK_CACHE_FLAGS));
         require_text($sformatf("COREMARK branch_pred_enable=%0d\n", BP_ENABLED));
         require_text("COREMARK btb_entries=64\n");

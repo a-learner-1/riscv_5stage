@@ -53,7 +53,8 @@ module decoder (
     output wire        is_ecall,
     output wire        is_ebreak,
     output wire        is_mret,
-    output wire        is_csr
+    output wire        is_csr,
+    output wire        is_m
 );
 
     wire [6:0] opcode;
@@ -63,6 +64,9 @@ module decoder (
     assign opcode = instr[6:0];
     assign funct3 = instr[14:12];
     assign funct7 = instr[31:25];
+    // All eight funct3 encodings are defined by RV32M. The CPU's ENABLE_M
+    // switch controls legality; every other OP funct7 remains unchanged.
+    assign is_m = (opcode == 7'b0110011) && (funct7 == 7'b0000001);
 
     assign rs1_addr = instr[19:15];
     assign rs2_addr = instr[24:20];

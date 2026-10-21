@@ -123,6 +123,7 @@ def check_coremark_profile(name):
         "COREMARK_RAM_FILE": json.dumps(images[1]), "COREMARK_CLOCK_HZ": "32'd" + str(clock),
         "COREMARK_UART_BAUD": "32'd" + str(baud), "COREMARK_ITERATIONS": "32'd" + str(iterations),
         "COREMARK_FORMAL": str(int(formal)), "COREMARK_TOTAL_DATA_SIZE": "32'd2000",
+        "COREMARK_ENABLE_M": "0",
         "COREMARK_SUCCESS": "32'd1", "COREMARK_REJECTED": "32'd2",
     }
     for symbol, macro in original.SYMBOL_MACROS.items():

@@ -6,7 +6,7 @@ if {[llength $axi_control_tests] == 0} {error "No AXI control tests selected"}
 set control_sources [list \
     rtl/instr_mem.v rtl/instr_bus_adapter.v rtl/if_stage.v rtl/regfile.v rtl/decoder.v rtl/alu.v \
     rtl/data_mem.v rtl/data_bus_adapter.v rtl/uart_tx.v rtl/uart_rx.v rtl/uart_rx_fifo.v \
-    rtl/uart_rx_mmio.v rtl/gpio_mmio.v rtl/cpu_top.v rtl/soc_instr_mem.v \
+    rtl/uart_rx_mmio.v rtl/gpio_mmio.v rtl/rv32m_unit.v rtl/cpu_top.v rtl/soc_instr_mem.v \
     rtl/dmem_axi_lite_bridge.v rtl/axi_lite_ram.v rtl/soc_axi_lite_top.v \
     rtl/axi_lite_1x2.v rtl/axi_lite_ctrl.v rtl/soc_axi_control_top.v]
 foreach test $axi_control_tests {

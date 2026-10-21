@@ -1,7 +1,7 @@
 catch {quit -sim}
 if {![file exists work]} {vlib work}
 vmap work work
-vlog -sv -work work rtl/instr_mem.v rtl/instr_bus_adapter.v rtl/if_stage.v rtl/regfile.v rtl/decoder.v rtl/alu.v rtl/data_mem.v rtl/data_bus_adapter.v rtl/uart_tx.v rtl/gpio_mmio.v rtl/uart_rx.v rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v rtl/cpu_top.v tb/load_store_tb.v tb/data_mem_tb.v tb/load_store_decoder_tb.v
+vlog -sv -work work rtl/instr_mem.v rtl/instr_bus_adapter.v rtl/if_stage.v rtl/regfile.v rtl/decoder.v rtl/alu.v rtl/data_mem.v rtl/data_bus_adapter.v rtl/uart_tx.v rtl/gpio_mmio.v rtl/uart_rx.v rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v rtl/rv32m_unit.v rtl/cpu_top.v tb/load_store_tb.v tb/data_mem_tb.v tb/load_store_decoder_tb.v
 vsim -voptargs=+acc -onfinish stop -wlf cpu_load_store_run.wlf work.load_store_tb
 add wave sim:/load_store_tb/clk sim:/load_store_tb/rst_n
 add wave sim:/load_store_tb/pc_x sim:/load_store_tb/instr_x sim:/load_store_tb/valid_x

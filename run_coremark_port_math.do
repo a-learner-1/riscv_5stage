@@ -8,7 +8,7 @@ vmap coremark_port_math_work coremark_port_math_work
 vlog -sv +incdir+. -work coremark_port_math_work \
     rtl/instr_mem.v rtl/instr_bus_adapter.v rtl/if_stage.v rtl/regfile.v rtl/decoder.v \
     rtl/alu.v rtl/data_mem.v rtl/data_bus_adapter.v rtl/uart_tx.v rtl/gpio_mmio.v \
-    rtl/uart_rx.v rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v rtl/machine_timer.v rtl/cpu_top.v \
+    rtl/uart_rx.v rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v rtl/machine_timer.v rtl/rv32m_unit.v rtl/cpu_top.v \
     tb/coremark_port_math_tb.v
 vsim -voptargs="+acc" -onfinish stop -wlf build/coremark_port_math.wlf coremark_port_math_work.coremark_port_math_tb
 add wave sim:/coremark_port_math_tb/test_pass

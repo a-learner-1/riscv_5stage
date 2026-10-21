@@ -64,7 +64,7 @@ AXI_SYMBOL_BYTES = {
 }
 HARDWARE_SOURCES = tuple("rtl/" + name for name in (
     "instr_mem.v", "instr_bus_adapter.v", "branch_predictor.v", "if_stage.v", "regfile.v",
-    "decoder.v", "alu.v", "data_mem.v", "data_bus_adapter.v", "uart_tx.v",
+    "decoder.v", "alu.v", "rv32m_unit.v", "data_mem.v", "data_bus_adapter.v", "uart_tx.v",
     "uart_rx.v", "uart_rx_fifo.v", "uart_rx_mmio.v", "gpio_mmio.v",
     "machine_timer.v", "cpu_top.v", "board_reset.v", "soc_instr_mem.v",
     "dmem_axi_lite_bridge.v", "axi_lite_ram.v", "soc_axi_lite_top.v",
@@ -89,8 +89,8 @@ class BuildConfig(legacy.BuildConfig):
     backend: str = "axi"
 
 
-def output_name(cache_mode, btb_mode, profile, backend="axi"):
-    return (("d0" if backend == "bram" else "axi") + "_cache_" + cache_mode + ("_btb" if btb_mode == "on" else "") +
+def output_name(cache_mode, btb_mode, profile, backend="axi", isa="rv32i"):
+    return (("d0" if backend == "bram" else "axi") + ("_m" if isa == "rv32im" else "") + "_cache_" + cache_mode + ("_btb" if btb_mode == "on" else "") +
             "_" + profile.replace("-", "_"))
 
 
@@ -100,6 +100,8 @@ def bp_config(config):
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
+    parser.add_argument("--isa", choices=("rv32i", "rv32im"), default="rv32i",
+                        help="RV32IM emits distinct images and requires ENABLE_M=1 hardware")
     parser.add_argument("--backend", choices=("axi", "bram"), default="axi",
                         help="bram selects the D0 SoC-local synchronous RAM backend after D-cache")
     parser.add_argument("--cache", choices=("off", "on", "both"), default="both")
@@ -127,7 +129,7 @@ def parse_args(argv=None):
         (mode, args.btb) for mode in (("off", "on") if args.cache == "both" else (args.cache,)))
     configs = [BuildConfig(
         args.profile, 50000000, baud, iterations, formal, seeds,
-        output_name(cache_mode, btb_mode, args.profile, args.backend), cache_mode, btb_mode, args.backend)
+        output_name(cache_mode, btb_mode, args.profile, args.backend, args.isa), cache_mode, btb_mode, args.backend, isa=args.isa)
         for cache_mode, btb_mode in modes]
     return configs, args.cross
 
@@ -147,7 +149,7 @@ def source_hashes(root=ROOT):
 
 
 def platform_name(config):
-    return ("d0" if config.backend == "bram" else "axi") + "-cache-" + config.cache_mode + ("-btb" if config.btb_mode == "on" else "")
+    return ("d0" if config.backend == "bram" else "axi") + ("-m" if config.isa == "rv32im" else "") + "-cache-" + config.cache_mode + ("-btb" if config.btb_mode == "on" else "")
 
 
 def memory_location(config):
@@ -169,6 +171,7 @@ def write_config_header(config, build_dir, version, cflags, ldflags):
              f"#define COREMARK_CLOCK_HZ {config.clock_hz}u",
              f"#define COREMARK_UART_BAUD {config.uart_baud}u",
              f"#define COREMARK_FORMAL {int(config.formal)}",
+             f"#define COREMARK_ENABLE_M {int(config.isa == 'rv32im')}",
              f"#define COREMARK_BUILD_ITERATIONS {config.iterations}u",
              "#define COREMARK_PROFILE_NAME " + json.dumps(config.profile),
              "#define COREMARK_BUILD_PROFILE COREMARK_PROFILE_NAME",
@@ -234,7 +237,9 @@ def build(config, cross=None):
         raise RuntimeError("One firmware build requires cache_mode off or on")
     if config.btb_mode not in ("off", "on") or (config.btb_mode == "on" and config.cache_mode != "on"):
         raise RuntimeError("BTB on is supported only by the Cache on comparison platform")
-    expected_name = output_name(config.cache_mode, config.btb_mode, config.profile, config.backend)
+    if config.isa not in ("rv32i", "rv32im"):
+        raise RuntimeError("CoreMark supports only RV32I or RV32IM")
+    expected_name = output_name(config.cache_mode, config.btb_mode, config.profile, config.backend, config.isa)
     if config.profile not in PROFILES or config.name != expected_name or config.clock_hz != 50000000:
         raise RuntimeError("CoreMark AXI output name/profile/clock violates the fixed comparison contract")
     expected_baud, _, expected_formal, expected_seeds = PROFILES[config.profile]
@@ -249,13 +254,10 @@ def build(config, cross=None):
     commands, inputs = [], source_hashes()
     with (build_dir / "build.log").open("w", encoding="utf-8") as log:
         version = legacy.run([tool + "gcc", "--version"], log, commands).strip()
-        options = ["-march=rv32i", "-mabi=ilp32"]
+        options = ["-march=" + config.isa, "-mabi=ilp32"]
         selected = legacy.run([tool + "gcc", *options, "-print-multi-directory"], log, commands).strip()
         available = legacy.run([tool + "gcc", "-print-multi-lib"], log, commands).strip()
-        entry = next((line for line in available.splitlines() if line.split(";")[0] == selected), "")
-        switches = set(entry.split(";", 1)[1].split("@")) if ";" in entry else set()
-        if switches != {"", "march=rv32i", "mabi=ilp32"}:
-            raise RuntimeError("GCC must select an explicit rv32i/ilp32 multilib; selected " + selected)
+        entry = legacy.validate_multilib(config.isa, selected, available)
         libgcc = Path(legacy.run([tool + "gcc", *options, "-print-libgcc-file-name"],
                                  log, commands).strip()).resolve()
         if not libgcc.is_file():
@@ -304,7 +306,7 @@ def build(config, cross=None):
         for name, width in AXI_SYMBOL_BYTES.items():
             if symbols[name] % 4 or not 0x10000 <= symbols[name] <= 0x14000 - width:
                 raise RuntimeError("AXI observation symbol is outside/aligned incorrectly in RAM: " + name)
-        legacy.validate_rv32i(binaries["text"])
+        legacy.validate_linked_text(binaries["text"], config.isa)
         for name, digest in inputs.items():
             if legacy.sha256((ROOT / name).read_bytes()) != digest:
                 raise RuntimeError("Build input changed during compilation: " + name)
@@ -322,7 +324,7 @@ def build(config, cross=None):
             "clock_hz": config.clock_hz, "tick_hz": config.clock_hz, "uart_baud": config.uart_baud,
             "compiler": version.splitlines()[0], "compiler_version_full": version,
             "compiler_flags": cflags, "linker_flags": ldflags, "linked_libraries": ["-lgcc"],
-            "march": "rv32i", "mabi": "ilp32", "optimization": "O2",
+            "march": config.isa, "enable_m": int(config.isa == "rv32im"), "mabi": "ilp32", "optimization": "O2",
             "multilib_selected": selected, "multilib_entry": entry, "multilib_available": available,
             "libgcc_path": str(libgcc), "libgcc_sha256": legacy.sha256(libgcc.read_bytes()),
             "tools": {name: {"path": str(path), "sha256": legacy.sha256(path.read_bytes())}
@@ -357,7 +359,8 @@ def build(config, cross=None):
             "text_bytes": len(binaries["text"]), "data_bytes": len(binaries["data"]),
             "bss_bytes": symbols["__bss_end"] - symbols["__bss_start"],
             "stack_headroom_bytes": headroom, "minimum_stack_headroom_bytes": MIN_STACK_BYTES,
-            "all_linked_text_checked_rv32i": True, "size_output": size_output.strip(),
+            "all_linked_text_checked_rv32i": config.isa == "rv32i",
+            "all_linked_text_checked_rv32im": config.isa == "rv32im", "size_output": size_output.strip(),
             "text_sha256": legacy.sha256(binaries["text"]), "data_sha256": legacy.sha256(binaries["data"]),
             "sources_sha256": inputs,
             "images_sha256": {legacy.rel(path): legacy.sha256(path.read_bytes()) for path in images},
