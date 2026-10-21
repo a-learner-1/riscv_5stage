@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "baseline_commit": "46cabef29ca5ae51138996664e8de9a5a0a59a13",
+  "baseline_archive_files_unchanged_except_cpu5_top": 653,
+  "tested_source_identity_checks": 33,
+  "main_preexisting_files": 845,
+  "authorized_update": "rtl/cpu5_top.v",
+  "remaining_main_files_preserved": 844,
+  "scope": "stage 3A-1 ALU subset only",
+  "ISA": "21 integer instructions",
+  "full_A01_A16": "NOT RUN",
+  "forwarding": "NOT IMPLEMENTED",
+  "branch_D_M_CSR_Trap_IRQ": "NOT IMPLEMENTED",
+  "STA": "NOT RUN",
+  "board": "NOT RUN"
+}

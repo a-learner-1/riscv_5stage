@@ -1,0 +1,56 @@
+{
+  "test": "cpu5_alu_decode mutation check",
+  "positive_exit_code": 0,
+  "cases": 34868,
+  "supported": 25386,
+  "unsupported": 9482,
+  "semantic_cases": 21,
+  "mutations": [
+    {
+      "name": "accept_m",
+      "exit_code": 1,
+      "rejected": true,
+      "diagnostics": [
+        "# DECODE FAIL case=9 instr=03d886b3 supported=1 uses=11 writes=1 imm=00000000 op= 0 operands=000",
+        "# ** Fatal: decode controls differ",
+        "# ** Error: ALU decode test stopped without success"
+      ]
+    },
+    {
+      "name": "sub_as_add",
+      "exit_code": 1,
+      "rejected": true,
+      "diagnostics": [
+        "# DECODE FAIL case=257 instr=41d886b3 supported=1 uses=11 writes=1 imm=00000000 op= 0 operands=000",
+        "# ** Fatal: decode controls differ",
+        "# ** Error: ALU decode test stopped without success"
+      ]
+    },
+    {
+      "name": "zero_extend_i",
+      "exit_code": 1,
+      "rejected": true,
+      "diagnostics": [
+        "# DECODE FAIL case=3393 instr=80000013 supported=1 uses=10 writes=0 imm=00000800 op= 0 operands=001",
+        "# ** Fatal: decode controls differ",
+        "# ** Error: ALU decode test stopped without success"
+      ]
+    },
+    {
+      "name": "write_x0",
+      "exit_code": 1,
+      "rejected": true,
+      "diagnostics": [
+        "# DECODE FAIL case=1025 instr=01f00033 supported=1 uses=11 writes=1 imm=00000000 op= 0 operands=000",
+        "# ** Fatal: decode controls differ",
+        "# ** Error: ALU decode test stopped without success"
+      ]
+    }
+  ],
+  "sha256": {
+    "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+    "tb/cpu5_alu_decode_tb.v": "f70817a0dd2e200959daa20cd77bb1469be7417270da0db7e1de3fdec455b562",
+    "run_cpu5_alu_decode.do": "57856bf2e1c62523cdb4201ad021176b21e03e93e4e89bd7b3632b1fc10ca336",
+    "rtl/alu.v": "5442f0b5484053bf5bbbf6d4c8a81ad174cd8c1ea397c97076dbab59efe64173"
+  }
+}

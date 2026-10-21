@@ -1,0 +1,92 @@
+{
+  "schema": 1,
+  "date": "2026-10-21",
+  "scope": "Four real CPU5 ALU control RTL defects; production/main-work sources unchanged.",
+  "good_inputs_and_evidence_before": {
+    "rtl/alu.v": "5442f0b5484053bf5bbbf6d4c8a81ad174cd8c1ea397c97076dbab59efe64173",
+    "rtl/regfile.v": "72222a39fefdedb25c9c045f641b1fa2e07492a155d16d9ee0333758bc22efb0",
+    "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+    "rtl/cpu5_alu_pipeline.v": "dd890386011116f0d7c7b74b82c2eb2ce0dfb06d15c5eecb767ffa37a0b6b7a5",
+    "rtl/cpu5_pipeline_types.vh": "f6e7855a349b15464544a75d62ccb2b1d07d0305e6cd95ba1b08531049a75d41",
+    "tb/cpu5_alu_control_tb.v": "1f5fe947bbfce25432c6a3d4c2f7a9fd98977a99f9b71d3db3b3a0328060263b",
+    "run_cpu5_alu_control.do": "e9e0594a42a32e987461c5841405e63ada4f85b20a56da797a29c5ce1c518aa9",
+    "build/cpu5_s2_control/transcript.log": "0814fea9bb9bcbd181a9a03b47792011ea20877be975675bd24e203b09a51ed6",
+    "build/cpu5_s2_control/control_trace.csv": "a9df4656c26e98706ee9257d6976eaf2d79a196d67eb4cfb76587b1c67707093",
+    "build/cpu5_s2_control/control.wlf": "e79627c505276c23142766638c1a676dc301a9fd37d3b9a08e18f58184e0917d",
+    "build/cpu5_s2_control/verification.json": "10ead36ab2bf5834414934b22e413e3545bb5d8e6479bb64e9c2294ff19f701d"
+  },
+  "good_inputs_and_evidence_after": {
+    "rtl/alu.v": "5442f0b5484053bf5bbbf6d4c8a81ad174cd8c1ea397c97076dbab59efe64173",
+    "rtl/regfile.v": "72222a39fefdedb25c9c045f641b1fa2e07492a155d16d9ee0333758bc22efb0",
+    "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+    "rtl/cpu5_alu_pipeline.v": "dd890386011116f0d7c7b74b82c2eb2ce0dfb06d15c5eecb767ffa37a0b6b7a5",
+    "rtl/cpu5_pipeline_types.vh": "f6e7855a349b15464544a75d62ccb2b1d07d0305e6cd95ba1b08531049a75d41",
+    "tb/cpu5_alu_control_tb.v": "1f5fe947bbfce25432c6a3d4c2f7a9fd98977a99f9b71d3db3b3a0328060263b",
+    "run_cpu5_alu_control.do": "e9e0594a42a32e987461c5841405e63ada4f85b20a56da797a29c5ce1c518aa9",
+    "build/cpu5_s2_control/transcript.log": "0814fea9bb9bcbd181a9a03b47792011ea20877be975675bd24e203b09a51ed6",
+    "build/cpu5_s2_control/control_trace.csv": "a9df4656c26e98706ee9257d6976eaf2d79a196d67eb4cfb76587b1c67707093",
+    "build/cpu5_s2_control/control.wlf": "e79627c505276c23142766638c1a676dc301a9fd37d3b9a08e18f58184e0917d",
+    "build/cpu5_s2_control/verification.json": "10ead36ab2bf5834414934b22e413e3545bb5d8e6479bb64e9c2294ff19f701d"
+  },
+  "original_good_run_and_source_hashes_preserved": true,
+  "results": [
+    {
+      "id": "stale_wb_raw",
+      "description": "Omit the WB producer from both conservative source-dependency checks.",
+      "isolated_workdir": "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s2\\control_work\\mutations\\stale_wb_raw",
+      "good_core_sha256": "dd890386011116f0d7c7b74b82c2eb2ce0dfb06d15c5eecb767ffa37a0b6b7a5",
+      "mutated_core_sha256": "f2250ce0dd55a0e9b393b003d701945f8adc45b3fb1bfdcd4dbcee8f328beee0",
+      "exit_code": 1,
+      "expected_assertion_message": "dependent ID accepted at producer WB write edge",
+      "expected_assertion_seen": true,
+      "compile_errors_zero": true,
+      "success_marker_absent": true,
+      "process_log_sha256": "f3db021da93a99afb5ad01d428d51d11416938331e9af1a445e367f14c4a0803",
+      "rejected_as_expected": true
+    },
+    {
+      "id": "delayed_instret",
+      "description": "Increment instret from registered retire_valid one edge after MEM fire.",
+      "isolated_workdir": "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s2\\control_work\\mutations\\delayed_instret",
+      "good_core_sha256": "dd890386011116f0d7c7b74b82c2eb2ce0dfb06d15c5eecb767ffa37a0b6b7a5",
+      "mutated_core_sha256": "d65c1caa27fdf53e24f9c151e8dde61f4b3bb3e57e2ff43740fe5861f131c443",
+      "exit_code": 1,
+      "expected_assertion_message": "registered retire/counter edge mismatch",
+      "expected_assertion_seen": true,
+      "compile_errors_zero": true,
+      "success_marker_absent": true,
+      "process_log_sha256": "baa70163582e5b1cb854a0a988530e712deca5fca3cb5956035bdf61b27137e5",
+      "rejected_as_expected": true
+    },
+    {
+      "id": "wb_blocked_by_mem_enable",
+      "description": "Incorrectly require MEM enable before draining already retired WB.",
+      "isolated_workdir": "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s2\\control_work\\mutations\\wb_blocked_by_mem_enable",
+      "good_core_sha256": "dd890386011116f0d7c7b74b82c2eb2ce0dfb06d15c5eecb767ffa37a0b6b7a5",
+      "mutated_core_sha256": "1566753e173a674a70b0a2630ba63388a6c2a2ba2efec231e68b660598297c34",
+      "exit_code": 1,
+      "expected_assertion_message": "MEM hold failed to drain older WB exactly once",
+      "expected_assertion_seen": true,
+      "compile_errors_zero": true,
+      "success_marker_absent": true,
+      "process_log_sha256": "1571ee7c2e3fc68154869da86501d49014381ceb87b5d6913a6e37c97c19fcbe",
+      "rejected_as_expected": true
+    },
+    {
+      "id": "flush_drops_retired_wb",
+      "description": "Apply a global flush to the already retired WB slot: suppress its write and clear it.",
+      "isolated_workdir": "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s2\\control_work\\mutations\\flush_drops_retired_wb",
+      "good_core_sha256": "dd890386011116f0d7c7b74b82c2eb2ce0dfb06d15c5eecb767ffa37a0b6b7a5",
+      "mutated_core_sha256": "e2bb002c7cb9c42fd4ccb5ba9384ed674cf47bd9e401fadc6e0d12a2b2458e9b",
+      "exit_code": 1,
+      "expected_assertion_message": "flush failed to kill MEM/EX/input while preserving old WB",
+      "expected_assertion_seen": true,
+      "compile_errors_zero": true,
+      "success_marker_absent": true,
+      "process_log_sha256": "00497cf97c3e8dabce15546a7e1ef0a6a7f8a8e885eb17a293c57c12f996dcb0",
+      "rejected_as_expected": true
+    }
+  ],
+  "all_four_rejected": true,
+  "pass": true
+}

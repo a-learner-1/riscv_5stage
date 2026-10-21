@@ -1,0 +1,236 @@
+{
+  "schema": 1,
+  "seed": 94438305,
+  "isa_subset": "RV32I integer ALU 21 instructions",
+  "retire_count": 550,
+  "program_words": 551,
+  "halt_pc": 2200,
+  "halt_instr": 8227,
+  "no_control_flow": true,
+  "initial_state": "program explicitly clears x1..x31",
+  "oracle": "decode actual encoded words; independent Python execution",
+  "pc_base": 0,
+  "seq_base": 0,
+  "seq_rule": "one per accepted sequential IF packet; no redirects",
+  "value_rule": "raw ALU result, including rd=x0; writes is architectural GPR write-enable",
+  "opcode_counts": {
+    "ADD": 30,
+    "ADDI": 76,
+    "AND": 21,
+    "ANDI": 21,
+    "AUIPC": 24,
+    "LUI": 33,
+    "OR": 21,
+    "ORI": 21,
+    "SLL": 27,
+    "SLLI": 22,
+    "SLT": 22,
+    "SLTI": 21,
+    "SLTIU": 21,
+    "SLTU": 21,
+    "SRA": 26,
+    "SRAI": 22,
+    "SRL": 26,
+    "SRLI": 22,
+    "SUB": 28,
+    "XOR": 21,
+    "XORI": 24
+  },
+  "sections": [
+    {
+      "name": "explicit_register_initialization",
+      "first_seq": 0
+    },
+    {
+      "name": "boundary_alu_and_signedness",
+      "first_seq": 31
+    },
+    {
+      "name": "latest_writer_raw_and_x0",
+      "first_seq": 172
+    },
+    {
+      "name": "deterministic_mixed_dependencies",
+      "first_seq": 211
+    }
+  ],
+  "dependency_source_counts": {
+    "1": 208,
+    "4plus": 381,
+    "3": 10,
+    "2": 26
+  },
+  "x0_write_retirements": 35,
+  "x0_source_retirements": 56,
+  "same_source_retirements": 55,
+  "unsupported_count": 45,
+  "selftest_checks": 91,
+  "fault_case": {
+    "fault_pc": 12,
+    "older_prefix_retire_count": 3,
+    "program_words": 9,
+    "expected_files": "if_fault_expected_* contain all 8 instructions; only prefix before injected fault retires"
+  },
+  "final_gpr": [
+    {
+      "reg": 0,
+      "value": 0,
+      "hex": "00000000"
+    },
+    {
+      "reg": 1,
+      "value": 3156844544,
+      "hex": "bc29a000"
+    },
+    {
+      "reg": 2,
+      "value": 2649329664,
+      "hex": "9de99000"
+    },
+    {
+      "reg": 3,
+      "value": 0,
+      "hex": "00000000"
+    },
+    {
+      "reg": 4,
+      "value": 3950712964,
+      "hex": "eb7b1884"
+    },
+    {
+      "reg": 5,
+      "value": 4294965249,
+      "hex": "fffff801"
+    },
+    {
+      "reg": 6,
+      "value": 4294967295,
+      "hex": "ffffffff"
+    },
+    {
+      "reg": 7,
+      "value": 0,
+      "hex": "00000000"
+    },
+    {
+      "reg": 8,
+      "value": 2047,
+      "hex": "000007ff"
+    },
+    {
+      "reg": 9,
+      "value": 4294967295,
+      "hex": "ffffffff"
+    },
+    {
+      "reg": 10,
+      "value": 2305075332,
+      "hex": "8964a884"
+    },
+    {
+      "reg": 11,
+      "value": 2,
+      "hex": "00000002"
+    },
+    {
+      "reg": 12,
+      "value": 1,
+      "hex": "00000001"
+    },
+    {
+      "reg": 13,
+      "value": 4294967295,
+      "hex": "ffffffff"
+    },
+    {
+      "reg": 14,
+      "value": 0,
+      "hex": "00000000"
+    },
+    {
+      "reg": 15,
+      "value": 0,
+      "hex": "00000000"
+    },
+    {
+      "reg": 16,
+      "value": 0,
+      "hex": "00000000"
+    },
+    {
+      "reg": 17,
+      "value": 0,
+      "hex": "00000000"
+    },
+    {
+      "reg": 18,
+      "value": 0,
+      "hex": "00000000"
+    },
+    {
+      "reg": 19,
+      "value": 0,
+      "hex": "00000000"
+    },
+    {
+      "reg": 20,
+      "value": 0,
+      "hex": "00000000"
+    },
+    {
+      "reg": 21,
+      "value": 0,
+      "hex": "00000000"
+    },
+    {
+      "reg": 22,
+      "value": 0,
+      "hex": "00000000"
+    },
+    {
+      "reg": 23,
+      "value": 0,
+      "hex": "00000000"
+    },
+    {
+      "reg": 24,
+      "value": 0,
+      "hex": "00000000"
+    },
+    {
+      "reg": 25,
+      "value": 0,
+      "hex": "00000000"
+    },
+    {
+      "reg": 26,
+      "value": 0,
+      "hex": "00000000"
+    },
+    {
+      "reg": 27,
+      "value": 1,
+      "hex": "00000001"
+    },
+    {
+      "reg": 28,
+      "value": 2047,
+      "hex": "000007ff"
+    },
+    {
+      "reg": 29,
+      "value": 0,
+      "hex": "00000000"
+    },
+    {
+      "reg": 30,
+      "value": 1,
+      "hex": "00000001"
+    },
+    {
+      "reg": 31,
+      "value": 2500339676,
+      "hex": "950827dc"
+    }
+  ]
+}

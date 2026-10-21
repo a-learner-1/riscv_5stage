@@ -1,0 +1,14 @@
+{
+  "id": "wb_blocked_by_mem_enable",
+  "description": "Incorrectly require MEM enable before draining already retired WB.",
+  "isolated_workdir": "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s2\\control_work\\mutations\\wb_blocked_by_mem_enable",
+  "good_core_sha256": "dd890386011116f0d7c7b74b82c2eb2ce0dfb06d15c5eecb767ffa37a0b6b7a5",
+  "mutated_core_sha256": "1566753e173a674a70b0a2630ba63388a6c2a2ba2efec231e68b660598297c34",
+  "exit_code": 1,
+  "expected_assertion_message": "MEM hold failed to drain older WB exactly once",
+  "expected_assertion_seen": true,
+  "compile_errors_zero": true,
+  "success_marker_absent": true,
+  "process_log_sha256": "1571ee7c2e3fc68154869da86501d49014381ceb87b5d6913a6e37c97c19fcbe",
+  "rejected_as_expected": true
+}

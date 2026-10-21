@@ -1,6 +1,7 @@
-// §10 initial scaffold, METADATA ONLY. This is not a runnable ISA CPU.
-// All architecture side effects and counters are disabled. No board/project
-// references this module. Use cpu_top for the verified three-stage product.
+// SKELETON_ONLY=1 preserves the metadata-only scaffold. =0 enables stage3A-1:
+// 21 integer ALU instructions, conservative RAW waits, MEM retirement/GPR WB.
+// Branch/D/M/CSR/Trap/IRQ/profile remain unimplemented and cannot produce effects.
+// No board/project references this module; cpu_top is the verified product.
 module cpu5_top #(
     parameter PROGRAM_FILE="programs/rv32i_regression.hex", DATA_FILE="",
     parameter integer IMEM_WORDS=8192, DMEM_WORDS=4096,
@@ -53,6 +54,16 @@ module cpu5_top #(
     wire [SEQ_BITS-1:0] debug_wb_seq;
     wire [EPOCH_BITS-1:0] debug_ex_epoch;
     wire unused_redirect_ready,unused_bp_ready,unused_bp_update;
+    wire skeleton_ready,skeleton_ex_valid;
+    wire [31:0] skeleton_ex_pc,skeleton_ex_instr;
+    wire alu_ready,alu_ex_valid,alu_wb_we,alu_retire_valid;
+    wire [31:0] alu_ex_pc,alu_ex_instr,alu_wb_pc,alu_wb_data;
+    wire [4:0] alu_wb_rd;
+    wire [63:0] alu_cycle_count,alu_instret_count;
+    assign ifid_ready=SKELETON_ONLY!=0?skeleton_ready:alu_ready;
+    assign valid_x=SKELETON_ONLY!=0?skeleton_ex_valid:alu_ex_valid;
+    assign pc_x=SKELETON_ONLY!=0?skeleton_ex_pc:alu_ex_pc;
+    assign instr_x=SKELETON_ONLY!=0?skeleton_ex_instr:alu_ex_instr;
 
     // IF/ID is the original IF's output register, plus adapter sidebands.
     // No extra IF/ID capture edge is inserted here.
@@ -76,7 +87,7 @@ module cpu5_top #(
         .bp_lookup_count(bp_lookup_count),.bp_hit_count(bp_hit_count),.bp_taken_count(bp_taken_count));
 
     cpu5_pipeline_skeleton #(.SEQ_BITS(SEQ_BITS),.EPOCH_BITS(EPOCH_BITS)) u_pipeline(
-        .clk(clk),.rst_n(rst_n),.in_valid(ifid_valid_q),.in_ready(ifid_ready),
+        .clk(clk),.rst_n(rst_n),.in_valid(ifid_valid_q&&(SKELETON_ONLY!=0)),.in_ready(skeleton_ready),
         .in_pc(ifid_q.pc),.in_instr(ifid_q.instr),.in_pred_next_pc(ifid_q.pred_next_pc),
         .in_pred_taken(ifid_q.pred_taken),.in_pred_hit(ifid_q.pred_hit),
         .in_fetch_error(ifid_q.fetch_error),.in_fetch_tval(ifid_q.fetch_tval),
@@ -85,12 +96,32 @@ module cpu5_top #(
         .flush_valid(1'b0),.flush_cut_seq({SEQ_BITS{1'b0}}),
         .debug_wb_valid(debug_wb_valid),.debug_wb_pc(debug_wb_pc),
         .debug_wb_instr(debug_wb_instr),.debug_wb_seq(debug_wb_seq),
-        .debug_ex_valid(valid_x),.debug_ex_pc(pc_x),.debug_ex_instr(instr_x),
+        .debug_ex_valid(skeleton_ex_valid),.debug_ex_pc(skeleton_ex_pc),.debug_ex_instr(skeleton_ex_instr),
         .debug_ex_epoch(debug_ex_epoch));
 
-    // No decoder, regfile, ALU, D/M owner or commit controller is implemented.
-    // The integrated hazard instance is present for interface elaboration only;
-    // its real truth table is tested independently before ISA wiring begins.
+    generate if(SKELETON_ONLY==0)begin:g_alu
+        cpu5_alu_pipeline #(.SEQ_BITS(SEQ_BITS),.EPOCH_BITS(EPOCH_BITS)) u_pipeline(
+            .clk(clk),.rst_n(rst_n),.in_valid(ifid_valid_q),.in_ready(alu_ready),
+            .in_pc(ifid_q.pc),.in_instr(ifid_q.instr),.in_pred_next_pc(ifid_q.pred_next_pc),
+            .in_pred_taken(ifid_q.pred_taken),.in_pred_hit(ifid_q.pred_hit),
+            .in_fetch_error(ifid_q.fetch_error),.in_fetch_tval(ifid_q.fetch_tval),
+            .in_seq(ifid_q.seq),.in_epoch(ifid_q.epoch),
+            .id_enable(1'b1),.ex_enable(1'b1),.mem_enable(1'b1),.wb_ready(1'b1),
+            .flush_valid(1'b0),.flush_cut_seq({SEQ_BITS{1'b0}}),
+            .ex_valid(alu_ex_valid),.ex_pc(alu_ex_pc),.ex_instr(alu_ex_instr),
+            .wb_pc(alu_wb_pc),.wb_rd(alu_wb_rd),.wb_data(alu_wb_data),.wb_we(alu_wb_we),
+            .retire_valid(alu_retire_valid),.retire_pc(),.retire_instr(),.retire_seq(),
+            .retire_rd(),.retire_value(),.retire_writes_rd(),
+            .cycle_count(alu_cycle_count),.instret_count(alu_instret_count),.arch_next_pc_q(),
+            .halted(),.halt_pc(),.halt_instr(),.halt_seq(),.halt_fetch_error(),
+            .id_raw_wait(),.retire_fire(),.wb_fire());
+    end else begin:g_no_alu
+        assign {alu_ready,alu_ex_valid,alu_ex_pc,alu_ex_instr,alu_wb_pc,alu_wb_rd,
+                alu_wb_data,alu_wb_we,alu_retire_valid,alu_cycle_count,alu_instret_count}=0;
+    end endgenerate
+
+    // Forwarding hazard remains an independently verified interface placeholder.
+    // ALU mode uses conservative ID waits, not the stage3A-2 forwarding paths.
     wire [31:0] placeholder_rs1,placeholder_rs2;
     wire [2:0] placeholder_fwd1,placeholder_fwd2;
     wire placeholder_stall,unused_stall1,unused_stall2,unused_ex1,unused_ex2,unused_ex;
@@ -103,8 +134,11 @@ module cpu5_top #(
         .rs1_value(placeholder_rs1),.rs2_value(placeholder_rs2),.fwd1(placeholder_fwd1),.fwd2(placeholder_fwd2),
         .stall1(unused_stall1),.stall2(unused_stall2),.stall(placeholder_stall),
         .ex_block1(unused_ex1),.ex_block2(unused_ex2),.ex_block(unused_ex));
-    assign {wb_pc,wb_rd,wb_data,wb_we,retire_valid}=0;
-    assign {cycle_count,instret_count,perf_cycle_events}=0;
+    assign wb_pc=alu_wb_pc;assign wb_rd=alu_wb_rd;assign wb_data=alu_wb_data;
+    assign wb_we=alu_wb_we;assign retire_valid=alu_retire_valid;
+    assign cycle_count=alu_cycle_count;assign instret_count=alu_instret_count;
+    // Full ten-class profiling is deliberately not connected in stage3A-1.
+    assign perf_cycle_events=0;
     assign {dmem_req_valid,dmem_req_write,dmem_req_addr,dmem_req_size,
             dmem_req_wdata,dmem_req_wstrb,dmem_rsp_ready,dmem_fault}=0;
     assign {trap_valid,trap_pc,trap_cause,trap_tval}=0;
@@ -113,9 +147,9 @@ module cpu5_top #(
     assign gpio_out=8'd0; assign gpio_oe=8'd0;
     // synthesis translate_off
     initial begin
-        if(SKELETON_ONLY!=1 || EXTERNAL_IMEM!=1 || SEQ_BITS!=64 ||
+        if((SKELETON_ONLY!=0 && SKELETON_ONLY!=1) || EXTERNAL_IMEM!=1 || SEQ_BITS!=64 ||
            (BRANCH_RESOLVE_IN_ID!=0 && BRANCH_RESOLVE_IN_ID!=1))
-            $fatal(1,"cpu5_top is metadata-only, external-I scaffold; ISA execution NOT IMPLEMENTED");
+            $fatal(1,"cpu5_top requires external I, 64-bit age and a supported scaffold/ALU-subset mode");
     end
     // synthesis translate_on
 endmodule

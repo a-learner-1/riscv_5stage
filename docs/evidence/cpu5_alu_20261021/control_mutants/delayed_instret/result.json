@@ -1,0 +1,14 @@
+{
+  "id": "delayed_instret",
+  "description": "Increment instret from registered retire_valid one edge after MEM fire.",
+  "isolated_workdir": "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s2\\control_work\\mutations\\delayed_instret",
+  "good_core_sha256": "dd890386011116f0d7c7b74b82c2eb2ce0dfb06d15c5eecb767ffa37a0b6b7a5",
+  "mutated_core_sha256": "d65c1caa27fdf53e24f9c151e8dde61f4b3bb3e57e2ff43740fe5861f131c443",
+  "exit_code": 1,
+  "expected_assertion_message": "registered retire/counter edge mismatch",
+  "expected_assertion_seen": true,
+  "compile_errors_zero": true,
+  "success_marker_absent": true,
+  "process_log_sha256": "baa70163582e5b1cb854a0a988530e712deca5fca3cb5956035bdf61b27137e5",
+  "rejected_as_expected": true
+}

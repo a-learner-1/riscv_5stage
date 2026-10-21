@@ -1,0 +1,14 @@
+{
+  "id": "stale_wb_raw",
+  "description": "Omit the WB producer from both conservative source-dependency checks.",
+  "isolated_workdir": "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s2\\control_work\\mutations\\stale_wb_raw",
+  "good_core_sha256": "dd890386011116f0d7c7b74b82c2eb2ce0dfb06d15c5eecb767ffa37a0b6b7a5",
+  "mutated_core_sha256": "f2250ce0dd55a0e9b393b003d701945f8adc45b3fb1bfdcd4dbcee8f328beee0",
+  "exit_code": 1,
+  "expected_assertion_message": "dependent ID accepted at producer WB write edge",
+  "expected_assertion_seen": true,
+  "compile_errors_zero": true,
+  "success_marker_absent": true,
+  "process_log_sha256": "f3db021da93a99afb5ad01d428d51d11416938331e9af1a445e367f14c4a0803",
+  "rejected_as_expected": true
+}

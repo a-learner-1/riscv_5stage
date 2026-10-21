@@ -1,0 +1,14 @@
+{
+  "id": "flush_drops_retired_wb",
+  "description": "Apply a global flush to the already retired WB slot: suppress its write and clear it.",
+  "isolated_workdir": "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s2\\control_work\\mutations\\flush_drops_retired_wb",
+  "good_core_sha256": "dd890386011116f0d7c7b74b82c2eb2ce0dfb06d15c5eecb767ffa37a0b6b7a5",
+  "mutated_core_sha256": "e2bb002c7cb9c42fd4ccb5ba9384ed674cf47bd9e401fadc6e0d12a2b2458e9b",
+  "exit_code": 1,
+  "expected_assertion_message": "flush failed to kill MEM/EX/input while preserving old WB",
+  "expected_assertion_seen": true,
+  "compile_errors_zero": true,
+  "success_marker_absent": true,
+  "process_log_sha256": "00497cf97c3e8dabce15546a7e1ef0a6a7f8a8e885eb17a293c57c12f996dcb0",
+  "rejected_as_expected": true
+}

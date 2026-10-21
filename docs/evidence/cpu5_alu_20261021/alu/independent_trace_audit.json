@@ -1,0 +1,951 @@
+{
+  "schema": 1,
+  "status": "PASS",
+  "cases": [
+    {
+      "case": 0,
+      "status": "PASS",
+      "retired": 550,
+      "wb_packets": 550,
+      "gpr_writes": 515,
+      "x0_write_disabled_packets": 35,
+      "opcode_counts": {
+        "ADD": 30,
+        "ADDI": 76,
+        "AND": 21,
+        "ANDI": 21,
+        "AUIPC": 24,
+        "LUI": 33,
+        "OR": 21,
+        "ORI": 21,
+        "SLL": 27,
+        "SLLI": 22,
+        "SLT": 22,
+        "SLTI": 21,
+        "SLTIU": 21,
+        "SLTU": 21,
+        "SRA": 26,
+        "SRAI": 22,
+        "SRL": 26,
+        "SRLI": 22,
+        "SUB": 28,
+        "XOR": 21,
+        "XORI": 24
+      },
+      "cycles": 1206,
+      "raw_wait_cycles": 647,
+      "requests": 554,
+      "responses": 553
+    },
+    {
+      "case": 1,
+      "status": "PASS",
+      "retired": 550,
+      "wb_packets": 550,
+      "gpr_writes": 515,
+      "x0_write_disabled_packets": 35,
+      "opcode_counts": {
+        "ADD": 30,
+        "ADDI": 76,
+        "AND": 21,
+        "ANDI": 21,
+        "AUIPC": 24,
+        "LUI": 33,
+        "OR": 21,
+        "ORI": 21,
+        "SLL": 27,
+        "SLLI": 22,
+        "SLT": 22,
+        "SLTI": 21,
+        "SLTIU": 21,
+        "SLTU": 21,
+        "SRA": 26,
+        "SRAI": 22,
+        "SRL": 26,
+        "SRLI": 22,
+        "SUB": 28,
+        "XOR": 21,
+        "XORI": 24
+      },
+      "cycles": 1933,
+      "raw_wait_cycles": 296,
+      "requests": 553,
+      "responses": 553
+    },
+    {
+      "case": 2,
+      "status": "PASS",
+      "retired": 3,
+      "wb_packets": 3,
+      "gpr_writes": 3,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADD": 1,
+        "ADDI": 2
+      },
+      "cycles": 21,
+      "raw_wait_cycles": 1,
+      "requests": 4,
+      "responses": 4
+    },
+    {
+      "case": 3,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 14,
+      "raw_wait_cycles": 3,
+      "requests": 6,
+      "responses": 5
+    },
+    {
+      "case": 4,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 16,
+      "raw_wait_cycles": 2,
+      "requests": 5,
+      "responses": 5
+    },
+    {
+      "case": 5,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 14,
+      "raw_wait_cycles": 3,
+      "requests": 6,
+      "responses": 5
+    },
+    {
+      "case": 6,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 16,
+      "raw_wait_cycles": 2,
+      "requests": 5,
+      "responses": 5
+    },
+    {
+      "case": 7,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 14,
+      "raw_wait_cycles": 3,
+      "requests": 6,
+      "responses": 5
+    },
+    {
+      "case": 8,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 16,
+      "raw_wait_cycles": 2,
+      "requests": 5,
+      "responses": 5
+    },
+    {
+      "case": 9,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 14,
+      "raw_wait_cycles": 3,
+      "requests": 6,
+      "responses": 5
+    },
+    {
+      "case": 10,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 16,
+      "raw_wait_cycles": 2,
+      "requests": 5,
+      "responses": 5
+    },
+    {
+      "case": 11,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 14,
+      "raw_wait_cycles": 3,
+      "requests": 6,
+      "responses": 5
+    },
+    {
+      "case": 12,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 16,
+      "raw_wait_cycles": 2,
+      "requests": 5,
+      "responses": 5
+    },
+    {
+      "case": 13,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 14,
+      "raw_wait_cycles": 3,
+      "requests": 6,
+      "responses": 5
+    },
+    {
+      "case": 14,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 16,
+      "raw_wait_cycles": 2,
+      "requests": 5,
+      "responses": 5
+    },
+    {
+      "case": 15,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 14,
+      "raw_wait_cycles": 3,
+      "requests": 6,
+      "responses": 5
+    },
+    {
+      "case": 16,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 16,
+      "raw_wait_cycles": 2,
+      "requests": 5,
+      "responses": 5
+    },
+    {
+      "case": 17,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 14,
+      "raw_wait_cycles": 3,
+      "requests": 6,
+      "responses": 5
+    },
+    {
+      "case": 18,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 16,
+      "raw_wait_cycles": 2,
+      "requests": 5,
+      "responses": 5
+    },
+    {
+      "case": 19,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 14,
+      "raw_wait_cycles": 3,
+      "requests": 6,
+      "responses": 5
+    },
+    {
+      "case": 20,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 16,
+      "raw_wait_cycles": 2,
+      "requests": 5,
+      "responses": 5
+    },
+    {
+      "case": 21,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 14,
+      "raw_wait_cycles": 3,
+      "requests": 6,
+      "responses": 5
+    },
+    {
+      "case": 22,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 16,
+      "raw_wait_cycles": 2,
+      "requests": 5,
+      "responses": 5
+    },
+    {
+      "case": 23,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 14,
+      "raw_wait_cycles": 3,
+      "requests": 6,
+      "responses": 5
+    },
+    {
+      "case": 24,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 16,
+      "raw_wait_cycles": 2,
+      "requests": 5,
+      "responses": 5
+    },
+    {
+      "case": 25,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 14,
+      "raw_wait_cycles": 3,
+      "requests": 6,
+      "responses": 5
+    },
+    {
+      "case": 26,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 16,
+      "raw_wait_cycles": 2,
+      "requests": 5,
+      "responses": 5
+    },
+    {
+      "case": 27,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 14,
+      "raw_wait_cycles": 3,
+      "requests": 6,
+      "responses": 5
+    },
+    {
+      "case": 28,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 16,
+      "raw_wait_cycles": 2,
+      "requests": 5,
+      "responses": 5
+    },
+    {
+      "case": 29,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 14,
+      "raw_wait_cycles": 3,
+      "requests": 6,
+      "responses": 5
+    },
+    {
+      "case": 30,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 16,
+      "raw_wait_cycles": 2,
+      "requests": 5,
+      "responses": 5
+    },
+    {
+      "case": 31,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 14,
+      "raw_wait_cycles": 3,
+      "requests": 6,
+      "responses": 5
+    },
+    {
+      "case": 32,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 16,
+      "raw_wait_cycles": 2,
+      "requests": 5,
+      "responses": 5
+    },
+    {
+      "case": 33,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 14,
+      "raw_wait_cycles": 3,
+      "requests": 6,
+      "responses": 5
+    },
+    {
+      "case": 34,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 16,
+      "raw_wait_cycles": 2,
+      "requests": 5,
+      "responses": 5
+    },
+    {
+      "case": 35,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 14,
+      "raw_wait_cycles": 3,
+      "requests": 6,
+      "responses": 5
+    },
+    {
+      "case": 36,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 16,
+      "raw_wait_cycles": 2,
+      "requests": 5,
+      "responses": 5
+    },
+    {
+      "case": 37,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 14,
+      "raw_wait_cycles": 3,
+      "requests": 6,
+      "responses": 5
+    },
+    {
+      "case": 38,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 16,
+      "raw_wait_cycles": 2,
+      "requests": 5,
+      "responses": 5
+    },
+    {
+      "case": 39,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 14,
+      "raw_wait_cycles": 3,
+      "requests": 6,
+      "responses": 5
+    },
+    {
+      "case": 40,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 16,
+      "raw_wait_cycles": 2,
+      "requests": 5,
+      "responses": 5
+    },
+    {
+      "case": 41,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 14,
+      "raw_wait_cycles": 3,
+      "requests": 6,
+      "responses": 5
+    },
+    {
+      "case": 42,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 16,
+      "raw_wait_cycles": 2,
+      "requests": 5,
+      "responses": 5
+    },
+    {
+      "case": 43,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 14,
+      "raw_wait_cycles": 3,
+      "requests": 6,
+      "responses": 5
+    },
+    {
+      "case": 44,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 16,
+      "raw_wait_cycles": 2,
+      "requests": 5,
+      "responses": 5
+    },
+    {
+      "case": 45,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 14,
+      "raw_wait_cycles": 3,
+      "requests": 6,
+      "responses": 5
+    },
+    {
+      "case": 46,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 16,
+      "raw_wait_cycles": 2,
+      "requests": 5,
+      "responses": 5
+    },
+    {
+      "case": 47,
+      "status": "PASS",
+      "retired": 2,
+      "wb_packets": 2,
+      "gpr_writes": 2,
+      "x0_write_disabled_packets": 0,
+      "opcode_counts": {
+        "ADDI": 2
+      },
+      "cycles": 14,
+      "raw_wait_cycles": 3,
+      "requests": 6,
+      "responses": 5
+    }
+  ],
+  "case_count": 48,
+  "total_retired": 1193,
+  "total_wb_packets": 1193,
+  "total_gpr_writes": 1123,
+  "total_x0_write_disabled_packets": 70,
+  "opcode_counts": {
+    "ADD": 61,
+    "ADDI": 244,
+    "AND": 42,
+    "ANDI": 42,
+    "AUIPC": 48,
+    "LUI": 66,
+    "OR": 42,
+    "ORI": 42,
+    "SLL": 54,
+    "SLLI": 44,
+    "SLT": 44,
+    "SLTI": 42,
+    "SLTIU": 42,
+    "SLTU": 42,
+    "SRA": 52,
+    "SRAI": 44,
+    "SRL": 52,
+    "SRLI": 44,
+    "SUB": 56,
+    "XOR": 42,
+    "XORI": 48
+  },
+  "checks": [
+    "second independent machine-word interpreter",
+    "all seven golden fields",
+    "final 32 GPR golden",
+    "ordered complete MEM retirement",
+    "post-edge instret and architectural nextpc",
+    "one subsequent WB packet per retirement, including writes=0",
+    "WB identity/value and pre-edge instret/nextpc",
+    "per-case metrics closure",
+    "45 independently rejected unsupported machine words"
+  ],
+  "source_sha256": {
+    "program.hex": "e92662be9149e55768e2e16d7ae08b211ff4d4940bc476f2da962e2d1b1a9a97",
+    "if_fault_program.hex": "9735c0589ff7e46a66b0a7f6ab26462e7f115387b1368d6fedd047f738fca72d",
+    "unsupported.hex": "6fe8f460fc48d7c6313b88afe9b9f5e52f92e00a787caf1345d603fbd19306cf",
+    "final_gpr.hex": "46b9820885a182d71d8c37a1c8a4196e816c75c5150adf6f86bb54d2e383371f",
+    "expected_pc.hex": "ae4a0ec29548b846b034de1fb8a94aa34b6a71a9a7a1f34835b6815386733841",
+    "expected_instr.hex": "11c76b72255937eac9eca58bf175f96c9001b42af147f896609f7e17b41a1979",
+    "expected_rd.hex": "66b8eb52301ac8440bb40f4c6130021135d5049e26cb7fe52b579875ab89d7c5",
+    "expected_value.hex": "4bb979f8bb8124f5f230ebfac1a3c37cb66c9a900cbd050e6d62b9c2934fc877",
+    "expected_writes.hex": "7b81c80aad94418c2070e920222a25045762113bd04793ec8b5b77b889b72b38",
+    "expected_seq.hex": "2c71a72c3f872cfbb7e1c1265b6baa8a4c128d3493adbb7813f0ce13f95cda3b",
+    "expected_nextpc.hex": "779f72d5843fd2d1d34b178949e8bf0d4de08e64ec666dc6d6d40e67070edee3",
+    "if_fault_expected_pc.hex": "7c8db5da102669c68499611a27c4c68b428133dcce4f7eda9bed71f0d77264c2",
+    "if_fault_expected_instr.hex": "8fff0affb601985e3596d147c1b84d388fa3e54628f741a2b1afc0f0d06bb6b3",
+    "if_fault_expected_rd.hex": "20b1842ff5db35842d87df6dfa68c5f007cde34699ff55b5bf87a8de6f7f56dd",
+    "if_fault_expected_value.hex": "145ab2444c116ea182ca4f1b294d6acb29df8fc02873235d45d39e200648e375",
+    "if_fault_expected_writes.hex": "b87cacbbd8aa0c372204a7d69226dddea7711e43634427538ab32c57acf78b26",
+    "if_fault_expected_seq.hex": "2b33aada60cbec9e4d15124d661cec2d2a81d469026b0ed75975449f5020d250",
+    "if_fault_expected_nextpc.hex": "aa26cced0efffd82edbf2a09ff9838424df06fe82aa29db070bac7a2e56206fd",
+    "case0_trace.csv": "e85936f3cc3ebecfb031372cbb98d8283791d792a3aeee6f96651d1c70846de2",
+    "case0_metrics.csv": "3d019d753b97a5cb4d3b28d3b18114fb692a6165463d6a6ff128f98a520bddfa",
+    "case1_trace.csv": "502428efc4ddfc899b64765d8552b8ead111d3bc0f2dac89a7d313c5cf7e1765",
+    "case1_metrics.csv": "9fc9715953f9f216e36e25d4671b2a7202ae979b4332c6583c1607a3c5e0e3c5",
+    "case2_trace.csv": "a576924d86dcefaa6d729d1ee3c1dd52d0a55802d16f15c7851815ac1dafd620",
+    "case2_metrics.csv": "549d19cd1f7456c338b8d7d44194fee63cad2c613032083bb03f67f51589999d",
+    "case3_trace.csv": "1aec6174b85c9a4c5d892892f91f4ba8625e337ca019e8aeb40c99d81766e0ef",
+    "case3_metrics.csv": "6b128a3eac5a0b0f444404509d9558495658364c886a96001596beabd6f1df22",
+    "case4_trace.csv": "4a66e0a5622428a4a37c08e882e716d37b47c79374ebdef1a7898809e69f6e0c",
+    "case4_metrics.csv": "9aee44a735dfd7f0875e3cd836073c71a97c03d890ae5ea60893b1b828d3ee5f",
+    "case5_trace.csv": "1aec6174b85c9a4c5d892892f91f4ba8625e337ca019e8aeb40c99d81766e0ef",
+    "case5_metrics.csv": "f7a4b2104181fd493d14aefcae936a4db7a53d24248fa5c55fe352cdd8e66e35",
+    "case6_trace.csv": "4a66e0a5622428a4a37c08e882e716d37b47c79374ebdef1a7898809e69f6e0c",
+    "case6_metrics.csv": "af363350e6677dd8b4e38c6c4597aea8507b17fcb71c709462bd7f6d86e98587",
+    "case7_trace.csv": "1aec6174b85c9a4c5d892892f91f4ba8625e337ca019e8aeb40c99d81766e0ef",
+    "case7_metrics.csv": "c12d7f002540519d9f0dc43dadbf04bf8b506b7d529660c1984ad496c67d7591",
+    "case8_trace.csv": "4a66e0a5622428a4a37c08e882e716d37b47c79374ebdef1a7898809e69f6e0c",
+    "case8_metrics.csv": "b2873aacf8d346c93f758d4ab2da067d2451b104f36190fd7b5f3e0e9c169974",
+    "case9_trace.csv": "1aec6174b85c9a4c5d892892f91f4ba8625e337ca019e8aeb40c99d81766e0ef",
+    "case9_metrics.csv": "8a9f0bcec6fbcd6d3a6996c62888ef324a6f38390c86fa8005e7e0075fb56cb7",
+    "case10_trace.csv": "4a66e0a5622428a4a37c08e882e716d37b47c79374ebdef1a7898809e69f6e0c",
+    "case10_metrics.csv": "836c556a40780b1650cb8d6e5618354124957ca6cf885618d687e93f906e9968",
+    "case11_trace.csv": "1aec6174b85c9a4c5d892892f91f4ba8625e337ca019e8aeb40c99d81766e0ef",
+    "case11_metrics.csv": "05bc5f5460296186e959eb43ec6f804f7bb9141127ea73591d37a6a5acc040a3",
+    "case12_trace.csv": "4a66e0a5622428a4a37c08e882e716d37b47c79374ebdef1a7898809e69f6e0c",
+    "case12_metrics.csv": "f625414775fc7df945c3b8d9e957a1991ec9474e770e87cf3c504bbde84a4e2f",
+    "case13_trace.csv": "1aec6174b85c9a4c5d892892f91f4ba8625e337ca019e8aeb40c99d81766e0ef",
+    "case13_metrics.csv": "9a5ef1e1b8ccf253b9da98ef231270ec80dc618258fb21bd4302e3196494b387",
+    "case14_trace.csv": "4a66e0a5622428a4a37c08e882e716d37b47c79374ebdef1a7898809e69f6e0c",
+    "case14_metrics.csv": "f1ed43968f79b16591e0215abb260c13c58513e6820bb067ae7e640f3ec8da97",
+    "case15_trace.csv": "1aec6174b85c9a4c5d892892f91f4ba8625e337ca019e8aeb40c99d81766e0ef",
+    "case15_metrics.csv": "bbeb72543f7f362bbde76cd680089848b5423206ed98fa2c105c7c528f0557e6",
+    "case16_trace.csv": "4a66e0a5622428a4a37c08e882e716d37b47c79374ebdef1a7898809e69f6e0c",
+    "case16_metrics.csv": "3fe96adfac5c6cc462050e63dfe4b302186652641ad4aab095560afefcc8c89b",
+    "case17_trace.csv": "1aec6174b85c9a4c5d892892f91f4ba8625e337ca019e8aeb40c99d81766e0ef",
+    "case17_metrics.csv": "ebd24338852552e915d0df0b7837782d60506f0ee17c9d4eedb037a43043f53d",
+    "case18_trace.csv": "4a66e0a5622428a4a37c08e882e716d37b47c79374ebdef1a7898809e69f6e0c",
+    "case18_metrics.csv": "e27a84e03726e57aa8e15120abea34d47fb94f5f756f48a24f9ca24414328175",
+    "case19_trace.csv": "1aec6174b85c9a4c5d892892f91f4ba8625e337ca019e8aeb40c99d81766e0ef",
+    "case19_metrics.csv": "fb78b536aea3282a826d3eb4e0576a393db25b1f0840639832f715ba61c7dd17",
+    "case20_trace.csv": "4a66e0a5622428a4a37c08e882e716d37b47c79374ebdef1a7898809e69f6e0c",
+    "case20_metrics.csv": "d9b1eb1d533d025832ab3056896f94d07b53dec85252c84d00c5181e23c2f48a",
+    "case21_trace.csv": "1aec6174b85c9a4c5d892892f91f4ba8625e337ca019e8aeb40c99d81766e0ef",
+    "case21_metrics.csv": "e772a772a261cddac8a45c6ff687fd5cc2fe7fff3b808f448fc956bf741fc38e",
+    "case22_trace.csv": "4a66e0a5622428a4a37c08e882e716d37b47c79374ebdef1a7898809e69f6e0c",
+    "case22_metrics.csv": "02c635cb46229e2e6724d9d468c7e5306b6dfac58d29674aa25e9323aba737fb",
+    "case23_trace.csv": "1aec6174b85c9a4c5d892892f91f4ba8625e337ca019e8aeb40c99d81766e0ef",
+    "case23_metrics.csv": "7e421134fcd57fc82909a8267abaeb4db5e4f1903628a63b3de848ffa9932d9b",
+    "case24_trace.csv": "4a66e0a5622428a4a37c08e882e716d37b47c79374ebdef1a7898809e69f6e0c",
+    "case24_metrics.csv": "9d0f9102dcc4314d1b2f603c5cca9c5a429c71dbdfd453115295b1c2e0d6a589",
+    "case25_trace.csv": "1aec6174b85c9a4c5d892892f91f4ba8625e337ca019e8aeb40c99d81766e0ef",
+    "case25_metrics.csv": "1d7ab1cd0c5cbf2baa055f3f336afdf4e32b544438fe5e41f508c21e87b0b81c",
+    "case26_trace.csv": "4a66e0a5622428a4a37c08e882e716d37b47c79374ebdef1a7898809e69f6e0c",
+    "case26_metrics.csv": "2701dbb05a33c76c2b56339d957ffd31a3c71d2b208e09cfecf21468d439bfd5",
+    "case27_trace.csv": "1aec6174b85c9a4c5d892892f91f4ba8625e337ca019e8aeb40c99d81766e0ef",
+    "case27_metrics.csv": "54f3466fcc33ae6b3613991c9e53f30ef26bf2fd664e3a00f91ddfa35c2f38e6",
+    "case28_trace.csv": "4a66e0a5622428a4a37c08e882e716d37b47c79374ebdef1a7898809e69f6e0c",
+    "case28_metrics.csv": "26fd896caa48a0c6078e2e2887222147ae0791a3e0caccb5b9864ecce935566a",
+    "case29_trace.csv": "1aec6174b85c9a4c5d892892f91f4ba8625e337ca019e8aeb40c99d81766e0ef",
+    "case29_metrics.csv": "7bce1fe2812054f2f7a55b27f8e02ab1d74e8957f5cd7defe8933c64da981852",
+    "case30_trace.csv": "4a66e0a5622428a4a37c08e882e716d37b47c79374ebdef1a7898809e69f6e0c",
+    "case30_metrics.csv": "6eeda51ce73b93e1472b652afa1b5e21b9bd8555418528c25050c73ddf18794a",
+    "case31_trace.csv": "1aec6174b85c9a4c5d892892f91f4ba8625e337ca019e8aeb40c99d81766e0ef",
+    "case31_metrics.csv": "4d2f1b1328704709fb38d1e974ef00b70d91d05cc876762653d20de22310a16f",
+    "case32_trace.csv": "4a66e0a5622428a4a37c08e882e716d37b47c79374ebdef1a7898809e69f6e0c",
+    "case32_metrics.csv": "698eb548dcfb28d19bf24467ea1a8d24679ab0e00ccd4f17b1ea3359064adee0",
+    "case33_trace.csv": "1aec6174b85c9a4c5d892892f91f4ba8625e337ca019e8aeb40c99d81766e0ef",
+    "case33_metrics.csv": "0b8f62fba1df3bc2866602350153f64c86958b87ce130c69058cbf1dbbe0672c",
+    "case34_trace.csv": "4a66e0a5622428a4a37c08e882e716d37b47c79374ebdef1a7898809e69f6e0c",
+    "case34_metrics.csv": "97a1575d947699b891b6a53e4c1fee941e93f680495557e92e9d0a3ce6f5711b",
+    "case35_trace.csv": "1aec6174b85c9a4c5d892892f91f4ba8625e337ca019e8aeb40c99d81766e0ef",
+    "case35_metrics.csv": "0a844109f52833c9b3a3bdbd288287ea03fe610d3f719d4b968c41eb37068694",
+    "case36_trace.csv": "4a66e0a5622428a4a37c08e882e716d37b47c79374ebdef1a7898809e69f6e0c",
+    "case36_metrics.csv": "6943d74414cc3137364b6c1a27645735873438bc81fb3a153a50125b8b395df4",
+    "case37_trace.csv": "1aec6174b85c9a4c5d892892f91f4ba8625e337ca019e8aeb40c99d81766e0ef",
+    "case37_metrics.csv": "e52e94ef6d970eff0a459dcfbd08fb33fc71dbd114f664729e4ba602441363f1",
+    "case38_trace.csv": "4a66e0a5622428a4a37c08e882e716d37b47c79374ebdef1a7898809e69f6e0c",
+    "case38_metrics.csv": "d1ef0bb16b4a8e6a990ede858869a7b44a830676be52fb2658ee77ed77d8a524",
+    "case39_trace.csv": "1aec6174b85c9a4c5d892892f91f4ba8625e337ca019e8aeb40c99d81766e0ef",
+    "case39_metrics.csv": "07b8d29d03995a63ba2524cc9e1571cee36887caf23feed5915309262d511998",
+    "case40_trace.csv": "4a66e0a5622428a4a37c08e882e716d37b47c79374ebdef1a7898809e69f6e0c",
+    "case40_metrics.csv": "07ec8bef29e784f9500421f78c86a024f1a5757f87777a42a11480a4351fc36d",
+    "case41_trace.csv": "1aec6174b85c9a4c5d892892f91f4ba8625e337ca019e8aeb40c99d81766e0ef",
+    "case41_metrics.csv": "4f255756bd4d771ea40243a0259c24d9f86f494ba032cfe3d8585e308c7c6626",
+    "case42_trace.csv": "4a66e0a5622428a4a37c08e882e716d37b47c79374ebdef1a7898809e69f6e0c",
+    "case42_metrics.csv": "5961422fcc835d43561ee03ef14280ede04b67634fe5315997fd964331867107",
+    "case43_trace.csv": "1aec6174b85c9a4c5d892892f91f4ba8625e337ca019e8aeb40c99d81766e0ef",
+    "case43_metrics.csv": "16d3c34d7580f402ccfbf9a15d6f05419f5ab512f98c0b76c42d1ed7fbf3cfea",
+    "case44_trace.csv": "4a66e0a5622428a4a37c08e882e716d37b47c79374ebdef1a7898809e69f6e0c",
+    "case44_metrics.csv": "a02680d74b772db6d43c6bd937e13adbb6d3d3b36ac8e73dc1668213b442819a",
+    "case45_trace.csv": "1aec6174b85c9a4c5d892892f91f4ba8625e337ca019e8aeb40c99d81766e0ef",
+    "case45_metrics.csv": "70c08ed39369ddffb327e91053a73105cc1d1f42a4f94484f3e57eb3dfab3477",
+    "case46_trace.csv": "4a66e0a5622428a4a37c08e882e716d37b47c79374ebdef1a7898809e69f6e0c",
+    "case46_metrics.csv": "0fedc2cd4f284be95dbd735f7743d0af224ddcd4a468492a7df5854c84d2ae7b",
+    "case47_trace.csv": "1aec6174b85c9a4c5d892892f91f4ba8625e337ca019e8aeb40c99d81766e0ef",
+    "case47_metrics.csv": "ff2dbbf4552720504590b04137ff28b9acbcf846d21cb99944830defee296c09"
+  },
+  "mutation_selftest": {
+    "status": "PASS",
+    "tests": [
+      {
+        "name": "wrong_wb_value",
+        "rejected": true,
+        "reason": "case0 row1 wb: value observed=1 expected=0",
+        "mutated_csv": "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s2\\work\\build\\cpu5_s2_alu\\analyzer_mutation_selftest\\wrong_wb_value.csv",
+        "sha256": "18913297f2543eab1fb88d731f37a1153a908855bc1a11bcb17dbe5a637bc4ab"
+      },
+      {
+        "name": "deleted_wb_packet",
+        "rejected": true,
+        "reason": "case0 row2 wb: extra/missing/reordered index",
+        "mutated_csv": "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s2\\work\\build\\cpu5_s2_alu\\analyzer_mutation_selftest\\deleted_wb_packet.csv",
+        "sha256": "9d928a0e06cf842f500c110e7b9750dbc16ac1b72bf772f61a222bf87f8225d3"
+      },
+      {
+        "name": "wrong_retire_instret",
+        "rejected": true,
+        "reason": "case0 row0 retire: post-edge instret",
+        "mutated_csv": "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s2\\work\\build\\cpu5_s2_alu\\analyzer_mutation_selftest\\wrong_retire_instret.csv",
+        "sha256": "dd88bcd3d70851749cb2f7f66f223171ccce9082e3553321d971bc0ad88e477a"
+      }
+    ],
+    "rejected_count": 3,
+    "good_trace_sha256": "e85936f3cc3ebecfb031372cbb98d8283791d792a3aeee6f96651d1c70846de2",
+    "original_good_trace_unchanged": true
+  }
+}
