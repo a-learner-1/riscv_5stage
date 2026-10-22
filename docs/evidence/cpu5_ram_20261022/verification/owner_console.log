@@ -1,0 +1,47 @@
+Reading D:/modeltech64_10.6e/tcl/vsim/pref.tcl
+
+# 10.6e
+
+# do run_cpu5_ram_owner.do
+# 0
+# Model Technology ModelSim SE-64 vmap 10.6e Lib Mapping Utility 2018.06 Jun 23 2018
+# vmap cpu5_s5_ram_owner_work build/cpu5_s5_ram_owner/work 
+# Modifying modelsim.ini
+# Model Technology ModelSim SE-64 vlog 10.6e Compiler 2018.06 Jun 23 2018
+# Start time: 22:32:44 on Oct 22,2026
+# vlog -sv -work cpu5_s5_ram_owner_work rtl/cpu5_ram_owner.v tb/cpu5_ram_owner_tb.v 
+# -- Compiling module cpu5_ram_owner
+# -- Compiling module cpu5_ram_owner_tb
+# 
+# Top level modules:
+# 	cpu5_ram_owner_tb
+# End time: 22:32:44 on Oct 22,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim -voptargs=""+acc"" -onfinish stop -wlf build/cpu5_s5_ram_owner/ram_owner.wlf cpu5_s5_ram_owner_work.cpu5_ram_owner_tb 
+# Start time: 22:32:44 on Oct 22,2026
+# ** Note: (vsim-8009) Loading existing optimized design _opt
+# //  ModelSim SE-64 10.6e Jun 23 2018
+# //
+# //  Copyright 1991-2018 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  ModelSim SE-64 and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# Loading sv_std.std
+# Loading work.cpu5_ram_owner_tb(fast)
+# Loading work.cpu5_ram_owner(fast)
+# CPU5 RAM OWNER PASS checks=81 scenarios=13 req=18 rsp=17
+# ** Note: $stop    : tb/cpu5_ram_owner_tb.v(270)
+#    Time: 751 ns  Iteration: 0  Instance: /cpu5_ram_owner_tb
+# Break in Module cpu5_ram_owner_tb at tb/cpu5_ram_owner_tb.v line 270
+# Stopped at tb/cpu5_ram_owner_tb.v line 270
+# CPU5 RAM OWNER DIRECTED TEST PASS
+# End time: 22:32:44 on Oct 22,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 0

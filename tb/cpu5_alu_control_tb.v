@@ -32,7 +32,10 @@ module cpu5_alu_control_tb;
         .bp_commit_valid(),.bp_commit_seq(),.bp_commit_pc(),.bp_commit_target(),
         .bp_commit_taken(),.bp_commit_is_branch(),.bp_commit_is_jal(),
         .bp_resolved_count(),.bp_mispredict_count(),.bp_direction_error_count(),
-        .bp_target_error_count(),.halt_cause(),.halt_tval());
+        .bp_target_error_count(),.halt_cause(),.halt_tval(),
+        .flush_ready(),.flush_fire(),.dmem_req_valid(),.dmem_req_ready(1'b0),
+        .dmem_req_write(),.dmem_req_addr(),.dmem_req_size(),.dmem_req_wdata(),.dmem_req_wstrb(),
+        .dmem_rsp_valid(1'b0),.dmem_rsp_ready(),.dmem_rsp_rdata(32'd0),.dmem_rsp_error(1'b0),.dmem_fault());
 
     reg [63:0] expected_seq[0:127];
     reg [31:0] expected_pc[0:127],expected_instr[0:127],expected_value[0:127];

@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "status": "PASS",
+  "rejected_count": 10,
+  "rejected": [
+    {
+      "name": "load_retire_value_wrong",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0 row74 retire: value observed=13579bde expected=13579bdf",
+      "changed_file": "trace.csv",
+      "good_sha256": "42f886d900631c1479be92981c2ff004b843095cca2ff4345c8a395f2de6591b",
+      "bad_sha256": "33ab44d7083e78595e54bf98a67bdd380cba21da09be8b993d1ada07bda73636"
+    },
+    {
+      "name": "physical_wb_missing",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0 row2 wb: extra/missing/reordered index",
+      "changed_file": "trace.csv",
+      "good_sha256": "42f886d900631c1479be92981c2ff004b843095cca2ff4345c8a395f2de6591b",
+      "bad_sha256": "c33bea01a32956e3602a90bd0ade2d060a58565f9687e381fb26c1feb48310b4"
+    },
+    {
+      "name": "accepted_owner_wrong",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0 row0 retire: IFID ownership mismatch",
+      "changed_file": "accept.csv",
+      "good_sha256": "50260f330a4ee2be8f6f45d23adf06b2190982c400567d5ecf473675a64046fc",
+      "bad_sha256": "2bec0c61e12e2ae8c8eb52e51e0087fb1e3b023b6402e2ea71a15877e656dcb1"
+    },
+    {
+      "name": "store_mask_wrong",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0 D0 req: wstrb observed=e expected=f",
+      "changed_file": "d.csv",
+      "good_sha256": "6c14b9340c7bfbbb47ae431e0010b0e695da507c2a09b203974a338bf6217c0a",
+      "bad_sha256": "d96d95a9b9ee52298341d446f82cb38057ecf7c11cd49b2961b9238e59676200"
+    },
+    {
+      "name": "store_enabled_byte_wrong",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0 D0 req: enabled store bytes mismatch",
+      "changed_file": "d.csv",
+      "good_sha256": "6c14b9340c7bfbbb47ae431e0010b0e695da507c2a09b203974a338bf6217c0a",
+      "bad_sha256": "bdf54caac66a7bd36b14b2b6757be60a552a098168dd0b098bb937936f26d4c4"
+    },
+    {
+      "name": "duplicate_d_request",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0 D1 req: duplicate/reordered D request",
+      "changed_file": "d.csv",
+      "good_sha256": "6c14b9340c7bfbbb47ae431e0010b0e695da507c2a09b203974a338bf6217c0a",
+      "bad_sha256": "56274ef26fe088552f4a8f61f21228f6994d42446623fbe0d6ee2c04c58a6547"
+    },
+    {
+      "name": "last_d_response_missing",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0: uncompleted D request at final halt",
+      "changed_file": "d.csv",
+      "good_sha256": "6c14b9340c7bfbbb47ae431e0010b0e695da507c2a09b203974a338bf6217c0a",
+      "bad_sha256": "ea58609f691e615e328e3c26c527654ac3c6240069d67723b692510bbf618864"
+    },
+    {
+      "name": "response_owner_pc_wrong",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0 D1 rsp: owner PC mismatch",
+      "changed_file": "d.csv",
+      "good_sha256": "6c14b9340c7bfbbb47ae431e0010b0e695da507c2a09b203974a338bf6217c0a",
+      "bad_sha256": "84dfd392cf50eeb1e9c66d2d3a3727c7c099ef742e2244f62a0fa8eafede3166"
+    },
+    {
+      "name": "load_raw_word_wrong",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0 D3 rsp: raw load response word mismatch",
+      "changed_file": "d.csv",
+      "good_sha256": "6c14b9340c7bfbbb47ae431e0010b0e695da507c2a09b203974a338bf6217c0a",
+      "bad_sha256": "31414411b20dd5fa2af9db01851b0c255f828338dcb645f963ef80837559e9b2"
+    },
+    {
+      "name": "final_ram_wrong",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0: complete final RAM mismatch",
+      "changed_file": "actual_ram_final.hex",
+      "good_sha256": "d44e1a655921fe5d35f70bf0a3a956a403bc31cde389df6c40e0c32b7c61bd2a",
+      "bad_sha256": "a0c2fb38f2d548d5977be648a30dc4fc755da8d851af80dcfa0446dd0443c2f7"
+    }
+  ],
+  "good_inputs_unchanged": true,
+  "good_input_files": 162,
+  "good_manifest_sha256": "2ddfbc1177a0bf66c3c894e05a93f1d4bec35ce69dd069ce1fa5d5d13d0df2ad"
+}

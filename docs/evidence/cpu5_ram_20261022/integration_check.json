@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "baseline_commit": "b5f7a70b76222c2b7f95ec1bf9d28bbaa8f8a743",
+  "baseline_archive_unchanged": 2103,
+  "identity_checks": 239,
+  "main_protected_files": 2299,
+  "authorized_existing_updates": [
+    "rtl/cpu5_alu_pipeline.v",
+    "rtl/cpu5_top.v",
+    "tb/cpu5_alu_control_tb.v",
+    "tb/cpu5_forward_control_tb.v",
+    "tb/cpu5_branch_control_tb.v"
+  ],
+  "main_other_files_preserved": 2294,
+  "real_rtl_mutants": 25,
+  "illegal_parameter_rejections": 4,
+  "scope": "ordinary RAM native D interface; halt-only faults",
+  "Trap_MMIO_CSR_M_IRQ": "NOT IMPLEMENTED",
+  "STA": "NOT RUN",
+  "board": "NOT RUN"
+}

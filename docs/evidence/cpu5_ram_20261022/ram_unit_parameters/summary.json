@@ -1,0 +1,37 @@
+{
+  "parameters": [
+    {
+      "name": "zero_words",
+      "exit_code": 1,
+      "rejected": true,
+      "fatal": [
+        "# ** Fatal: cpu5_ram_unit requires a nonempty aligned RAM range ending at or before 2^32"
+      ]
+    },
+    {
+      "name": "negative_words",
+      "exit_code": 1,
+      "rejected": true,
+      "fatal": [
+        "# ** Fatal: cpu5_ram_unit requires a nonempty aligned RAM range ending at or before 2^32"
+      ]
+    },
+    {
+      "name": "unaligned_base",
+      "exit_code": 1,
+      "rejected": true,
+      "fatal": [
+        "# ** Fatal: cpu5_ram_unit requires a nonempty aligned RAM range ending at or before 2^32"
+      ]
+    },
+    {
+      "name": "end_above_2p32",
+      "exit_code": 1,
+      "rejected": true,
+      "fatal": [
+        "# ** Fatal: cpu5_ram_unit requires a nonempty aligned RAM range ending at or before 2^32"
+      ]
+    }
+  ],
+  "all_rejected": true
+}

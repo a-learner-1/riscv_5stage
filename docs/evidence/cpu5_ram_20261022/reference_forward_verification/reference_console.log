@@ -1,0 +1,1 @@
+{"status": "PARTIAL VERIFIED: stage 3A-1 integer ALU only", "case_count": 48, "total_retired": 1193, "total_wb_packets": 1193, "total_gpr_writes": 1123}

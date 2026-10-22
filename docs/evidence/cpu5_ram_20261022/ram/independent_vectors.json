@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "status": "PASS",
+  "scope": "CPU5 real C RAM vectors only",
+  "vectors": {
+    "status": "PASS",
+    "seeds": [
+      {
+        "name": "seed0",
+        "status": "PASS",
+        "retire_count": 1468,
+        "mem_access_count": 358,
+        "opcode_counts": {
+          "ADD": 260,
+          "ADDI": 265,
+          "ANDI": 82,
+          "AUIPC": 18,
+          "BEQ": 16,
+          "BNE": 64,
+          "JALR": 36,
+          "LB": 17,
+          "LBU": 17,
+          "LH": 17,
+          "LHU": 1,
+          "LUI": 31,
+          "LW": 121,
+          "OR": 17,
+          "SB": 36,
+          "SH": 20,
+          "SLLI": 114,
+          "SRL": 48,
+          "SRLI": 36,
+          "SW": 129,
+          "XOR": 123
+        },
+        "halt_pc": 136
+      },
+      {
+        "name": "seed1",
+        "status": "PASS",
+        "retire_count": 1472,
+        "mem_access_count": 360,
+        "opcode_counts": {
+          "ADD": 260,
+          "ADDI": 265,
+          "ANDI": 82,
+          "AUIPC": 18,
+          "BEQ": 16,
+          "BNE": 64,
+          "JALR": 36,
+          "LB": 17,
+          "LBU": 17,
+          "LH": 17,
+          "LHU": 1,
+          "LUI": 31,
+          "LW": 121,
+          "OR": 17,
+          "SB": 36,
+          "SH": 20,
+          "SLLI": 114,
+          "SRL": 48,
+          "SRLI": 36,
+          "SW": 131,
+          "XOR": 125
+        },
+        "halt_pc": 136
+      }
+    ],
+    "selftests": 51,
+    "checks": [
+      "independent machine-word interpreter",
+      "six retirement fields",
+      "seven D request fields",
+      "entire final RAM and GPR images",
+      "ELF/vector manifest SHA256"
+    ]
+  }
+}

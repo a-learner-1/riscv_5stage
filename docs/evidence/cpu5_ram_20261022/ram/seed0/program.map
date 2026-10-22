@@ -1,0 +1,74 @@
+
+Discarded input sections
+
+ .text          0x00000000        0x0 C:\Users\23123\AppData\Local\Temp\ccMrhmeT.o
+ .data          0x00000000        0x0 C:\Users\23123\AppData\Local\Temp\ccMrhmeT.o
+ .bss           0x00000000        0x0 C:\Users\23123\AppData\Local\Temp\ccMrhmeT.o
+ .riscv.attributes
+                0x00000000       0x1a C:\Users\23123\AppData\Local\Temp\ccMrhmeT.o
+ .text          0x00000000        0x0 C:\Users\23123\AppData\Local\Temp\ccKgoeuT.o
+ .data          0x00000000        0x0 C:\Users\23123\AppData\Local\Temp\ccKgoeuT.o
+ .bss           0x00000000        0x0 C:\Users\23123\AppData\Local\Temp\ccKgoeuT.o
+ .comment       0x00000000       0x34 C:\Users\23123\AppData\Local\Temp\ccKgoeuT.o
+ .riscv.attributes
+                0x00000000       0x1c C:\Users\23123\AppData\Local\Temp\ccKgoeuT.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+ROM              0x00000000         0x00008000         xr
+RAM              0x00010000         0x00004000         rw
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+
+.text           0x00000000      0x360
+ *(.text.start)
+ .text.start    0x00000000       0x8c C:\Users\23123\AppData\Local\Temp\ccMrhmeT.o
+                0x00000000                _start
+                0x00000088                cpu5_ram_stop
+ *(.text*)
+ .text.stack_mix
+                0x0000008c       0x48 C:\Users\23123\AppData\Local\Temp\ccKgoeuT.o
+ .text.startup.main
+                0x000000d4      0x28c C:\Users\23123\AppData\Local\Temp\ccKgoeuT.o
+                0x000000d4                main
+ *(.rodata*)
+
+.data           0x00010000        0x8
+ *(.data*)
+ .data.cursor   0x00010000        0x4 C:\Users\23123\AppData\Local\Temp\ccKgoeuT.o
+                0x00010000                cursor
+ .data.input_seed
+                0x00010004        0x4 C:\Users\23123\AppData\Local\Temp\ccKgoeuT.o
+                0x00010004                input_seed
+ *(.sdata*)
+
+.bss            0x00010008       0xa0
+ *(.bss*)
+ .bss.result    0x00010008       0x20 C:\Users\23123\AppData\Local\Temp\ccKgoeuT.o
+                0x00010008                result
+ .bss.bytes     0x00010028       0x20 C:\Users\23123\AppData\Local\Temp\ccKgoeuT.o
+                0x00010028                bytes
+ .bss.halves    0x00010048       0x20 C:\Users\23123\AppData\Local\Temp\ccKgoeuT.o
+                0x00010048                halves
+ .bss.words     0x00010068       0x40 C:\Users\23123\AppData\Local\Temp\ccKgoeuT.o
+                0x00010068                words
+ *(.sbss*)
+ *(COMMON)
+                0x000100a8                        _ram_end = .
+                0x00000001                        ASSERT ((_ram_end < 0x13000), reserve at least 4KiB for stack)
+
+/DISCARD/
+ *(.comment)
+ *(.riscv.attributes)
+ *(.eh_frame*)
+LOAD C:\Users\23123\AppData\Local\Temp\ccMrhmeT.o
+LOAD C:\Users\23123\AppData\Local\Temp\ccKgoeuT.o
+OUTPUT(C:\Users\23123\.codex\visualizations\2026\10\19\01a151db-bb68-7633-bd17-5c52d2aa2890\cpu5_s5\work\build\cpu5_s5_ram\seed0\program.elf elf32-littleriscv)
+
+.note.GNU-stack
+                0x00000000        0x0
+ .note.GNU-stack
+                0x00000000        0x0 C:\Users\23123\AppData\Local\Temp\ccKgoeuT.o

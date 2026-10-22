@@ -1,0 +1,1 @@
+{"status": "PARTIAL VERIFIED: RV32I ALU and branch/JAL/JALR control flow", "case_count": 48, "total_retired": 3064, "total_wb_packets": 3064, "total_redirects": 739, "total_bp_commits": 1532}

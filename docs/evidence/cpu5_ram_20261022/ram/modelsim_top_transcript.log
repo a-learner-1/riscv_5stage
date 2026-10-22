@@ -1,0 +1,112 @@
+# "selftests": 51, "seeds": [{"seed": "0x13579bdf", "retire_count": 1468, "mem_access_count": 358, "loads": 173, "stores": 185, "code_bytes": 864, "halt_pc": 136}, {"seed": "0x2468ace0", "retire_count": 1472, "mem_access_count": 360, "loads": 173, "stores": 187, "code_bytes": 864, "halt_pc": 136}]
+# Model Technology ModelSim SE-64 vmap 10.6e Lib Mapping Utility 2018.06 Jun 23 2018
+# vmap cpu5_s5_top_work build/cpu5_s5_ram/top_work 
+# Modifying modelsim.ini
+# Model Technology ModelSim SE-64 vlog 10.6e Compiler 2018.06 Jun 23 2018
+# Start time: 22:32:50 on Oct 22,2026
+# vlog -sv "+incdir+." -work cpu5_s5_top_work rtl/instr_mem.v rtl/instr_bus_adapter.v rtl/branch_predictor.v rtl/if_stage.v rtl/alu.v rtl/regfile.v rtl/cpu5_if_adapter.v rtl/cpu5_hazard.v rtl/cpu5_pipeline_skeleton.v rtl/cpu5_alu_decode.v rtl/cpu5_branch_unit.v rtl/cpu5_ram_unit.v rtl/cpu5_ram_owner.v rtl/cpu5_alu_pipeline.v rtl/cpu5_top.v tb/cpu5_ram_top_tb.v 
+# -- Compiling module instr_mem
+# -- Compiling module instr_bus_adapter
+# -- Compiling module branch_predictor
+# -- Compiling module if_stage
+# -- Compiling module alu
+# -- Compiling module regfile
+# -- Compiling module cpu5_if_adapter
+# -- Compiling module cpu5_hazard
+# -- Compiling module cpu5_pipeline_skeleton
+# -- Compiling module cpu5_alu_decode
+# -- Compiling module cpu5_branch_unit
+# -- Compiling module cpu5_ram_unit
+# -- Compiling module cpu5_ram_owner
+# -- Compiling module cpu5_alu_pipeline
+# -- Compiling module cpu5_top
+# -- Compiling module cpu5_ram_top_tb
+# -- Compiling module cpu5_ram_top_case
+# 
+# Top level modules:
+# 	cpu5_ram_top_tb
+# End time: 22:32:50 on Oct 22,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim -voptargs=""+acc"" -onfinish stop -wlf build/cpu5_s5_ram/top.wlf cpu5_s5_top_work.cpu5_ram_top_tb 
+# Start time: 22:32:50 on Oct 22,2026
+# ** Note: (vsim-8009) Loading existing optimized design _opt
+# //  ModelSim SE-64 10.6e Jun 23 2018
+# //
+# //  Copyright 1991-2018 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  ModelSim SE-64 and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# Loading sv_std.std
+# Loading work.cpu5_ram_top_tb(fast)
+# Loading work.cpu5_ram_top_case(fast)
+# Loading work.cpu5_top(fast)
+# Loading work.cpu5_if_adapter(fast)
+# Loading work.if_stage(fast)
+# Loading work.instr_mem(fast)
+# Loading work.instr_bus_adapter(fast)
+# Loading work.cpu5_pipeline_skeleton(fast)
+# Loading work.cpu5_alu_pipeline(fast)
+# Loading work.cpu5_alu_decode(fast)
+# Loading work.regfile(fast)
+# Loading work.alu(fast)
+# Loading work.cpu5_ram_unit(fast)
+# Loading work.cpu5_ram_owner(fast)
+# Loading work.cpu5_branch_unit(fast)
+# Loading work.cpu5_hazard(fast__1)
+# Loading work.cpu5_hazard(fast)
+# Loading work.cpu5_ram_top_case(fast__1)
+# Loading work.cpu5_top(fast__1)
+# Loading work.cpu5_alu_pipeline(fast__1)
+# Loading work.cpu5_ram_top_case(fast__2)
+# Loading work.cpu5_top(fast__2)
+# Loading work.cpu5_if_adapter(fast__1)
+# Loading work.if_stage(fast__1)
+# Loading work.branch_predictor(fast)
+# Loading work.cpu5_alu_pipeline(fast__2)
+# Loading work.cpu5_ram_top_case(fast__3)
+# Loading work.cpu5_top(fast__3)
+# Loading work.cpu5_alu_pipeline(fast__3)
+# Loading work.cpu5_ram_top_case(fast__4)
+# Loading work.cpu5_ram_top_case(fast__5)
+# Loading work.cpu5_ram_top_case(fast__6)
+# Loading work.cpu5_ram_top_case(fast__7)
+# Loading work.cpu5_ram_top_case(fast__8)
+# Loading work.cpu5_ram_top_case(fast__9)
+# Loading work.cpu5_ram_top_case(fast__10)
+# Loading work.cpu5_ram_top_case(fast__11)
+# Loading work.cpu5_ram_top_case(fast__12)
+# Loading work.cpu5_ram_top_case(fast__13)
+# Loading work.cpu5_ram_top_case(fast__14)
+# Loading work.cpu5_ram_top_case(fast__15)
+# CPU5 RAM CASE PASS case=3 ID=1 BP=1 WAIT=0 fixture=seed0 retired=1468 redirects=52 RAW=35 cycles=1809
+# CPU5 RAM CASE PASS case=11 ID=1 BP=1 WAIT=0 fixture=seed1 retired=1472 redirects=51 RAW=35 cycles=1814
+# CPU5 RAM CASE PASS case=1 ID=1 BP=0 WAIT=0 fixture=seed0 retired=1468 redirects=106 RAW=35 cycles=1863
+# CPU5 RAM CASE PASS case=9 ID=1 BP=0 WAIT=0 fixture=seed1 retired=1472 redirects=104 RAW=35 cycles=1867
+# CPU5 RAM CASE PASS case=2 ID=0 BP=1 WAIT=0 fixture=seed0 retired=1468 redirects=52 RAW=0 cycles=1879
+# CPU5 RAM CASE PASS case=10 ID=0 BP=1 WAIT=0 fixture=seed1 retired=1472 redirects=51 RAW=0 cycles=1882
+# CPU5 RAM CASE PASS case=8 ID=0 BP=0 WAIT=0 fixture=seed1 retired=1472 redirects=104 RAW=0 cycles=2041
+# CPU5 RAM CASE PASS case=0 ID=0 BP=0 WAIT=0 fixture=seed0 retired=1468 redirects=106 RAW=0 cycles=2041
+# CPU5 RAM CASE PASS case=15 ID=1 BP=1 WAIT=1 fixture=seed1 retired=1472 redirects=51 RAW=6 cycles=5486
+# CPU5 RAM CASE PASS case=14 ID=0 BP=1 WAIT=1 fixture=seed1 retired=1472 redirects=51 RAW=0 cycles=5491
+# CPU5 RAM CASE PASS case=6 ID=0 BP=1 WAIT=1 fixture=seed0 retired=1468 redirects=52 RAW=0 cycles=5500
+# CPU5 RAM CASE PASS case=7 ID=1 BP=1 WAIT=1 fixture=seed0 retired=1468 redirects=52 RAW=7 cycles=5505
+# CPU5 RAM CASE PASS case=5 ID=1 BP=0 WAIT=1 fixture=seed0 retired=1468 redirects=106 RAW=7 cycles=5629
+# CPU5 RAM CASE PASS case=13 ID=1 BP=0 WAIT=1 fixture=seed1 retired=1472 redirects=104 RAW=10 cycles=5666
+# CPU5 RAM CASE PASS case=4 ID=0 BP=0 WAIT=1 fixture=seed0 retired=1468 redirects=106 RAW=0 cycles=5780
+# CPU5 RAM CASE PASS case=12 ID=0 BP=0 WAIT=1 fixture=seed1 retired=1472 redirects=104 RAW=0 cycles=5790
+# CPU5 RAM TOP PASS: 16 C cases, ID/EX, prediction and variable I/D waits
+# ** Note: $stop    : tb/cpu5_ram_top_tb.v(16)
+#    Time: 115871 ns  Iteration: 1  Instance: /cpu5_ram_top_tb
+# Break in Module cpu5_ram_top_tb at tb/cpu5_ram_top_tb.v line 16
+# Stopped at tb/cpu5_ram_top_tb.v line 16
+# CPU5 ORDINARY RAM VERIFIED; MMIO/M/CSR/TRAP/IRQ NOT IMPLEMENTED
+# End time: 22:32:54 on Oct 22,2026, Elapsed time: 0:00:04
+# Errors: 0, Warnings: 0
+# 0

@@ -1,0 +1,103 @@
+{
+  "pass_all": true,
+  "summary": {
+    "pass": true,
+    "checks": 81,
+    "scenarios": 13,
+    "issues": 19,
+    "requests": 18,
+    "responses": 17,
+    "completions_acknowledged": 13,
+    "killed_drops": 3,
+    "simultaneous_handoffs": 1,
+    "store_requests": 3
+  },
+  "compile_warnings": 0,
+  "source_manifest": {
+    "rtl/cpu5_ram_owner.v": {
+      "sha256": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+      "canonical_lf_sha256": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6"
+    },
+    "tb/cpu5_ram_owner_tb.v": {
+      "sha256": "6d19483afd34d07b6e108d5c1b610320a028b6beb3037f1cab59164fe282065e",
+      "canonical_lf_sha256": "6d19483afd34d07b6e108d5c1b610320a028b6beb3037f1cab59164fe282065e"
+    },
+    "run_cpu5_ram_owner.do": {
+      "sha256": "827fb0551d8f2e626a5916f4ec545f9ee785cb472dc2ffa8be0313ecaa8f2228",
+      "canonical_lf_sha256": "827fb0551d8f2e626a5916f4ec545f9ee785cb472dc2ffa8be0313ecaa8f2228"
+    }
+  },
+  "mutations": [
+    {
+      "name": "bind_requires_req_ready",
+      "exit_code": 1,
+      "expected_failure": "offer binds independently of req ready",
+      "rejected": true,
+      "source_sha256": "a541c61908d06af9fc8e379fdd388b274356c25b396f2bef51e904531783e266"
+    },
+    {
+      "name": "killed_request_cancels",
+      "exit_code": 1,
+      "expected_failure": "held request remains valid",
+      "rejected": true,
+      "source_sha256": "be27f2063ed8603d8e1ad6578c50de98a9765ea0090b8f077b2dac519227459f"
+    },
+    {
+      "name": "store_is_killable",
+      "exit_code": 1,
+      "expected_failure": "STORE cannot be killed",
+      "rejected": true,
+      "source_sha256": "93d5cb21eccf0a04c1d5c0eefa49dcec84ce7f1a34a5e75009361c24de81f291"
+    },
+    {
+      "name": "response_claims_new_owner",
+      "exit_code": 1,
+      "expected_failure": "A response and B request have distinct descriptors",
+      "rejected": true,
+      "source_sha256": "a628a0173caf4d06d14befea3ddf80bef240b85479bf65ce163f936cf4ae3f85"
+    },
+    {
+      "name": "load_to_store_handoff",
+      "exit_code": 1,
+      "expected_failure": "new STORE cannot handoff from load",
+      "rejected": true,
+      "source_sha256": "425ad0fb395a1d7c8392491f2311913ff66f30e0b5444ce9d45f5c344b10055f"
+    },
+    {
+      "name": "fault_handoff",
+      "exit_code": 1,
+      "expected_failure": "fault ack does not handoff",
+      "rejected": true,
+      "source_sha256": "1fee279b98283554760c1813baf6927a53e94d33f7f04e515e1348103fc989fa"
+    },
+    {
+      "name": "kill_truncates_seq",
+      "exit_code": 1,
+      "expected_failure": "64 bit age and epoch independence",
+      "rejected": true,
+      "source_sha256": "56d28bd81e655ba12e6078f36ccb164bca4c740c2b1f3b9e39e0e1fc7d18dd45"
+    },
+    {
+      "name": "completion_bypasses_cache",
+      "exit_code": 1,
+      "expected_failure": "blocked completion stable",
+      "rejected": true,
+      "source_sha256": "e8e788ee0c35841818ce8212c60b6789d24cbfba8067dc4931d13dd3b2d23b94"
+    },
+    {
+      "name": "killed_response_waits_ready",
+      "exit_code": 1,
+      "expected_failure": "killed response drops without completion ready",
+      "rejected": true,
+      "source_sha256": "0d06db432d3d1fe74b2c9f6cbf0b838f3449c8b8f700de49abb270dcbaee58d1"
+    }
+  ],
+  "mutations_rejected": 9,
+  "trace_checks": {
+    "rows": 70,
+    "requests_checked": 18,
+    "responses_checked": 17,
+    "fixed_stimulus_ledger": true,
+    "reset_cancelled_accepted_seq": 202
+  }
+}

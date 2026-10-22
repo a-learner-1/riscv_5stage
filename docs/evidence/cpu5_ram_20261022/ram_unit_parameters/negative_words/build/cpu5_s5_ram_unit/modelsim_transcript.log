@@ -1,0 +1,65 @@
+# Model Technology ModelSim SE-64 vmap 10.6e Lib Mapping Utility 2018.06 Jun 23 2018
+# vmap -c 
+# Copying D:/modeltech64_10.6e/win64/../modelsim.ini to modelsim.ini
+# Model Technology ModelSim SE-64 vmap 10.6e Lib Mapping Utility 2018.06 Jun 23 2018
+# vmap cpu5_s5_ram_unit_work build/cpu5_s5_ram_unit/work 
+# Modifying modelsim.ini
+# Model Technology ModelSim SE-64 vlog 10.6e Compiler 2018.06 Jun 23 2018
+# Start time: 09:29:11 on Oct 22,2026
+# vlog -sv -work cpu5_s5_ram_unit_work rtl/cpu5_ram_unit.v tb/cpu5_ram_unit_tb.v 
+# -- Compiling module cpu5_ram_unit
+# -- Compiling module cpu5_ram_unit_tb
+# 
+# Top level modules:
+# 	cpu5_ram_unit_tb
+# End time: 09:29:11 on Oct 22,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim -voptargs=""+acc"" -onfinish stop -wlf build/cpu5_s5_ram_unit/ram_unit.wlf cpu5_s5_ram_unit_work.cpu5_ram_unit_tb 
+# Start time: 09:29:11 on Oct 22,2026
+# ** Note: (vsim-3812) Design is being optimized...
+# ** Warning: tb/cpu5_ram_unit_tb.v(4): (vopt-2685) [TFMPC] - Too few port connections for 'dut'.  Expected 23, found 4.
+# ** Warning: tb/cpu5_ram_unit_tb.v(4): (vopt-2718) [TFMPC] - Missing connection for port 'fault_cause'.
+# ** Warning: tb/cpu5_ram_unit_tb.v(4): (vopt-2718) [TFMPC] - Missing connection for port 'fault'.
+# ** Warning: tb/cpu5_ram_unit_tb.v(4): (vopt-2718) [TFMPC] - Missing connection for port 'out_of_range'.
+# ** Warning: tb/cpu5_ram_unit_tb.v(4): (vopt-2718) [TFMPC] - Missing connection for port 'misaligned'.
+# ** Warning: tb/cpu5_ram_unit_tb.v(4): (vopt-2718) [TFMPC] - Missing connection for port 'wstrb'.
+# ** Warning: tb/cpu5_ram_unit_tb.v(4): (vopt-2718) [TFMPC] - Missing connection for port 'size'.
+# ** Warning: tb/cpu5_ram_unit_tb.v(4): (vopt-2718) [TFMPC] - Missing connection for port 'load_value'.
+# ** Warning: tb/cpu5_ram_unit_tb.v(4): (vopt-2718) [TFMPC] - Missing connection for port 'wdata'.
+# ** Warning: tb/cpu5_ram_unit_tb.v(4): (vopt-2718) [TFMPC] - Missing connection for port 'addr'.
+# ** Warning: tb/cpu5_ram_unit_tb.v(4): (vopt-2718) [TFMPC] - Missing connection for port 'imm'.
+# ** Warning: tb/cpu5_ram_unit_tb.v(4): (vopt-2718) [TFMPC] - Missing connection for port 'rd'.
+# ** Warning: tb/cpu5_ram_unit_tb.v(4): (vopt-2718) [TFMPC] - Missing connection for port 'rs2'.
+# ** Warning: tb/cpu5_ram_unit_tb.v(4): (vopt-2718) [TFMPC] - Missing connection for port 'rs1'.
+# ** Warning: tb/cpu5_ram_unit_tb.v(4): (vopt-2718) [TFMPC] - Missing connection for port 'writes_rd'.
+# ** Warning: tb/cpu5_ram_unit_tb.v(4): (vopt-2718) [TFMPC] - Missing connection for port 'uses_rs2'.
+# ** Warning: tb/cpu5_ram_unit_tb.v(4): (vopt-2718) [TFMPC] - Missing connection for port 'uses_rs1'.
+# ** Warning: tb/cpu5_ram_unit_tb.v(4): (vopt-2718) [TFMPC] - Missing connection for port 'is_store'.
+# ** Warning: tb/cpu5_ram_unit_tb.v(4): (vopt-2718) [TFMPC] - Missing connection for port 'is_load'.
+# ** Warning: tb/cpu5_ram_unit_tb.v(4): (vopt-2718) [TFMPC] - Missing connection for port 'supported'.
+# //  ModelSim SE-64 10.6e Jun 23 2018
+# //
+# //  Copyright 1991-2018 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  ModelSim SE-64 and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# Loading sv_std.std
+# Loading work.cpu5_ram_unit_tb(fast)
+# Loading work.cpu5_ram_unit(fast)
+# ** Fatal: cpu5_ram_unit requires a nonempty aligned RAM range ending at or before 2^32
+#    Time: 0 ps  Scope: cpu5_ram_unit_tb.dut File: rtl/cpu5_ram_unit.v Line: 52
+# ** Note: $finish    : rtl/cpu5_ram_unit.v(52)
+#    Time: 0 ps  Iteration: 0  Instance: /cpu5_ram_unit_tb/dut
+# Break in Module cpu5_ram_unit at rtl/cpu5_ram_unit.v line 52
+# Stopped at rtl/cpu5_ram_unit.v line 52
+# ** Error: RAM unit test stopped without success
+# Executing ONERROR command at macro ./run_cpu5_ram_unit.do line 11
+# End time: 09:29:12 on Oct 22,2026, Elapsed time: 0:00:01
+# Errors: 4, Warnings: 20

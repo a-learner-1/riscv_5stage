@@ -1,0 +1,1 @@
+case0 D0 req: wstrb observed=e expected=f

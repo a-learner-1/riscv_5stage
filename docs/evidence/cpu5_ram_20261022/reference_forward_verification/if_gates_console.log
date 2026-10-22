@@ -1,0 +1,82 @@
+Reading D:/modeltech64_10.6e/tcl/vsim/pref.tcl
+
+# 10.6e
+
+# do run_cpu5_if_adapter.do
+# 0
+# Model Technology ModelSim SE-64 vmap 10.6e Lib Mapping Utility 2018.06 Jun 23 2018
+# vmap cpu5_s1_if_work build/cpu5_s1_if/work 
+# Modifying modelsim.ini
+# Model Technology ModelSim SE-64 vlog 10.6e Compiler 2018.06 Jun 23 2018
+# Start time: 22:32:18 on Oct 22,2026
+# vlog -sv -work cpu5_s1_if_work rtl/instr_mem.v rtl/instr_bus_adapter.v rtl/branch_predictor.v rtl/if_stage.v rtl/cpu5_if_adapter.v tb/cpu5_if_adapter_tb.v 
+# -- Compiling module instr_mem
+# -- Compiling module instr_bus_adapter
+# -- Compiling module branch_predictor
+# -- Compiling module if_stage
+# -- Compiling module cpu5_if_adapter
+# -- Compiling module cpu5_if_adapter_tb
+# 
+# Top level modules:
+# 	cpu5_if_adapter_tb
+# End time: 22:32:18 on Oct 22,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim -voptargs=""+acc"" -onfinish stop -wlf build/cpu5_s1_if/observation.wlf cpu5_s1_if_work.cpu5_if_adapter_tb 
+# Start time: 22:32:19 on Oct 22,2026
+# ** Note: (vsim-8009) Loading existing optimized design _opt
+# //  ModelSim SE-64 10.6e Jun 23 2018
+# //
+# //  Copyright 1991-2018 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  ModelSim SE-64 and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# Loading sv_std.std
+# Loading work.cpu5_if_adapter_tb(fast)
+# Loading work.cpu5_if_adapter(fast)
+# Loading work.if_stage(fast)
+# Loading work.branch_predictor(fast)
+# Loading work.instr_mem(fast)
+# Loading work.instr_bus_adapter(fast)
+# CPU5 IF G1 PASS: ID stall response retention and IFID stability
+# CPU5 IF G2 PASS: redirect plus stall preserves ID owner until transfer; older flush kills
+# CPU5 IF G3 PASS: held and accepted stale drain; prediction metadata and epoch follow request
+# CPU5 IF G4 PASS: sticky fault becomes ordered packet once; no direct architectural trap
+# CPU5 IF G5 PASS: MEM authorized seq dedup and observable two-bit predictor state
+# CPU5 IF G6 PASS: long request backpressure and redirect preserve valid/address
+# CPU5 IF G7 PASS: same-edge response A/request B independent addresses data seq
+# CPU5 IF SUMMARY checks=121 req=16 rsp=16 transfers=5 faults=1 redirects=7 bp_updates=4 same_edges=1
+# ** Note: $finish    : tb/cpu5_if_adapter_tb.v(179)
+#    Time: 1297 ns  Iteration: 0  Instance: /cpu5_if_adapter_tb
+# Break in Module cpu5_if_adapter_tb at tb/cpu5_if_adapter_tb.v line 179
+# Stopped at tb/cpu5_if_adapter_tb.v line 179
+# CPU5 IF SEVEN GATES PASS; CPU5 full pipeline / STA / board NOT RUN
+# End time: 22:32:19 on Oct 22,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# 0
+# vsim -voptargs=""+acc"" -onfinish stop -wlf build/cpu5_s1_if/sequence_exhaustion.wlf cpu5_s1_if_work.cpu5_if_adapter_tb "+IF_SEQ_EXHAUST" 
+# Start time: 22:32:19 on Oct 22,2026
+# ** Note: (vsim-8009) Loading existing optimized design _opt
+# Loading sv_std.std
+# Loading work.cpu5_if_adapter_tb(fast)
+# Loading work.cpu5_if_adapter(fast)
+# Loading work.if_stage(fast)
+# Loading work.branch_predictor(fast)
+# Loading work.instr_mem(fast)
+# Loading work.instr_bus_adapter(fast)
+# ** Fatal: CPU5 IF seq exhausted; drain and reset required
+#    Time: 65 ns  Scope: cpu5_if_adapter_tb.dut File: rtl/cpu5_if_adapter.v Line: 146
+# ** Note: $finish    : rtl/cpu5_if_adapter.v(146)
+#    Time: 65 ns  Iteration: 1  Instance: /cpu5_if_adapter_tb/dut
+# Break in Module cpu5_if_adapter at rtl/cpu5_if_adapter.v line 146
+# Stopped at rtl/cpu5_if_adapter.v line 146
+# CPU5 IF EXPECTED SEQUENCE EXHAUSTION REJECT PASS (one intentional Fatal)
+# End time: 22:32:20 on Oct 22,2026, Elapsed time: 0:00:01
+# Errors: 1, Warnings: 0
+# 0

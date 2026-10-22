@@ -1,0 +1,60 @@
+{
+  "good_source_sha256": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+  "mutants": [
+    {
+      "name": "i_immediate_zero_extend",
+      "exit_code": 1,
+      "rejected": true,
+      "fatal": [
+        "# ** Fatal: RAM format case=0 config=0 instr=fff08283 imm=00000fff/ffffffff addr=00011003/00010003 size=0/          0 data=00000000/00000000 strobe=0/0 load=ffffff80/ffffff80"
+      ],
+      "mutant_sha256": "f65cd59f8247f5d75fa939f88a259c81a50468f059a6a7728823217457112a15"
+    },
+    {
+      "name": "accept_illegal_load_f3",
+      "exit_code": 1,
+      "rejected": true,
+      "fatal": [
+        "# ** Fatal: RAM decode case=612 config=0 instr=8000b183"
+      ],
+      "mutant_sha256": "7160082b53dcab8e4da558b6dd89b36f8ad95a6033b7e74a5e02eb37a7c77ad2"
+    },
+    {
+      "name": "range_end_wrap32",
+      "exit_code": 1,
+      "rejected": true,
+      "fatal": [
+        "# ** Fatal: RAM fault case=2 config=1 addr=fffffffc first=00000000fffffffc last=00000000ffffffff actual=0/1/1/         5 expected=0/0/0/         0"
+      ],
+      "mutant_sha256": "ede2a0aa70ce0dad58f9cade709f6aca1cc8f404516b3b4fd03dcb56cca9432c"
+    },
+    {
+      "name": "no_load_byte_shift",
+      "exit_code": 1,
+      "rejected": true,
+      "fatal": [
+        "# ** Fatal: RAM format case=0 config=0 instr=fff08283 imm=ffffffff/ffffffff addr=00010003/00010003 size=0/          0 data=00000000/00000000 strobe=0/0 load=00000001/ffffff80"
+      ],
+      "mutant_sha256": "11a73bc66f360e2978916c7dbecaf6f7c113869d7db7cea11cbd5b888bf97435"
+    },
+    {
+      "name": "store_uses_unshifted_data",
+      "exit_code": 1,
+      "rejected": true,
+      "fatal": [
+        "# ** Fatal: RAM format case=5 config=0 instr=fe208fa3 imm=ffffffff/ffffffff addr=00010003/00010003 size=0/          0 data=89abcdef/ef000000 strobe=8/8 load=00000000/00000000"
+      ],
+      "mutant_sha256": "a30cc8afa067b456db6ebf790344109f8f4fe67ae63c61d0e0565e081b8fa2c3"
+    },
+    {
+      "name": "range_checks_first_only",
+      "exit_code": 1,
+      "rejected": true,
+      "fatal": [
+        "# ** Fatal: RAM fault case=10 config=0 addr=00013fff first=0000000000013fff last=0000000000014000 actual=1/0/1/         4 expected=1/1/1/         4"
+      ],
+      "mutant_sha256": "e0b4867585b77ec378bb408ee8e2ddc181f9146fdee1add68ed4a8564f99b398"
+    }
+  ],
+  "all_rejected": true
+}

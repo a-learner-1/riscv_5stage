@@ -1,0 +1,77 @@
+{
+  "schema": 1,
+  "status": "PASS",
+  "rejected_count": 6,
+  "scope": "Six corrupted copies of real simulation CSVs; original good evidence remains byte-identical",
+  "good_cases_audited": [
+    0,
+    2
+  ],
+  "good_input_files": 333,
+  "good_manifest_before_sha256": "1052e27872e5edf17831aaa733afc7b67831f3d8772569202e1e4f0119070cf4",
+  "good_manifest_after_sha256": "1052e27872e5edf17831aaa733afc7b67831f3d8772569202e1e4f0119070cf4",
+  "good_inputs_unchanged": true,
+  "rejected": [
+    {
+      "name": "retire_nextpc_wrong",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0 row0 retire: nextpc observed=0 expected=4",
+      "changed_file": "trace.csv",
+      "good_sha256": "a18eebaebe22d65acb009ccba2b19072893b290fd959249d4571f95ad45d0eac",
+      "broken_sha256": "c346f392f5a0b04bcc0932c72633efb23ba8b5207ade3a9d20230c8818dae9ad",
+      "bad_copy": "C:/Users/23123/.codex/visualizations/2026/10/19/01a151db-bb68-7633-bd17-5c52d2aa2890/cpu5_s5/work/build/cpu5_s4_branch_analyzer_selftest/retire_nextpc_wrong/case0"
+    },
+    {
+      "name": "physical_wb_missing",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0 row2 wb: extra/missing/reordered index",
+      "changed_file": "trace.csv",
+      "good_sha256": "a18eebaebe22d65acb009ccba2b19072893b290fd959249d4571f95ad45d0eac",
+      "broken_sha256": "42d6fce1f01d8616fd53751225600d0d06582aa86e021ae75b72011b01f0f51a",
+      "bad_copy": "C:/Users/23123/.codex/visualizations/2026/10/19/01a151db-bb68-7633-bd17-5c52d2aa2890/cpu5_s5/work/build/cpu5_s4_branch_analyzer_selftest/physical_wb_missing/case0"
+    },
+    {
+      "name": "accepted_seq_has_wrong_owner",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0 row0 retire: IFID ownership mismatch",
+      "changed_file": "accept.csv",
+      "good_sha256": "c03ee7cddce665596c733a839b84dac078c9b44bb7ac7c1a674b95a8da049bef",
+      "broken_sha256": "4dd0427e999bb172239ff2dec9bd04f92afb6515b934763706ba6e364f9094ad",
+      "bad_copy": "C:/Users/23123/.codex/visualizations/2026/10/19/01a151db-bb68-7633-bd17-5c52d2aa2890/cpu5_s5/work/build/cpu5_s4_branch_analyzer_selftest/accepted_seq_has_wrong_owner/case0"
+    },
+    {
+      "name": "redirect_target_wrong",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0 event0 redirect: target observed=a0 expected=a4",
+      "changed_file": "events.csv",
+      "good_sha256": "d481f7ae6a98e252ef1106d332f4750cb03d79744a80c993f671bbb91cb8de24",
+      "broken_sha256": "5287fd8396c53e8600c775b6f10420458845e155848704aad6a2a88f3d726a5f",
+      "bad_copy": "C:/Users/23123/.codex/visualizations/2026/10/19/01a151db-bb68-7633-bd17-5c52d2aa2890/cpu5_s5/work/build/cpu5_s4_branch_analyzer_selftest/redirect_target_wrong/case0"
+    },
+    {
+      "name": "predictor_off_fake_training",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0: disabled predictor must not receive training",
+      "changed_file": "events.csv",
+      "good_sha256": "d481f7ae6a98e252ef1106d332f4750cb03d79744a80c993f671bbb91cb8de24",
+      "broken_sha256": "ee61f463e7cdd343b6107d54c2f14722514287f32257d0148c5fe023dc1064f5",
+      "bad_copy": "C:/Users/23123/.codex/visualizations/2026/10/19/01a151db-bb68-7633-bd17-5c52d2aa2890/cpu5_s5/work/build/cpu5_s4_branch_analyzer_selftest/predictor_off_fake_training/case0"
+    },
+    {
+      "name": "predictor_on_missing_training",
+      "case": 2,
+      "status": "REJECTED",
+      "error": "case2: enabled BP commit ledger must exactly match MEM retirements",
+      "changed_file": "events.csv",
+      "good_sha256": "f383e34a0cb9c166c5f5088dde3a8f22e3ab654ff1f8cea526c48c1a116821be",
+      "broken_sha256": "af2b06b5134a9f0790f18cf49d0bd4510fa49fe77cb106e974438a83b0e827d2",
+      "bad_copy": "C:/Users/23123/.codex/visualizations/2026/10/19/01a151db-bb68-7633-bd17-5c52d2aa2890/cpu5_s5/work/build/cpu5_s4_branch_analyzer_selftest/predictor_on_missing_training/case2"
+    }
+  ],
+  "evidence_directory": "C:/Users/23123/.codex/visualizations/2026/10/19/01a151db-bb68-7633-bd17-5c52d2aa2890/cpu5_s5/work/build/cpu5_s4_branch_analyzer_selftest"
+}
