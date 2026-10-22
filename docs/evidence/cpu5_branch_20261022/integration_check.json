@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "baseline_commit": "087fcc654f104eea9b437fb47d7b9dc79e61b9dd",
+  "baseline_archive_files_unchanged": 1343,
+  "tested_source_identity_checks": 124,
+  "main_preexisting_files": 1538,
+  "authorized_updates": [
+    "rtl/cpu5_alu_pipeline.v",
+    "rtl/cpu5_top.v",
+    "tb/cpu5_alu_control_tb.v",
+    "tb/cpu5_forward_control_tb.v"
+  ],
+  "remaining_main_files_preserved": 1534,
+  "scope": "integer ALU and control flow only; no real LOAD-use/RAM/Trap/IRQ",
+  "full_A01_A16": "NOT RUN",
+  "STA": "NOT RUN",
+  "board": "NOT RUN"
+}

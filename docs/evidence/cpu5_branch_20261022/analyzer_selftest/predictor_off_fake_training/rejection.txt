@@ -1,0 +1,1 @@
+case0: disabled predictor must not receive training

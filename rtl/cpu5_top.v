@@ -1,6 +1,6 @@
 // SKELETON_ONLY=1 preserves the metadata-only scaffold. =0 enables stage3A-1:
 // 21 ALU instructions, MEM retirement/GPR WB; ENABLE_FORWARDING=1 adds 3A-2.
-// Branch/D/M/CSR/Trap/IRQ/profile remain unimplemented and cannot produce effects.
+// ENABLE_CONTROL_FLOW adds branches/JAL/JALR; D/M/CSR/Trap/IRQ remain absent.
 // No board/project references this module; cpu_top is the verified product.
 module cpu5_top #(
     parameter PROGRAM_FILE="programs/rv32i_regression.hex", DATA_FILE="",
@@ -14,12 +14,11 @@ module cpu5_top #(
     parameter integer ENABLE_TRAPS=1, ENABLE_TIMER_IRQ=0,
     parameter integer ENABLE_BRANCH_PRED=0, BTB_ENTRIES=64,
     parameter integer ENABLE_EXTERNAL_IRQ=0, ENABLE_SOFTWARE_IRQ=0, ENABLE_M=1,
-    // Provisional EX selection; no branch executor exists in this scaffold.
-    // Keep both values elaboratable; final selection requires CPU5 A/B.
+    // ID/EX resolution is a real switch when control flow is enabled.
     parameter integer BRANCH_RESOLVE_IN_ID=0,
     parameter integer SEQ_BITS=64, EPOCH_BITS=8, SKELETON_ONLY=1,
     // Opt-in 3A-2 EX/MEM and MEM/WB forwarding; zero preserves the 3A-1 reference.
-    parameter integer ENABLE_FORWARDING=0
+    parameter integer ENABLE_FORWARDING=0,ENABLE_CONTROL_FLOW=0
 )(
     input wire clk,rst_n,
     output wire [31:0] pc_x,instr_x, output wire valid_x,
@@ -62,6 +61,10 @@ module cpu5_top #(
     wire [31:0] alu_ex_pc,alu_ex_instr,alu_wb_pc,alu_wb_data;
     wire [4:0] alu_wb_rd;
     wire [63:0] alu_cycle_count,alu_instret_count;
+    wire alu_redirect,alu_redirect_kill,alu_bp_valid,alu_bp_taken,alu_bp_branch,alu_bp_jal;
+    wire [31:0] alu_redirect_pc,alu_bp_pc,alu_bp_target;
+    wire [SEQ_BITS-1:0] alu_redirect_seq,alu_bp_seq;
+    wire [31:0] alu_bp_resolved,alu_bp_mismatch,alu_bp_direrr,alu_bp_tgterr;
     assign ifid_ready=SKELETON_ONLY!=0?skeleton_ready:alu_ready;
     assign valid_x=SKELETON_ONLY!=0?skeleton_ex_valid:alu_ex_valid;
     assign pc_x=SKELETON_ONLY!=0?skeleton_ex_pc:alu_ex_pc;
@@ -73,8 +76,8 @@ module cpu5_top #(
         .ENABLE_BRANCH_PRED(ENABLE_BRANCH_PRED),.BTB_ENTRIES(BTB_ENTRIES),
         .SEQ_BITS(SEQ_BITS),.EPOCH_BITS(EPOCH_BITS)) u_if_adapter(
         .clk(clk),.rst_n(rst_n),.id_ready(ifid_ready),
-        .redirect_valid(1'b0),.redirect_ready(unused_redirect_ready),
-        .redirect_pc(32'd0),.redirect_kill_ifid(1'b0),
+        .redirect_valid(alu_redirect),.redirect_ready(unused_redirect_ready),
+        .redirect_pc(alu_redirect_pc),.redirect_kill_ifid(alu_redirect_kill),
         .ifid_valid(ifid_valid_q),.ifid_pc(ifid_q.pc),.ifid_instr(ifid_q.instr),
         .ifid_pred_next_pc(ifid_q.pred_next_pc),.ifid_pred_taken(ifid_q.pred_taken),
         .ifid_pred_hit(ifid_q.pred_hit),.ifid_fetch_error(ifid_q.fetch_error),
@@ -83,9 +86,10 @@ module cpu5_top #(
         .imem_req_addr(imem_req_addr),.imem_rsp_valid(imem_rsp_valid),
         .imem_rsp_ready(imem_rsp_ready),.imem_rsp_rdata(imem_rsp_rdata),.imem_rsp_error(imem_rsp_error),
         .imem_fault(imem_fault),.imem_fault_pc(imem_fault_pc),
-        .bp_commit_valid(1'b0),.bp_commit_ready(unused_bp_ready),.bp_commit_seq({SEQ_BITS{1'b0}}),
-        .bp_commit_pc(32'd0),.bp_commit_target(32'd0),.bp_commit_taken(1'b0),
-        .bp_commit_is_branch(1'b0),.bp_commit_is_jal(1'b0),.bp_update_fire(unused_bp_update),
+        .bp_commit_valid(ENABLE_CONTROL_FLOW && ENABLE_BRANCH_PRED && alu_bp_valid),
+        .bp_commit_ready(unused_bp_ready),.bp_commit_seq(alu_bp_seq),
+        .bp_commit_pc(alu_bp_pc),.bp_commit_target(alu_bp_target),.bp_commit_taken(alu_bp_taken),
+        .bp_commit_is_branch(alu_bp_branch),.bp_commit_is_jal(alu_bp_jal),.bp_update_fire(unused_bp_update),
         .bp_lookup_count(bp_lookup_count),.bp_hit_count(bp_hit_count),.bp_taken_count(bp_taken_count));
 
     cpu5_pipeline_skeleton #(.SEQ_BITS(SEQ_BITS),.EPOCH_BITS(EPOCH_BITS)) u_pipeline(
@@ -102,7 +106,9 @@ module cpu5_top #(
         .debug_ex_epoch(debug_ex_epoch));
 
     generate if(SKELETON_ONLY==0)begin:g_alu
-        cpu5_alu_pipeline #(.SEQ_BITS(SEQ_BITS),.EPOCH_BITS(EPOCH_BITS),.ENABLE_FORWARDING(ENABLE_FORWARDING)) u_pipeline(
+        cpu5_alu_pipeline #(.SEQ_BITS(SEQ_BITS),.EPOCH_BITS(EPOCH_BITS),.ENABLE_FORWARDING(ENABLE_FORWARDING),
+            .ENABLE_CONTROL_FLOW(ENABLE_CONTROL_FLOW),.BRANCH_RESOLVE_IN_ID(BRANCH_RESOLVE_IN_ID),
+            .ENABLE_BRANCH_PRED(ENABLE_BRANCH_PRED)) u_pipeline(
             .clk(clk),.rst_n(rst_n),.in_valid(ifid_valid_q),.in_ready(alu_ready),
             .in_pc(ifid_q.pc),.in_instr(ifid_q.instr),.in_pred_next_pc(ifid_q.pred_next_pc),
             .in_pred_taken(ifid_q.pred_taken),.in_pred_hit(ifid_q.pred_hit),
@@ -116,10 +122,17 @@ module cpu5_top #(
             .retire_rd(),.retire_value(),.retire_writes_rd(),
             .cycle_count(alu_cycle_count),.instret_count(alu_instret_count),.arch_next_pc_q(),
             .halted(),.halt_pc(),.halt_instr(),.halt_seq(),.halt_fetch_error(),
-            .id_raw_wait(),.retire_fire(),.wb_fire());
+            .id_raw_wait(),.retire_fire(),.wb_fire(),
+            .redirect_valid(alu_redirect),.redirect_kill_ifid(alu_redirect_kill),.redirect_pc(alu_redirect_pc),.redirect_seq(alu_redirect_seq),
+            .bp_commit_valid(alu_bp_valid),.bp_commit_seq(alu_bp_seq),.bp_commit_pc(alu_bp_pc),.bp_commit_target(alu_bp_target),
+            .bp_commit_taken(alu_bp_taken),.bp_commit_is_branch(alu_bp_branch),.bp_commit_is_jal(alu_bp_jal),
+            .bp_resolved_count(alu_bp_resolved),.bp_mispredict_count(alu_bp_mismatch),
+            .bp_direction_error_count(alu_bp_direrr),.bp_target_error_count(alu_bp_tgterr),.halt_cause(),.halt_tval());
     end else begin:g_no_alu
         assign {alu_ready,alu_ex_valid,alu_ex_pc,alu_ex_instr,alu_wb_pc,alu_wb_rd,
                 alu_wb_data,alu_wb_we,alu_retire_valid,alu_cycle_count,alu_instret_count}=0;
+        assign {alu_redirect,alu_redirect_kill,alu_redirect_pc,alu_redirect_seq,alu_bp_valid,alu_bp_pc,alu_bp_target,
+                alu_bp_seq,alu_bp_taken,alu_bp_branch,alu_bp_jal,alu_bp_resolved,alu_bp_mismatch,alu_bp_direrr,alu_bp_tgterr}=0;
     end endgenerate
 
     // Forwarding hazard remains an independently verified interface placeholder.
@@ -144,15 +157,19 @@ module cpu5_top #(
     assign {dmem_req_valid,dmem_req_write,dmem_req_addr,dmem_req_size,
             dmem_req_wdata,dmem_req_wstrb,dmem_rsp_ready,dmem_fault}=0;
     assign {trap_valid,trap_pc,trap_cause,trap_tval}=0;
-    assign {bp_resolved_count,bp_mispredict_count,bp_direction_error_count,bp_target_error_count}=0;
+    assign bp_resolved_count=alu_bp_resolved;assign bp_mispredict_count=alu_bp_mismatch;
+    assign bp_direction_error_count=alu_bp_direrr;assign bp_target_error_count=alu_bp_tgterr;
     assign uart_tx=1'b1;
     assign gpio_out=8'd0; assign gpio_oe=8'd0;
     // synthesis translate_off
     initial begin
         if((SKELETON_ONLY!=0 && SKELETON_ONLY!=1) || EXTERNAL_IMEM!=1 || SEQ_BITS!=64 ||
            (ENABLE_FORWARDING!=0 && ENABLE_FORWARDING!=1) ||
+           (ENABLE_CONTROL_FLOW!=0 && ENABLE_CONTROL_FLOW!=1) ||
            (BRANCH_RESOLVE_IN_ID!=0 && BRANCH_RESOLVE_IN_ID!=1))
             $fatal(1,"cpu5_top requires external I, 64-bit age and a supported scaffold/ALU-subset mode");
     end
+    always @(posedge clk)if(rst_n && alu_redirect && !unused_redirect_ready)
+        $fatal(1,"CPU5 redirect not accepted by the fixed IF adapter protocol");
     // synthesis translate_on
 endmodule

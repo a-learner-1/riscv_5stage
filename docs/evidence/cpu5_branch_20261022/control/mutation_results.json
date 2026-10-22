@@ -1,0 +1,92 @@
+[
+  {
+    "name": "flush_consumes_surviving_source",
+    "exit_code": 1,
+    "rejected": true,
+    "fatal": "# ** Fatal: surviving source consumed on flush edge",
+    "source_sha256": "ca802e98222f4a00f9435737d31822eabba3190b04b2bd0ea9152fd9358bf901",
+    "tb_sha256": "e4dee773f4af10e5449f137d641d2d2e02d65f2e07b108f7d440ab2da5fd5fa8",
+    "log": "build\\mutations\\flush_consumes_surviving_source\\stdout.log"
+  },
+  {
+    "name": "ex_redirect_admits_younger",
+    "exit_code": 1,
+    "rejected": true,
+    "fatal": "# ** Fatal: EX redirect admission",
+    "source_sha256": "2f6d63c04e01c8f88fc4d0a3afd965aae3f4652cf9fbef26a79309c57c283e41",
+    "tb_sha256": "e4dee773f4af10e5449f137d641d2d2e02d65f2e07b108f7d440ab2da5fd5fa8",
+    "log": "build\\mutations\\ex_redirect_admits_younger\\stdout.log"
+  },
+  {
+    "name": "id_redirect_kills_source",
+    "exit_code": 1,
+    "rejected": true,
+    "fatal": "# ** Fatal: unexpected redirect mode=1 case=1 seq=0000000000000002 pc=00000110 kill=1 index=0/1",
+    "source_sha256": "77b042e3f0e212fd3f4ac699d112dc487e12d3040ac5679c2e3a754ffa61ea7f",
+    "tb_sha256": "e4dee773f4af10e5449f137d641d2d2e02d65f2e07b108f7d440ab2da5fd5fa8",
+    "log": "build\\mutations\\id_redirect_kills_source\\stdout.log"
+  },
+  {
+    "name": "known_ex_fault_loses_priority",
+    "exit_code": 1,
+    "rejected": true,
+    "fatal": "# ** Fatal: moving EX fault lost priority",
+    "source_sha256": "2d8af3c2a65aff0d5ac24d42bac87973250f9768469f1220e1042eb47e5302c0",
+    "tb_sha256": "e4dee773f4af10e5449f137d641d2d2e02d65f2e07b108f7d440ab2da5fd5fa8",
+    "log": "build\\mutations\\known_ex_fault_loses_priority\\stdout.log"
+  },
+  {
+    "name": "prediction_trains_before_retire",
+    "exit_code": 1,
+    "rejected": true,
+    "fatal": "# ** Fatal: BP authorization mode=1 case=1",
+    "source_sha256": "991e9e17370cc88fbab23812c4683f17ca677ebf386debbb977f47198e98ef48",
+    "tb_sha256": "e4dee773f4af10e5449f137d641d2d2e02d65f2e07b108f7d440ab2da5fd5fa8",
+    "log": "build\\mutations\\prediction_trains_before_retire\\stdout.log"
+  },
+  {
+    "name": "flush_blocks_retired_wb",
+    "exit_code": 1,
+    "rejected": true,
+    "fatal": "# ** Fatal: flush/WB priority",
+    "source_sha256": "30a626502a81eb4d29c03bf534142876ad2d0b1f42dcc80ae75f00c0fac9ee16",
+    "tb_sha256": "e4dee773f4af10e5449f137d641d2d2e02d65f2e07b108f7d440ab2da5fd5fa8",
+    "log": "build\\mutations\\flush_blocks_retired_wb\\stdout.log"
+  },
+  {
+    "name": "newest_mem_unready_ignored",
+    "exit_code": 1,
+    "rejected": true,
+    "fatal": "# ** Fatal: newest unavailable source fell back to WB",
+    "source_sha256": "590c4bd0a1752f3d946752d913b2b1ae93d177ba5a99bbaf39ac7d3168f86c27",
+    "tb_sha256": "e4dee773f4af10e5449f137d641d2d2e02d65f2e07b108f7d440ab2da5fd5fa8",
+    "log": "build\\mutations\\newest_mem_unready_ignored\\stdout.log"
+  },
+  {
+    "name": "age_truncated_32bit",
+    "exit_code": 1,
+    "rejected": true,
+    "fatal": "# ** Fatal: 64-bit age flush",
+    "source_sha256": "8d60c9c885a4aae4c26a40ba78802bb90e0f8c92977093b5cdb35e70b2798d5d",
+    "tb_sha256": "e4dee773f4af10e5449f137d641d2d2e02d65f2e07b108f7d440ab2da5fd5fa8",
+    "log": "build\\mutations\\age_truncated_32bit\\stdout.log"
+  },
+  {
+    "name": "ordinary_alu_wrong_prediction_not_corrected",
+    "exit_code": 1,
+    "rejected": true,
+    "fatal": "# ** Fatal: missing redirects mode=0 case=15 got=0/1",
+    "source_sha256": "97d725e60a23f5e09fc2df9322d63ae95c1bdbcd79ff0a33e7f99e5a8708d91c",
+    "tb_sha256": "e4dee773f4af10e5449f137d641d2d2e02d65f2e07b108f7d440ab2da5fd5fa8",
+    "log": "build\\mutations\\ordinary_alu_wrong_prediction_not_corrected\\stdout.log"
+  },
+  {
+    "name": "jal_link_writes_target",
+    "exit_code": 1,
+    "rejected": true,
+    "fatal": "# ** Fatal: retire stream mode=1 case=1 index=0 seq=0000000000000002 pc=00000100 rd=1 val=00000110 next=00000110/00000110",
+    "source_sha256": "424788390401d59774dfd798d3b98a8e176aa9fcfb0b432b5380aa899091127f",
+    "tb_sha256": "e4dee773f4af10e5449f137d641d2d2e02d65f2e07b108f7d440ab2da5fd5fa8",
+    "log": "build\\mutations\\jal_link_writes_target\\stdout.log"
+  }
+]

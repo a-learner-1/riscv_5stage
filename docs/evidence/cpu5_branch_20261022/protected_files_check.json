@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "protected_files": 1538,
+  "unchanged_files": 1534,
+  "authorized_updates": [
+    {
+      "path": "D:\\FPGA\\riscv_3stage\\rtl\\cpu5_alu_pipeline.v",
+      "before_sha256": "07508c081be90277b1b5f8fb612c307204bfa915bbc23442b96c482d98c1bbd0",
+      "after_sha256": "366c6055b9b06edd466155fb1a42da731b12fdd1b8220c5f80b7485d89a8558a"
+    },
+    {
+      "path": "D:\\FPGA\\riscv_3stage\\rtl\\cpu5_top.v",
+      "before_sha256": "757a8151d8e81a2793798fd8ddbc13ee8ef2f867e1e96a47555abf62b7dff436",
+      "after_sha256": "9a9c5c5b8503d72efe00f0b0e700498f99de9154feb313b538193bdc33735233"
+    },
+    {
+      "path": "D:\\FPGA\\riscv_3stage\\tb\\cpu5_alu_control_tb.v",
+      "before_sha256": "1f5fe947bbfce25432c6a3d4c2f7a9fd98977a99f9b71d3db3b3a0328060263b",
+      "after_sha256": "e95167d5bf17bfb4248b2fff3129f3314b612606af588b04f99e78501616602f"
+    },
+    {
+      "path": "D:\\FPGA\\riscv_3stage\\tb\\cpu5_forward_control_tb.v",
+      "before_sha256": "3417db7c9d535e9a54e54655bd167b03b7864675b45cc0f59b1c88b1c957e404",
+      "after_sha256": "2860d5ff865ac4a249dd24e7fccd8f66f6269f03dfa4a0d974b99b79e35f67db"
+    }
+  ],
+  "baseline_head": "087fcc654f104eea9b437fb47d7b9dc79e61b9dd",
+  "current_head": "087fcc654f104eea9b437fb47d7b9dc79e61b9dd",
+  "failures": []
+}

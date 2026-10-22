@@ -1,0 +1,7281 @@
+[
+  {
+    "pc": 0,
+    "instr": 147,
+    "rd": 1,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 4,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 0
+  },
+  {
+    "pc": 4,
+    "instr": 275,
+    "rd": 2,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 8,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 1
+  },
+  {
+    "pc": 8,
+    "instr": 403,
+    "rd": 3,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 12,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 2
+  },
+  {
+    "pc": 12,
+    "instr": 531,
+    "rd": 4,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 16,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 3
+  },
+  {
+    "pc": 16,
+    "instr": 659,
+    "rd": 5,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 20,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 4
+  },
+  {
+    "pc": 20,
+    "instr": 787,
+    "rd": 6,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 24,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 5
+  },
+  {
+    "pc": 24,
+    "instr": 915,
+    "rd": 7,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 28,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 6
+  },
+  {
+    "pc": 28,
+    "instr": 1043,
+    "rd": 8,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 32,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 7
+  },
+  {
+    "pc": 32,
+    "instr": 1171,
+    "rd": 9,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 36,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 8
+  },
+  {
+    "pc": 36,
+    "instr": 1299,
+    "rd": 10,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 40,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 9
+  },
+  {
+    "pc": 40,
+    "instr": 1427,
+    "rd": 11,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 44,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 10
+  },
+  {
+    "pc": 44,
+    "instr": 1555,
+    "rd": 12,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 48,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 11
+  },
+  {
+    "pc": 48,
+    "instr": 1683,
+    "rd": 13,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 52,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 12
+  },
+  {
+    "pc": 52,
+    "instr": 1811,
+    "rd": 14,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 56,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 13
+  },
+  {
+    "pc": 56,
+    "instr": 1939,
+    "rd": 15,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 60,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 14
+  },
+  {
+    "pc": 60,
+    "instr": 2067,
+    "rd": 16,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 64,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 15
+  },
+  {
+    "pc": 64,
+    "instr": 2195,
+    "rd": 17,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 68,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 16
+  },
+  {
+    "pc": 68,
+    "instr": 2323,
+    "rd": 18,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 72,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 17
+  },
+  {
+    "pc": 72,
+    "instr": 2451,
+    "rd": 19,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 76,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 18
+  },
+  {
+    "pc": 76,
+    "instr": 2579,
+    "rd": 20,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 80,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 19
+  },
+  {
+    "pc": 80,
+    "instr": 2707,
+    "rd": 21,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 84,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 20
+  },
+  {
+    "pc": 84,
+    "instr": 2835,
+    "rd": 22,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 88,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 21
+  },
+  {
+    "pc": 88,
+    "instr": 2963,
+    "rd": 23,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 92,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 22
+  },
+  {
+    "pc": 92,
+    "instr": 3091,
+    "rd": 24,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 96,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 23
+  },
+  {
+    "pc": 96,
+    "instr": 3219,
+    "rd": 25,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 100,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 24
+  },
+  {
+    "pc": 100,
+    "instr": 3347,
+    "rd": 26,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 104,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 25
+  },
+  {
+    "pc": 104,
+    "instr": 3475,
+    "rd": 27,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 108,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 26
+  },
+  {
+    "pc": 108,
+    "instr": 3603,
+    "rd": 28,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 112,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 27
+  },
+  {
+    "pc": 112,
+    "instr": 3731,
+    "rd": 29,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 116,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 28
+  },
+  {
+    "pc": 116,
+    "instr": 3859,
+    "rd": 30,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 120,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 29
+  },
+  {
+    "pc": 120,
+    "instr": 3987,
+    "rd": 31,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 124,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 30
+  },
+  {
+    "pc": 124,
+    "instr": 2147483831,
+    "rd": 1,
+    "value": 2147483648,
+    "writes": 1,
+    "nextpc": 128,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 31
+  },
+  {
+    "pc": 128,
+    "instr": 32915,
+    "rd": 1,
+    "value": 2147483648,
+    "writes": 1,
+    "nextpc": 132,
+    "opcode": "ADDI",
+    "sources": [
+      1
+    ],
+    "seq": 32
+  },
+  {
+    "pc": 132,
+    "instr": 311,
+    "rd": 2,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 136,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 33
+  },
+  {
+    "pc": 136,
+    "instr": 4293984531,
+    "rd": 2,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 140,
+    "opcode": "ADDI",
+    "sources": [
+      2
+    ],
+    "seq": 34
+  },
+  {
+    "pc": 140,
+    "instr": 2147484087,
+    "rd": 3,
+    "value": 2147483648,
+    "writes": 1,
+    "nextpc": 144,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 35
+  },
+  {
+    "pc": 144,
+    "instr": 4294017427,
+    "rd": 3,
+    "value": 2147483647,
+    "writes": 1,
+    "nextpc": 148,
+    "opcode": "ADDI",
+    "sources": [
+      3
+    ],
+    "seq": 36
+  },
+  {
+    "pc": 148,
+    "instr": 305418807,
+    "rd": 4,
+    "value": 305418240,
+    "writes": 1,
+    "nextpc": 152,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 37
+  },
+  {
+    "pc": 152,
+    "instr": 1736573459,
+    "rd": 4,
+    "value": 305419896,
+    "writes": 1,
+    "nextpc": 156,
+    "opcode": "ADDI",
+    "sources": [
+      4
+    ],
+    "seq": 38
+  },
+  {
+    "pc": 156,
+    "instr": 695,
+    "rd": 5,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 160,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 39
+  },
+  {
+    "pc": 160,
+    "instr": 164499,
+    "rd": 5,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 164,
+    "opcode": "ADDI",
+    "sources": [
+      5
+    ],
+    "seq": 40
+  },
+  {
+    "pc": 164,
+    "instr": 823,
+    "rd": 6,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 168,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 41
+  },
+  {
+    "pc": 168,
+    "instr": 1245971,
+    "rd": 6,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 172,
+    "opcode": "ADDI",
+    "sources": [
+      6
+    ],
+    "seq": 42
+  },
+  {
+    "pc": 172,
+    "instr": 951,
+    "rd": 7,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 176,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 43
+  },
+  {
+    "pc": 176,
+    "instr": 32736147,
+    "rd": 7,
+    "value": 31,
+    "writes": 1,
+    "nextpc": 180,
+    "opcode": "ADDI",
+    "sources": [
+      7
+    ],
+    "seq": 44
+  },
+  {
+    "pc": 180,
+    "instr": 1079,
+    "rd": 8,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 184,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 45
+  },
+  {
+    "pc": 184,
+    "instr": 33817619,
+    "rd": 8,
+    "value": 32,
+    "writes": 1,
+    "nextpc": 188,
+    "opcode": "ADDI",
+    "sources": [
+      8
+    ],
+    "seq": 46
+  },
+  {
+    "pc": 188,
+    "instr": 1207,
+    "rd": 9,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 192,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 47
+  },
+  {
+    "pc": 192,
+    "instr": 66356371,
+    "rd": 9,
+    "value": 63,
+    "writes": 1,
+    "nextpc": 196,
+    "opcode": "ADDI",
+    "sources": [
+      9
+    ],
+    "seq": 48
+  },
+  {
+    "pc": 196,
+    "instr": 2131251,
+    "rd": 10,
+    "value": 2147483647,
+    "writes": 1,
+    "nextpc": 200,
+    "opcode": "ADD",
+    "sources": [
+      1,
+      2
+    ],
+    "seq": 49
+  },
+  {
+    "pc": 200,
+    "instr": 6391091,
+    "rd": 10,
+    "value": 2147483648,
+    "writes": 1,
+    "nextpc": 204,
+    "opcode": "ADD",
+    "sources": [
+      3,
+      6
+    ],
+    "seq": 50
+  },
+  {
+    "pc": 204,
+    "instr": 1115443,
+    "rd": 10,
+    "value": 2147483647,
+    "writes": 1,
+    "nextpc": 208,
+    "opcode": "ADD",
+    "sources": [
+      2,
+      1
+    ],
+    "seq": 51
+  },
+  {
+    "pc": 208,
+    "instr": 4326707,
+    "rd": 10,
+    "value": 610839792,
+    "writes": 1,
+    "nextpc": 212,
+    "opcode": "ADD",
+    "sources": [
+      4,
+      4
+    ],
+    "seq": 52
+  },
+  {
+    "pc": 212,
+    "instr": 2098483,
+    "rd": 10,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 216,
+    "opcode": "ADD",
+    "sources": [
+      0,
+      2
+    ],
+    "seq": 53
+  },
+  {
+    "pc": 216,
+    "instr": 1075873075,
+    "rd": 10,
+    "value": 2147483649,
+    "writes": 1,
+    "nextpc": 220,
+    "opcode": "SUB",
+    "sources": [
+      1,
+      2
+    ],
+    "seq": 54
+  },
+  {
+    "pc": 220,
+    "instr": 1080132915,
+    "rd": 10,
+    "value": 2147483646,
+    "writes": 1,
+    "nextpc": 224,
+    "opcode": "SUB",
+    "sources": [
+      3,
+      6
+    ],
+    "seq": 55
+  },
+  {
+    "pc": 224,
+    "instr": 1074857267,
+    "rd": 10,
+    "value": 2147483647,
+    "writes": 1,
+    "nextpc": 228,
+    "opcode": "SUB",
+    "sources": [
+      2,
+      1
+    ],
+    "seq": 56
+  },
+  {
+    "pc": 228,
+    "instr": 1078068531,
+    "rd": 10,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 232,
+    "opcode": "SUB",
+    "sources": [
+      4,
+      4
+    ],
+    "seq": 57
+  },
+  {
+    "pc": 232,
+    "instr": 1075840307,
+    "rd": 10,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 236,
+    "opcode": "SUB",
+    "sources": [
+      0,
+      2
+    ],
+    "seq": 58
+  },
+  {
+    "pc": 236,
+    "instr": 2139443,
+    "rd": 10,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 240,
+    "opcode": "SLT",
+    "sources": [
+      1,
+      2
+    ],
+    "seq": 59
+  },
+  {
+    "pc": 240,
+    "instr": 6399283,
+    "rd": 10,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 244,
+    "opcode": "SLT",
+    "sources": [
+      3,
+      6
+    ],
+    "seq": 60
+  },
+  {
+    "pc": 244,
+    "instr": 1123635,
+    "rd": 10,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 248,
+    "opcode": "SLT",
+    "sources": [
+      2,
+      1
+    ],
+    "seq": 61
+  },
+  {
+    "pc": 248,
+    "instr": 4334899,
+    "rd": 10,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 252,
+    "opcode": "SLT",
+    "sources": [
+      4,
+      4
+    ],
+    "seq": 62
+  },
+  {
+    "pc": 252,
+    "instr": 2106675,
+    "rd": 10,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 256,
+    "opcode": "SLT",
+    "sources": [
+      0,
+      2
+    ],
+    "seq": 63
+  },
+  {
+    "pc": 256,
+    "instr": 2143539,
+    "rd": 10,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 260,
+    "opcode": "SLTU",
+    "sources": [
+      1,
+      2
+    ],
+    "seq": 64
+  },
+  {
+    "pc": 260,
+    "instr": 6403379,
+    "rd": 10,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 264,
+    "opcode": "SLTU",
+    "sources": [
+      3,
+      6
+    ],
+    "seq": 65
+  },
+  {
+    "pc": 264,
+    "instr": 1127731,
+    "rd": 10,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 268,
+    "opcode": "SLTU",
+    "sources": [
+      2,
+      1
+    ],
+    "seq": 66
+  },
+  {
+    "pc": 268,
+    "instr": 4338995,
+    "rd": 10,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 272,
+    "opcode": "SLTU",
+    "sources": [
+      4,
+      4
+    ],
+    "seq": 67
+  },
+  {
+    "pc": 272,
+    "instr": 2110771,
+    "rd": 10,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 276,
+    "opcode": "SLTU",
+    "sources": [
+      0,
+      2
+    ],
+    "seq": 68
+  },
+  {
+    "pc": 276,
+    "instr": 2147635,
+    "rd": 10,
+    "value": 2147483647,
+    "writes": 1,
+    "nextpc": 280,
+    "opcode": "XOR",
+    "sources": [
+      1,
+      2
+    ],
+    "seq": 69
+  },
+  {
+    "pc": 280,
+    "instr": 6407475,
+    "rd": 10,
+    "value": 2147483646,
+    "writes": 1,
+    "nextpc": 284,
+    "opcode": "XOR",
+    "sources": [
+      3,
+      6
+    ],
+    "seq": 70
+  },
+  {
+    "pc": 284,
+    "instr": 1131827,
+    "rd": 10,
+    "value": 2147483647,
+    "writes": 1,
+    "nextpc": 288,
+    "opcode": "XOR",
+    "sources": [
+      2,
+      1
+    ],
+    "seq": 71
+  },
+  {
+    "pc": 288,
+    "instr": 4343091,
+    "rd": 10,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 292,
+    "opcode": "XOR",
+    "sources": [
+      4,
+      4
+    ],
+    "seq": 72
+  },
+  {
+    "pc": 292,
+    "instr": 2114867,
+    "rd": 10,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 296,
+    "opcode": "XOR",
+    "sources": [
+      0,
+      2
+    ],
+    "seq": 73
+  },
+  {
+    "pc": 296,
+    "instr": 2155827,
+    "rd": 10,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 300,
+    "opcode": "OR",
+    "sources": [
+      1,
+      2
+    ],
+    "seq": 74
+  },
+  {
+    "pc": 300,
+    "instr": 6415667,
+    "rd": 10,
+    "value": 2147483647,
+    "writes": 1,
+    "nextpc": 304,
+    "opcode": "OR",
+    "sources": [
+      3,
+      6
+    ],
+    "seq": 75
+  },
+  {
+    "pc": 304,
+    "instr": 1140019,
+    "rd": 10,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 308,
+    "opcode": "OR",
+    "sources": [
+      2,
+      1
+    ],
+    "seq": 76
+  },
+  {
+    "pc": 308,
+    "instr": 4351283,
+    "rd": 10,
+    "value": 305419896,
+    "writes": 1,
+    "nextpc": 312,
+    "opcode": "OR",
+    "sources": [
+      4,
+      4
+    ],
+    "seq": 77
+  },
+  {
+    "pc": 312,
+    "instr": 2123059,
+    "rd": 10,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 316,
+    "opcode": "OR",
+    "sources": [
+      0,
+      2
+    ],
+    "seq": 78
+  },
+  {
+    "pc": 316,
+    "instr": 2159923,
+    "rd": 10,
+    "value": 2147483648,
+    "writes": 1,
+    "nextpc": 320,
+    "opcode": "AND",
+    "sources": [
+      1,
+      2
+    ],
+    "seq": 79
+  },
+  {
+    "pc": 320,
+    "instr": 6419763,
+    "rd": 10,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 324,
+    "opcode": "AND",
+    "sources": [
+      3,
+      6
+    ],
+    "seq": 80
+  },
+  {
+    "pc": 324,
+    "instr": 1144115,
+    "rd": 10,
+    "value": 2147483648,
+    "writes": 1,
+    "nextpc": 328,
+    "opcode": "AND",
+    "sources": [
+      2,
+      1
+    ],
+    "seq": 81
+  },
+  {
+    "pc": 328,
+    "instr": 4355379,
+    "rd": 10,
+    "value": 305419896,
+    "writes": 1,
+    "nextpc": 332,
+    "opcode": "AND",
+    "sources": [
+      4,
+      4
+    ],
+    "seq": 82
+  },
+  {
+    "pc": 332,
+    "instr": 2127155,
+    "rd": 10,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 336,
+    "opcode": "AND",
+    "sources": [
+      0,
+      2
+    ],
+    "seq": 83
+  },
+  {
+    "pc": 336,
+    "instr": 5281203,
+    "rd": 11,
+    "value": 2147483648,
+    "writes": 1,
+    "nextpc": 340,
+    "opcode": "SLL",
+    "sources": [
+      1,
+      5
+    ],
+    "seq": 84
+  },
+  {
+    "pc": 340,
+    "instr": 6329779,
+    "rd": 11,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 344,
+    "opcode": "SLL",
+    "sources": [
+      1,
+      6
+    ],
+    "seq": 85
+  },
+  {
+    "pc": 344,
+    "instr": 7378355,
+    "rd": 11,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 348,
+    "opcode": "SLL",
+    "sources": [
+      1,
+      7
+    ],
+    "seq": 86
+  },
+  {
+    "pc": 348,
+    "instr": 8426931,
+    "rd": 11,
+    "value": 2147483648,
+    "writes": 1,
+    "nextpc": 352,
+    "opcode": "SLL",
+    "sources": [
+      1,
+      8
+    ],
+    "seq": 87
+  },
+  {
+    "pc": 352,
+    "instr": 9475507,
+    "rd": 11,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 356,
+    "opcode": "SLL",
+    "sources": [
+      1,
+      9
+    ],
+    "seq": 88
+  },
+  {
+    "pc": 356,
+    "instr": 5313971,
+    "rd": 11,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 360,
+    "opcode": "SLL",
+    "sources": [
+      2,
+      5
+    ],
+    "seq": 89
+  },
+  {
+    "pc": 360,
+    "instr": 6362547,
+    "rd": 11,
+    "value": 4294967294,
+    "writes": 1,
+    "nextpc": 364,
+    "opcode": "SLL",
+    "sources": [
+      2,
+      6
+    ],
+    "seq": 90
+  },
+  {
+    "pc": 364,
+    "instr": 7411123,
+    "rd": 11,
+    "value": 2147483648,
+    "writes": 1,
+    "nextpc": 368,
+    "opcode": "SLL",
+    "sources": [
+      2,
+      7
+    ],
+    "seq": 91
+  },
+  {
+    "pc": 368,
+    "instr": 8459699,
+    "rd": 11,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 372,
+    "opcode": "SLL",
+    "sources": [
+      2,
+      8
+    ],
+    "seq": 92
+  },
+  {
+    "pc": 372,
+    "instr": 9508275,
+    "rd": 11,
+    "value": 2147483648,
+    "writes": 1,
+    "nextpc": 376,
+    "opcode": "SLL",
+    "sources": [
+      2,
+      9
+    ],
+    "seq": 93
+  },
+  {
+    "pc": 376,
+    "instr": 5297587,
+    "rd": 11,
+    "value": 2147483648,
+    "writes": 1,
+    "nextpc": 380,
+    "opcode": "SRL",
+    "sources": [
+      1,
+      5
+    ],
+    "seq": 94
+  },
+  {
+    "pc": 380,
+    "instr": 6346163,
+    "rd": 11,
+    "value": 1073741824,
+    "writes": 1,
+    "nextpc": 384,
+    "opcode": "SRL",
+    "sources": [
+      1,
+      6
+    ],
+    "seq": 95
+  },
+  {
+    "pc": 384,
+    "instr": 7394739,
+    "rd": 11,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 388,
+    "opcode": "SRL",
+    "sources": [
+      1,
+      7
+    ],
+    "seq": 96
+  },
+  {
+    "pc": 388,
+    "instr": 8443315,
+    "rd": 11,
+    "value": 2147483648,
+    "writes": 1,
+    "nextpc": 392,
+    "opcode": "SRL",
+    "sources": [
+      1,
+      8
+    ],
+    "seq": 97
+  },
+  {
+    "pc": 392,
+    "instr": 9491891,
+    "rd": 11,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 396,
+    "opcode": "SRL",
+    "sources": [
+      1,
+      9
+    ],
+    "seq": 98
+  },
+  {
+    "pc": 396,
+    "instr": 5330355,
+    "rd": 11,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 400,
+    "opcode": "SRL",
+    "sources": [
+      2,
+      5
+    ],
+    "seq": 99
+  },
+  {
+    "pc": 400,
+    "instr": 6378931,
+    "rd": 11,
+    "value": 2147483647,
+    "writes": 1,
+    "nextpc": 404,
+    "opcode": "SRL",
+    "sources": [
+      2,
+      6
+    ],
+    "seq": 100
+  },
+  {
+    "pc": 404,
+    "instr": 7427507,
+    "rd": 11,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 408,
+    "opcode": "SRL",
+    "sources": [
+      2,
+      7
+    ],
+    "seq": 101
+  },
+  {
+    "pc": 408,
+    "instr": 8476083,
+    "rd": 11,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 412,
+    "opcode": "SRL",
+    "sources": [
+      2,
+      8
+    ],
+    "seq": 102
+  },
+  {
+    "pc": 412,
+    "instr": 9524659,
+    "rd": 11,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 416,
+    "opcode": "SRL",
+    "sources": [
+      2,
+      9
+    ],
+    "seq": 103
+  },
+  {
+    "pc": 416,
+    "instr": 1079039411,
+    "rd": 11,
+    "value": 2147483648,
+    "writes": 1,
+    "nextpc": 420,
+    "opcode": "SRA",
+    "sources": [
+      1,
+      5
+    ],
+    "seq": 104
+  },
+  {
+    "pc": 420,
+    "instr": 1080087987,
+    "rd": 11,
+    "value": 3221225472,
+    "writes": 1,
+    "nextpc": 424,
+    "opcode": "SRA",
+    "sources": [
+      1,
+      6
+    ],
+    "seq": 105
+  },
+  {
+    "pc": 424,
+    "instr": 1081136563,
+    "rd": 11,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 428,
+    "opcode": "SRA",
+    "sources": [
+      1,
+      7
+    ],
+    "seq": 106
+  },
+  {
+    "pc": 428,
+    "instr": 1082185139,
+    "rd": 11,
+    "value": 2147483648,
+    "writes": 1,
+    "nextpc": 432,
+    "opcode": "SRA",
+    "sources": [
+      1,
+      8
+    ],
+    "seq": 107
+  },
+  {
+    "pc": 432,
+    "instr": 1083233715,
+    "rd": 11,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 436,
+    "opcode": "SRA",
+    "sources": [
+      1,
+      9
+    ],
+    "seq": 108
+  },
+  {
+    "pc": 436,
+    "instr": 1079072179,
+    "rd": 11,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 440,
+    "opcode": "SRA",
+    "sources": [
+      2,
+      5
+    ],
+    "seq": 109
+  },
+  {
+    "pc": 440,
+    "instr": 1080120755,
+    "rd": 11,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 444,
+    "opcode": "SRA",
+    "sources": [
+      2,
+      6
+    ],
+    "seq": 110
+  },
+  {
+    "pc": 444,
+    "instr": 1081169331,
+    "rd": 11,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 448,
+    "opcode": "SRA",
+    "sources": [
+      2,
+      7
+    ],
+    "seq": 111
+  },
+  {
+    "pc": 448,
+    "instr": 1082217907,
+    "rd": 11,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 452,
+    "opcode": "SRA",
+    "sources": [
+      2,
+      8
+    ],
+    "seq": 112
+  },
+  {
+    "pc": 452,
+    "instr": 1083266483,
+    "rd": 11,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 456,
+    "opcode": "SRA",
+    "sources": [
+      2,
+      9
+    ],
+    "seq": 113
+  },
+  {
+    "pc": 456,
+    "instr": 2147517971,
+    "rd": 12,
+    "value": 2147481600,
+    "writes": 1,
+    "nextpc": 460,
+    "opcode": "ADDI",
+    "sources": [
+      1
+    ],
+    "seq": 114
+  },
+  {
+    "pc": 460,
+    "instr": 4293953043,
+    "rd": 12,
+    "value": 2147483647,
+    "writes": 1,
+    "nextpc": 464,
+    "opcode": "ADDI",
+    "sources": [
+      1
+    ],
+    "seq": 115
+  },
+  {
+    "pc": 464,
+    "instr": 34323,
+    "rd": 12,
+    "value": 2147483648,
+    "writes": 1,
+    "nextpc": 468,
+    "opcode": "ADDI",
+    "sources": [
+      1
+    ],
+    "seq": 116
+  },
+  {
+    "pc": 468,
+    "instr": 1082899,
+    "rd": 12,
+    "value": 2147483649,
+    "writes": 1,
+    "nextpc": 472,
+    "opcode": "ADDI",
+    "sources": [
+      1
+    ],
+    "seq": 117
+  },
+  {
+    "pc": 472,
+    "instr": 2146469395,
+    "rd": 12,
+    "value": 2147485695,
+    "writes": 1,
+    "nextpc": 476,
+    "opcode": "ADDI",
+    "sources": [
+      1
+    ],
+    "seq": 118
+  },
+  {
+    "pc": 476,
+    "instr": 2147526163,
+    "rd": 12,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 480,
+    "opcode": "SLTI",
+    "sources": [
+      1
+    ],
+    "seq": 119
+  },
+  {
+    "pc": 480,
+    "instr": 4293961235,
+    "rd": 12,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 484,
+    "opcode": "SLTI",
+    "sources": [
+      1
+    ],
+    "seq": 120
+  },
+  {
+    "pc": 484,
+    "instr": 42515,
+    "rd": 12,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 488,
+    "opcode": "SLTI",
+    "sources": [
+      1
+    ],
+    "seq": 121
+  },
+  {
+    "pc": 488,
+    "instr": 1091091,
+    "rd": 12,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 492,
+    "opcode": "SLTI",
+    "sources": [
+      1
+    ],
+    "seq": 122
+  },
+  {
+    "pc": 492,
+    "instr": 2146477587,
+    "rd": 12,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 496,
+    "opcode": "SLTI",
+    "sources": [
+      1
+    ],
+    "seq": 123
+  },
+  {
+    "pc": 496,
+    "instr": 2147530259,
+    "rd": 12,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 500,
+    "opcode": "SLTIU",
+    "sources": [
+      1
+    ],
+    "seq": 124
+  },
+  {
+    "pc": 500,
+    "instr": 4293965331,
+    "rd": 12,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 504,
+    "opcode": "SLTIU",
+    "sources": [
+      1
+    ],
+    "seq": 125
+  },
+  {
+    "pc": 504,
+    "instr": 46611,
+    "rd": 12,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 508,
+    "opcode": "SLTIU",
+    "sources": [
+      1
+    ],
+    "seq": 126
+  },
+  {
+    "pc": 508,
+    "instr": 1095187,
+    "rd": 12,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 512,
+    "opcode": "SLTIU",
+    "sources": [
+      1
+    ],
+    "seq": 127
+  },
+  {
+    "pc": 512,
+    "instr": 2146481683,
+    "rd": 12,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 516,
+    "opcode": "SLTIU",
+    "sources": [
+      1
+    ],
+    "seq": 128
+  },
+  {
+    "pc": 516,
+    "instr": 2147534355,
+    "rd": 12,
+    "value": 2147481600,
+    "writes": 1,
+    "nextpc": 520,
+    "opcode": "XORI",
+    "sources": [
+      1
+    ],
+    "seq": 129
+  },
+  {
+    "pc": 520,
+    "instr": 4293969427,
+    "rd": 12,
+    "value": 2147483647,
+    "writes": 1,
+    "nextpc": 524,
+    "opcode": "XORI",
+    "sources": [
+      1
+    ],
+    "seq": 130
+  },
+  {
+    "pc": 524,
+    "instr": 50707,
+    "rd": 12,
+    "value": 2147483648,
+    "writes": 1,
+    "nextpc": 528,
+    "opcode": "XORI",
+    "sources": [
+      1
+    ],
+    "seq": 131
+  },
+  {
+    "pc": 528,
+    "instr": 1099283,
+    "rd": 12,
+    "value": 2147483649,
+    "writes": 1,
+    "nextpc": 532,
+    "opcode": "XORI",
+    "sources": [
+      1
+    ],
+    "seq": 132
+  },
+  {
+    "pc": 532,
+    "instr": 2146485779,
+    "rd": 12,
+    "value": 2147485695,
+    "writes": 1,
+    "nextpc": 536,
+    "opcode": "XORI",
+    "sources": [
+      1
+    ],
+    "seq": 133
+  },
+  {
+    "pc": 536,
+    "instr": 2147542547,
+    "rd": 12,
+    "value": 4294965248,
+    "writes": 1,
+    "nextpc": 540,
+    "opcode": "ORI",
+    "sources": [
+      1
+    ],
+    "seq": 134
+  },
+  {
+    "pc": 540,
+    "instr": 4293977619,
+    "rd": 12,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 544,
+    "opcode": "ORI",
+    "sources": [
+      1
+    ],
+    "seq": 135
+  },
+  {
+    "pc": 544,
+    "instr": 58899,
+    "rd": 12,
+    "value": 2147483648,
+    "writes": 1,
+    "nextpc": 548,
+    "opcode": "ORI",
+    "sources": [
+      1
+    ],
+    "seq": 136
+  },
+  {
+    "pc": 548,
+    "instr": 1107475,
+    "rd": 12,
+    "value": 2147483649,
+    "writes": 1,
+    "nextpc": 552,
+    "opcode": "ORI",
+    "sources": [
+      1
+    ],
+    "seq": 137
+  },
+  {
+    "pc": 552,
+    "instr": 2146493971,
+    "rd": 12,
+    "value": 2147485695,
+    "writes": 1,
+    "nextpc": 556,
+    "opcode": "ORI",
+    "sources": [
+      1
+    ],
+    "seq": 138
+  },
+  {
+    "pc": 556,
+    "instr": 2147546643,
+    "rd": 12,
+    "value": 2147483648,
+    "writes": 1,
+    "nextpc": 560,
+    "opcode": "ANDI",
+    "sources": [
+      1
+    ],
+    "seq": 139
+  },
+  {
+    "pc": 560,
+    "instr": 4293981715,
+    "rd": 12,
+    "value": 2147483648,
+    "writes": 1,
+    "nextpc": 564,
+    "opcode": "ANDI",
+    "sources": [
+      1
+    ],
+    "seq": 140
+  },
+  {
+    "pc": 564,
+    "instr": 62995,
+    "rd": 12,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 568,
+    "opcode": "ANDI",
+    "sources": [
+      1
+    ],
+    "seq": 141
+  },
+  {
+    "pc": 568,
+    "instr": 1111571,
+    "rd": 12,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 572,
+    "opcode": "ANDI",
+    "sources": [
+      1
+    ],
+    "seq": 142
+  },
+  {
+    "pc": 572,
+    "instr": 2146498067,
+    "rd": 12,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 576,
+    "opcode": "ANDI",
+    "sources": [
+      1
+    ],
+    "seq": 143
+  },
+  {
+    "pc": 576,
+    "instr": 38547,
+    "rd": 13,
+    "value": 2147483648,
+    "writes": 1,
+    "nextpc": 580,
+    "opcode": "SLLI",
+    "sources": [
+      1
+    ],
+    "seq": 144
+  },
+  {
+    "pc": 580,
+    "instr": 1087123,
+    "rd": 13,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 584,
+    "opcode": "SLLI",
+    "sources": [
+      1
+    ],
+    "seq": 145
+  },
+  {
+    "pc": 584,
+    "instr": 32544403,
+    "rd": 13,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 588,
+    "opcode": "SLLI",
+    "sources": [
+      1
+    ],
+    "seq": 146
+  },
+  {
+    "pc": 588,
+    "instr": 71315,
+    "rd": 13,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 592,
+    "opcode": "SLLI",
+    "sources": [
+      2
+    ],
+    "seq": 147
+  },
+  {
+    "pc": 592,
+    "instr": 1119891,
+    "rd": 13,
+    "value": 4294967294,
+    "writes": 1,
+    "nextpc": 596,
+    "opcode": "SLLI",
+    "sources": [
+      2
+    ],
+    "seq": 148
+  },
+  {
+    "pc": 596,
+    "instr": 32577171,
+    "rd": 13,
+    "value": 2147483648,
+    "writes": 1,
+    "nextpc": 600,
+    "opcode": "SLLI",
+    "sources": [
+      2
+    ],
+    "seq": 149
+  },
+  {
+    "pc": 600,
+    "instr": 54931,
+    "rd": 13,
+    "value": 2147483648,
+    "writes": 1,
+    "nextpc": 604,
+    "opcode": "SRLI",
+    "sources": [
+      1
+    ],
+    "seq": 150
+  },
+  {
+    "pc": 604,
+    "instr": 1103507,
+    "rd": 13,
+    "value": 1073741824,
+    "writes": 1,
+    "nextpc": 608,
+    "opcode": "SRLI",
+    "sources": [
+      1
+    ],
+    "seq": 151
+  },
+  {
+    "pc": 608,
+    "instr": 32560787,
+    "rd": 13,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 612,
+    "opcode": "SRLI",
+    "sources": [
+      1
+    ],
+    "seq": 152
+  },
+  {
+    "pc": 612,
+    "instr": 87699,
+    "rd": 13,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 616,
+    "opcode": "SRLI",
+    "sources": [
+      2
+    ],
+    "seq": 153
+  },
+  {
+    "pc": 616,
+    "instr": 1136275,
+    "rd": 13,
+    "value": 2147483647,
+    "writes": 1,
+    "nextpc": 620,
+    "opcode": "SRLI",
+    "sources": [
+      2
+    ],
+    "seq": 154
+  },
+  {
+    "pc": 620,
+    "instr": 32593555,
+    "rd": 13,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 624,
+    "opcode": "SRLI",
+    "sources": [
+      2
+    ],
+    "seq": 155
+  },
+  {
+    "pc": 624,
+    "instr": 1073796755,
+    "rd": 13,
+    "value": 2147483648,
+    "writes": 1,
+    "nextpc": 628,
+    "opcode": "SRAI",
+    "sources": [
+      1
+    ],
+    "seq": 156
+  },
+  {
+    "pc": 628,
+    "instr": 1074845331,
+    "rd": 13,
+    "value": 3221225472,
+    "writes": 1,
+    "nextpc": 632,
+    "opcode": "SRAI",
+    "sources": [
+      1
+    ],
+    "seq": 157
+  },
+  {
+    "pc": 632,
+    "instr": 1106302611,
+    "rd": 13,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 636,
+    "opcode": "SRAI",
+    "sources": [
+      1
+    ],
+    "seq": 158
+  },
+  {
+    "pc": 636,
+    "instr": 1073829523,
+    "rd": 13,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 640,
+    "opcode": "SRAI",
+    "sources": [
+      2
+    ],
+    "seq": 159
+  },
+  {
+    "pc": 640,
+    "instr": 1074878099,
+    "rd": 13,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 644,
+    "opcode": "SRAI",
+    "sources": [
+      2
+    ],
+    "seq": 160
+  },
+  {
+    "pc": 644,
+    "instr": 1106335379,
+    "rd": 13,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 648,
+    "opcode": "SRAI",
+    "sources": [
+      2
+    ],
+    "seq": 161
+  },
+  {
+    "pc": 648,
+    "instr": 1847,
+    "rd": 14,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 652,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 162
+  },
+  {
+    "pc": 652,
+    "instr": 5943,
+    "rd": 14,
+    "value": 4096,
+    "writes": 1,
+    "nextpc": 656,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 163
+  },
+  {
+    "pc": 656,
+    "instr": 2147481399,
+    "rd": 14,
+    "value": 2147479552,
+    "writes": 1,
+    "nextpc": 660,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 164
+  },
+  {
+    "pc": 660,
+    "instr": 2147485495,
+    "rd": 14,
+    "value": 2147483648,
+    "writes": 1,
+    "nextpc": 664,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 165
+  },
+  {
+    "pc": 664,
+    "instr": 4294965047,
+    "rd": 14,
+    "value": 4294963200,
+    "writes": 1,
+    "nextpc": 668,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 166
+  },
+  {
+    "pc": 668,
+    "instr": 1815,
+    "rd": 14,
+    "value": 668,
+    "writes": 1,
+    "nextpc": 672,
+    "opcode": "AUIPC",
+    "sources": [],
+    "seq": 167
+  },
+  {
+    "pc": 672,
+    "instr": 5911,
+    "rd": 14,
+    "value": 4768,
+    "writes": 1,
+    "nextpc": 676,
+    "opcode": "AUIPC",
+    "sources": [],
+    "seq": 168
+  },
+  {
+    "pc": 676,
+    "instr": 2147481367,
+    "rd": 14,
+    "value": 2147480228,
+    "writes": 1,
+    "nextpc": 680,
+    "opcode": "AUIPC",
+    "sources": [],
+    "seq": 169
+  },
+  {
+    "pc": 680,
+    "instr": 2147485463,
+    "rd": 14,
+    "value": 2147484328,
+    "writes": 1,
+    "nextpc": 684,
+    "opcode": "AUIPC",
+    "sources": [],
+    "seq": 170
+  },
+  {
+    "pc": 684,
+    "instr": 4294965015,
+    "rd": 14,
+    "value": 4294963884,
+    "writes": 1,
+    "nextpc": 688,
+    "opcode": "AUIPC",
+    "sources": [],
+    "seq": 171
+  },
+  {
+    "pc": 688,
+    "instr": 17827731,
+    "rd": 15,
+    "value": 17,
+    "writes": 1,
+    "nextpc": 692,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 172
+  },
+  {
+    "pc": 692,
+    "instr": 4273440659,
+    "rd": 15,
+    "value": 4294967292,
+    "writes": 1,
+    "nextpc": 696,
+    "opcode": "ADDI",
+    "sources": [
+      15
+    ],
+    "seq": 173
+  },
+  {
+    "pc": 696,
+    "instr": 16222259,
+    "rd": 16,
+    "value": 4294967288,
+    "writes": 1,
+    "nextpc": 700,
+    "opcode": "ADD",
+    "sources": [
+      15,
+      15
+    ],
+    "seq": 174
+  },
+  {
+    "pc": 700,
+    "instr": 5769363,
+    "rd": 17,
+    "value": 4294967293,
+    "writes": 1,
+    "nextpc": 704,
+    "opcode": "ADDI",
+    "sources": [
+      16
+    ],
+    "seq": 175
+  },
+  {
+    "pc": 704,
+    "instr": 4294494483,
+    "rd": 18,
+    "value": 2,
+    "writes": 1,
+    "nextpc": 708,
+    "opcode": "XORI",
+    "sources": [
+      17
+    ],
+    "seq": 176
+  },
+  {
+    "pc": 708,
+    "instr": 1091111347,
+    "rd": 19,
+    "value": 10,
+    "writes": 1,
+    "nextpc": 712,
+    "opcode": "SUB",
+    "sources": [
+      18,
+      16
+    ],
+    "seq": 177
+  },
+  {
+    "pc": 712,
+    "instr": 32508435,
+    "rd": 20,
+    "value": 31,
+    "writes": 1,
+    "nextpc": 716,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 178
+  },
+  {
+    "pc": 716,
+    "instr": 20417203,
+    "rd": 21,
+    "value": 6,
+    "writes": 1,
+    "nextpc": 720,
+    "opcode": "ADD",
+    "sources": [
+      15,
+      19
+    ],
+    "seq": 179
+  },
+  {
+    "pc": 720,
+    "instr": 104497171,
+    "rd": 0,
+    "value": 105,
+    "writes": 0,
+    "nextpc": 724,
+    "opcode": "ADDI",
+    "sources": [
+      21
+    ],
+    "seq": 180
+  },
+  {
+    "pc": 724,
+    "instr": 22022963,
+    "rd": 22,
+    "value": 6,
+    "writes": 1,
+    "nextpc": 728,
+    "opcode": "ADD",
+    "sources": [
+      0,
+      21
+    ],
+    "seq": 181
+  },
+  {
+    "pc": 728,
+    "instr": 1073744819,
+    "rd": 23,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 732,
+    "opcode": "SUB",
+    "sources": [
+      0,
+      0
+    ],
+    "seq": 182
+  },
+  {
+    "pc": 732,
+    "instr": 4294963255,
+    "rd": 0,
+    "value": 4294963200,
+    "writes": 0,
+    "nextpc": 736,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 183
+  },
+  {
+    "pc": 736,
+    "instr": 2147483671,
+    "rd": 0,
+    "value": 2147484384,
+    "writes": 0,
+    "nextpc": 740,
+    "opcode": "AUIPC",
+    "sources": [],
+    "seq": 184
+  },
+  {
+    "pc": 740,
+    "instr": 17827731,
+    "rd": 15,
+    "value": 17,
+    "writes": 1,
+    "nextpc": 744,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 185
+  },
+  {
+    "pc": 744,
+    "instr": 4273440659,
+    "rd": 15,
+    "value": 4294967292,
+    "writes": 1,
+    "nextpc": 748,
+    "opcode": "ADDI",
+    "sources": [
+      15
+    ],
+    "seq": 186
+  },
+  {
+    "pc": 748,
+    "instr": 16222259,
+    "rd": 16,
+    "value": 4294967288,
+    "writes": 1,
+    "nextpc": 752,
+    "opcode": "ADD",
+    "sources": [
+      15,
+      15
+    ],
+    "seq": 187
+  },
+  {
+    "pc": 752,
+    "instr": 5769363,
+    "rd": 17,
+    "value": 4294967293,
+    "writes": 1,
+    "nextpc": 756,
+    "opcode": "ADDI",
+    "sources": [
+      16
+    ],
+    "seq": 188
+  },
+  {
+    "pc": 756,
+    "instr": 4294494483,
+    "rd": 18,
+    "value": 2,
+    "writes": 1,
+    "nextpc": 760,
+    "opcode": "XORI",
+    "sources": [
+      17
+    ],
+    "seq": 189
+  },
+  {
+    "pc": 760,
+    "instr": 1091111347,
+    "rd": 19,
+    "value": 10,
+    "writes": 1,
+    "nextpc": 764,
+    "opcode": "SUB",
+    "sources": [
+      18,
+      16
+    ],
+    "seq": 190
+  },
+  {
+    "pc": 764,
+    "instr": 32508435,
+    "rd": 20,
+    "value": 31,
+    "writes": 1,
+    "nextpc": 768,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 191
+  },
+  {
+    "pc": 768,
+    "instr": 20417203,
+    "rd": 21,
+    "value": 6,
+    "writes": 1,
+    "nextpc": 772,
+    "opcode": "ADD",
+    "sources": [
+      15,
+      19
+    ],
+    "seq": 192
+  },
+  {
+    "pc": 772,
+    "instr": 104497171,
+    "rd": 0,
+    "value": 105,
+    "writes": 0,
+    "nextpc": 776,
+    "opcode": "ADDI",
+    "sources": [
+      21
+    ],
+    "seq": 193
+  },
+  {
+    "pc": 776,
+    "instr": 22022963,
+    "rd": 22,
+    "value": 6,
+    "writes": 1,
+    "nextpc": 780,
+    "opcode": "ADD",
+    "sources": [
+      0,
+      21
+    ],
+    "seq": 194
+  },
+  {
+    "pc": 780,
+    "instr": 1073744819,
+    "rd": 23,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 784,
+    "opcode": "SUB",
+    "sources": [
+      0,
+      0
+    ],
+    "seq": 195
+  },
+  {
+    "pc": 784,
+    "instr": 4294963255,
+    "rd": 0,
+    "value": 4294963200,
+    "writes": 0,
+    "nextpc": 788,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 196
+  },
+  {
+    "pc": 788,
+    "instr": 2147483671,
+    "rd": 0,
+    "value": 2147484436,
+    "writes": 0,
+    "nextpc": 792,
+    "opcode": "AUIPC",
+    "sources": [],
+    "seq": 197
+  },
+  {
+    "pc": 792,
+    "instr": 17827731,
+    "rd": 15,
+    "value": 17,
+    "writes": 1,
+    "nextpc": 796,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 198
+  },
+  {
+    "pc": 796,
+    "instr": 4273440659,
+    "rd": 15,
+    "value": 4294967292,
+    "writes": 1,
+    "nextpc": 800,
+    "opcode": "ADDI",
+    "sources": [
+      15
+    ],
+    "seq": 199
+  },
+  {
+    "pc": 800,
+    "instr": 16222259,
+    "rd": 16,
+    "value": 4294967288,
+    "writes": 1,
+    "nextpc": 804,
+    "opcode": "ADD",
+    "sources": [
+      15,
+      15
+    ],
+    "seq": 200
+  },
+  {
+    "pc": 804,
+    "instr": 5769363,
+    "rd": 17,
+    "value": 4294967293,
+    "writes": 1,
+    "nextpc": 808,
+    "opcode": "ADDI",
+    "sources": [
+      16
+    ],
+    "seq": 201
+  },
+  {
+    "pc": 808,
+    "instr": 4294494483,
+    "rd": 18,
+    "value": 2,
+    "writes": 1,
+    "nextpc": 812,
+    "opcode": "XORI",
+    "sources": [
+      17
+    ],
+    "seq": 202
+  },
+  {
+    "pc": 812,
+    "instr": 1091111347,
+    "rd": 19,
+    "value": 10,
+    "writes": 1,
+    "nextpc": 816,
+    "opcode": "SUB",
+    "sources": [
+      18,
+      16
+    ],
+    "seq": 203
+  },
+  {
+    "pc": 816,
+    "instr": 32508435,
+    "rd": 20,
+    "value": 31,
+    "writes": 1,
+    "nextpc": 820,
+    "opcode": "ADDI",
+    "sources": [
+      0
+    ],
+    "seq": 204
+  },
+  {
+    "pc": 820,
+    "instr": 20417203,
+    "rd": 21,
+    "value": 6,
+    "writes": 1,
+    "nextpc": 824,
+    "opcode": "ADD",
+    "sources": [
+      15,
+      19
+    ],
+    "seq": 205
+  },
+  {
+    "pc": 824,
+    "instr": 104497171,
+    "rd": 0,
+    "value": 105,
+    "writes": 0,
+    "nextpc": 828,
+    "opcode": "ADDI",
+    "sources": [
+      21
+    ],
+    "seq": 206
+  },
+  {
+    "pc": 828,
+    "instr": 22022963,
+    "rd": 22,
+    "value": 6,
+    "writes": 1,
+    "nextpc": 832,
+    "opcode": "ADD",
+    "sources": [
+      0,
+      21
+    ],
+    "seq": 207
+  },
+  {
+    "pc": 832,
+    "instr": 1073744819,
+    "rd": 23,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 836,
+    "opcode": "SUB",
+    "sources": [
+      0,
+      0
+    ],
+    "seq": 208
+  },
+  {
+    "pc": 836,
+    "instr": 4294963255,
+    "rd": 0,
+    "value": 4294963200,
+    "writes": 0,
+    "nextpc": 840,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 209
+  },
+  {
+    "pc": 840,
+    "instr": 2147483671,
+    "rd": 0,
+    "value": 2147484488,
+    "writes": 0,
+    "nextpc": 844,
+    "opcode": "AUIPC",
+    "sources": [],
+    "seq": 210
+  },
+  {
+    "pc": 844,
+    "instr": 1098583859,
+    "rd": 30,
+    "value": 6,
+    "writes": 1,
+    "nextpc": 848,
+    "opcode": "SUB",
+    "sources": [
+      22,
+      23
+    ],
+    "seq": 211
+  },
+  {
+    "pc": 848,
+    "instr": 17767987,
+    "rd": 28,
+    "value": 100663296,
+    "writes": 1,
+    "nextpc": 852,
+    "opcode": "SLL",
+    "sources": [
+      30,
+      16
+    ],
+    "seq": 212
+  },
+  {
+    "pc": 852,
+    "instr": 11513651,
+    "rd": 30,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 856,
+    "opcode": "SLT",
+    "sources": [
+      31,
+      10
+    ],
+    "seq": 213
+  },
+  {
+    "pc": 856,
+    "instr": 32453555,
+    "rd": 7,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 860,
+    "opcode": "SLTU",
+    "sources": [
+      30,
+      30
+    ],
+    "seq": 214
+  },
+  {
+    "pc": 860,
+    "instr": 248755,
+    "rd": 23,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 864,
+    "opcode": "XOR",
+    "sources": [
+      7,
+      0
+    ],
+    "seq": 215
+  },
+  {
+    "pc": 864,
+    "instr": 25680819,
+    "rd": 23,
+    "value": 4294967292,
+    "writes": 1,
+    "nextpc": 868,
+    "opcode": "SRL",
+    "sources": [
+      15,
+      24
+    ],
+    "seq": 216
+  },
+  {
+    "pc": 868,
+    "instr": 1098634547,
+    "rd": 10,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 872,
+    "opcode": "SRA",
+    "sources": [
+      23,
+      23
+    ],
+    "seq": 217
+  },
+  {
+    "pc": 872,
+    "instr": 1402291,
+    "rd": 11,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 876,
+    "opcode": "OR",
+    "sources": [
+      10,
+      1
+    ],
+    "seq": 218
+  },
+  {
+    "pc": 876,
+    "instr": 6585139,
+    "rd": 22,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 880,
+    "opcode": "AND",
+    "sources": [
+      8,
+      6
+    ],
+    "seq": 219
+  },
+  {
+    "pc": 880,
+    "instr": 2148206611,
+    "rd": 16,
+    "value": 4294965248,
+    "writes": 1,
+    "nextpc": 884,
+    "opcode": "ADDI",
+    "sources": [
+      22
+    ],
+    "seq": 220
+  },
+  {
+    "pc": 884,
+    "instr": 1581075,
+    "rd": 0,
+    "value": 1,
+    "writes": 0,
+    "nextpc": 888,
+    "opcode": "SLTI",
+    "sources": [
+      16
+    ],
+    "seq": 221
+  },
+  {
+    "pc": 888,
+    "instr": 4294621971,
+    "rd": 22,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 892,
+    "opcode": "SLTIU",
+    "sources": [
+      21
+    ],
+    "seq": 222
+  },
+  {
+    "pc": 892,
+    "instr": 4294659091,
+    "rd": 24,
+    "value": 4294967294,
+    "writes": 1,
+    "nextpc": 896,
+    "opcode": "XORI",
+    "sources": [
+      22
+    ],
+    "seq": 223
+  },
+  {
+    "pc": 896,
+    "instr": 4294731411,
+    "rd": 13,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 900,
+    "opcode": "ORI",
+    "sources": [
+      24
+    ],
+    "seq": 224
+  },
+  {
+    "pc": 900,
+    "instr": 3971806867,
+    "rd": 13,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 904,
+    "opcode": "ANDI",
+    "sources": [
+      25
+    ],
+    "seq": 225
+  },
+  {
+    "pc": 904,
+    "instr": 1482387,
+    "rd": 29,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 908,
+    "opcode": "SLLI",
+    "sources": [
+      13
+    ],
+    "seq": 226
+  },
+  {
+    "pc": 908,
+    "instr": 33479955,
+    "rd": 26,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 912,
+    "opcode": "SRLI",
+    "sources": [
+      29
+    ],
+    "seq": 227
+  },
+  {
+    "pc": 912,
+    "instr": 1074714771,
+    "rd": 17,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 916,
+    "opcode": "SRAI",
+    "sources": [
+      29
+    ],
+    "seq": 228
+  },
+  {
+    "pc": 916,
+    "instr": 2392703671,
+    "rd": 5,
+    "value": 2392702976,
+    "writes": 1,
+    "nextpc": 920,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 229
+  },
+  {
+    "pc": 920,
+    "instr": 1018005015,
+    "rd": 12,
+    "value": 1018004376,
+    "writes": 1,
+    "nextpc": 924,
+    "opcode": "AUIPC",
+    "sources": [],
+    "seq": 230
+  },
+  {
+    "pc": 924,
+    "instr": 33525683,
+    "rd": 31,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 928,
+    "opcode": "ADD",
+    "sources": [
+      31,
+      31
+    ],
+    "seq": 231
+  },
+  {
+    "pc": 928,
+    "instr": 1105168947,
+    "rd": 20,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 932,
+    "opcode": "SUB",
+    "sources": [
+      31,
+      29
+    ],
+    "seq": 232
+  },
+  {
+    "pc": 932,
+    "instr": 4856115,
+    "rd": 18,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 936,
+    "opcode": "SLL",
+    "sources": [
+      20,
+      4
+    ],
+    "seq": 233
+  },
+  {
+    "pc": 936,
+    "instr": 12820531,
+    "rd": 0,
+    "value": 1,
+    "writes": 0,
+    "nextpc": 940,
+    "opcode": "SLT",
+    "sources": [
+      7,
+      12
+    ],
+    "seq": 234
+  },
+  {
+    "pc": 940,
+    "instr": 22625971,
+    "rd": 29,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 944,
+    "opcode": "SLTU",
+    "sources": [
+      18,
+      21
+    ],
+    "seq": 235
+  },
+  {
+    "pc": 944,
+    "instr": 27183283,
+    "rd": 17,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 948,
+    "opcode": "XOR",
+    "sources": [
+      29,
+      25
+    ],
+    "seq": 236
+  },
+  {
+    "pc": 948,
+    "instr": 9526579,
+    "rd": 26,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 952,
+    "opcode": "SRL",
+    "sources": [
+      2,
+      9
+    ],
+    "seq": 237
+  },
+  {
+    "pc": 952,
+    "instr": 1101880243,
+    "rd": 23,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 956,
+    "opcode": "SRA",
+    "sources": [
+      26,
+      26
+    ],
+    "seq": 238
+  },
+  {
+    "pc": 956,
+    "instr": 9167667,
+    "rd": 6,
+    "value": 32,
+    "writes": 1,
+    "nextpc": 960,
+    "opcode": "OR",
+    "sources": [
+      23,
+      8
+    ],
+    "seq": 239
+  },
+  {
+    "pc": 960,
+    "instr": 13924787,
+    "rd": 19,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 964,
+    "opcode": "AND",
+    "sources": [
+      8,
+      13
+    ],
+    "seq": 240
+  },
+  {
+    "pc": 964,
+    "instr": 1671827,
+    "rd": 5,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 968,
+    "opcode": "ADDI",
+    "sources": [
+      19
+    ],
+    "seq": 241
+  },
+  {
+    "pc": 968,
+    "instr": 172179,
+    "rd": 1,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 972,
+    "opcode": "SLTI",
+    "sources": [
+      5
+    ],
+    "seq": 242
+  },
+  {
+    "pc": 972,
+    "instr": 2147301779,
+    "rd": 19,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 976,
+    "opcode": "SLTIU",
+    "sources": [
+      26
+    ],
+    "seq": 243
+  },
+  {
+    "pc": 976,
+    "instr": 688508307,
+    "rd": 27,
+    "value": 657,
+    "writes": 1,
+    "nextpc": 980,
+    "opcode": "XORI",
+    "sources": [
+      19
+    ],
+    "seq": 244
+  },
+  {
+    "pc": 980,
+    "instr": 2148395411,
+    "rd": 19,
+    "value": 4294965905,
+    "writes": 1,
+    "nextpc": 984,
+    "opcode": "ORI",
+    "sources": [
+      27
+    ],
+    "seq": 245
+  },
+  {
+    "pc": 984,
+    "instr": 2147449235,
+    "rd": 19,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 988,
+    "opcode": "ANDI",
+    "sources": [
+      30
+    ],
+    "seq": 246
+  },
+  {
+    "pc": 988,
+    "instr": 1675283,
+    "rd": 0,
+    "value": 0,
+    "writes": 0,
+    "nextpc": 992,
+    "opcode": "SLLI",
+    "sources": [
+      19
+    ],
+    "seq": 247
+  },
+  {
+    "pc": 992,
+    "instr": 33152531,
+    "rd": 28,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 996,
+    "opcode": "SRLI",
+    "sources": [
+      19
+    ],
+    "seq": 248
+  },
+  {
+    "pc": 996,
+    "instr": 1074747795,
+    "rd": 19,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1000,
+    "opcode": "SRAI",
+    "sources": [
+      30
+    ],
+    "seq": 249
+  },
+  {
+    "pc": 1000,
+    "instr": 2166262583,
+    "rd": 22,
+    "value": 2166259712,
+    "writes": 1,
+    "nextpc": 1004,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 250
+  },
+  {
+    "pc": 1004,
+    "instr": 3436641559,
+    "rd": 26,
+    "value": 3436639212,
+    "writes": 1,
+    "nextpc": 1008,
+    "opcode": "AUIPC",
+    "sources": [],
+    "seq": 251
+  },
+  {
+    "pc": 1008,
+    "instr": 1085235,
+    "rd": 30,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1012,
+    "opcode": "ADD",
+    "sources": [
+      1,
+      1
+    ],
+    "seq": 252
+  },
+  {
+    "pc": 1012,
+    "instr": 1074728371,
+    "rd": 27,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1016,
+    "opcode": "SUB",
+    "sources": [
+      30,
+      0
+    ],
+    "seq": 253
+  },
+  {
+    "pc": 1016,
+    "instr": 17666739,
+    "rd": 5,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1020,
+    "opcode": "SLL",
+    "sources": [
+      27,
+      16
+    ],
+    "seq": 254
+  },
+  {
+    "pc": 1020,
+    "instr": 21080883,
+    "rd": 22,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1024,
+    "opcode": "SLT",
+    "sources": [
+      3,
+      20
+    ],
+    "seq": 255
+  },
+  {
+    "pc": 1024,
+    "instr": 27997875,
+    "rd": 13,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1028,
+    "opcode": "SLTU",
+    "sources": [
+      22,
+      26
+    ],
+    "seq": 256
+  },
+  {
+    "pc": 1028,
+    "instr": 20369331,
+    "rd": 31,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1032,
+    "opcode": "XOR",
+    "sources": [
+      13,
+      19
+    ],
+    "seq": 257
+  },
+  {
+    "pc": 1032,
+    "instr": 18797747,
+    "rd": 9,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1036,
+    "opcode": "SRL",
+    "sources": [
+      29,
+      17
+    ],
+    "seq": 258
+  },
+  {
+    "pc": 1036,
+    "instr": 1083498419,
+    "rd": 31,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1040,
+    "opcode": "SRA",
+    "sources": [
+      9,
+      9
+    ],
+    "seq": 259
+  },
+  {
+    "pc": 1040,
+    "instr": 6283315,
+    "rd": 0,
+    "value": 0,
+    "writes": 0,
+    "nextpc": 1044,
+    "opcode": "OR",
+    "sources": [
+      31,
+      5
+    ],
+    "seq": 260
+  },
+  {
+    "pc": 1044,
+    "instr": 26966451,
+    "rd": 19,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1048,
+    "opcode": "AND",
+    "sources": [
+      22,
+      25
+    ],
+    "seq": 261
+  },
+  {
+    "pc": 1048,
+    "instr": 2646182675,
+    "rd": 22,
+    "value": 4294965723,
+    "writes": 1,
+    "nextpc": 1052,
+    "opcode": "ADDI",
+    "sources": [
+      19
+    ],
+    "seq": 262
+  },
+  {
+    "pc": 1052,
+    "instr": 1780883,
+    "rd": 25,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1056,
+    "opcode": "SLTI",
+    "sources": [
+      22
+    ],
+    "seq": 263
+  },
+  {
+    "pc": 1056,
+    "instr": 2147825939,
+    "rd": 18,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1060,
+    "opcode": "SLTIU",
+    "sources": [
+      10
+    ],
+    "seq": 264
+  },
+  {
+    "pc": 1060,
+    "instr": 2147041683,
+    "rd": 3,
+    "value": 2047,
+    "writes": 1,
+    "nextpc": 1064,
+    "opcode": "XORI",
+    "sources": [
+      18
+    ],
+    "seq": 265
+  },
+  {
+    "pc": 1064,
+    "instr": 2146558995,
+    "rd": 8,
+    "value": 2047,
+    "writes": 1,
+    "nextpc": 1068,
+    "opcode": "ORI",
+    "sources": [
+      3
+    ],
+    "seq": 266
+  },
+  {
+    "pc": 1068,
+    "instr": 1769107,
+    "rd": 29,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1072,
+    "opcode": "ANDI",
+    "sources": [
+      21
+    ],
+    "seq": 267
+  },
+  {
+    "pc": 1072,
+    "instr": 2006291,
+    "rd": 26,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1076,
+    "opcode": "SLLI",
+    "sources": [
+      29
+    ],
+    "seq": 268
+  },
+  {
+    "pc": 1076,
+    "instr": 33380883,
+    "rd": 20,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1080,
+    "opcode": "SRLI",
+    "sources": [
+      26
+    ],
+    "seq": 269
+  },
+  {
+    "pc": 1080,
+    "instr": 1074125971,
+    "rd": 25,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 1084,
+    "opcode": "SRAI",
+    "sources": [
+      11
+    ],
+    "seq": 270
+  },
+  {
+    "pc": 1084,
+    "instr": 1338427575,
+    "rd": 17,
+    "value": 1338425344,
+    "writes": 1,
+    "nextpc": 1088,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 271
+  },
+  {
+    "pc": 1088,
+    "instr": 332384151,
+    "rd": 15,
+    "value": 332383296,
+    "writes": 1,
+    "nextpc": 1092,
+    "opcode": "AUIPC",
+    "sources": [],
+    "seq": 272
+  },
+  {
+    "pc": 1092,
+    "instr": 17301555,
+    "rd": 0,
+    "value": 4294963200,
+    "writes": 0,
+    "nextpc": 1096,
+    "opcode": "ADD",
+    "sources": [
+      16,
+      16
+    ],
+    "seq": 273
+  },
+  {
+    "pc": 1096,
+    "instr": 1092062387,
+    "rd": 25,
+    "value": 3288925248,
+    "writes": 1,
+    "nextpc": 1100,
+    "opcode": "SUB",
+    "sources": [
+      15,
+      17
+    ],
+    "seq": 274
+  },
+  {
+    "pc": 1100,
+    "instr": 27039539,
+    "rd": 14,
+    "value": 3288925248,
+    "writes": 1,
+    "nextpc": 1104,
+    "opcode": "SLL",
+    "sources": [
+      25,
+      25
+    ],
+    "seq": 275
+  },
+  {
+    "pc": 1104,
+    "instr": 9806771,
+    "rd": 7,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1108,
+    "opcode": "SLT",
+    "sources": [
+      11,
+      9
+    ],
+    "seq": 276
+  },
+  {
+    "pc": 1108,
+    "instr": 27506995,
+    "rd": 18,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1112,
+    "opcode": "SLTU",
+    "sources": [
+      7,
+      26
+    ],
+    "seq": 277
+  },
+  {
+    "pc": 1112,
+    "instr": 14238131,
+    "rd": 3,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1116,
+    "opcode": "XOR",
+    "sources": [
+      18,
+      13
+    ],
+    "seq": 278
+  },
+  {
+    "pc": 1116,
+    "instr": 8246707,
+    "rd": 11,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1120,
+    "opcode": "SRL",
+    "sources": [
+      27,
+      7
+    ],
+    "seq": 279
+  },
+  {
+    "pc": 1120,
+    "instr": 1085657523,
+    "rd": 3,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1124,
+    "opcode": "SRA",
+    "sources": [
+      11,
+      11
+    ],
+    "seq": 280
+  },
+  {
+    "pc": 1124,
+    "instr": 3269555,
+    "rd": 7,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1128,
+    "opcode": "OR",
+    "sources": [
+      3,
+      3
+    ],
+    "seq": 281
+  },
+  {
+    "pc": 1128,
+    "instr": 18511667,
+    "rd": 14,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1132,
+    "opcode": "AND",
+    "sources": [
+      20,
+      17
+    ],
+    "seq": 282
+  },
+  {
+    "pc": 1132,
+    "instr": 1510675,
+    "rd": 26,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1136,
+    "opcode": "ADDI",
+    "sources": [
+      14
+    ],
+    "seq": 283
+  },
+  {
+    "pc": 1136,
+    "instr": 4294780307,
+    "rd": 11,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1140,
+    "opcode": "SLTI",
+    "sources": [
+      26
+    ],
+    "seq": 284
+  },
+  {
+    "pc": 1140,
+    "instr": 4294750355,
+    "rd": 1,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1144,
+    "opcode": "SLTIU",
+    "sources": [
+      25
+    ],
+    "seq": 285
+  },
+  {
+    "pc": 1144,
+    "instr": 49171,
+    "rd": 0,
+    "value": 1,
+    "writes": 0,
+    "nextpc": 1148,
+    "opcode": "XORI",
+    "sources": [
+      1
+    ],
+    "seq": 286
+  },
+  {
+    "pc": 1148,
+    "instr": 1479601811,
+    "rd": 29,
+    "value": 1411,
+    "writes": 1,
+    "nextpc": 1152,
+    "opcode": "ORI",
+    "sources": [
+      1
+    ],
+    "seq": 287
+  },
+  {
+    "pc": 1152,
+    "instr": 1208467,
+    "rd": 1,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1156,
+    "opcode": "ANDI",
+    "sources": [
+      4
+    ],
+    "seq": 288
+  },
+  {
+    "pc": 1156,
+    "instr": 1085971,
+    "rd": 4,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1160,
+    "opcode": "SLLI",
+    "sources": [
+      1
+    ],
+    "seq": 289
+  },
+  {
+    "pc": 1160,
+    "instr": 32658323,
+    "rd": 7,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1164,
+    "opcode": "SRLI",
+    "sources": [
+      4
+    ],
+    "seq": 290
+  },
+  {
+    "pc": 1164,
+    "instr": 1073994899,
+    "rd": 25,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1168,
+    "opcode": "SRAI",
+    "sources": [
+      7
+    ],
+    "seq": 291
+  },
+  {
+    "pc": 1168,
+    "instr": 3853235255,
+    "rd": 8,
+    "value": 3853234176,
+    "writes": 1,
+    "nextpc": 1172,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 292
+  },
+  {
+    "pc": 1172,
+    "instr": 1623751703,
+    "rd": 24,
+    "value": 1623749780,
+    "writes": 1,
+    "nextpc": 1176,
+    "opcode": "AUIPC",
+    "sources": [],
+    "seq": 293
+  },
+  {
+    "pc": 1176,
+    "instr": 17302451,
+    "rd": 7,
+    "value": 4294963200,
+    "writes": 1,
+    "nextpc": 1180,
+    "opcode": "ADD",
+    "sources": [
+      16,
+      16
+    ],
+    "seq": 294
+  },
+  {
+    "pc": 1180,
+    "instr": 1075020467,
+    "rd": 5,
+    "value": 4294963200,
+    "writes": 1,
+    "nextpc": 1184,
+    "opcode": "SUB",
+    "sources": [
+      7,
+      1
+    ],
+    "seq": 295
+  },
+  {
+    "pc": 1184,
+    "instr": 3315251,
+    "rd": 12,
+    "value": 4294963200,
+    "writes": 1,
+    "nextpc": 1188,
+    "opcode": "SLL",
+    "sources": [
+      5,
+      3
+    ],
+    "seq": 296
+  },
+  {
+    "pc": 1188,
+    "instr": 29207475,
+    "rd": 23,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1192,
+    "opcode": "SLT",
+    "sources": [
+      27,
+      27
+    ],
+    "seq": 297
+  },
+  {
+    "pc": 1192,
+    "instr": 21738931,
+    "rd": 11,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1196,
+    "opcode": "SLTU",
+    "sources": [
+      23,
+      20
+    ],
+    "seq": 298
+  },
+  {
+    "pc": 1196,
+    "instr": 1425459,
+    "rd": 0,
+    "value": 0,
+    "writes": 0,
+    "nextpc": 1200,
+    "opcode": "XOR",
+    "sources": [
+      11,
+      1
+    ],
+    "seq": 299
+  },
+  {
+    "pc": 1200,
+    "instr": 13686963,
+    "rd": 17,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1204,
+    "opcode": "SRL",
+    "sources": [
+      1,
+      13
+    ],
+    "seq": 300
+  },
+  {
+    "pc": 1204,
+    "instr": 1092146739,
+    "rd": 12,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1208,
+    "opcode": "SRA",
+    "sources": [
+      17,
+      17
+    ],
+    "seq": 301
+  },
+  {
+    "pc": 1208,
+    "instr": 22441139,
+    "rd": 25,
+    "value": 6,
+    "writes": 1,
+    "nextpc": 1212,
+    "opcode": "OR",
+    "sources": [
+      12,
+      21
+    ],
+    "seq": 302
+  },
+  {
+    "pc": 1212,
+    "instr": 24573363,
+    "rd": 11,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1216,
+    "opcode": "AND",
+    "sources": [
+      13,
+      23
+    ],
+    "seq": 303
+  },
+  {
+    "pc": 1216,
+    "instr": 3866461459,
+    "rd": 10,
+    "value": 4294966887,
+    "writes": 1,
+    "nextpc": 1220,
+    "opcode": "ADDI",
+    "sources": [
+      11
+    ],
+    "seq": 304
+  },
+  {
+    "pc": 1220,
+    "instr": 3973391251,
+    "rd": 7,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1224,
+    "opcode": "SLTI",
+    "sources": [
+      10
+    ],
+    "seq": 305
+  },
+  {
+    "pc": 1224,
+    "instr": 346173587,
+    "rd": 1,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1228,
+    "opcode": "SLTIU",
+    "sources": [
+      4
+    ],
+    "seq": 306
+  },
+  {
+    "pc": 1228,
+    "instr": 3273705235,
+    "rd": 14,
+    "value": 4294966323,
+    "writes": 1,
+    "nextpc": 1232,
+    "opcode": "XORI",
+    "sources": [
+      1
+    ],
+    "seq": 307
+  },
+  {
+    "pc": 1232,
+    "instr": 4294402451,
+    "rd": 3,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 1236,
+    "opcode": "ORI",
+    "sources": [
+      14
+    ],
+    "seq": 308
+  },
+  {
+    "pc": 1236,
+    "instr": 553619,
+    "rd": 5,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1240,
+    "opcode": "ANDI",
+    "sources": [
+      16
+    ],
+    "seq": 309
+  },
+  {
+    "pc": 1240,
+    "instr": 1219859,
+    "rd": 26,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1244,
+    "opcode": "SLLI",
+    "sources": [
+      5
+    ],
+    "seq": 310
+  },
+  {
+    "pc": 1244,
+    "instr": 33381779,
+    "rd": 27,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1248,
+    "opcode": "SRLI",
+    "sources": [
+      26
+    ],
+    "seq": 311
+  },
+  {
+    "pc": 1248,
+    "instr": 1074090003,
+    "rd": 0,
+    "value": 4294966887,
+    "writes": 0,
+    "nextpc": 1252,
+    "opcode": "SRAI",
+    "sources": [
+      10
+    ],
+    "seq": 312
+  },
+  {
+    "pc": 1252,
+    "instr": 1057963319,
+    "rd": 26,
+    "value": 1057959936,
+    "writes": 1,
+    "nextpc": 1256,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 313
+  },
+  {
+    "pc": 1256,
+    "instr": 3926849175,
+    "rd": 13,
+    "value": 3926848744,
+    "writes": 1,
+    "nextpc": 1260,
+    "opcode": "AUIPC",
+    "sources": [],
+    "seq": 314
+  },
+  {
+    "pc": 1260,
+    "instr": 22710579,
+    "rd": 18,
+    "value": 12,
+    "writes": 1,
+    "nextpc": 1264,
+    "opcode": "ADD",
+    "sources": [
+      21,
+      21
+    ],
+    "seq": 315
+  },
+  {
+    "pc": 1264,
+    "instr": 1105790131,
+    "rd": 9,
+    "value": 12,
+    "writes": 1,
+    "nextpc": 1268,
+    "opcode": "SUB",
+    "sources": [
+      18,
+      30
+    ],
+    "seq": 316
+  },
+  {
+    "pc": 1268,
+    "instr": 32807091,
+    "rd": 17,
+    "value": 12,
+    "writes": 1,
+    "nextpc": 1272,
+    "opcode": "SLL",
+    "sources": [
+      9,
+      31
+    ],
+    "seq": 317
+  },
+  {
+    "pc": 1272,
+    "instr": 30944563,
+    "rd": 26,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1276,
+    "opcode": "SLT",
+    "sources": [
+      16,
+      29
+    ],
+    "seq": 318
+  },
+  {
+    "pc": 1276,
+    "instr": 15545779,
+    "rd": 11,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1280,
+    "opcode": "SLTU",
+    "sources": [
+      26,
+      14
+    ],
+    "seq": 319
+  },
+  {
+    "pc": 1280,
+    "instr": 11913011,
+    "rd": 14,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1284,
+    "opcode": "XOR",
+    "sources": [
+      11,
+      11
+    ],
+    "seq": 320
+  },
+  {
+    "pc": 1284,
+    "instr": 13195443,
+    "rd": 17,
+    "value": 12,
+    "writes": 1,
+    "nextpc": 1288,
+    "opcode": "SRL",
+    "sources": [
+      18,
+      12
+    ],
+    "seq": 321
+  },
+  {
+    "pc": 1288,
+    "instr": 1092149171,
+    "rd": 31,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1292,
+    "opcode": "SRA",
+    "sources": [
+      17,
+      17
+    ],
+    "seq": 322
+  },
+  {
+    "pc": 1292,
+    "instr": 14674867,
+    "rd": 23,
+    "value": 3926848744,
+    "writes": 1,
+    "nextpc": 1296,
+    "opcode": "OR",
+    "sources": [
+      31,
+      13
+    ],
+    "seq": 323
+  },
+  {
+    "pc": 1296,
+    "instr": 2322867,
+    "rd": 3,
+    "value": 32,
+    "writes": 1,
+    "nextpc": 1300,
+    "opcode": "AND",
+    "sources": [
+      6,
+      2
+    ],
+    "seq": 324
+  },
+  {
+    "pc": 1300,
+    "instr": 2146533395,
+    "rd": 0,
+    "value": 2079,
+    "writes": 0,
+    "nextpc": 1304,
+    "opcode": "ADDI",
+    "sources": [
+      3
+    ],
+    "seq": 325
+  },
+  {
+    "pc": 1304,
+    "instr": 109587,
+    "rd": 24,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1308,
+    "opcode": "SLTI",
+    "sources": [
+      3
+    ],
+    "seq": 326
+  },
+  {
+    "pc": 1308,
+    "instr": 2146875923,
+    "rd": 20,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1312,
+    "opcode": "SLTIU",
+    "sources": [
+      13
+    ],
+    "seq": 327
+  },
+  {
+    "pc": 1312,
+    "instr": 2147110291,
+    "rd": 27,
+    "value": 2047,
+    "writes": 1,
+    "nextpc": 1316,
+    "opcode": "XORI",
+    "sources": [
+      20
+    ],
+    "seq": 328
+  },
+  {
+    "pc": 1316,
+    "instr": 2619205523,
+    "rd": 15,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 1320,
+    "opcode": "ORI",
+    "sources": [
+      27
+    ],
+    "seq": 329
+  },
+  {
+    "pc": 1320,
+    "instr": 2453208339,
+    "rd": 26,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1324,
+    "opcode": "ANDI",
+    "sources": [
+      17
+    ],
+    "seq": 330
+  },
+  {
+    "pc": 1324,
+    "instr": 1907475,
+    "rd": 22,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1328,
+    "opcode": "SLLI",
+    "sources": [
+      26
+    ],
+    "seq": 331
+  },
+  {
+    "pc": 1328,
+    "instr": 33250323,
+    "rd": 24,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1332,
+    "opcode": "SRLI",
+    "sources": [
+      22
+    ],
+    "seq": 332
+  },
+  {
+    "pc": 1332,
+    "instr": 1073829907,
+    "rd": 16,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 1336,
+    "opcode": "SRAI",
+    "sources": [
+      2
+    ],
+    "seq": 333
+  },
+  {
+    "pc": 1336,
+    "instr": 480532151,
+    "rd": 13,
+    "value": 480530432,
+    "writes": 1,
+    "nextpc": 1340,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 334
+  },
+  {
+    "pc": 1340,
+    "instr": 4090529175,
+    "rd": 11,
+    "value": 4090529084,
+    "writes": 1,
+    "nextpc": 1344,
+    "opcode": "AUIPC",
+    "sources": [],
+    "seq": 335
+  },
+  {
+    "pc": 1344,
+    "instr": 2164915,
+    "rd": 17,
+    "value": 4294967294,
+    "writes": 1,
+    "nextpc": 1348,
+    "opcode": "ADD",
+    "sources": [
+      2,
+      2
+    ],
+    "seq": 336
+  },
+  {
+    "pc": 1348,
+    "instr": 1082688051,
+    "rd": 4,
+    "value": 441733118,
+    "writes": 1,
+    "nextpc": 1352,
+    "opcode": "SUB",
+    "sources": [
+      17,
+      8
+    ],
+    "seq": 337
+  },
+  {
+    "pc": 1352,
+    "instr": 8523827,
+    "rd": 0,
+    "value": 441733118,
+    "writes": 0,
+    "nextpc": 1356,
+    "opcode": "SLL",
+    "sources": [
+      4,
+      8
+    ],
+    "seq": 338
+  },
+  {
+    "pc": 1356,
+    "instr": 19967539,
+    "rd": 28,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1360,
+    "opcode": "SLT",
+    "sources": [
+      1,
+      19
+    ],
+    "seq": 339
+  },
+  {
+    "pc": 1360,
+    "instr": 30291507,
+    "rd": 12,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1364,
+    "opcode": "SLTU",
+    "sources": [
+      28,
+      28
+    ],
+    "seq": 340
+  },
+  {
+    "pc": 1364,
+    "instr": 9849779,
+    "rd": 23,
+    "value": 12,
+    "writes": 1,
+    "nextpc": 1368,
+    "opcode": "XOR",
+    "sources": [
+      12,
+      9
+    ],
+    "seq": 341
+  },
+  {
+    "pc": 1368,
+    "instr": 22109107,
+    "rd": 23,
+    "value": 67108863,
+    "writes": 1,
+    "nextpc": 1372,
+    "opcode": "SRL",
+    "sources": [
+      2,
+      21
+    ],
+    "seq": 342
+  },
+  {
+    "pc": 1372,
+    "instr": 1098634675,
+    "rd": 11,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1376,
+    "opcode": "SRA",
+    "sources": [
+      23,
+      23
+    ],
+    "seq": 343
+  },
+  {
+    "pc": 1376,
+    "instr": 11919923,
+    "rd": 4,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1380,
+    "opcode": "OR",
+    "sources": [
+      11,
+      11
+    ],
+    "seq": 344
+  },
+  {
+    "pc": 1380,
+    "instr": 19134387,
+    "rd": 15,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1384,
+    "opcode": "AND",
+    "sources": [
+      7,
+      18
+    ],
+    "seq": 345
+  },
+  {
+    "pc": 1384,
+    "instr": 495507,
+    "rd": 31,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1388,
+    "opcode": "ADDI",
+    "sources": [
+      15
+    ],
+    "seq": 346
+  },
+  {
+    "pc": 1388,
+    "instr": 2148508307,
+    "rd": 5,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1392,
+    "opcode": "SLTI",
+    "sources": [
+      31
+    ],
+    "seq": 347
+  },
+  {
+    "pc": 1392,
+    "instr": 2146581651,
+    "rd": 25,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1396,
+    "opcode": "SLTIU",
+    "sources": [
+      4
+    ],
+    "seq": 348
+  },
+  {
+    "pc": 1396,
+    "instr": 839187,
+    "rd": 28,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1400,
+    "opcode": "XORI",
+    "sources": [
+      25
+    ],
+    "seq": 349
+  },
+  {
+    "pc": 1400,
+    "instr": 1665033363,
+    "rd": 9,
+    "value": 1587,
+    "writes": 1,
+    "nextpc": 1404,
+    "opcode": "ORI",
+    "sources": [
+      28
+    ],
+    "seq": 350
+  },
+  {
+    "pc": 1404,
+    "instr": 2147446803,
+    "rd": 0,
+    "value": 0,
+    "writes": 0,
+    "nextpc": 1408,
+    "opcode": "ANDI",
+    "sources": [
+      30
+    ],
+    "seq": 351
+  },
+  {
+    "pc": 1408,
+    "instr": 1351315,
+    "rd": 29,
+    "value": 3174,
+    "writes": 1,
+    "nextpc": 1412,
+    "opcode": "SLLI",
+    "sources": [
+      9
+    ],
+    "seq": 352
+  },
+  {
+    "pc": 1412,
+    "instr": 33477523,
+    "rd": 7,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1416,
+    "opcode": "SRLI",
+    "sources": [
+      29
+    ],
+    "seq": 353
+  },
+  {
+    "pc": 1416,
+    "instr": 1074585491,
+    "rd": 31,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1420,
+    "opcode": "SRAI",
+    "sources": [
+      25
+    ],
+    "seq": 354
+  },
+  {
+    "pc": 1420,
+    "instr": 2611438391,
+    "rd": 6,
+    "value": 2611437568,
+    "writes": 1,
+    "nextpc": 1424,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 355
+  },
+  {
+    "pc": 1424,
+    "instr": 2915193111,
+    "rd": 2,
+    "value": 2915194256,
+    "writes": 1,
+    "nextpc": 1428,
+    "opcode": "AUIPC",
+    "sources": [],
+    "seq": 356
+  },
+  {
+    "pc": 1428,
+    "instr": 22709811,
+    "rd": 12,
+    "value": 12,
+    "writes": 1,
+    "nextpc": 1432,
+    "opcode": "ADD",
+    "sources": [
+      21,
+      21
+    ],
+    "seq": 357
+  },
+  {
+    "pc": 1432,
+    "instr": 1085673267,
+    "rd": 30,
+    "value": 12,
+    "writes": 1,
+    "nextpc": 1436,
+    "opcode": "SUB",
+    "sources": [
+      12,
+      11
+    ],
+    "seq": 358
+  },
+  {
+    "pc": 1436,
+    "instr": 12524083,
+    "rd": 20,
+    "value": 12,
+    "writes": 1,
+    "nextpc": 1440,
+    "opcode": "SLL",
+    "sources": [
+      30,
+      11
+    ],
+    "seq": 359
+  },
+  {
+    "pc": 1440,
+    "instr": 11838771,
+    "rd": 10,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1444,
+    "opcode": "SLT",
+    "sources": [
+      9,
+      11
+    ],
+    "seq": 360
+  },
+  {
+    "pc": 1444,
+    "instr": 21314483,
+    "rd": 23,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1448,
+    "opcode": "SLTU",
+    "sources": [
+      10,
+      20
+    ],
+    "seq": 361
+  },
+  {
+    "pc": 1448,
+    "instr": 24890419,
+    "rd": 24,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1452,
+    "opcode": "XOR",
+    "sources": [
+      23,
+      23
+    ],
+    "seq": 362
+  },
+  {
+    "pc": 1452,
+    "instr": 28365235,
+    "rd": 3,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1456,
+    "opcode": "SRL",
+    "sources": [
+      1,
+      27
+    ],
+    "seq": 363
+  },
+  {
+    "pc": 1456,
+    "instr": 1077006387,
+    "rd": 0,
+    "value": 0,
+    "writes": 0,
+    "nextpc": 1460,
+    "opcode": "SRA",
+    "sources": [
+      3,
+      3
+    ],
+    "seq": 364
+  },
+  {
+    "pc": 1460,
+    "instr": 4317363,
+    "rd": 1,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1464,
+    "opcode": "OR",
+    "sources": [
+      3,
+      4
+    ],
+    "seq": 365
+  },
+  {
+    "pc": 1464,
+    "instr": 1867187,
+    "rd": 27,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1468,
+    "opcode": "AND",
+    "sources": [
+      24,
+      1
+    ],
+    "seq": 366
+  },
+  {
+    "pc": 1468,
+    "instr": 2148368659,
+    "rd": 2,
+    "value": 4294965248,
+    "writes": 1,
+    "nextpc": 1472,
+    "opcode": "ADDI",
+    "sources": [
+      27
+    ],
+    "seq": 367
+  },
+  {
+    "pc": 1472,
+    "instr": 1124115,
+    "rd": 14,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1476,
+    "opcode": "SLTI",
+    "sources": [
+      2
+    ],
+    "seq": 368
+  },
+  {
+    "pc": 1476,
+    "instr": 1566159891,
+    "rd": 8,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1480,
+    "opcode": "SLTIU",
+    "sources": [
+      19
+    ],
+    "seq": 369
+  },
+  {
+    "pc": 1480,
+    "instr": 3703852051,
+    "rd": 24,
+    "value": 4294966733,
+    "writes": 1,
+    "nextpc": 1484,
+    "opcode": "XORI",
+    "sources": [
+      8
+    ],
+    "seq": 370
+  },
+  {
+    "pc": 1484,
+    "instr": 4294732819,
+    "rd": 24,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 1488,
+    "opcode": "ORI",
+    "sources": [
+      24
+    ],
+    "seq": 371
+  },
+  {
+    "pc": 1488,
+    "instr": 4294114451,
+    "rd": 25,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1492,
+    "opcode": "ANDI",
+    "sources": [
+      5
+    ],
+    "seq": 372
+  },
+  {
+    "pc": 1492,
+    "instr": 1873555,
+    "rd": 13,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1496,
+    "opcode": "SLLI",
+    "sources": [
+      25
+    ],
+    "seq": 373
+  },
+  {
+    "pc": 1496,
+    "instr": 32955667,
+    "rd": 26,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1500,
+    "opcode": "SRLI",
+    "sources": [
+      13
+    ],
+    "seq": 374
+  },
+  {
+    "pc": 1500,
+    "instr": 1074323347,
+    "rd": 31,
+    "value": 4294967294,
+    "writes": 1,
+    "nextpc": 1504,
+    "opcode": "SRAI",
+    "sources": [
+      17
+    ],
+    "seq": 375
+  },
+  {
+    "pc": 1504,
+    "instr": 2570635447,
+    "rd": 17,
+    "value": 2570633216,
+    "writes": 1,
+    "nextpc": 1508,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 376
+  },
+  {
+    "pc": 1508,
+    "instr": 1407213591,
+    "rd": 0,
+    "value": 1407215076,
+    "writes": 0,
+    "nextpc": 1512,
+    "opcode": "AUIPC",
+    "sources": [],
+    "seq": 377
+  },
+  {
+    "pc": 1512,
+    "instr": 27036851,
+    "rd": 25,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1516,
+    "opcode": "ADD",
+    "sources": [
+      25,
+      25
+    ],
+    "seq": 378
+  },
+  {
+    "pc": 1516,
+    "instr": 1075609907,
+    "rd": 2,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1520,
+    "opcode": "SUB",
+    "sources": [
+      25,
+      1
+    ],
+    "seq": 379
+  },
+  {
+    "pc": 1520,
+    "instr": 7410227,
+    "rd": 4,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1524,
+    "opcode": "SLL",
+    "sources": [
+      2,
+      7
+    ],
+    "seq": 380
+  },
+  {
+    "pc": 1524,
+    "instr": 9348915,
+    "rd": 14,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1528,
+    "opcode": "SLT",
+    "sources": [
+      29,
+      8
+    ],
+    "seq": 381
+  },
+  {
+    "pc": 1528,
+    "instr": 14102707,
+    "rd": 1,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1532,
+    "opcode": "SLTU",
+    "sources": [
+      14,
+      13
+    ],
+    "seq": 382
+  },
+  {
+    "pc": 1532,
+    "instr": 2148531,
+    "rd": 17,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1536,
+    "opcode": "XOR",
+    "sources": [
+      1,
+      2
+    ],
+    "seq": 383
+  },
+  {
+    "pc": 1536,
+    "instr": 25647411,
+    "rd": 18,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1540,
+    "opcode": "SRL",
+    "sources": [
+      14,
+      24
+    ],
+    "seq": 384
+  },
+  {
+    "pc": 1540,
+    "instr": 1093228083,
+    "rd": 12,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1544,
+    "opcode": "SRA",
+    "sources": [
+      18,
+      18
+    ],
+    "seq": 385
+  },
+  {
+    "pc": 1544,
+    "instr": 13002803,
+    "rd": 16,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1548,
+    "opcode": "OR",
+    "sources": [
+      12,
+      12
+    ],
+    "seq": 386
+  },
+  {
+    "pc": 1548,
+    "instr": 2652851,
+    "rd": 21,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1552,
+    "opcode": "AND",
+    "sources": [
+      16,
+      2
+    ],
+    "seq": 387
+  },
+  {
+    "pc": 1552,
+    "instr": 691859,
+    "rd": 29,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1556,
+    "opcode": "ADDI",
+    "sources": [
+      21
+    ],
+    "seq": 388
+  },
+  {
+    "pc": 1556,
+    "instr": 960787,
+    "rd": 18,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1560,
+    "opcode": "SLTI",
+    "sources": [
+      29
+    ],
+    "seq": 389
+  },
+  {
+    "pc": 1560,
+    "instr": 4294782995,
+    "rd": 0,
+    "value": 1,
+    "writes": 0,
+    "nextpc": 1564,
+    "opcode": "SLTIU",
+    "sources": [
+      26
+    ],
+    "seq": 390
+  },
+  {
+    "pc": 1564,
+    "instr": 2148093075,
+    "rd": 25,
+    "value": 4294965248,
+    "writes": 1,
+    "nextpc": 1568,
+    "opcode": "XORI",
+    "sources": [
+      18
+    ],
+    "seq": 391
+  },
+  {
+    "pc": 1568,
+    "instr": 2148330387,
+    "rd": 23,
+    "value": 4294965248,
+    "writes": 1,
+    "nextpc": 1572,
+    "opcode": "ORI",
+    "sources": [
+      25
+    ],
+    "seq": 392
+  },
+  {
+    "pc": 1572,
+    "instr": 4294897939,
+    "rd": 2,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1576,
+    "opcode": "ANDI",
+    "sources": [
+      29
+    ],
+    "seq": 393
+  },
+  {
+    "pc": 1576,
+    "instr": 1120275,
+    "rd": 16,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1580,
+    "opcode": "SLLI",
+    "sources": [
+      2
+    ],
+    "seq": 394
+  },
+  {
+    "pc": 1580,
+    "instr": 33051411,
+    "rd": 6,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1584,
+    "opcode": "SRLI",
+    "sources": [
+      16
+    ],
+    "seq": 395
+  },
+  {
+    "pc": 1584,
+    "instr": 1074191635,
+    "rd": 26,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1588,
+    "opcode": "SRAI",
+    "sources": [
+      13
+    ],
+    "seq": 396
+  },
+  {
+    "pc": 1588,
+    "instr": 3169045943,
+    "rd": 27,
+    "value": 3169042432,
+    "writes": 1,
+    "nextpc": 1592,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 397
+  },
+  {
+    "pc": 1592,
+    "instr": 3728793239,
+    "rd": 29,
+    "value": 3728791096,
+    "writes": 1,
+    "nextpc": 1596,
+    "opcode": "AUIPC",
+    "sources": [],
+    "seq": 398
+  },
+  {
+    "pc": 1596,
+    "instr": 16220979,
+    "rd": 6,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1600,
+    "opcode": "ADD",
+    "sources": [
+      15,
+      15
+    ],
+    "seq": 399
+  },
+  {
+    "pc": 1600,
+    "instr": 1077087539,
+    "rd": 26,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1604,
+    "opcode": "SUB",
+    "sources": [
+      6,
+      3
+    ],
+    "seq": 400
+  },
+  {
+    "pc": 1604,
+    "instr": 17635507,
+    "rd": 17,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1608,
+    "opcode": "SLL",
+    "sources": [
+      26,
+      16
+    ],
+    "seq": 401
+  },
+  {
+    "pc": 1608,
+    "instr": 7482675,
+    "rd": 26,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1612,
+    "opcode": "SLT",
+    "sources": [
+      4,
+      7
+    ],
+    "seq": 402
+  },
+  {
+    "pc": 1612,
+    "instr": 22884403,
+    "rd": 0,
+    "value": 0,
+    "writes": 0,
+    "nextpc": 1616,
+    "opcode": "SLTU",
+    "sources": [
+      26,
+      21
+    ],
+    "seq": 403
+  },
+  {
+    "pc": 1616,
+    "instr": 26035379,
+    "rd": 9,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 1620,
+    "opcode": "XOR",
+    "sources": [
+      26,
+      24
+    ],
+    "seq": 404
+  },
+  {
+    "pc": 1620,
+    "instr": 22074291,
+    "rd": 7,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1624,
+    "opcode": "SRL",
+    "sources": [
+      1,
+      21
+    ],
+    "seq": 405
+  },
+  {
+    "pc": 1624,
+    "instr": 1081332403,
+    "rd": 5,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1628,
+    "opcode": "SRA",
+    "sources": [
+      7,
+      7
+    ],
+    "seq": 406
+  },
+  {
+    "pc": 1628,
+    "instr": 19065779,
+    "rd": 23,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1632,
+    "opcode": "OR",
+    "sources": [
+      5,
+      18
+    ],
+    "seq": 407
+  },
+  {
+    "pc": 1632,
+    "instr": 10420147,
+    "rd": 31,
+    "value": 3728791096,
+    "writes": 1,
+    "nextpc": 1636,
+    "opcode": "AND",
+    "sources": [
+      29,
+      9
+    ],
+    "seq": 408
+  },
+  {
+    "pc": 1636,
+    "instr": 2066963,
+    "rd": 20,
+    "value": 3728791097,
+    "writes": 1,
+    "nextpc": 1640,
+    "opcode": "ADDI",
+    "sources": [
+      31
+    ],
+    "seq": 409
+  },
+  {
+    "pc": 1640,
+    "instr": 2147102611,
+    "rd": 31,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1644,
+    "opcode": "SLTI",
+    "sources": [
+      20
+    ],
+    "seq": 410
+  },
+  {
+    "pc": 1644,
+    "instr": 2147368595,
+    "rd": 29,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1648,
+    "opcode": "SLTIU",
+    "sources": [
+      28
+    ],
+    "seq": 411
+  },
+  {
+    "pc": 1648,
+    "instr": 2148453395,
+    "rd": 24,
+    "value": 4294965249,
+    "writes": 1,
+    "nextpc": 1652,
+    "opcode": "XORI",
+    "sources": [
+      29
+    ],
+    "seq": 412
+  },
+  {
+    "pc": 1652,
+    "instr": 4294730259,
+    "rd": 4,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 1656,
+    "opcode": "ORI",
+    "sources": [
+      24
+    ],
+    "seq": 413
+  },
+  {
+    "pc": 1656,
+    "instr": 227347,
+    "rd": 16,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1660,
+    "opcode": "ANDI",
+    "sources": [
+      6
+    ],
+    "seq": 414
+  },
+  {
+    "pc": 1660,
+    "instr": 1580307,
+    "rd": 26,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1664,
+    "opcode": "SLLI",
+    "sources": [
+      16
+    ],
+    "seq": 415
+  },
+  {
+    "pc": 1664,
+    "instr": 33378323,
+    "rd": 0,
+    "value": 0,
+    "writes": 0,
+    "nextpc": 1668,
+    "opcode": "SRLI",
+    "sources": [
+      26
+    ],
+    "seq": 416
+  },
+  {
+    "pc": 1668,
+    "instr": 1074650387,
+    "rd": 26,
+    "value": 3169042432,
+    "writes": 1,
+    "nextpc": 1672,
+    "opcode": "SRAI",
+    "sources": [
+      27
+    ],
+    "seq": 417
+  },
+  {
+    "pc": 1672,
+    "instr": 2935136183,
+    "rd": 31,
+    "value": 2935132160,
+    "writes": 1,
+    "nextpc": 1676,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 418
+  },
+  {
+    "pc": 1676,
+    "instr": 1771977111,
+    "rd": 19,
+    "value": 1771976332,
+    "writes": 1,
+    "nextpc": 1680,
+    "opcode": "AUIPC",
+    "sources": [],
+    "seq": 419
+  },
+  {
+    "pc": 1680,
+    "instr": 31360435,
+    "rd": 11,
+    "value": 2,
+    "writes": 1,
+    "nextpc": 1684,
+    "opcode": "ADD",
+    "sources": [
+      29,
+      29
+    ],
+    "seq": 420
+  },
+  {
+    "pc": 1684,
+    "instr": 1074105651,
+    "rd": 26,
+    "value": 2,
+    "writes": 1,
+    "nextpc": 1688,
+    "opcode": "SUB",
+    "sources": [
+      11,
+      0
+    ],
+    "seq": 421
+  },
+  {
+    "pc": 1688,
+    "instr": 2955571,
+    "rd": 18,
+    "value": 2,
+    "writes": 1,
+    "nextpc": 1692,
+    "opcode": "SLL",
+    "sources": [
+      26,
+      2
+    ],
+    "seq": 422
+  },
+  {
+    "pc": 1692,
+    "instr": 30253747,
+    "rd": 5,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1696,
+    "opcode": "SLT",
+    "sources": [
+      27,
+      28
+    ],
+    "seq": 423
+  },
+  {
+    "pc": 1696,
+    "instr": 19052339,
+    "rd": 14,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1700,
+    "opcode": "SLTU",
+    "sources": [
+      5,
+      18
+    ],
+    "seq": 424
+  },
+  {
+    "pc": 1700,
+    "instr": 12011443,
+    "rd": 15,
+    "value": 3,
+    "writes": 1,
+    "nextpc": 1704,
+    "opcode": "XOR",
+    "sources": [
+      14,
+      11
+    ],
+    "seq": 425
+  },
+  {
+    "pc": 1704,
+    "instr": 974387,
+    "rd": 28,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1708,
+    "opcode": "SRL",
+    "sources": [
+      29,
+      0
+    ],
+    "seq": 426
+  },
+  {
+    "pc": 1708,
+    "instr": 1104043955,
+    "rd": 31,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1712,
+    "opcode": "SRA",
+    "sources": [
+      28,
+      28
+    ],
+    "seq": 427
+  },
+  {
+    "pc": 1712,
+    "instr": 13626547,
+    "rd": 25,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1716,
+    "opcode": "OR",
+    "sources": [
+      31,
+      12
+    ],
+    "seq": 428
+  },
+  {
+    "pc": 1716,
+    "instr": 7401523,
+    "rd": 0,
+    "value": 0,
+    "writes": 0,
+    "nextpc": 1720,
+    "opcode": "AND",
+    "sources": [
+      1,
+      7
+    ],
+    "seq": 429
+  },
+  {
+    "pc": 1720,
+    "instr": 3965487635,
+    "rd": 20,
+    "value": 4294966981,
+    "writes": 1,
+    "nextpc": 1724,
+    "opcode": "ADDI",
+    "sources": [
+      25
+    ],
+    "seq": 430
+  },
+  {
+    "pc": 1724,
+    "instr": 2148150163,
+    "rd": 23,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1728,
+    "opcode": "SLTI",
+    "sources": [
+      20
+    ],
+    "seq": 431
+  },
+  {
+    "pc": 1728,
+    "instr": 110995,
+    "rd": 3,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1732,
+    "opcode": "SLTIU",
+    "sources": [
+      3
+    ],
+    "seq": 432
+  },
+  {
+    "pc": 1732,
+    "instr": 118163,
+    "rd": 27,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1736,
+    "opcode": "XORI",
+    "sources": [
+      3
+    ],
+    "seq": 433
+  },
+  {
+    "pc": 1736,
+    "instr": 2147347091,
+    "rd": 21,
+    "value": 2047,
+    "writes": 1,
+    "nextpc": 1740,
+    "opcode": "ORI",
+    "sources": [
+      27
+    ],
+    "seq": 434
+  },
+  {
+    "pc": 1740,
+    "instr": 2147906067,
+    "rd": 4,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1744,
+    "opcode": "ANDI",
+    "sources": [
+      12
+    ],
+    "seq": 435
+  },
+  {
+    "pc": 1744,
+    "instr": 1186963,
+    "rd": 25,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1748,
+    "opcode": "SLLI",
+    "sources": [
+      4
+    ],
+    "seq": 436
+  },
+  {
+    "pc": 1748,
+    "instr": 33348243,
+    "rd": 21,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1752,
+    "opcode": "SRLI",
+    "sources": [
+      25
+    ],
+    "seq": 437
+  },
+  {
+    "pc": 1752,
+    "instr": 1074518163,
+    "rd": 17,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1756,
+    "opcode": "SRAI",
+    "sources": [
+      23
+    ],
+    "seq": 438
+  },
+  {
+    "pc": 1756,
+    "instr": 1209836087,
+    "rd": 4,
+    "value": 1209835520,
+    "writes": 1,
+    "nextpc": 1760,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 439
+  },
+  {
+    "pc": 1760,
+    "instr": 2918639383,
+    "rd": 14,
+    "value": 2918639328,
+    "writes": 1,
+    "nextpc": 1764,
+    "opcode": "AUIPC",
+    "sources": [],
+    "seq": 440
+  },
+  {
+    "pc": 1764,
+    "instr": 9732531,
+    "rd": 3,
+    "value": 4294967294,
+    "writes": 1,
+    "nextpc": 1768,
+    "opcode": "ADD",
+    "sources": [
+      9,
+      9
+    ],
+    "seq": 441
+  },
+  {
+    "pc": 1768,
+    "instr": 1105297459,
+    "rd": 0,
+    "value": 4294967282,
+    "writes": 0,
+    "nextpc": 1772,
+    "opcode": "SUB",
+    "sources": [
+      3,
+      30
+    ],
+    "seq": 442
+  },
+  {
+    "pc": 1772,
+    "instr": 29466163,
+    "rd": 28,
+    "value": 4294967292,
+    "writes": 1,
+    "nextpc": 1776,
+    "opcode": "SLL",
+    "sources": [
+      3,
+      28
+    ],
+    "seq": 443
+  },
+  {
+    "pc": 1776,
+    "instr": 12889139,
+    "rd": 24,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1780,
+    "opcode": "SLT",
+    "sources": [
+      9,
+      12
+    ],
+    "seq": 444
+  },
+  {
+    "pc": 1780,
+    "instr": 12335283,
+    "rd": 17,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1784,
+    "opcode": "SLTU",
+    "sources": [
+      24,
+      11
+    ],
+    "seq": 445
+  },
+  {
+    "pc": 1784,
+    "instr": 2672563,
+    "rd": 15,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1788,
+    "opcode": "XOR",
+    "sources": [
+      17,
+      2
+    ],
+    "seq": 446
+  },
+  {
+    "pc": 1788,
+    "instr": 16962611,
+    "rd": 8,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1792,
+    "opcode": "SRL",
+    "sources": [
+      5,
+      16
+    ],
+    "seq": 447
+  },
+  {
+    "pc": 1792,
+    "instr": 1082415795,
+    "rd": 21,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1796,
+    "opcode": "SRA",
+    "sources": [
+      8,
+      8
+    ],
+    "seq": 448
+  },
+  {
+    "pc": 1796,
+    "instr": 21686195,
+    "rd": 15,
+    "value": 4294966981,
+    "writes": 1,
+    "nextpc": 1800,
+    "opcode": "OR",
+    "sources": [
+      21,
+      20
+    ],
+    "seq": 449
+  },
+  {
+    "pc": 1800,
+    "instr": 27098803,
+    "rd": 29,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1804,
+    "opcode": "AND",
+    "sources": [
+      26,
+      25
+    ],
+    "seq": 450
+  },
+  {
+    "pc": 1804,
+    "instr": 2000019,
+    "rd": 9,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1808,
+    "opcode": "ADDI",
+    "sources": [
+      29
+    ],
+    "seq": 451
+  },
+  {
+    "pc": 1808,
+    "instr": 4294222355,
+    "rd": 4,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1812,
+    "opcode": "SLTI",
+    "sources": [
+      9
+    ],
+    "seq": 452
+  },
+  {
+    "pc": 1812,
+    "instr": 1325203,
+    "rd": 17,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1816,
+    "opcode": "SLTIU",
+    "sources": [
+      8
+    ],
+    "seq": 453
+  },
+  {
+    "pc": 1816,
+    "instr": 1622163,
+    "rd": 1,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1820,
+    "opcode": "XORI",
+    "sources": [
+      17
+    ],
+    "seq": 454
+  },
+  {
+    "pc": 1820,
+    "instr": 2147541011,
+    "rd": 0,
+    "value": 4294965249,
+    "writes": 0,
+    "nextpc": 1824,
+    "opcode": "ORI",
+    "sources": [
+      1
+    ],
+    "seq": 455
+  },
+  {
+    "pc": 1824,
+    "instr": 1931155,
+    "rd": 15,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1828,
+    "opcode": "ANDI",
+    "sources": [
+      26
+    ],
+    "seq": 456
+  },
+  {
+    "pc": 1828,
+    "instr": 1546643,
+    "rd": 19,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1832,
+    "opcode": "SLLI",
+    "sources": [
+      15
+    ],
+    "seq": 457
+  },
+  {
+    "pc": 1832,
+    "instr": 33151507,
+    "rd": 20,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1836,
+    "opcode": "SRLI",
+    "sources": [
+      19
+    ],
+    "seq": 458
+  },
+  {
+    "pc": 1836,
+    "instr": 1073864339,
+    "rd": 29,
+    "value": 4294967294,
+    "writes": 1,
+    "nextpc": 1840,
+    "opcode": "SRAI",
+    "sources": [
+      3
+    ],
+    "seq": 459
+  },
+  {
+    "pc": 1840,
+    "instr": 2096021815,
+    "rd": 2,
+    "value": 2096021504,
+    "writes": 1,
+    "nextpc": 1844,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 460
+  },
+  {
+    "pc": 1844,
+    "instr": 2020435735,
+    "rd": 14,
+    "value": 2020435764,
+    "writes": 1,
+    "nextpc": 1848,
+    "opcode": "AUIPC",
+    "sources": [],
+    "seq": 461
+  },
+  {
+    "pc": 1848,
+    "instr": 23792179,
+    "rd": 20,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1852,
+    "opcode": "ADD",
+    "sources": [
+      22,
+      22
+    ],
+    "seq": 462
+  },
+  {
+    "pc": 1852,
+    "instr": 1098515763,
+    "rd": 10,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1856,
+    "opcode": "SUB",
+    "sources": [
+      20,
+      23
+    ],
+    "seq": 463
+  },
+  {
+    "pc": 1856,
+    "instr": 32839219,
+    "rd": 12,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1860,
+    "opcode": "SLL",
+    "sources": [
+      10,
+      31
+    ],
+    "seq": 464
+  },
+  {
+    "pc": 1860,
+    "instr": 27535155,
+    "rd": 14,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1864,
+    "opcode": "SLT",
+    "sources": [
+      8,
+      26
+    ],
+    "seq": 465
+  },
+  {
+    "pc": 1864,
+    "instr": 24590643,
+    "rd": 18,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1868,
+    "opcode": "SLTU",
+    "sources": [
+      14,
+      23
+    ],
+    "seq": 466
+  },
+  {
+    "pc": 1868,
+    "instr": 31017267,
+    "rd": 18,
+    "value": 4294967294,
+    "writes": 1,
+    "nextpc": 1872,
+    "opcode": "XOR",
+    "sources": [
+      18,
+      29
+    ],
+    "seq": 467
+  },
+  {
+    "pc": 1872,
+    "instr": 10899507,
+    "rd": 0,
+    "value": 0,
+    "writes": 0,
+    "nextpc": 1876,
+    "opcode": "SRL",
+    "sources": [
+      12,
+      10
+    ],
+    "seq": 468
+  },
+  {
+    "pc": 1876,
+    "instr": 1093228723,
+    "rd": 17,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 1880,
+    "opcode": "SRA",
+    "sources": [
+      18,
+      18
+    ],
+    "seq": 469
+  },
+  {
+    "pc": 1880,
+    "instr": 19456819,
+    "rd": 6,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 1884,
+    "opcode": "OR",
+    "sources": [
+      17,
+      18
+    ],
+    "seq": 470
+  },
+  {
+    "pc": 1884,
+    "instr": 8548659,
+    "rd": 2,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1888,
+    "opcode": "AND",
+    "sources": [
+      4,
+      8
+    ],
+    "seq": 471
+  },
+  {
+    "pc": 1888,
+    "instr": 2146503059,
+    "rd": 19,
+    "value": 2047,
+    "writes": 1,
+    "nextpc": 1892,
+    "opcode": "ADDI",
+    "sources": [
+      2
+    ],
+    "seq": 472
+  },
+  {
+    "pc": 1892,
+    "instr": 634515,
+    "rd": 29,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1896,
+    "opcode": "SLTI",
+    "sources": [
+      19
+    ],
+    "seq": 473
+  },
+  {
+    "pc": 1896,
+    "instr": 441491,
+    "rd": 25,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1900,
+    "opcode": "SLTIU",
+    "sources": [
+      13
+    ],
+    "seq": 474
+  },
+  {
+    "pc": 1900,
+    "instr": 4294757651,
+    "rd": 26,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 1904,
+    "opcode": "XORI",
+    "sources": [
+      25
+    ],
+    "seq": 475
+  },
+  {
+    "pc": 1904,
+    "instr": 877587,
+    "rd": 8,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 1908,
+    "opcode": "ORI",
+    "sources": [
+      26
+    ],
+    "seq": 476
+  },
+  {
+    "pc": 1908,
+    "instr": 4293983635,
+    "rd": 27,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1912,
+    "opcode": "ANDI",
+    "sources": [
+      1
+    ],
+    "seq": 477
+  },
+  {
+    "pc": 1912,
+    "instr": 1940243,
+    "rd": 22,
+    "value": 2,
+    "writes": 1,
+    "nextpc": 1916,
+    "opcode": "SLLI",
+    "sources": [
+      27
+    ],
+    "seq": 478
+  },
+  {
+    "pc": 1916,
+    "instr": 33250579,
+    "rd": 26,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1920,
+    "opcode": "SRLI",
+    "sources": [
+      22
+    ],
+    "seq": 479
+  },
+  {
+    "pc": 1920,
+    "instr": 1074779027,
+    "rd": 7,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1924,
+    "opcode": "SRAI",
+    "sources": [
+      31
+    ],
+    "seq": 480
+  },
+  {
+    "pc": 1924,
+    "instr": 389095479,
+    "rd": 0,
+    "value": 389095424,
+    "writes": 0,
+    "nextpc": 1928,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 481
+  },
+  {
+    "pc": 1928,
+    "instr": 3651671319,
+    "rd": 10,
+    "value": 3651671944,
+    "writes": 1,
+    "nextpc": 1932,
+    "opcode": "AUIPC",
+    "sources": [],
+    "seq": 482
+  },
+  {
+    "pc": 1932,
+    "instr": 11896883,
+    "rd": 16,
+    "value": 4,
+    "writes": 1,
+    "nextpc": 1936,
+    "opcode": "ADD",
+    "sources": [
+      11,
+      11
+    ],
+    "seq": 483
+  },
+  {
+    "pc": 1936,
+    "instr": 1094192435,
+    "rd": 26,
+    "value": 4294965253,
+    "writes": 1,
+    "nextpc": 1940,
+    "opcode": "SUB",
+    "sources": [
+      16,
+      19
+    ],
+    "seq": 484
+  },
+  {
+    "pc": 1940,
+    "instr": 28122163,
+    "rd": 24,
+    "value": 4294901920,
+    "writes": 1,
+    "nextpc": 1944,
+    "opcode": "SLL",
+    "sources": [
+      26,
+      26
+    ],
+    "seq": 485
+  },
+  {
+    "pc": 1944,
+    "instr": 12461363,
+    "rd": 10,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1948,
+    "opcode": "SLT",
+    "sources": [
+      28,
+      11
+    ],
+    "seq": 486
+  },
+  {
+    "pc": 1948,
+    "instr": 26554931,
+    "rd": 4,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1952,
+    "opcode": "SLTU",
+    "sources": [
+      10,
+      25
+    ],
+    "seq": 487
+  },
+  {
+    "pc": 1952,
+    "instr": 28460851,
+    "rd": 14,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1956,
+    "opcode": "XOR",
+    "sources": [
+      4,
+      27
+    ],
+    "seq": 488
+  },
+  {
+    "pc": 1956,
+    "instr": 20632243,
+    "rd": 5,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1960,
+    "opcode": "SRL",
+    "sources": [
+      21,
+      19
+    ],
+    "seq": 489
+  },
+  {
+    "pc": 1960,
+    "instr": 1079172403,
+    "rd": 26,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1964,
+    "opcode": "SRA",
+    "sources": [
+      5,
+      5
+    ],
+    "seq": 490
+  },
+  {
+    "pc": 1964,
+    "instr": 877747,
+    "rd": 9,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1968,
+    "opcode": "OR",
+    "sources": [
+      26,
+      0
+    ],
+    "seq": 491
+  },
+  {
+    "pc": 1968,
+    "instr": 3798067,
+    "rd": 8,
+    "value": 2046,
+    "writes": 1,
+    "nextpc": 1972,
+    "opcode": "AND",
+    "sources": [
+      19,
+      3
+    ],
+    "seq": 492
+  },
+  {
+    "pc": 1972,
+    "instr": 2147749011,
+    "rd": 25,
+    "value": 4294967294,
+    "writes": 1,
+    "nextpc": 1976,
+    "opcode": "ADDI",
+    "sources": [
+      8
+    ],
+    "seq": 493
+  },
+  {
+    "pc": 1976,
+    "instr": 2147262483,
+    "rd": 0,
+    "value": 1,
+    "writes": 0,
+    "nextpc": 1980,
+    "opcode": "SLTI",
+    "sources": [
+      25
+    ],
+    "seq": 494
+  },
+  {
+    "pc": 1980,
+    "instr": 2147958675,
+    "rd": 31,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 1984,
+    "opcode": "SLTIU",
+    "sources": [
+      14
+    ],
+    "seq": 495
+  },
+  {
+    "pc": 1984,
+    "instr": 2083987,
+    "rd": 25,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1988,
+    "opcode": "XORI",
+    "sources": [
+      31
+    ],
+    "seq": 496
+  },
+  {
+    "pc": 1988,
+    "instr": 2147281683,
+    "rd": 22,
+    "value": 2047,
+    "writes": 1,
+    "nextpc": 1992,
+    "opcode": "ORI",
+    "sources": [
+      25
+    ],
+    "seq": 497
+  },
+  {
+    "pc": 1992,
+    "instr": 4294899859,
+    "rd": 17,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 1996,
+    "opcode": "ANDI",
+    "sources": [
+      29
+    ],
+    "seq": 498
+  },
+  {
+    "pc": 1996,
+    "instr": 1612947,
+    "rd": 25,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 2000,
+    "opcode": "SLLI",
+    "sources": [
+      17
+    ],
+    "seq": 499
+  },
+  {
+    "pc": 2000,
+    "instr": 33346067,
+    "rd": 4,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 2004,
+    "opcode": "SRLI",
+    "sources": [
+      25
+    ],
+    "seq": 500
+  },
+  {
+    "pc": 2004,
+    "instr": 1074254867,
+    "rd": 8,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 2008,
+    "opcode": "SRAI",
+    "sources": [
+      15
+    ],
+    "seq": 501
+  },
+  {
+    "pc": 2008,
+    "instr": 1005614647,
+    "rd": 12,
+    "value": 1005613056,
+    "writes": 1,
+    "nextpc": 2012,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 502
+  },
+  {
+    "pc": 2012,
+    "instr": 2500341655,
+    "rd": 31,
+    "value": 2500339676,
+    "writes": 1,
+    "nextpc": 2016,
+    "opcode": "AUIPC",
+    "sources": [],
+    "seq": 503
+  },
+  {
+    "pc": 2016,
+    "instr": 20547379,
+    "rd": 14,
+    "value": 4094,
+    "writes": 1,
+    "nextpc": 2020,
+    "opcode": "ADD",
+    "sources": [
+      19,
+      19
+    ],
+    "seq": 504
+  },
+  {
+    "pc": 2020,
+    "instr": 1080492723,
+    "rd": 5,
+    "value": 4095,
+    "writes": 1,
+    "nextpc": 2024,
+    "opcode": "SUB",
+    "sources": [
+      14,
+      6
+    ],
+    "seq": 505
+  },
+  {
+    "pc": 2024,
+    "instr": 6459571,
+    "rd": 1,
+    "value": 2147483648,
+    "writes": 1,
+    "nextpc": 2028,
+    "opcode": "SLL",
+    "sources": [
+      5,
+      6
+    ],
+    "seq": 506
+  },
+  {
+    "pc": 2028,
+    "instr": 5611571,
+    "rd": 0,
+    "value": 1,
+    "writes": 0,
+    "nextpc": 2032,
+    "opcode": "SLT",
+    "sources": [
+      11,
+      5
+    ],
+    "seq": 507
+  },
+  {
+    "pc": 2032,
+    "instr": 9484723,
+    "rd": 19,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 2036,
+    "opcode": "SLTU",
+    "sources": [
+      1,
+      9
+    ],
+    "seq": 508
+  },
+  {
+    "pc": 2036,
+    "instr": 22662451,
+    "rd": 26,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 2040,
+    "opcode": "XOR",
+    "sources": [
+      19,
+      21
+    ],
+    "seq": 509
+  },
+  {
+    "pc": 2040,
+    "instr": 15454515,
+    "rd": 2,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 2044,
+    "opcode": "SRL",
+    "sources": [
+      23,
+      14
+    ],
+    "seq": 510
+  },
+  {
+    "pc": 2044,
+    "instr": 1075925427,
+    "rd": 3,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 2048,
+    "opcode": "SRA",
+    "sources": [
+      2,
+      2
+    ],
+    "seq": 511
+  },
+  {
+    "pc": 2048,
+    "instr": 17949619,
+    "rd": 7,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 2052,
+    "opcode": "OR",
+    "sources": [
+      3,
+      17
+    ],
+    "seq": 512
+  },
+  {
+    "pc": 2052,
+    "instr": 2946611,
+    "rd": 12,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 2056,
+    "opcode": "AND",
+    "sources": [
+      25,
+      2
+    ],
+    "seq": 513
+  },
+  {
+    "pc": 2056,
+    "instr": 2146830227,
+    "rd": 15,
+    "value": 2047,
+    "writes": 1,
+    "nextpc": 2060,
+    "opcode": "ADDI",
+    "sources": [
+      12
+    ],
+    "seq": 514
+  },
+  {
+    "pc": 2060,
+    "instr": 4135037971,
+    "rd": 24,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 2064,
+    "opcode": "SLTI",
+    "sources": [
+      15
+    ],
+    "seq": 515
+  },
+  {
+    "pc": 2064,
+    "instr": 2147563283,
+    "rd": 14,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 2068,
+    "opcode": "SLTIU",
+    "sources": [
+      2
+    ],
+    "seq": 516
+  },
+  {
+    "pc": 2068,
+    "instr": 2147962387,
+    "rd": 28,
+    "value": 4294965249,
+    "writes": 1,
+    "nextpc": 2072,
+    "opcode": "XORI",
+    "sources": [
+      14
+    ],
+    "seq": 517
+  },
+  {
+    "pc": 2072,
+    "instr": 4294862483,
+    "rd": 13,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 2076,
+    "opcode": "ORI",
+    "sources": [
+      28
+    ],
+    "seq": 518
+  },
+  {
+    "pc": 2076,
+    "instr": 551874707,
+    "rd": 1,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 2080,
+    "opcode": "ANDI",
+    "sources": [
+      9
+    ],
+    "seq": 519
+  },
+  {
+    "pc": 2080,
+    "instr": 1085459,
+    "rd": 0,
+    "value": 0,
+    "writes": 0,
+    "nextpc": 2084,
+    "opcode": "SLLI",
+    "sources": [
+      1
+    ],
+    "seq": 520
+  },
+  {
+    "pc": 2084,
+    "instr": 32560147,
+    "rd": 8,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 2088,
+    "opcode": "SRLI",
+    "sources": [
+      1
+    ],
+    "seq": 521
+  },
+  {
+    "pc": 2088,
+    "instr": 1074257427,
+    "rd": 28,
+    "value": 2047,
+    "writes": 1,
+    "nextpc": 2092,
+    "opcode": "SRAI",
+    "sources": [
+      15
+    ],
+    "seq": 522
+  },
+  {
+    "pc": 2092,
+    "instr": 3156844727,
+    "rd": 1,
+    "value": 3156844544,
+    "writes": 1,
+    "nextpc": 2096,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 523
+  },
+  {
+    "pc": 2096,
+    "instr": 1503951383,
+    "rd": 20,
+    "value": 1503950896,
+    "writes": 1,
+    "nextpc": 2100,
+    "opcode": "AUIPC",
+    "sources": [],
+    "seq": 524
+  },
+  {
+    "pc": 2100,
+    "instr": 2165427,
+    "rd": 21,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 2104,
+    "opcode": "ADD",
+    "sources": [
+      2,
+      2
+    ],
+    "seq": 525
+  },
+  {
+    "pc": 2104,
+    "instr": 1097499315,
+    "rd": 5,
+    "value": 4294965249,
+    "writes": 1,
+    "nextpc": 2108,
+    "opcode": "SUB",
+    "sources": [
+      21,
+      22
+    ],
+    "seq": 526
+  },
+  {
+    "pc": 2108,
+    "instr": 27433779,
+    "rd": 22,
+    "value": 4294965249,
+    "writes": 1,
+    "nextpc": 2112,
+    "opcode": "SLL",
+    "sources": [
+      5,
+      26
+    ],
+    "seq": 527
+  },
+  {
+    "pc": 2112,
+    "instr": 18295091,
+    "rd": 18,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 2116,
+    "opcode": "SLT",
+    "sources": [
+      14,
+      17
+    ],
+    "seq": 528
+  },
+  {
+    "pc": 2116,
+    "instr": 16333363,
+    "rd": 20,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 2120,
+    "opcode": "SLTU",
+    "sources": [
+      18,
+      15
+    ],
+    "seq": 529
+  },
+  {
+    "pc": 2120,
+    "instr": 673331,
+    "rd": 12,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 2124,
+    "opcode": "XOR",
+    "sources": [
+      20,
+      0
+    ],
+    "seq": 530
+  },
+  {
+    "pc": 2124,
+    "instr": 7100211,
+    "rd": 14,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 2128,
+    "opcode": "SRL",
+    "sources": [
+      24,
+      6
+    ],
+    "seq": 531
+  },
+  {
+    "pc": 2128,
+    "instr": 1088903219,
+    "rd": 16,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 2132,
+    "opcode": "SRA",
+    "sources": [
+      14,
+      14
+    ],
+    "seq": 532
+  },
+  {
+    "pc": 2132,
+    "instr": 5791795,
+    "rd": 0,
+    "value": 4294965249,
+    "writes": 0,
+    "nextpc": 2136,
+    "opcode": "OR",
+    "sources": [
+      16,
+      5
+    ],
+    "seq": 533
+  },
+  {
+    "pc": 2136,
+    "instr": 12352819,
+    "rd": 26,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 2140,
+    "opcode": "AND",
+    "sources": [
+      24,
+      11
+    ],
+    "seq": 534
+  },
+  {
+    "pc": 2140,
+    "instr": 2147288083,
+    "rd": 8,
+    "value": 2047,
+    "writes": 1,
+    "nextpc": 2144,
+    "opcode": "ADDI",
+    "sources": [
+      26
+    ],
+    "seq": 535
+  },
+  {
+    "pc": 2144,
+    "instr": 273171,
+    "rd": 22,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 2148,
+    "opcode": "SLTI",
+    "sources": [
+      8
+    ],
+    "seq": 536
+  },
+  {
+    "pc": 2148,
+    "instr": 2146680595,
+    "rd": 30,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 2152,
+    "opcode": "SLTIU",
+    "sources": [
+      7
+    ],
+    "seq": 537
+  },
+  {
+    "pc": 2152,
+    "instr": 2148484243,
+    "rd": 9,
+    "value": 4294965249,
+    "writes": 1,
+    "nextpc": 2156,
+    "opcode": "XORI",
+    "sources": [
+      30
+    ],
+    "seq": 538
+  },
+  {
+    "pc": 2156,
+    "instr": 4294239379,
+    "rd": 9,
+    "value": 4294967295,
+    "writes": 1,
+    "nextpc": 2160,
+    "opcode": "ORI",
+    "sources": [
+      9
+    ],
+    "seq": 539
+  },
+  {
+    "pc": 2160,
+    "instr": 3618895763,
+    "rd": 15,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 2164,
+    "opcode": "ANDI",
+    "sources": [
+      7
+    ],
+    "seq": 540
+  },
+  {
+    "pc": 2164,
+    "instr": 1547027,
+    "rd": 22,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 2168,
+    "opcode": "SLLI",
+    "sources": [
+      15
+    ],
+    "seq": 541
+  },
+  {
+    "pc": 2168,
+    "instr": 33247507,
+    "rd": 2,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 2172,
+    "opcode": "SRLI",
+    "sources": [
+      22
+    ],
+    "seq": 542
+  },
+  {
+    "pc": 2172,
+    "instr": 1074486675,
+    "rd": 27,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 2176,
+    "opcode": "SRAI",
+    "sources": [
+      22
+    ],
+    "seq": 543
+  },
+  {
+    "pc": 2176,
+    "instr": 2649329975,
+    "rd": 2,
+    "value": 2649329664,
+    "writes": 1,
+    "nextpc": 2180,
+    "opcode": "LUI",
+    "sources": [],
+    "seq": 544
+  },
+  {
+    "pc": 2180,
+    "instr": 2305074455,
+    "rd": 10,
+    "value": 2305075332,
+    "writes": 1,
+    "nextpc": 2184,
+    "opcode": "AUIPC",
+    "sources": [],
+    "seq": 545
+  },
+  {
+    "pc": 2184,
+    "instr": 14057523,
+    "rd": 0,
+    "value": 4294967294,
+    "writes": 0,
+    "nextpc": 2188,
+    "opcode": "ADD",
+    "sources": [
+      13,
+      13
+    ],
+    "seq": 546
+  },
+  {
+    "pc": 2188,
+    "instr": 1076167219,
+    "rd": 4,
+    "value": 3950712964,
+    "writes": 1,
+    "nextpc": 2192,
+    "opcode": "SUB",
+    "sources": [
+      10,
+      2
+    ],
+    "seq": 547
+  },
+  {
+    "pc": 2192,
+    "instr": 6429235,
+    "rd": 20,
+    "value": 0,
+    "writes": 1,
+    "nextpc": 2196,
+    "opcode": "SLL",
+    "sources": [
+      4,
+      6
+    ],
+    "seq": 548
+  },
+  {
+    "pc": 2196,
+    "instr": 5287347,
+    "rd": 27,
+    "value": 1,
+    "writes": 1,
+    "nextpc": 2200,
+    "opcode": "SLT",
+    "sources": [
+      1,
+      5
+    ],
+    "seq": 549
+  }
+]

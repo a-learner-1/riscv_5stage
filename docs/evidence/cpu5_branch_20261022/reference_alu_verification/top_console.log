@@ -1,0 +1,157 @@
+Reading D:/modeltech64_10.6e/tcl/vsim/pref.tcl
+
+# 10.6e
+
+# do run_cpu5_alu_top.do
+# 0
+# 
+#   "retire_count": 550,
+#   "program_words": 551,
+#   "unsupported_count": 45,
+#   "selftest_checks": 91,
+#   "opcode_counts": {
+#     "ADD": 30,
+#     "ADDI": 76,
+#     "AND": 21,
+#     "ANDI": 21,
+#     "AUIPC": 24,
+#     "LUI": 33,
+#     "OR": 21,
+#     "ORI": 21,
+#     "SLL": 27,
+#     "SLLI": 22,
+#     "SLT": 22,
+#     "SLTI": 21,
+#     "SLTIU": 21,
+#     "SLTU": 21,
+#     "SRA": 26,
+#     "SRAI": 22,
+#     "SRL": 26,
+#     "SRLI": 22,
+#     "SUB": 28,
+#     "XOR": 21,
+#     "XORI": 24
+#   }
+# 
+# Model Technology ModelSim SE-64 vmap 10.6e Lib Mapping Utility 2018.06 Jun 23 2018
+# vmap cpu5_s2_alu_work build/cpu5_s2_alu/work 
+# Modifying modelsim.ini
+# Model Technology ModelSim SE-64 vlog 10.6e Compiler 2018.06 Jun 23 2018
+# Start time: 09:08:11 on Oct 22,2026
+# vlog -sv "+incdir+." -work cpu5_s2_alu_work rtl/instr_mem.v rtl/instr_bus_adapter.v rtl/branch_predictor.v rtl/if_stage.v rtl/alu.v rtl/regfile.v rtl/cpu5_if_adapter.v rtl/cpu5_hazard.v rtl/cpu5_pipeline_skeleton.v rtl/cpu5_alu_decode.v rtl/cpu5_alu_pipeline.v rtl/cpu5_top.v tb/cpu5_alu_top_tb.v 
+# -- Compiling module instr_mem
+# -- Compiling module instr_bus_adapter
+# -- Compiling module branch_predictor
+# -- Compiling module if_stage
+# -- Compiling module alu
+# -- Compiling module regfile
+# -- Compiling module cpu5_if_adapter
+# -- Compiling module cpu5_hazard
+# -- Compiling module cpu5_pipeline_skeleton
+# -- Compiling module cpu5_alu_decode
+# -- Compiling module cpu5_alu_pipeline
+# -- Compiling module cpu5_top
+# -- Compiling module cpu5_alu_top_tb
+# -- Compiling module cpu5_alu_top_case
+# 
+# Top level modules:
+# 	cpu5_alu_top_tb
+# End time: 09:08:11 on Oct 22,2026, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# vsim -voptargs=""+acc"" -onfinish stop -wlf build/cpu5_s2_alu/top.wlf cpu5_s2_alu_work.cpu5_alu_top_tb 
+# Start time: 09:08:11 on Oct 22,2026
+# ** Note: (vsim-8009) Loading existing optimized design _opt
+# //  ModelSim SE-64 10.6e Jun 23 2018
+# //
+# //  Copyright 1991-2018 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  ModelSim SE-64 and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# Loading sv_std.std
+# Loading work.cpu5_alu_top_tb(fast)
+# Loading work.cpu5_alu_top_case(fast)
+# Loading work.cpu5_top(fast)
+# Loading work.cpu5_if_adapter(fast)
+# Loading work.if_stage(fast)
+# Loading work.instr_mem(fast)
+# Loading work.instr_bus_adapter(fast)
+# Loading work.cpu5_pipeline_skeleton(fast)
+# Loading work.cpu5_alu_pipeline(fast)
+# Loading work.cpu5_alu_decode(fast)
+# Loading work.regfile(fast)
+# Loading work.alu(fast)
+# Loading work.cpu5_hazard(fast)
+# Loading work.cpu5_alu_top_case(fast__1)
+# Loading work.cpu5_top(fast__1)
+# Loading work.cpu5_if_adapter(fast__1)
+# Loading work.if_stage(fast__1)
+# Loading work.branch_predictor(fast)
+# Loading work.cpu5_alu_pipeline(fast__1)
+# Loading work.cpu5_hazard(fast__1)
+# Loading work.cpu5_alu_top_case(fast__2)
+# Loading work.cpu5_alu_top_case(fast__3)
+# Loading work.cpu5_alu_top_case(fast__4)
+# CPU5 ALU CASE PASS case=47 kind=2 retired=2 wb=2 writes=2 RAWwait=3 cycles=14
+# CPU5 ALU CASE PASS case=45 kind=2 retired=2 wb=2 writes=2 RAWwait=3 cycles=14
+# CPU5 ALU CASE PASS case=43 kind=2 retired=2 wb=2 writes=2 RAWwait=3 cycles=14
+# CPU5 ALU CASE PASS case=41 kind=2 retired=2 wb=2 writes=2 RAWwait=3 cycles=14
+# CPU5 ALU CASE PASS case=39 kind=2 retired=2 wb=2 writes=2 RAWwait=3 cycles=14
+# CPU5 ALU CASE PASS case=37 kind=2 retired=2 wb=2 writes=2 RAWwait=3 cycles=14
+# CPU5 ALU CASE PASS case=35 kind=2 retired=2 wb=2 writes=2 RAWwait=3 cycles=14
+# CPU5 ALU CASE PASS case=33 kind=2 retired=2 wb=2 writes=2 RAWwait=3 cycles=14
+# CPU5 ALU CASE PASS case=31 kind=2 retired=2 wb=2 writes=2 RAWwait=3 cycles=14
+# CPU5 ALU CASE PASS case=29 kind=2 retired=2 wb=2 writes=2 RAWwait=3 cycles=14
+# CPU5 ALU CASE PASS case=27 kind=2 retired=2 wb=2 writes=2 RAWwait=3 cycles=14
+# CPU5 ALU CASE PASS case=25 kind=2 retired=2 wb=2 writes=2 RAWwait=3 cycles=14
+# CPU5 ALU CASE PASS case=23 kind=2 retired=2 wb=2 writes=2 RAWwait=3 cycles=14
+# CPU5 ALU CASE PASS case=21 kind=2 retired=2 wb=2 writes=2 RAWwait=3 cycles=14
+# CPU5 ALU CASE PASS case=19 kind=2 retired=2 wb=2 writes=2 RAWwait=3 cycles=14
+# CPU5 ALU CASE PASS case=17 kind=2 retired=2 wb=2 writes=2 RAWwait=3 cycles=14
+# CPU5 ALU CASE PASS case=15 kind=2 retired=2 wb=2 writes=2 RAWwait=3 cycles=14
+# CPU5 ALU CASE PASS case=13 kind=2 retired=2 wb=2 writes=2 RAWwait=3 cycles=14
+# CPU5 ALU CASE PASS case=11 kind=2 retired=2 wb=2 writes=2 RAWwait=3 cycles=14
+# CPU5 ALU CASE PASS case=9 kind=2 retired=2 wb=2 writes=2 RAWwait=3 cycles=14
+# CPU5 ALU CASE PASS case=7 kind=2 retired=2 wb=2 writes=2 RAWwait=3 cycles=14
+# CPU5 ALU CASE PASS case=5 kind=2 retired=2 wb=2 writes=2 RAWwait=3 cycles=14
+# CPU5 ALU CASE PASS case=3 kind=2 retired=2 wb=2 writes=2 RAWwait=3 cycles=14
+# CPU5 ALU CASE PASS case=46 kind=2 retired=2 wb=2 writes=2 RAWwait=2 cycles=16
+# CPU5 ALU CASE PASS case=44 kind=2 retired=2 wb=2 writes=2 RAWwait=2 cycles=16
+# CPU5 ALU CASE PASS case=42 kind=2 retired=2 wb=2 writes=2 RAWwait=2 cycles=16
+# CPU5 ALU CASE PASS case=40 kind=2 retired=2 wb=2 writes=2 RAWwait=2 cycles=16
+# CPU5 ALU CASE PASS case=38 kind=2 retired=2 wb=2 writes=2 RAWwait=2 cycles=16
+# CPU5 ALU CASE PASS case=36 kind=2 retired=2 wb=2 writes=2 RAWwait=2 cycles=16
+# CPU5 ALU CASE PASS case=34 kind=2 retired=2 wb=2 writes=2 RAWwait=2 cycles=16
+# CPU5 ALU CASE PASS case=32 kind=2 retired=2 wb=2 writes=2 RAWwait=2 cycles=16
+# CPU5 ALU CASE PASS case=30 kind=2 retired=2 wb=2 writes=2 RAWwait=2 cycles=16
+# CPU5 ALU CASE PASS case=28 kind=2 retired=2 wb=2 writes=2 RAWwait=2 cycles=16
+# CPU5 ALU CASE PASS case=26 kind=2 retired=2 wb=2 writes=2 RAWwait=2 cycles=16
+# CPU5 ALU CASE PASS case=24 kind=2 retired=2 wb=2 writes=2 RAWwait=2 cycles=16
+# CPU5 ALU CASE PASS case=22 kind=2 retired=2 wb=2 writes=2 RAWwait=2 cycles=16
+# CPU5 ALU CASE PASS case=20 kind=2 retired=2 wb=2 writes=2 RAWwait=2 cycles=16
+# CPU5 ALU CASE PASS case=18 kind=2 retired=2 wb=2 writes=2 RAWwait=2 cycles=16
+# CPU5 ALU CASE PASS case=16 kind=2 retired=2 wb=2 writes=2 RAWwait=2 cycles=16
+# CPU5 ALU CASE PASS case=14 kind=2 retired=2 wb=2 writes=2 RAWwait=2 cycles=16
+# CPU5 ALU CASE PASS case=12 kind=2 retired=2 wb=2 writes=2 RAWwait=2 cycles=16
+# CPU5 ALU CASE PASS case=10 kind=2 retired=2 wb=2 writes=2 RAWwait=2 cycles=16
+# CPU5 ALU CASE PASS case=8 kind=2 retired=2 wb=2 writes=2 RAWwait=2 cycles=16
+# CPU5 ALU CASE PASS case=6 kind=2 retired=2 wb=2 writes=2 RAWwait=2 cycles=16
+# CPU5 ALU CASE PASS case=4 kind=2 retired=2 wb=2 writes=2 RAWwait=2 cycles=16
+# CPU5 ALU CASE PASS case=2 kind=1 retired=3 wb=3 writes=3 RAWwait=1 cycles=21
+# CPU5 ALU CASE PASS case=0 kind=0 retired=550 wb=550 writes=515 RAWwait=647 cycles=1206
+# CPU5 ALU CASE PASS case=1 kind=0 retired=550 wb=550 writes=515 RAWwait=296 cycles=1933
+# CPU5 ALU TOP PASS 48 cases: 550+550 ALU retirements, IF fault prefix, 45 unsupported stops
+# ** Note: $stop    : tb/cpu5_alu_top_tb.v(13)
+#    Time: 38731 ns  Iteration: 1  Instance: /cpu5_alu_top_tb
+# Break in Module cpu5_alu_top_tb at tb/cpu5_alu_top_tb.v line 13
+# Stopped at tb/cpu5_alu_top_tb.v line 13
+# CPU5 STAGE 3A-1 ALU SUBSET TOP VERIFIED; FULL ISA/TRAPS/D/M/CSR/IRQ NOT IMPLEMENTED
+# End time: 09:08:12 on Oct 22,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# 0

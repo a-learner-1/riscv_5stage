@@ -1,0 +1,272 @@
+[
+  {
+    "index": 0,
+    "name": "MUL",
+    "instr": 35684787,
+    "instr_hex": "022081b3"
+  },
+  {
+    "index": 1,
+    "name": "MULH",
+    "instr": 35688883,
+    "instr_hex": "022091b3"
+  },
+  {
+    "index": 2,
+    "name": "MULHSU",
+    "instr": 35692979,
+    "instr_hex": "0220a1b3"
+  },
+  {
+    "index": 3,
+    "name": "MULHU",
+    "instr": 35697075,
+    "instr_hex": "0220b1b3"
+  },
+  {
+    "index": 4,
+    "name": "DIV",
+    "instr": 35701171,
+    "instr_hex": "0220c1b3"
+  },
+  {
+    "index": 5,
+    "name": "DIVU",
+    "instr": 35705267,
+    "instr_hex": "0220d1b3"
+  },
+  {
+    "index": 6,
+    "name": "REM",
+    "instr": 35709363,
+    "instr_hex": "0220e1b3"
+  },
+  {
+    "index": 7,
+    "name": "REMU",
+    "instr": 35713459,
+    "instr_hex": "0220f1b3"
+  },
+  {
+    "index": 8,
+    "name": "LB",
+    "instr": 33155,
+    "instr_hex": "00008183"
+  },
+  {
+    "index": 9,
+    "name": "LH",
+    "instr": 37251,
+    "instr_hex": "00009183"
+  },
+  {
+    "index": 10,
+    "name": "LW",
+    "instr": 41347,
+    "instr_hex": "0000a183"
+  },
+  {
+    "index": 11,
+    "name": "LBU",
+    "instr": 49539,
+    "instr_hex": "0000c183"
+  },
+  {
+    "index": 12,
+    "name": "LHU",
+    "instr": 53635,
+    "instr_hex": "0000d183"
+  },
+  {
+    "index": 13,
+    "name": "SB",
+    "instr": 2129955,
+    "instr_hex": "00208023"
+  },
+  {
+    "index": 14,
+    "name": "SH",
+    "instr": 2134051,
+    "instr_hex": "00209023"
+  },
+  {
+    "index": 15,
+    "name": "SW",
+    "instr": 2138147,
+    "instr_hex": "0020a023"
+  },
+  {
+    "index": 16,
+    "name": "BEQ",
+    "instr": 2130019,
+    "instr_hex": "00208063"
+  },
+  {
+    "index": 17,
+    "name": "BNE",
+    "instr": 2134115,
+    "instr_hex": "00209063"
+  },
+  {
+    "index": 18,
+    "name": "BLT",
+    "instr": 2146403,
+    "instr_hex": "0020c063"
+  },
+  {
+    "index": 19,
+    "name": "BGE",
+    "instr": 2150499,
+    "instr_hex": "0020d063"
+  },
+  {
+    "index": 20,
+    "name": "BLTU",
+    "instr": 2154595,
+    "instr_hex": "0020e063"
+  },
+  {
+    "index": 21,
+    "name": "BGEU",
+    "instr": 2158691,
+    "instr_hex": "0020f063"
+  },
+  {
+    "index": 22,
+    "name": "JAL",
+    "instr": 495,
+    "instr_hex": "000001ef"
+  },
+  {
+    "index": 23,
+    "name": "JALR",
+    "instr": 33255,
+    "instr_hex": "000081e7"
+  },
+  {
+    "index": 24,
+    "name": "FENCE",
+    "instr": 267386895,
+    "instr_hex": "0ff0000f"
+  },
+  {
+    "index": 25,
+    "name": "FENCE_I",
+    "instr": 4111,
+    "instr_hex": "0000100f"
+  },
+  {
+    "index": 26,
+    "name": "ECALL",
+    "instr": 115,
+    "instr_hex": "00000073"
+  },
+  {
+    "index": 27,
+    "name": "EBREAK",
+    "instr": 1048691,
+    "instr_hex": "00100073"
+  },
+  {
+    "index": 28,
+    "name": "MRET",
+    "instr": 807403635,
+    "instr_hex": "30200073"
+  },
+  {
+    "index": 29,
+    "name": "WFI",
+    "instr": 273678451,
+    "instr_hex": "10500073"
+  },
+  {
+    "index": 30,
+    "name": "CSRRW",
+    "instr": 805343731,
+    "instr_hex": "300091f3"
+  },
+  {
+    "index": 31,
+    "name": "CSRRS",
+    "instr": 805347827,
+    "instr_hex": "3000a1f3"
+  },
+  {
+    "index": 32,
+    "name": "CSRRC",
+    "instr": 805351923,
+    "instr_hex": "3000b1f3"
+  },
+  {
+    "index": 33,
+    "name": "CSRRWI",
+    "instr": 805360115,
+    "instr_hex": "3000d1f3"
+  },
+  {
+    "index": 34,
+    "name": "CSRRSI",
+    "instr": 805364211,
+    "instr_hex": "3000e1f3"
+  },
+  {
+    "index": 35,
+    "name": "CSRRCI",
+    "instr": 805368307,
+    "instr_hex": "3000f1f3"
+  },
+  {
+    "index": 36,
+    "name": "illegal_OP_funct7",
+    "instr": 69239219,
+    "instr_hex": "042081b3"
+  },
+  {
+    "index": 37,
+    "name": "illegal_SUB_funct3",
+    "instr": 1075876275,
+    "instr_hex": "402091b3"
+  },
+  {
+    "index": 38,
+    "name": "illegal_SLLI_high",
+    "instr": 34640275,
+    "instr_hex": "02109193"
+  },
+  {
+    "index": 39,
+    "name": "illegal_SLLI_funct7_32",
+    "instr": 1074827667,
+    "instr_hex": "40109193"
+  },
+  {
+    "index": 40,
+    "name": "illegal_SRLI_high",
+    "instr": 34656659,
+    "instr_hex": "0210d193"
+  },
+  {
+    "index": 41,
+    "name": "illegal_SRAI_high",
+    "instr": 1108398483,
+    "instr_hex": "4210d193"
+  },
+  {
+    "index": 42,
+    "name": "zero",
+    "instr": 0,
+    "instr_hex": "00000000"
+  },
+  {
+    "index": 43,
+    "name": "all_ones",
+    "instr": 4294967295,
+    "instr_hex": "ffffffff"
+  },
+  {
+    "index": 44,
+    "name": "compressed_halfword",
+    "instr": 1,
+    "instr_hex": "00000001"
+  }
+]

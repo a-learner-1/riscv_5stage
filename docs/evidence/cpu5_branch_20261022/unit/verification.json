@@ -1,0 +1,1 @@
+{"checks":77070,"hand_encoded_checks":22,"branch_checks":24969,"jal_checks":10005,"jalr_checks":4100,"unsupported_checks":37996,"taken_checks":26592,"not_taken_checks":50478,"misaligned_taken_checks":18922,"pass":true}

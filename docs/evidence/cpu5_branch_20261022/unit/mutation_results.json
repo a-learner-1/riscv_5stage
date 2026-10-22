@@ -1,0 +1,37 @@
+[
+  {
+    "name": "signed_compare_unsigned",
+    "exit_code": 1,
+    "rejected": true,
+    "source_sha256": "6d1b2e7bcdc3b9a1b617f30774faa51ac836814f4e7806ea2ba1cd5bf2d939b0",
+    "log": "build\\mutations\\signed_compare_unsigned\\stdout.log"
+  },
+  {
+    "name": "jalr_keeps_bit_zero",
+    "exit_code": 1,
+    "rejected": true,
+    "source_sha256": "772c6c8fdd556adb9f7c8234713e04caa4d9a094466926c7442e7018c8d1bbdd",
+    "log": "build\\mutations\\jalr_keeps_bit_zero\\stdout.log"
+  },
+  {
+    "name": "branch_negative_zero_extended",
+    "exit_code": 1,
+    "rejected": true,
+    "source_sha256": "4c2e82f6d84677f5fff810192aca85094faf4b173f684216218b37d2fb325b38",
+    "log": "build\\mutations\\branch_negative_zero_extended\\stdout.log"
+  },
+  {
+    "name": "reserved_branch_funct3_accepted",
+    "exit_code": 1,
+    "rejected": true,
+    "source_sha256": "4bbaaf2940319bfc34259da8251013fe35b247a74e569c00718c66671c193444",
+    "log": "build\\mutations\\reserved_branch_funct3_accepted\\stdout.log"
+  },
+  {
+    "name": "untaken_alignment_fault",
+    "exit_code": 1,
+    "rejected": true,
+    "source_sha256": "6d766caf4a52902e07b7c42d2e9c91e469cd463d7562c6c1e593347ff1f2a0a8",
+    "log": "build\\mutations\\untaken_alignment_fault\\stdout.log"
+  }
+]

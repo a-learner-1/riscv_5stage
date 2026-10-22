@@ -1,0 +1,280 @@
+{
+  "schema": 1,
+  "subset": "RV32I ALU plus six conditional branches and JAL/JALR",
+  "retire_count": 367,
+  "program_words": 542,
+  "stop": {
+    "kind": "unsupported",
+    "pc": 2164,
+    "instr": 8227,
+    "target": 2164
+  },
+  "initial_gpr": "main software initializes x1..x31; fault fixtures initialize only each descriptor's initialized_gpr; x0 is zero",
+  "reference": "actual machine word decode, independent from emit/fixup metadata and RTL",
+  "seq_rule": "expected index is dynamic retirement order, not fetch seq; no seq files",
+  "branch_trace": "rd=0,value=0,writes=0; JAL/JALR rawvalue=pc+4 even for rd0",
+  "sections": [
+    {
+      "name": "initialize_all_gpr",
+      "pc": 0
+    },
+    {
+      "name": "all_six_conditions_signed_unsigned_boundaries",
+      "pc": 144
+    },
+    {
+      "name": "backward_loops_and_branch_use",
+      "pc": 1584
+    },
+    {
+      "name": "youngest_writer_and_two_source_hazards",
+      "pc": 1656
+    },
+    {
+      "name": "jal_and_jalr_forward_backward_links",
+      "pc": 2040
+    },
+    {
+      "name": "not_taken_misaligned_target_is_legal",
+      "pc": 2148
+    }
+  ],
+  "opcode_counts": {
+    "ADD": 9,
+    "ADDI": 223,
+    "AUIPC": 3,
+    "BEQ": 18,
+    "BGE": 10,
+    "BGEU": 10,
+    "BLT": 16,
+    "BLTU": 15,
+    "BNE": 26,
+    "JAL": 32,
+    "JALR": 4,
+    "LUI": 1
+  },
+  "branch_outcomes": {
+    "BEQ_not_taken": 8,
+    "BEQ_taken": 10,
+    "BGEU_not_taken": 4,
+    "BGEU_taken": 6,
+    "BGE_not_taken": 4,
+    "BGE_taken": 6,
+    "BLTU_not_taken": 8,
+    "BLTU_taken": 7,
+    "BLT_not_taken": 8,
+    "BLT_taken": 8,
+    "BNE_not_taken": 4,
+    "BNE_taken": 22
+  },
+  "taken_controls": 95,
+  "backward_controls": 14,
+  "jalr_rd_eq_rs1": 1,
+  "wrong_path_sentinel_register": 31,
+  "wrong_path_sentinel_final": 0,
+  "selftest_checks": 59,
+  "known_fixed_encodings": 32,
+  "fixtures": [
+    {
+      "index": 0,
+      "name": "misalign_beq",
+      "program_words": 6,
+      "retire_count": 3,
+      "stop": {
+        "kind": "misaligned",
+        "pc": 12,
+        "instr": 1081699,
+        "target": 14
+      },
+      "initialized_gpr": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "final_gpr_rule": "Only initialized_gpr are physical final-state assertions; untouched oracle registers use zero placeholders, not a reset guarantee",
+      "injected_fault_pc": null
+    },
+    {
+      "index": 1,
+      "name": "misalign_bne",
+      "program_words": 6,
+      "retire_count": 3,
+      "stop": {
+        "kind": "misaligned",
+        "pc": 12,
+        "instr": 2134371,
+        "target": 14
+      },
+      "initialized_gpr": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "final_gpr_rule": "Only initialized_gpr are physical final-state assertions; untouched oracle registers use zero placeholders, not a reset guarantee",
+      "injected_fault_pc": null
+    },
+    {
+      "index": 2,
+      "name": "misalign_blt",
+      "program_words": 6,
+      "retire_count": 3,
+      "stop": {
+        "kind": "misaligned",
+        "pc": 12,
+        "instr": 2146659,
+        "target": 14
+      },
+      "initialized_gpr": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "final_gpr_rule": "Only initialized_gpr are physical final-state assertions; untouched oracle registers use zero placeholders, not a reset guarantee",
+      "injected_fault_pc": null
+    },
+    {
+      "index": 3,
+      "name": "misalign_bge",
+      "program_words": 6,
+      "retire_count": 3,
+      "stop": {
+        "kind": "misaligned",
+        "pc": 12,
+        "instr": 1134947,
+        "target": 14
+      },
+      "initialized_gpr": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "final_gpr_rule": "Only initialized_gpr are physical final-state assertions; untouched oracle registers use zero placeholders, not a reset guarantee",
+      "injected_fault_pc": null
+    },
+    {
+      "index": 4,
+      "name": "misalign_bltu",
+      "program_words": 6,
+      "retire_count": 3,
+      "stop": {
+        "kind": "misaligned",
+        "pc": 12,
+        "instr": 2154851,
+        "target": 14
+      },
+      "initialized_gpr": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "final_gpr_rule": "Only initialized_gpr are physical final-state assertions; untouched oracle registers use zero placeholders, not a reset guarantee",
+      "injected_fault_pc": null
+    },
+    {
+      "index": 5,
+      "name": "misalign_bgeu",
+      "program_words": 6,
+      "retire_count": 3,
+      "stop": {
+        "kind": "misaligned",
+        "pc": 12,
+        "instr": 1143139,
+        "target": 14
+      },
+      "initialized_gpr": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "final_gpr_rule": "Only initialized_gpr are physical final-state assertions; untouched oracle registers use zero placeholders, not a reset guarantee",
+      "injected_fault_pc": null
+    },
+    {
+      "index": 6,
+      "name": "misalign_jal",
+      "program_words": 6,
+      "retire_count": 3,
+      "stop": {
+        "kind": "misaligned",
+        "pc": 12,
+        "instr": 2097775,
+        "target": 14
+      },
+      "initialized_gpr": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "final_gpr_rule": "Only initialized_gpr are physical final-state assertions; untouched oracle registers use zero placeholders, not a reset guarantee",
+      "injected_fault_pc": null
+    },
+    {
+      "index": 7,
+      "name": "misalign_jalr",
+      "program_words": 7,
+      "retire_count": 4,
+      "stop": {
+        "kind": "misaligned",
+        "pc": 16,
+        "instr": 164583,
+        "target": 18
+      },
+      "initialized_gpr": [
+        0,
+        1,
+        2,
+        3,
+        5
+      ],
+      "final_gpr_rule": "Only initialized_gpr are physical final-state assertions; untouched oracle registers use zero placeholders, not a reset guarantee",
+      "injected_fault_pc": null
+    },
+    {
+      "index": 8,
+      "name": "if_fault_target",
+      "program_words": 8,
+      "retire_count": 4,
+      "stop": {
+        "kind": "fetch_error",
+        "pc": 24,
+        "instr": 57672211,
+        "target": 24
+      },
+      "initialized_gpr": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "final_gpr_rule": "Only initialized_gpr are physical final-state assertions; untouched oracle registers use zero placeholders, not a reset guarantee",
+      "injected_fault_pc": 24
+    },
+    {
+      "index": 9,
+      "name": "if_fault_sequential",
+      "program_words": 5,
+      "retire_count": 3,
+      "stop": {
+        "kind": "fetch_error",
+        "pc": 12,
+        "instr": 57672211,
+        "target": 12
+      },
+      "initialized_gpr": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "final_gpr_rule": "Only initialized_gpr are physical final-state assertions; untouched oracle registers use zero placeholders, not a reset guarantee",
+      "injected_fault_pc": 12
+    }
+  ]
+}

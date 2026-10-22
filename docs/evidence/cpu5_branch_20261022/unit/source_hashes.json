@@ -1,0 +1,14 @@
+{
+  "rtl/cpu5_branch_unit.v": {
+    "sha256": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+    "canonical_lf_sha256": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5"
+  },
+  "tb/cpu5_branch_unit_tb.v": {
+    "sha256": "5830786279bf4df21b7977a3e1bc629ec78f7d314d867b13ac754600e70c5f8f",
+    "canonical_lf_sha256": "5830786279bf4df21b7977a3e1bc629ec78f7d314d867b13ac754600e70c5f8f"
+  },
+  "run_cpu5_branch_unit.do": {
+    "sha256": "56cfa33239fa9610ba218a2383ce9099650617d60eb49db75b2de8b02a3632b1",
+    "canonical_lf_sha256": "56cfa33239fa9610ba218a2383ce9099650617d60eb49db75b2de8b02a3632b1"
+  }
+}

@@ -1,0 +1,1 @@
+{"status": "PARTIAL VERIFIED: standalone IF adapter only", "independent_ledger_checks": 457, "counters": {"requests": 16, "responses": 16, "transfers": 5, "fault_transfers": 1, "redirects": 7, "bp_updates": 4, "same_edge": 1, "stale_responses": 5}}

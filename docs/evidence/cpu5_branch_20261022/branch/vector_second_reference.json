@@ -1,0 +1,182 @@
+{
+  "schema": 1,
+  "status": "PASS",
+  "scope": "CPU5 branch vector audit only",
+  "vectors": {
+    "status": "PASS",
+    "vector_cases": 11,
+    "total_reference_retired": 399,
+    "cases": [
+      {
+        "name": "main",
+        "status": "PASS",
+        "retire_count": 367,
+        "program_words": 542,
+        "stop": {
+          "kind": "unsupported",
+          "pc": 2164,
+          "instr": 8227,
+          "target": 2164
+        }
+      },
+      {
+        "name": "misalign_beq",
+        "status": "PASS",
+        "retire_count": 3,
+        "program_words": 6,
+        "stop": {
+          "kind": "misaligned",
+          "pc": 12,
+          "instr": 1081699,
+          "target": 14
+        }
+      },
+      {
+        "name": "misalign_bne",
+        "status": "PASS",
+        "retire_count": 3,
+        "program_words": 6,
+        "stop": {
+          "kind": "misaligned",
+          "pc": 12,
+          "instr": 2134371,
+          "target": 14
+        }
+      },
+      {
+        "name": "misalign_blt",
+        "status": "PASS",
+        "retire_count": 3,
+        "program_words": 6,
+        "stop": {
+          "kind": "misaligned",
+          "pc": 12,
+          "instr": 2146659,
+          "target": 14
+        }
+      },
+      {
+        "name": "misalign_bge",
+        "status": "PASS",
+        "retire_count": 3,
+        "program_words": 6,
+        "stop": {
+          "kind": "misaligned",
+          "pc": 12,
+          "instr": 1134947,
+          "target": 14
+        }
+      },
+      {
+        "name": "misalign_bltu",
+        "status": "PASS",
+        "retire_count": 3,
+        "program_words": 6,
+        "stop": {
+          "kind": "misaligned",
+          "pc": 12,
+          "instr": 2154851,
+          "target": 14
+        }
+      },
+      {
+        "name": "misalign_bgeu",
+        "status": "PASS",
+        "retire_count": 3,
+        "program_words": 6,
+        "stop": {
+          "kind": "misaligned",
+          "pc": 12,
+          "instr": 1143139,
+          "target": 14
+        }
+      },
+      {
+        "name": "misalign_jal",
+        "status": "PASS",
+        "retire_count": 3,
+        "program_words": 6,
+        "stop": {
+          "kind": "misaligned",
+          "pc": 12,
+          "instr": 2097775,
+          "target": 14
+        }
+      },
+      {
+        "name": "misalign_jalr",
+        "status": "PASS",
+        "retire_count": 4,
+        "program_words": 7,
+        "stop": {
+          "kind": "misaligned",
+          "pc": 16,
+          "instr": 164583,
+          "target": 18
+        }
+      },
+      {
+        "name": "if_fault_target",
+        "status": "PASS",
+        "retire_count": 4,
+        "program_words": 8,
+        "stop": {
+          "kind": "fetch_error",
+          "pc": 24,
+          "instr": 57672211,
+          "target": 24
+        }
+      },
+      {
+        "name": "if_fault_sequential",
+        "status": "PASS",
+        "retire_count": 3,
+        "program_words": 5,
+        "stop": {
+          "kind": "fetch_error",
+          "pc": 12,
+          "instr": 57672211,
+          "target": 12
+        }
+      }
+    ],
+    "opcode_counts": {
+      "ADD": 9,
+      "ADDI": 223,
+      "AUIPC": 3,
+      "BEQ": 18,
+      "BGE": 10,
+      "BGEU": 10,
+      "BLT": 16,
+      "BLTU": 15,
+      "BNE": 26,
+      "JAL": 32,
+      "JALR": 4,
+      "LUI": 1
+    },
+    "branch_outcomes": {
+      "BEQ_not_taken": 8,
+      "BEQ_taken": 10,
+      "BGEU_not_taken": 4,
+      "BGEU_taken": 6,
+      "BGE_not_taken": 4,
+      "BGE_taken": 6,
+      "BLTU_not_taken": 8,
+      "BLTU_taken": 7,
+      "BLT_not_taken": 8,
+      "BLT_taken": 8,
+      "BNE_not_taken": 4,
+      "BNE_taken": 22
+    },
+    "checks": [
+      "second independent machine-word interpreter",
+      "all six golden fields",
+      "complete final GPR arrays",
+      "misaligned target before link write",
+      "not-taken misalignment ignored",
+      "IF-fault retirement prefix",
+      "unreachable x31 sentinels",
+      "generated vector SHA256 manifest"
+    ]
+  }
+}

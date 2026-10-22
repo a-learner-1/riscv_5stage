@@ -27,7 +27,12 @@ module cpu5_forward_control_tb;
         .retire_seq(retire_seq),.cycle_count(cycle_count),.instret_count(instret_count),
         .arch_next_pc_q(arch_next_pc),.halted(halted),.halt_pc(halt_pc),.halt_instr(halt_instr),
         .halt_seq(halt_seq),.halt_fetch_error(halt_fetch_error),.id_raw_wait(id_raw_wait),
-        .retire_fire(retire_fire),.wb_fire(wb_fire));
+        .retire_fire(retire_fire),.wb_fire(wb_fire),
+        .redirect_valid(),.redirect_kill_ifid(),.redirect_pc(),.redirect_seq(),
+        .bp_commit_valid(),.bp_commit_seq(),.bp_commit_pc(),.bp_commit_target(),
+        .bp_commit_taken(),.bp_commit_is_branch(),.bp_commit_is_jal(),
+        .bp_resolved_count(),.bp_mispredict_count(),.bp_direction_error_count(),
+        .bp_target_error_count(),.halt_cause(),.halt_tval());
 
     reg [63:0] expected_seq[0:127];
     reg [31:0] expected_pc[0:127],expected_instr[0:127],expected_value[0:127];

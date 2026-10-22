@@ -1,0 +1,29 @@
+{
+  "status": "PASS",
+  "tests": [
+    {
+      "name": "wrong_wb_value",
+      "rejected": true,
+      "reason": "case0 row1 wb: value observed=1 expected=0",
+      "mutated_csv": "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s4\\work\\build\\cpu5_s2_alu\\analyzer_mutation_selftest\\wrong_wb_value.csv",
+      "sha256": "18913297f2543eab1fb88d731f37a1153a908855bc1a11bcb17dbe5a637bc4ab"
+    },
+    {
+      "name": "deleted_wb_packet",
+      "rejected": true,
+      "reason": "case0 row2 wb: extra/missing/reordered index",
+      "mutated_csv": "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s4\\work\\build\\cpu5_s2_alu\\analyzer_mutation_selftest\\deleted_wb_packet.csv",
+      "sha256": "9d928a0e06cf842f500c110e7b9750dbc16ac1b72bf772f61a222bf87f8225d3"
+    },
+    {
+      "name": "wrong_retire_instret",
+      "rejected": true,
+      "reason": "case0 row0 retire: post-edge instret",
+      "mutated_csv": "C:\\Users\\23123\\.codex\\visualizations\\2026\\10\\19\\01a151db-bb68-7633-bd17-5c52d2aa2890\\cpu5_s4\\work\\build\\cpu5_s2_alu\\analyzer_mutation_selftest\\wrong_retire_instret.csv",
+      "sha256": "dd88bcd3d70851749cb2f7f66f223171ccce9082e3553321d971bc0ad88e477a"
+    }
+  ],
+  "rejected_count": 3,
+  "good_trace_sha256": "e85936f3cc3ebecfb031372cbb98d8283791d792a3aeee6f96651d1c70846de2",
+  "original_good_trace_unchanged": true
+}

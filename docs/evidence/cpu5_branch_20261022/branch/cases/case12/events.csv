@@ -1,0 +1,1 @@
+cycle,event,seq,pc,nextpc,target,taken,pred_next,pred_taken,is_branch,is_jal,is_jalr
