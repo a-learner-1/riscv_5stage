@@ -1,0 +1,126 @@
+{
+  "schema": 1,
+  "status": "PASS",
+  "rejected_count": 13,
+  "rejected": [
+    {
+      "name": "trap_pc_wrong",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0: Trap pc mismatch",
+      "changed_file": "traps.csv",
+      "good_sha256": "a928b78687dd704303512fd746e9e718ee678e7b4473dcf42bbb851615276e84",
+      "bad_sha256": "a643db21072778f505d395b45d3655fb936e999f563ae96b0e963c10d1644375"
+    },
+    {
+      "name": "trap_cause_wrong",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0: Trap cause mismatch",
+      "changed_file": "traps.csv",
+      "good_sha256": "a928b78687dd704303512fd746e9e718ee678e7b4473dcf42bbb851615276e84",
+      "bad_sha256": "903fdd9616961295d41c48662513201b61be5d16104ba2f9598f847bf61a6c11"
+    },
+    {
+      "name": "trap_tval_wrong",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0: Trap tval mismatch",
+      "changed_file": "traps.csv",
+      "good_sha256": "a928b78687dd704303512fd746e9e718ee678e7b4473dcf42bbb851615276e84",
+      "bad_sha256": "c3d7368fe625c0c13b03dd5f172ed8de7cb1b2133fd2cc18d3cea404b5c9127d"
+    },
+    {
+      "name": "trap_owner_wrong",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0: Trap IFID ownership mismatch",
+      "changed_file": "traps.csv",
+      "good_sha256": "a928b78687dd704303512fd746e9e718ee678e7b4473dcf42bbb851615276e84",
+      "bad_sha256": "0f2c162456fd9cf248c1f7f91f51e1ffd89cfc1f8f860a13f25961c2ac4fe443"
+    },
+    {
+      "name": "handler_retire_value_wrong",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0 row14 retire: value mismatch",
+      "changed_file": "trace.csv",
+      "good_sha256": "8720e56fefb957230c52dcabcf951fa2ad4fc7346f528719ef915637ec3361e1",
+      "bad_sha256": "3c5db23ab84b9ec98a3e21d10c8998a4af6df9d6402463d2ad8908dda015d053"
+    },
+    {
+      "name": "physical_wb_missing",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0 row2 wb: extra/missing/reordered index",
+      "changed_file": "trace.csv",
+      "good_sha256": "8720e56fefb957230c52dcabcf951fa2ad4fc7346f528719ef915637ec3361e1",
+      "bad_sha256": "86c0f75e664e1cc5842b5146c723899bcd3f524aa8a5072066eb0d8c83316269"
+    },
+    {
+      "name": "accepted_owner_wrong",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0 row0 retire: IFID ownership mismatch",
+      "changed_file": "accept.csv",
+      "good_sha256": "1190cba10f28717f16ca40f91bd7b89f97917406b797423fb5c20d0abe34718e",
+      "bad_sha256": "8940e70e2ea6568a3fcd8477a8b057b9dfd6ad8b2860c3d778827399cfea43f6"
+    },
+    {
+      "name": "duplicate_d_request",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0 D1 req: duplicate/extra D request",
+      "changed_file": "d.csv",
+      "good_sha256": "3cf2f8d797852233e13ce801aa16415c5046dbb22067235c77aba941f7a2ba48",
+      "bad_sha256": "26c43d563da7d608249be59d11f7595e6b9d6a802dec158b41a05f6ca6167204"
+    },
+    {
+      "name": "response_owner_pc_wrong",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0 D1 rsp: D accepted owner PC mismatch",
+      "changed_file": "d.csv",
+      "good_sha256": "3cf2f8d797852233e13ce801aa16415c5046dbb22067235c77aba941f7a2ba48",
+      "bad_sha256": "29cee9b5950cd9b2d59823825f5232ff39f5c988cc668162e32307e4f7c198a5"
+    },
+    {
+      "name": "load_raw_word_wrong",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0 D5 rsp: raw load response word mismatch",
+      "changed_file": "d.csv",
+      "good_sha256": "3cf2f8d797852233e13ce801aa16415c5046dbb22067235c77aba941f7a2ba48",
+      "bad_sha256": "1f6d25fa6eaf5de1a35ef68bd17406675b00f8ad88c109321b21fbe6d4b602f4"
+    },
+    {
+      "name": "fault_bus_error_cleared",
+      "case": 80,
+      "status": "REJECTED",
+      "error": "case80 D3 rsp: D response error mismatch",
+      "changed_file": "d.csv",
+      "good_sha256": "e3bde34c74ebd2d0b50c114d66b7d27ae561e913acff29c35b0eb83af2940edb",
+      "bad_sha256": "fba7a372f54563ad57472e9214444d8a0e55074661fe5fc6fbecf2e796b72b0b"
+    },
+    {
+      "name": "final_ram_wrong",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0: complete final RAM mismatch",
+      "changed_file": "actual_ram_final.hex",
+      "good_sha256": "b499f9e4457094e5c6fa72a7bce7245be81050bb94fd0763d799d39844c0044b",
+      "bad_sha256": "ccd53a39275103671a26a0c89a9816df37be942987a32784221b4fbbc371eff7"
+    },
+    {
+      "name": "initialized_gpr_wrong",
+      "case": 0,
+      "status": "REJECTED",
+      "error": "case0: initialized GPR x12 mismatch",
+      "changed_file": "actual_gpr_final.hex",
+      "good_sha256": "e766e9d883e201c4e5ec921a32923308ff28fea599aa9c4d3a4045f4b8d4b4a9",
+      "bad_sha256": "1f2be3cb22281a0f06eabaebf74b1dbbe2cdf8bc92133028a224cac9cba649e8"
+    }
+  ],
+  "good_inputs_unchanged": true,
+  "good_input_files": 1388
+}

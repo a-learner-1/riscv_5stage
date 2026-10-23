@@ -48,7 +48,7 @@ module cpu5_branch_control_case #(parameter integer MODE=0)(output reg done=0);
         .halt_cause(halt_cause),.halt_tval(halt_tval),
         .flush_ready(),.flush_fire(),.dmem_req_valid(),.dmem_req_ready(1'b0),
         .dmem_req_write(),.dmem_req_addr(),.dmem_req_size(),.dmem_req_wdata(),.dmem_req_wstrb(),
-        .dmem_rsp_valid(1'b0),.dmem_rsp_ready(),.dmem_rsp_rdata(32'd0),.dmem_rsp_error(1'b0),.dmem_fault());
+        .dmem_rsp_valid(1'b0),.dmem_rsp_ready(),.dmem_rsp_rdata(32'd0),.dmem_rsp_error(1'b0),.dmem_fault(),.trap_fire(),.trap_valid(),.trap_pc(),.trap_cause(),.trap_tval(),.trap_seq());
 
     reg [63:0] eseq[0:31],rseq[0:15];
     reg [31:0] epc[0:31],eins[0:31],eval[0:31],enext[0:31],etarget[0:31],epred[0:31],rpc[0:15];

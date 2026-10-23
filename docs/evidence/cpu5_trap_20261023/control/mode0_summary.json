@@ -1,0 +1,1 @@
+{"pass":true,"mode":0,"cases":27,"traps":27,"retired":47,"wb":47,"requests":13,"responses":13,"store_requests":2,"held_edges":15,"killed_error_responses":2,"trap_with_old_wb_write":1,"trap_with_held_wb":1,"mem_wait_edges":20,"handler_retire_during_drain":2,"young_redirects_before_trap":0}

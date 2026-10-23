@@ -1,0 +1,74 @@
+{
+  "kind": 1,
+  "name": "illegal",
+  "rom_words": 256,
+  "ram_words": 8,
+  "ram_base": 65536,
+  "ram_bytes": 32,
+  "trap_vector": 256,
+  "fault_pc": 12,
+  "fault_instr": 4294967295,
+  "accepted_fault_instr": 4294967295,
+  "fault_cause": 2,
+  "fault_tval": 4294967295,
+  "if_fetch_error": false,
+  "if_error_pcs": [
+    16
+  ],
+  "architectural_if_error_pc": null,
+  "d_error_pcs": [],
+  "error_store_writes": false,
+  "signature": 1025,
+  "signature_addr": 65552,
+  "gold_retire_count": 64,
+  "minimum_retire_count": 9,
+  "expected_mem_accesses": [
+    {
+      "pc": 8,
+      "addr": 65536,
+      "wdata": 85,
+      "wstrb": 15,
+      "size": 2,
+      "is_write": 1,
+      "rdata": 268435456,
+      "error": 0,
+      "retire_index": 2
+    },
+    {
+      "pc": 264,
+      "addr": 65552,
+      "wdata": 1025,
+      "wstrb": 15,
+      "size": 2,
+      "is_write": 1,
+      "rdata": 268435460,
+      "error": 0,
+      "retire_index": 5
+    },
+    {
+      "pc": 268,
+      "addr": 65552,
+      "wdata": 0,
+      "wstrb": 0,
+      "size": 2,
+      "is_write": 0,
+      "rdata": 1025,
+      "error": 0,
+      "retire_index": 6
+    }
+  ],
+  "final_initialized_gpr": {
+    "1": 65536,
+    "2": 85,
+    "10": 65536,
+    "11": 1025,
+    "12": 1025,
+    "13": 1026
+  },
+  "notes": [
+    "No CSR/MRET/IRQ; handler does not return",
+    "IF fault instruction is normalized to NOP by unchanged adapter",
+    "failed STORE endpoint chosen not to modify RAM; no general rollback claim",
+    "kind1 PC0x10 request held through trap then returned as stale error"
+  ]
+}

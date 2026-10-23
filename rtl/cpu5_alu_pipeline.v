@@ -1,11 +1,12 @@
 // CPU5 ALU subset: stage 3A-1 reference or opt-in stage 3A-2 forwarding.
-// Optional control flow and ordinary RAM; M, CSR, traps/IRQs remain absent.
+// Optional control flow, ordinary RAM and fixed-vector synchronous traps.
+// M, software-visible CSR/MRET and IRQ remain outside this stage.
 // The unchanged regfile defines only x0 after reset; software initializes x1..31.
 module cpu5_alu_pipeline #(
     parameter integer SEQ_BITS=64,EPOCH_BITS=8,ENABLE_FORWARDING=0,
     ENABLE_CONTROL_FLOW=0,BRANCH_RESOLVE_IN_ID=0,ENABLE_BRANCH_PRED=0,
-    ENABLE_RAM=0,DMEM_WORDS=4096,
-    parameter [31:0] DMEM_BASE_ADDR=32'h00010000
+    ENABLE_RAM=0,DMEM_WORDS=4096,ENABLE_SYNC_TRAPS=0,
+    parameter [31:0] DMEM_BASE_ADDR=32'h00010000,TRAP_VECTOR=32'h00000100
 )(
     input wire clk,rst_n,
     input wire in_valid,output wire in_ready,
@@ -47,7 +48,10 @@ module cpu5_alu_pipeline #(
     output wire [3:0] dmem_req_wstrb,
     input wire dmem_rsp_valid,output wire dmem_rsp_ready,
     input wire [31:0] dmem_rsp_rdata,input wire dmem_rsp_error,
-    output wire dmem_fault
+    output wire dmem_fault,
+    output wire trap_fire,output reg trap_valid,
+    output reg [31:0] trap_pc,trap_cause,trap_tval,
+    output reg [SEQ_BITS-1:0] trap_seq
 );
     `include "rtl/cpu5_pipeline_types.vh"
     reg idex_valid_q,exmem_valid_q,memwb_valid_q;
@@ -99,7 +103,10 @@ module cpu5_alu_pipeline #(
         .uses_rs1(alu_uses1),.uses_rs2(alu_uses2),.writes_rd(alu_writes),
         .rs1(alu_rs1),.rs2(alu_rs2),.rd(alu_rd),.imm(alu_imm),.alu_op(alu_op),
         .alu_a_pc(a_pc),.alu_a_zero(a_zero),.alu_b_imm(b_imm));
-    assign supported=alu_supported||cf_supported||ram_supported;
+    wire id_ecall=ENABLE_SYNC_TRAPS && in_instr==32'h00000073;
+    wire id_ebreak=ENABLE_SYNC_TRAPS && in_instr==32'h00100073;
+    assign supported=alu_supported||cf_supported||ram_supported||id_ecall||id_ebreak;
+    wire id_illegal=ENABLE_SYNC_TRAPS && !supported;
     assign {uses_rs1,uses_rs2,writes_rd}=ram_supported?{ram_uses1,ram_uses2,ram_writes}:
         cf_supported?{cf_uses1,cf_uses2,cf_writes}:{alu_uses1,alu_uses2,alu_writes};
     assign rs1=ram_supported?ram_rs1:cf_supported?cf_rs1:alu_rs1;
@@ -135,32 +142,42 @@ module cpu5_alu_pipeline #(
     assign wb_we=wb_fire && memwb_q.writes_rd && memwb_q.rd!=0;
     assign wb_pc=memwb_q.pc;assign wb_rd=memwb_q.rd;assign wb_data=memwb_q.result;
     wire wb_can_load=!memwb_valid_q || wb_fire;
-    assign halted=rst_n && exmem_valid_q && !kill_mem &&
+    wire mem_fault=rst_n && exmem_valid_q && !kill_mem &&
         (!exmem_supported_q || exmem_q.exception_valid || ram_mem_error);
+    assign halted=mem_fault && !ENABLE_SYNC_TRAPS;
+    // Fault delivery needs no new WB slot. An already retired WB remains
+    // independent and may be held or write at the same edge as this trap.
+    wire trap_safe=!ram_store_lock || (ram_mem_matches && ram_completion_error);
+    assign trap_fire=ENABLE_SYNC_TRAPS && mem_fault && mem_enable && trap_safe;
     assign halt_pc=exmem_q.pc;assign halt_instr=exmem_q.instr;
     assign halt_seq=exmem_q.seq;
     assign halt_fetch_error=exmem_q.exception_valid && exmem_q.exception_cause==1;
     assign halt_cause=ram_mem_error?(exmem_q.is_store?32'd7:32'd5):exmem_q.exception_cause;
     assign halt_tval=ram_mem_error?exmem_q.mem_addr:exmem_q.exception_tval;
-    assign dmem_fault=ENABLE_RAM && halted && (exmem_q.is_load||exmem_q.is_store) &&
+    assign dmem_fault=ENABLE_RAM && mem_fault && (exmem_q.is_load||exmem_q.is_store) &&
         halt_cause>=4 && halt_cause<=7;
-    assign retire_fire=rst_n && exmem_valid_q && !kill_mem && !halted &&
+    assign retire_fire=rst_n && exmem_valid_q && !kill_mem && !mem_fault &&
         mem_result_ready && mem_enable && wb_can_load;
-    wire mem_can_load=!exmem_valid_q || kill_mem || retire_fire;
-    wire ex_base_move=rst_n && idex_valid_q && !kill_ex && ex_enable && mem_can_load &&
+    wire mem_can_load=!exmem_valid_q || kill_mem || retire_fire || trap_fire;
+    wire ex_base_move=rst_n && idex_valid_q && !kill_ex && !trap_fire && ex_enable && mem_can_load &&
         (!ENABLE_FORWARDING || !ex_source_stall) && !((ENABLE_CONTROL_FLOW||ENABLE_RAM) && flush_valid);
     wire ex_load_request=ENABLE_RAM && idex_q.is_load && !idex_q.exception_valid && !ex_ram_fault && ex_base_move;
     wire ex_move=ex_base_move && (!ex_load_request || ram_issue_ready);
-    wire ex_can_load=!idex_valid_q || kill_ex || ex_move;
+    wire ex_can_load=!idex_valid_q || kill_ex || ex_move || trap_fire;
     // A STORE is first offered only by the oldest live, commit-qualified MEM
     // packet. Once offered, the owner retains it regardless of later stalls.
     wire ram_mem_owned=ram_owner_valid && ram_owner_seq==exmem_q.seq;
     wire mem_store_request=ENABLE_RAM && rst_n && exmem_valid_q && !kill_mem &&
         exmem_q.is_store && exmem_supported_q && !exmem_q.exception_valid &&
-        mem_enable && !flush_valid && !halted && !ram_mem_owned;
+        mem_enable && !flush_valid && !mem_fault && !ram_mem_owned;
     assign ram_issue_valid=mem_store_request || ex_load_request;
     assign ram_issue_store=mem_store_request;
-    assign ram_completion_ready=ram_mem_matches && retire_fire;
+    // A faulting source completion is acknowledged, not marked killed. Only
+    // younger owners are age-killed; killing this source combinationally would
+    // feed completion_killed back into fault detection and cancel the trap.
+    assign ram_completion_ready=ram_mem_matches && (retire_fire || trap_fire);
+    wire owner_kill_valid=flush_fire || trap_fire;
+    wire [SEQ_BITS-1:0] owner_kill_cut=flush_fire?flush_cut_seq:exmem_q.seq+1'b1;
     generate if(ENABLE_RAM)begin:g_ram
         cpu5_ram_unit #(.DMEM_BASE_ADDR(DMEM_BASE_ADDR),.DMEM_WORDS(DMEM_WORDS)) u_decode(
             .instr(in_instr),.rs1_value(rf1),.rs2_value(rf2),.response_word(32'd0),
@@ -194,7 +211,7 @@ module cpu5_alu_pipeline #(
             .issue_wdata(mem_store_request?exmem_q.mem_wdata:ram_ex_wdata),
             .issue_wstrb(mem_store_request?exmem_q.mem_wstrb:ram_ex_wstrb),
             .issue_funct3(mem_store_request?exmem_q.mem_funct3:idex_q.funct3),
-            .kill_valid(flush_fire),.kill_cut_seq(flush_cut_seq),
+            .kill_valid(owner_kill_valid),.kill_cut_seq(owner_kill_cut),
             .dmem_req_valid(dmem_req_valid),.dmem_req_ready(dmem_req_ready),
             .dmem_req_write(dmem_req_write),.dmem_req_addr(dmem_req_addr),.dmem_req_size(dmem_req_size),
             .dmem_req_wdata(dmem_req_wdata),.dmem_req_wstrb(dmem_req_wstrb),
@@ -244,7 +261,8 @@ module cpu5_alu_pipeline #(
         ex_actual_next!=idex_q.pred_next_pc;
     assign id_raw_wait=(!ENABLE_FORWARDING && in_valid && !in_fetch_error && supported &&
         ((uses_rs1&&pending_rs1) || (uses_rs2&&pending_rs2))) || id_branch_stall;
-    assign in_ready=rst_n && id_enable && !kill_input && !id_raw_wait && ex_can_load &&
+    assign in_ready=rst_n && id_enable && !kill_input && !trap_fire &&
+        !(ENABLE_SYNC_TRAPS && mem_fault) && !id_raw_wait && ex_can_load &&
         !ex_redirect && !((ENABLE_CONTROL_FLOW||ENABLE_RAM) && flush_valid) &&
         !(ENABLE_CONTROL_FLOW && BRANCH_RESOLVE_IN_ID && known_ex_fault);
     wire id_move=in_valid && in_ready;
@@ -260,12 +278,13 @@ module cpu5_alu_pipeline #(
         ENABLE_FORWARDING && uses_rs2 && rs2!=0 && wb_writer && memwb_q.rd==rs2 ? memwb_q.result : rf2;
     wire id_target_fault=ENABLE_CONTROL_FLOW && BRANCH_RESOLVE_IN_ID && cf_supported && id_misaligned;
     wire id_redirect=ENABLE_CONTROL_FLOW && BRANCH_RESOLVE_IN_ID && !flush_valid &&
-        !halted && !known_ex_fault && id_move && supported && !ram_supported && !in_fetch_error && !id_target_fault &&
+        !mem_fault && !known_ex_fault && id_move && supported && !ram_supported &&
+        !id_ecall && !id_ebreak && !in_fetch_error && !id_target_fault &&
         id_next_pc!=in_pred_next_pc;
-    assign redirect_valid=ex_redirect||id_redirect;
-    assign redirect_kill_ifid=ex_redirect;
-    assign redirect_pc=ex_redirect?ex_actual_next:id_next_pc;
-    assign redirect_seq=ex_redirect?idex_q.seq:in_seq;
+    assign redirect_valid=trap_fire||ex_redirect||id_redirect;
+    assign redirect_kill_ifid=trap_fire||ex_redirect;
+    assign redirect_pc=trap_fire?TRAP_VECTOR:ex_redirect?ex_actual_next:id_next_pc;
+    assign redirect_seq=trap_fire?exmem_q.seq:ex_redirect?idex_q.seq:in_seq;
     assign bp_commit_valid=ENABLE_CONTROL_FLOW && retire_fire;
     assign bp_commit_seq=exmem_q.seq;assign bp_commit_pc=exmem_q.pc;
     assign bp_commit_target=exmem_q.branch_target;assign bp_commit_taken=exmem_q.branch_taken;
@@ -329,16 +348,18 @@ module cpu5_alu_pipeline #(
         idex_next.seq=in_seq;idex_next.epoch=in_epoch;
         idex_next.rs1=rs1;idex_next.rs2=rs2;idex_next.rd=rd;
         idex_next.uses_rs1=uses_rs1;idex_next.uses_rs2=uses_rs2;
-        idex_next.writes_rd=writes_rd && !in_fetch_error;
+        idex_next.writes_rd=writes_rd && !in_fetch_error && !id_ecall && !id_ebreak && !id_illegal;
         idex_next.rs1_value=id_saved_rs1;idex_next.rs2_value=id_saved_rs2;idex_next.imm=imm;
         idex_next.funct3=in_instr[14:12];idex_next.alu_op=alu_op;
         idex_next.pred_next_pc=in_pred_next_pc;
         idex_next.pred_taken=in_pred_taken;idex_next.pred_hit=in_pred_hit;
         idex_next.is_branch=cf_branch;idex_next.is_jal=cf_jal;idex_next.is_jalr=cf_jalr;
         idex_next.is_load=ram_load;idex_next.is_store=ram_store;
-        idex_next.exception_valid=in_fetch_error || id_target_fault;
-        idex_next.exception_cause=in_fetch_error?32'd1:32'd0;
-        idex_next.exception_tval=in_fetch_error?in_fetch_tval:id_target_fault?id_target:32'd0;
+        idex_next.exception_valid=in_fetch_error || id_target_fault || id_ecall || id_ebreak || id_illegal;
+        idex_next.exception_cause=in_fetch_error?32'd1:id_target_fault?32'd0:
+            id_ecall?32'd11:id_ebreak?32'd3:id_illegal?32'd2:32'd0;
+        idex_next.exception_tval=in_fetch_error?in_fetch_tval:id_target_fault?id_target:
+            id_ebreak?in_pc:id_illegal?in_instr:32'd0;
         exmem_next='0;
         exmem_next.pc=idex_q.pc;exmem_next.instr=idex_q.instr;
         exmem_next.seq=idex_q.seq;exmem_next.epoch=idex_q.epoch;
@@ -373,11 +394,17 @@ module cpu5_alu_pipeline #(
             idex_cf_next_q<=0;idex_cf_target_q<=0;idex_cf_taken_q<=0;
             retire_valid<=0;retire_pc<=0;retire_instr<=0;retire_value<=0;
             retire_rd<=0;retire_writes_rd<=0;retire_seq<=0;
+            trap_valid<=0;trap_pc<=0;trap_cause<=0;trap_tval<=0;trap_seq<=0;
             cycle_count<=0;instret_count<=0;arch_next_pc_q<=0;
             bp_resolved_count<=0;bp_mispredict_count<=0;bp_direction_error_count<=0;bp_target_error_count<=0;
         end else begin
             cycle_count<=cycle_count+64'd1;
             retire_valid<=retire_fire;
+            trap_valid<=trap_fire;
+            if(trap_fire)begin
+                trap_pc<=exmem_q.pc;trap_cause<=halt_cause;trap_tval<=halt_tval;
+                trap_seq<=exmem_q.seq;arch_next_pc_q<=TRAP_VECTOR;
+            end
             if(retire_fire)begin
                 instret_count<=instret_count+64'd1;
                 arch_next_pc_q<=exmem_q.actual_next_pc;
@@ -424,7 +451,8 @@ module cpu5_alu_pipeline #(
         end
     end
     // synthesis translate_off
-    initial if(SEQ_BITS!=64 || EPOCH_BITS<1 || (ENABLE_FORWARDING!=0 && ENABLE_FORWARDING!=1))
+    initial if(SEQ_BITS!=64 || EPOCH_BITS<1 || (ENABLE_FORWARDING!=0 && ENABLE_FORWARDING!=1) ||
+               (ENABLE_SYNC_TRAPS!=0 && ENABLE_SYNC_TRAPS!=1) || (ENABLE_SYNC_TRAPS && TRAP_VECTOR[1:0]!=0))
         $fatal(1,"CPU5 ALU requires 64-bit age, positive epoch and supported forwarding mode");
     always @(posedge clk)if(rst_n)begin
         if(retire_fire && (!exmem_supported_q||exmem_q.exception_valid||kill_mem))
@@ -440,6 +468,10 @@ module cpu5_alu_pipeline #(
             $fatal(1,"CPU5 STORE issue lacks oldest qualified MEM owner");
         if(ram_mem_matches && (ram_completion_pc!==exmem_q.pc || ram_completion_instr!==exmem_q.instr))
             $fatal(1,"CPU5 D completion owner identity mismatch");
+        if(trap_fire && (retire_fire || bp_commit_valid || ex_move || id_move || ram_issue_fire))
+            $fatal(1,"CPU5 synchronous trap leaked younger or fault-source action");
+        if(trap_fire && (!exmem_valid_q || kill_mem || !mem_fault || !mem_enable))
+            $fatal(1,"CPU5 trap lacks live oldest MEM fault");
     end
     // synthesis translate_on
 endmodule

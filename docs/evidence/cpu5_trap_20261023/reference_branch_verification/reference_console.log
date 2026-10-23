@@ -1,0 +1,1 @@
+{"status": "PARTIAL VERIFIED: stage 3A-2 integer ALU forwarding subset", "case_count": 50, "total_retired": 2293, "total_wb_packets": 2293, "total_gpr_writes": 2153, "control": {"retired": 44, "wb_packets": 44, "gpr_writes": 43, "id_accepts": 46}}

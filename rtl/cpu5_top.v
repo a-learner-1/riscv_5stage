@@ -1,7 +1,7 @@
 // SKELETON_ONLY=1 preserves the metadata-only scaffold. =0 enables stage3A-1:
 // 21 ALU instructions, MEM retirement/GPR WB; ENABLE_FORWARDING=1 adds 3A-2.
 // ENABLE_CONTROL_FLOW adds branches/JAL/JALR; ENABLE_RAM adds ordinary RAM.
-// M/CSR/Trap/IRQ remain absent from this isolated CPU5 experiment.
+// Fixed-vector synchronous traps are opt-in; M/CSR/MRET/IRQ remain absent.
 // No board/project references this module; cpu_top is the verified product.
 module cpu5_top #(
     parameter PROGRAM_FILE="programs/rv32i_regression.hex", DATA_FILE="",
@@ -19,7 +19,9 @@ module cpu5_top #(
     parameter integer BRANCH_RESOLVE_IN_ID=0,
     parameter integer SEQ_BITS=64, EPOCH_BITS=8, SKELETON_ONLY=1,
     // Opt-in 3A-2 EX/MEM and MEM/WB forwarding; zero preserves the 3A-1 reference.
-    parameter integer ENABLE_FORWARDING=0,ENABLE_CONTROL_FLOW=0,ENABLE_RAM=0
+    parameter integer ENABLE_FORWARDING=0,ENABLE_CONTROL_FLOW=0,ENABLE_RAM=0,
+    ENABLE_SYNC_TRAPS=0,
+    parameter [31:0] TRAP_VECTOR=32'h00000100
 )(
     input wire clk,rst_n,
     output wire [31:0] pc_x,instr_x, output wire valid_x,
@@ -110,7 +112,8 @@ module cpu5_top #(
         cpu5_alu_pipeline #(.SEQ_BITS(SEQ_BITS),.EPOCH_BITS(EPOCH_BITS),.ENABLE_FORWARDING(ENABLE_FORWARDING),
             .ENABLE_CONTROL_FLOW(ENABLE_CONTROL_FLOW),.BRANCH_RESOLVE_IN_ID(BRANCH_RESOLVE_IN_ID),
             .ENABLE_BRANCH_PRED(ENABLE_BRANCH_PRED),.ENABLE_RAM(ENABLE_RAM),
-            .DMEM_WORDS(DMEM_WORDS),.DMEM_BASE_ADDR(DMEM_BASE_ADDR)) u_pipeline(
+            .DMEM_WORDS(DMEM_WORDS),.DMEM_BASE_ADDR(DMEM_BASE_ADDR),
+            .ENABLE_SYNC_TRAPS(ENABLE_SYNC_TRAPS && ENABLE_TRAPS),.TRAP_VECTOR(TRAP_VECTOR)) u_pipeline(
             .clk(clk),.rst_n(rst_n),.in_valid(ifid_valid_q),.in_ready(alu_ready),
             .in_pc(ifid_q.pc),.in_instr(ifid_q.instr),.in_pred_next_pc(ifid_q.pred_next_pc),
             .in_pred_taken(ifid_q.pred_taken),.in_pred_hit(ifid_q.pred_hit),
@@ -135,7 +138,9 @@ module cpu5_top #(
             .dmem_req_write(dmem_req_write),.dmem_req_addr(dmem_req_addr),.dmem_req_size(dmem_req_size),
             .dmem_req_wdata(dmem_req_wdata),.dmem_req_wstrb(dmem_req_wstrb),
             .dmem_rsp_valid(dmem_rsp_valid),.dmem_rsp_ready(dmem_rsp_ready),
-            .dmem_rsp_rdata(dmem_rsp_rdata),.dmem_rsp_error(dmem_rsp_error),.dmem_fault(dmem_fault));
+            .dmem_rsp_rdata(dmem_rsp_rdata),.dmem_rsp_error(dmem_rsp_error),.dmem_fault(dmem_fault),
+            .trap_fire(),.trap_valid(trap_valid),.trap_pc(trap_pc),.trap_cause(trap_cause),
+            .trap_tval(trap_tval),.trap_seq());
     end else begin:g_no_alu
         assign {alu_ready,alu_ex_valid,alu_ex_pc,alu_ex_instr,alu_wb_pc,alu_wb_rd,
                 alu_wb_data,alu_wb_we,alu_retire_valid,alu_cycle_count,alu_instret_count}=0;
@@ -143,6 +148,7 @@ module cpu5_top #(
                 alu_bp_seq,alu_bp_taken,alu_bp_branch,alu_bp_jal,alu_bp_resolved,alu_bp_mismatch,alu_bp_direrr,alu_bp_tgterr}=0;
         assign {dmem_req_valid,dmem_req_write,dmem_req_addr,dmem_req_size,
                 dmem_req_wdata,dmem_req_wstrb,dmem_rsp_ready,dmem_fault}=0;
+        assign {trap_valid,trap_pc,trap_cause,trap_tval}=0;
     end endgenerate
 
     // Forwarding hazard remains an independently verified interface placeholder.
@@ -164,7 +170,6 @@ module cpu5_top #(
     assign cycle_count=alu_cycle_count;assign instret_count=alu_instret_count;
     // Full ten-class profiling is not connected in this ALU-only subset.
     assign perf_cycle_events=0;
-    assign {trap_valid,trap_pc,trap_cause,trap_tval}=0;
     assign bp_resolved_count=alu_bp_resolved;assign bp_mispredict_count=alu_bp_mismatch;
     assign bp_direction_error_count=alu_bp_direrr;assign bp_target_error_count=alu_bp_tgterr;
     assign uart_tx=1'b1;
@@ -175,6 +180,7 @@ module cpu5_top #(
            (ENABLE_FORWARDING!=0 && ENABLE_FORWARDING!=1) ||
            (ENABLE_CONTROL_FLOW!=0 && ENABLE_CONTROL_FLOW!=1) ||
            (ENABLE_RAM!=0 && ENABLE_RAM!=1) || (ENABLE_RAM && EXTERNAL_DMEM!=1) ||
+           (ENABLE_SYNC_TRAPS!=0 && ENABLE_SYNC_TRAPS!=1) ||
            (BRANCH_RESOLVE_IN_ID!=0 && BRANCH_RESOLVE_IN_ID!=1))
             $fatal(1,"cpu5_top requires external I, 64-bit age and a supported scaffold/ALU-subset mode");
     end

@@ -1,0 +1,2 @@
+cycle,event,seq,pc,nextpc,target,taken,pred_next,pred_taken,is_branch,is_jal,is_jalr
+44,redirect,000000000000000a,00000114,00000114,00000114,1,00000118,0,0,1,0

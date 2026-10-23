@@ -24,7 +24,7 @@ module cpu5_ram_control_case #(parameter integer MODE=0)(output reg done=0);
     wire [31:0] dmem_req_addr,dmem_req_wdata;wire [1:0] dmem_req_size;wire [3:0] dmem_req_wstrb;
     reg [31:0] dmem_rsp_rdata=0;
     cpu5_alu_pipeline #(.ENABLE_FORWARDING(1),.ENABLE_CONTROL_FLOW(1),
-        .BRANCH_RESOLVE_IN_ID(MODE),.ENABLE_BRANCH_PRED(1),.ENABLE_RAM(1),.DMEM_WORDS(8)) dut(.*);
+        .BRANCH_RESOLVE_IN_ID(MODE),.ENABLE_BRANCH_PRED(1),.ENABLE_RAM(1),.DMEM_WORDS(8)) dut(.trap_fire(),.trap_valid(),.trap_pc(),.trap_cause(),.trap_tval(),.trap_seq(),.*);
     reg [63:0] eseq[0:31],qseq[0:15],rseq[0:7];
     reg [31:0] epc[0:31],eins[0:31],eval[0:31],enext[0:31],rpc[0:7];
     reg [4:0] erd[0:31];

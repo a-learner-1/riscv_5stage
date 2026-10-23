@@ -1,0 +1,40 @@
+{
+  "status": "PASS",
+  "protected_files": 2743,
+  "unchanged_files": 2737,
+  "authorized_updates": [
+    {
+      "path": "D:\\FPGA\\riscv_3stage\\rtl\\cpu5_alu_pipeline.v",
+      "before_sha256": "f1a1b480577094bc69bc7af1e85c56c2d52b961127fcaa54435f53c672598f11",
+      "after_sha256": "1a2b18547234a42da638b20d4edb5901fbdc1724249b635f5c26e555f1e7f913"
+    },
+    {
+      "path": "D:\\FPGA\\riscv_3stage\\rtl\\cpu5_top.v",
+      "before_sha256": "7fc5353c300fe5b1013b24ceb8e0ce2127d8c1514567110d28468cff7cabe15f",
+      "after_sha256": "2be3dcd78fa57582661001952c51aaae7e8cc55b34501229a17288856fc9c5b0"
+    },
+    {
+      "path": "D:\\FPGA\\riscv_3stage\\tb\\cpu5_alu_control_tb.v",
+      "before_sha256": "067942d40702e4cbe15b22090f2de6f7a71ffce1bea81c4daea133ce0fcb8dde",
+      "after_sha256": "d2cc3e29b96ebac256d0bd06843e5bb532403e5d2832d7d4c1d82d0091a7e16d"
+    },
+    {
+      "path": "D:\\FPGA\\riscv_3stage\\tb\\cpu5_branch_control_tb.v",
+      "before_sha256": "c53ca8e66d5962c0d4d8edb62aadc153915ae342925948f136f351fe3a5b0c1a",
+      "after_sha256": "6a506de59da8e93dba3aa7e2e277a00cff72d5add92a39f1bb47965d20fff295"
+    },
+    {
+      "path": "D:\\FPGA\\riscv_3stage\\tb\\cpu5_forward_control_tb.v",
+      "before_sha256": "668be86295015554d37000b153fc6d55d49d58d8e976abf7117fa7d688a469f8",
+      "after_sha256": "4e65d174ebd6cb793296927fd6afaa27c550b75de7e9b779e1994b8f78c983b9"
+    },
+    {
+      "path": "D:\\FPGA\\riscv_3stage\\tb\\cpu5_ram_control_tb.v",
+      "before_sha256": "623a53c9fc4ad879bb77e93d9ea2518b38fb440da88613640d46d4c931bb45d8",
+      "after_sha256": "6f33893fd62869d8ef210b5503e1881bd5411bb05fb9ff5c7d6f561852c1b5e4"
+    }
+  ],
+  "baseline_head": "e58148e05c8cd904e8c3fd4a6050ba3d11e7c5e5",
+  "current_head": "e58148e05c8cd904e8c3fd4a6050ba3d11e7c5e5",
+  "failures": []
+}

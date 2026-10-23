@@ -1,0 +1,59 @@
+{
+  "status": "PARTIAL VERIFIED: stage 3A-1 integer ALU only",
+  "processes": [
+    {
+      "name": "decode",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "top",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "control",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "name": "trace",
+      "exit_code": 0,
+      "status": "PASS"
+    }
+  ],
+  "source_sha256": {
+    "rtl/cpu5_top.v": "2be3dcd78fa57582661001952c51aaae7e8cc55b34501229a17288856fc9c5b0",
+    "rtl/cpu5_alu_pipeline.v": "1a2b18547234a42da638b20d4edb5901fbdc1724249b635f5c26e555f1e7f913",
+    "rtl/cpu5_alu_decode.v": "85dd75f4973988a0be806118351b642cefd730a2c5773fa063891fb4877754c8",
+    "rtl/cpu5_pipeline_types.vh": "f6e7855a349b15464544a75d62ccb2b1d07d0305e6cd95ba1b08531049a75d41",
+    "rtl/cpu5_pipeline_skeleton.v": "cc5ac0a2ca203494e4e7677f50be84af5e636c52912845334ff27e055369d495",
+    "rtl/cpu5_if_adapter.v": "579838df1fd7df51324ed9a8f72db20dd04fad8599a37eec703a7005474c8914",
+    "rtl/cpu5_hazard.v": "95723e90af47a50f9f58d87b1af41d283c31147939886941ba188fc97f562579",
+    "rtl/if_stage.v": "c2dd341e85cd38a76f48ad495c5e5c5d4349854d293fe2e1779b9d783db2dbec",
+    "rtl/instr_mem.v": "b87b7ca6652da72bcd9951dfb5809d5d50331bc699dcedd73624645b7a193e07",
+    "rtl/instr_bus_adapter.v": "97b455c41481638e8a9813a89177700a7a33e7b7a2240830e4f4fe5e870b4f01",
+    "rtl/branch_predictor.v": "1a8e0324e5df358e94044e31deea05bce88547d485d42b183f94a917b104e783",
+    "rtl/alu.v": "5442f0b5484053bf5bbbf6d4c8a81ad174cd8c1ea397c97076dbab59efe64173",
+    "rtl/regfile.v": "72222a39fefdedb25c9c045f641b1fa2e07492a155d16d9ee0333758bc22efb0",
+    "tb/cpu5_alu_decode_tb.v": "b8c43c09ed33931d078c410656984a0071de76dc49de970102dbfa886d9b6fc3",
+    "tb/cpu5_alu_top_tb.v": "a5829f09e81cb82340fa90b63d6106895e2f2a955e15b6d447f8428fd830d260",
+    "tb/cpu5_alu_control_tb.v": "d2cc3e29b96ebac256d0bd06843e5bb532403e5d2832d7d4c1d82d0091a7e16d",
+    "run_cpu5_alu_decode.do": "ae9610fa44f1debb9c1444e521af8f9f8c0cfbb16a6e0f38d57baddf27abfb42",
+    "run_cpu5_alu_top.do": "64c6d17a6d2b9c5531bca092d2414c9d285d90d5cb1eec86a479786478f21fe7",
+    "run_cpu5_alu_control.do": "c8e6dff3b6601659647fb5eda8851571b438997eec79958a5720db80bbbd5139",
+    "tools/generate_cpu5_alu_vectors.py": "48cfec4d1f1e095fdcfbf32147793ad83fb9385e12970740ebd5fe0d23d14e0a",
+    "tools/analyze_cpu5_alu_trace.py": "a134ce9b5c705acee64e4b097a4003d0abe83bc37b82f0021b280ab59cb6dae5",
+    "tools/verify_cpu5_alu.py": "9dddb3b72775e17fc5c0a011fc9f4ec013b99df5cd0089cf6e5958a544a0ff44"
+  },
+  "sources_unchanged": true,
+  "case_count": 48,
+  "total_retired": 1193,
+  "total_wb_packets": 1193,
+  "total_gpr_writes": 1123,
+  "full_A01_A16": "NOT RUN",
+  "forwarding": "NOT IMPLEMENTED",
+  "branch_D_M_CSR_Trap_IRQ": "NOT IMPLEMENTED",
+  "STA": "NOT RUN",
+  "board": "NOT RUN"
+}

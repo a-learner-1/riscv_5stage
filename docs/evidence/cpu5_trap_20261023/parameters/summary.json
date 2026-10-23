@@ -1,0 +1,57 @@
+{
+  "pass_": true,
+  "parameter_rejections": 2,
+  "functional_mutants_included": false,
+  "checks": [
+    {
+      "name": "invalid_enable",
+      "rejected": true,
+      "exit_code": 1,
+      "source_sha256": {
+        "rtl/alu.v": "5442f0b5484053bf5bbbf6d4c8a81ad174cd8c1ea397c97076dbab59efe64173",
+        "rtl/cpu5_alu_decode.v": "85dd75f4973988a0be806118351b642cefd730a2c5773fa063891fb4877754c8",
+        "rtl/cpu5_alu_pipeline.v": "1a2b18547234a42da638b20d4edb5901fbdc1724249b635f5c26e555f1e7f913",
+        "rtl/cpu5_branch_unit.v": "8fe2686e3b342746e3054dd584885de557277dc2423144bbc28506033a750e93",
+        "rtl/cpu5_hazard.v": "95723e90af47a50f9f58d87b1af41d283c31147939886941ba188fc97f562579",
+        "rtl/cpu5_pipeline_types.vh": "f6e7855a349b15464544a75d62ccb2b1d07d0305e6cd95ba1b08531049a75d41",
+        "rtl/cpu5_ram_owner.v": "f6cfbcb8a48d99063b44128ef917c11cbb6001af7838e86b6044c28c5e539314",
+        "rtl/cpu5_ram_unit.v": "44ebde3fe1a148dfc9e4035873cec8cf8c0a0437f821e2a9fcae4a8aa2014ee7",
+        "rtl/regfile.v": "72222a39fefdedb25c9c045f641b1fa2e07492a155d16d9ee0333758bc22efb0",
+        "run_cpu5_trap_control.do": "8e3964c04b4a329d63e73c873f3a0034cb62f6c7125c24279b93a95c3d94878e",
+        "tb/cpu5_trap_control_tb.v": "c15921e49c5662cf50c8bc9055f2a100d13d48430b1f70f12e34cbae8c9b9bdc"
+      },
+      "bad_tb_sha256": "c15921e49c5662cf50c8bc9055f2a100d13d48430b1f70f12e34cbae8c9b9bdc",
+      "original_tb_sha256": "58c2c28cfb2896fe3f4b6d44329ae78dd6191af8c3354e7fc38579b2d59246bc",
+      "old": ".ENABLE_SYNC_TRAPS(1)",
+      "new": ".ENABLE_SYNC_TRAPS(2)",
+      "failure": "CPU5 ALU requires 64-bit age, positive epoch and supported forwarding mode",
+      "time_zero": true,
+      "process_sha256": "cd1c56fb58f3452ca63eaa27e98ae05d81769d85b04ec71a398e7ac08828c071"
+    },
+    {
+      "name": "misaligned_vector",
+      "rejected": true,
+      "exit_code": 1,
+      "source_sha256": {
+        "rtl/alu.v": "5442f0b5484053bf5bbbf6d4c8a81ad174cd8c1ea397c97076dbab59efe64173",
+        "rtl/cpu5_alu_decode.v": "85dd75f4973988a0be806118351b642cefd730a2c5773fa063891fb4877754c8",
+        "rtl/cpu5_alu_pipeline.v": "1a2b18547234a42da638b20d4edb5901fbdc1724249b635f5c26e555f1e7f913",
+        "rtl/cpu5_branch_unit.v": "8fe2686e3b342746e3054dd584885de557277dc2423144bbc28506033a750e93",
+        "rtl/cpu5_hazard.v": "95723e90af47a50f9f58d87b1af41d283c31147939886941ba188fc97f562579",
+        "rtl/cpu5_pipeline_types.vh": "f6e7855a349b15464544a75d62ccb2b1d07d0305e6cd95ba1b08531049a75d41",
+        "rtl/cpu5_ram_owner.v": "f6cfbcb8a48d99063b44128ef917c11cbb6001af7838e86b6044c28c5e539314",
+        "rtl/cpu5_ram_unit.v": "44ebde3fe1a148dfc9e4035873cec8cf8c0a0437f821e2a9fcae4a8aa2014ee7",
+        "rtl/regfile.v": "72222a39fefdedb25c9c045f641b1fa2e07492a155d16d9ee0333758bc22efb0",
+        "run_cpu5_trap_control.do": "8e3964c04b4a329d63e73c873f3a0034cb62f6c7125c24279b93a95c3d94878e",
+        "tb/cpu5_trap_control_tb.v": "35b9d8b73c24c0410db0ad2ab4a963a06bb828c814df7a8413cd45a32e5a6b3f"
+      },
+      "bad_tb_sha256": "35b9d8b73c24c0410db0ad2ab4a963a06bb828c814df7a8413cd45a32e5a6b3f",
+      "original_tb_sha256": "58c2c28cfb2896fe3f4b6d44329ae78dd6191af8c3354e7fc38579b2d59246bc",
+      "old": ".TRAP_VECTOR(VECTOR)",
+      "new": ".TRAP_VECTOR(32'h102)",
+      "failure": "CPU5 ALU requires 64-bit age, positive epoch and supported forwarding mode",
+      "time_zero": true,
+      "process_sha256": "9b3400abfadba793ffcfdc09f3a4bbfebcafd1a1cd002ca2cb6c04e67f59cf7d"
+    }
+  ]
+}

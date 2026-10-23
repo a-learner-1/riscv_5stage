@@ -1,0 +1,1 @@
+{"retired":10,"wb_packets":10,"accepted":12,"redirects":2,"bp_commits":0,"cycles":28,"requests":17,"responses":17,"raw_wait_cycles":0,"resolved":0,"mispredict":0,"direction_error":0,"target_error":0,"d_requests":3,"d_responses":3,"traps":1,"fault_seq":"0000000000000003","stale_if_errors":0,"held_fault_cycles":0,"young_id_redirects":0,"unaccepted_i_held":1}

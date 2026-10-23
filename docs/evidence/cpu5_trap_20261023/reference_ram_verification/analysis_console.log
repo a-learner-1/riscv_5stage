@@ -1,0 +1,1 @@
+{"status": "PASS", "scope": "CPU5 integer control flow and ordinary RAM with a compiled C workload", "cases": 16, "total_retired": 23520, "total_d_requests": 5744, "rejected": 0}
