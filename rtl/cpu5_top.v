@@ -1,7 +1,7 @@
 // SKELETON_ONLY=1 preserves the metadata-only scaffold. =0 enables stage3A-1:
 // 21 ALU instructions, MEM retirement/GPR WB; ENABLE_FORWARDING=1 adds 3A-2.
 // ENABLE_CONTROL_FLOW adds branches/JAL/JALR; ENABLE_RAM adds ordinary RAM.
-// Fixed-vector synchronous traps are opt-in; M/CSR/MRET/IRQ remain absent.
+// Synchronous traps and machine CSR/MRET are opt-in; M/IRQ remain absent.
 // No board/project references this module; cpu_top is the verified product.
 module cpu5_top #(
     parameter PROGRAM_FILE="programs/rv32i_regression.hex", DATA_FILE="",
@@ -20,7 +20,7 @@ module cpu5_top #(
     parameter integer SEQ_BITS=64, EPOCH_BITS=8, SKELETON_ONLY=1,
     // Opt-in 3A-2 EX/MEM and MEM/WB forwarding; zero preserves the 3A-1 reference.
     parameter integer ENABLE_FORWARDING=0,ENABLE_CONTROL_FLOW=0,ENABLE_RAM=0,
-    ENABLE_SYNC_TRAPS=0,
+    ENABLE_SYNC_TRAPS=0,ENABLE_CSR=0,
     parameter [31:0] TRAP_VECTOR=32'h00000100
 )(
     input wire clk,rst_n,
@@ -113,7 +113,7 @@ module cpu5_top #(
             .ENABLE_CONTROL_FLOW(ENABLE_CONTROL_FLOW),.BRANCH_RESOLVE_IN_ID(BRANCH_RESOLVE_IN_ID),
             .ENABLE_BRANCH_PRED(ENABLE_BRANCH_PRED),.ENABLE_RAM(ENABLE_RAM),
             .DMEM_WORDS(DMEM_WORDS),.DMEM_BASE_ADDR(DMEM_BASE_ADDR),
-            .ENABLE_SYNC_TRAPS(ENABLE_SYNC_TRAPS && ENABLE_TRAPS),.TRAP_VECTOR(TRAP_VECTOR)) u_pipeline(
+            .ENABLE_SYNC_TRAPS(ENABLE_SYNC_TRAPS && ENABLE_TRAPS),.ENABLE_CSR(ENABLE_CSR),.TRAP_VECTOR(TRAP_VECTOR)) u_pipeline(
             .clk(clk),.rst_n(rst_n),.in_valid(ifid_valid_q),.in_ready(alu_ready),
             .in_pc(ifid_q.pc),.in_instr(ifid_q.instr),.in_pred_next_pc(ifid_q.pred_next_pc),
             .in_pred_taken(ifid_q.pred_taken),.in_pred_hit(ifid_q.pred_hit),
@@ -181,6 +181,8 @@ module cpu5_top #(
            (ENABLE_CONTROL_FLOW!=0 && ENABLE_CONTROL_FLOW!=1) ||
            (ENABLE_RAM!=0 && ENABLE_RAM!=1) || (ENABLE_RAM && EXTERNAL_DMEM!=1) ||
            (ENABLE_SYNC_TRAPS!=0 && ENABLE_SYNC_TRAPS!=1) ||
+           (ENABLE_CSR!=0 && ENABLE_CSR!=1) ||
+           (ENABLE_CSR && (SKELETON_ONLY!=0 || !ENABLE_CONTROL_FLOW || !ENABLE_SYNC_TRAPS || !ENABLE_TRAPS)) ||
            (BRANCH_RESOLVE_IN_ID!=0 && BRANCH_RESOLVE_IN_ID!=1))
             $fatal(1,"cpu5_top requires external I, 64-bit age and a supported scaffold/ALU-subset mode");
     end
