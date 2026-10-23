@@ -1,7 +1,8 @@
 // Minimal M-only CSR bank. Every update is authorized by oldest MEM only.
 // Diagnostic trap descriptors belong to the pipeline, not to this writable bank.
 module cpu5_csr_unit #(
-    parameter [31:0] TRAP_VECTOR=32'h00000100
+    parameter [31:0] TRAP_VECTOR=32'h00000100,
+    parameter integer ENABLE_RV32M=0
 )(
     input wire clk,rst_n,
     input wire [11:0] access_addr,
@@ -22,8 +23,9 @@ module cpu5_csr_unit #(
         known=1'b1;read_only=1'b0;read_value=32'd0;
         case(access_addr)
             12'h300:read_value=csr_mstatus;
-            // CPU5 has no M unit yet. The historical top ENABLE_M is not ISA support.
-            12'h301:read_value=32'h40000100;
+            // Only the integrated opt-in owner advertises M. Historical top
+            // ENABLE_M by itself does not enable instruction execution.
+            12'h301:read_value=ENABLE_RV32M?32'h40001100:32'h40000100;
             12'h305:read_value=csr_mtvec;
             12'h340:read_value=csr_mscratch;
             12'h341:read_value=csr_mepc;

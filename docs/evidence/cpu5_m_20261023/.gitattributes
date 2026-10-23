@@ -1,0 +1,2 @@
+# SHA manifests refer to exact frozen bytes, including original Windows EOL.
+* -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
