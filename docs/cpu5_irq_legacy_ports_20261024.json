@@ -1,0 +1,160 @@
+{
+  "base_commit": "baa2275d5a2ccb204f23b37414bc7a59f746ecaa",
+  "reason": "ModelSim 10.6e requires explicit connections for zero-warning legacy tests; all stimuli/reference/assertions unchanged",
+  "adaptations": [
+    {
+      "path": "tb/cpu5_alu_control_tb.v",
+      "kind": "core",
+      "old": " dut(",
+      "new": " dut(.irq_external(1'b0),.irq_software(1'b0),.irq_timer(1'b0),",
+      "before_raw_sha256": "51c563295a17d172778ebbbaf6f491d6ebdfc27c8a6ec42ea4ce2720bae66327",
+      "after_raw_sha256": "f9034cfa2b9a06d6cd148000fafcaa1e04a2f9be188a8b44e33c7ab2f16be13a",
+      "only_explicit_zero_connections": true,
+      "before_lf_sha256": "51c563295a17d172778ebbbaf6f491d6ebdfc27c8a6ec42ea4ce2720bae66327",
+      "after_lf_sha256": "f9034cfa2b9a06d6cd148000fafcaa1e04a2f9be188a8b44e33c7ab2f16be13a"
+    },
+    {
+      "path": "tb/cpu5_branch_control_tb.v",
+      "kind": "core",
+      "old": " dut(",
+      "new": " dut(.irq_external(1'b0),.irq_software(1'b0),.irq_timer(1'b0),",
+      "before_raw_sha256": "f16a7c773ae53687c7e752b217f5ba5c7656dd7778d5a57afaca21bfb24e9d48",
+      "after_raw_sha256": "ec71339dafe115a4eee6849834d22dfd395d606c80916d744c28dcf0125de189",
+      "only_explicit_zero_connections": true,
+      "before_lf_sha256": "f16a7c773ae53687c7e752b217f5ba5c7656dd7778d5a57afaca21bfb24e9d48",
+      "after_lf_sha256": "ec71339dafe115a4eee6849834d22dfd395d606c80916d744c28dcf0125de189"
+    },
+    {
+      "path": "tb/cpu5_csr_control_tb.v",
+      "kind": "core",
+      "old": " dut(",
+      "new": " dut(.irq_external(1'b0),.irq_software(1'b0),.irq_timer(1'b0),",
+      "before_raw_sha256": "8751a9b3a805c4c5b67e82f0e1e43c4cd31338a79a903847fd3e2196705727bd",
+      "after_raw_sha256": "7a002128d649e2f2140d8b78e5e28c56235f21972bf394ab4aea1a0f339d7ecc",
+      "only_explicit_zero_connections": true,
+      "before_lf_sha256": "8751a9b3a805c4c5b67e82f0e1e43c4cd31338a79a903847fd3e2196705727bd",
+      "after_lf_sha256": "7a002128d649e2f2140d8b78e5e28c56235f21972bf394ab4aea1a0f339d7ecc"
+    },
+    {
+      "path": "tb/cpu5_forward_control_tb.v",
+      "kind": "core",
+      "old": " dut(",
+      "new": " dut(.irq_external(1'b0),.irq_software(1'b0),.irq_timer(1'b0),",
+      "before_raw_sha256": "57b3f24b23e0ef0b9a78b45190df6518ac943f4f782b8a10536575483476d8d2",
+      "after_raw_sha256": "d80709a3ce61b464a6ba22791cdb82c9afb9295747462df67a18610c49ddadec",
+      "only_explicit_zero_connections": true,
+      "before_lf_sha256": "57b3f24b23e0ef0b9a78b45190df6518ac943f4f782b8a10536575483476d8d2",
+      "after_lf_sha256": "d80709a3ce61b464a6ba22791cdb82c9afb9295747462df67a18610c49ddadec"
+    },
+    {
+      "path": "tb/cpu5_m_control_tb.v",
+      "kind": "core",
+      "old": " dut(",
+      "new": " dut(.irq_external(1'b0),.irq_software(1'b0),.irq_timer(1'b0),",
+      "before_raw_sha256": "e2fdd97f723cfbe1ec9e6512e024d6a925705f5dfcada4b807a4a8b08df7baee",
+      "after_raw_sha256": "f51259d160c8c2849e5d359fe8676cd082b240145a4085880e9629e04e4ecd78",
+      "only_explicit_zero_connections": true,
+      "before_lf_sha256": "e2fdd97f723cfbe1ec9e6512e024d6a925705f5dfcada4b807a4a8b08df7baee",
+      "after_lf_sha256": "f51259d160c8c2849e5d359fe8676cd082b240145a4085880e9629e04e4ecd78"
+    },
+    {
+      "path": "tb/cpu5_ram_control_tb.v",
+      "kind": "core",
+      "old": " dut(",
+      "new": " dut(.irq_external(1'b0),.irq_software(1'b0),.irq_timer(1'b0),",
+      "before_raw_sha256": "080059cf888589de6267887954944de5339fbb7887b38a65f28535e5331f5520",
+      "after_raw_sha256": "3ff611d6fda3af9fd94c052b0e7d07456cd03f6eba24d5ec0ffa5850242af6d5",
+      "only_explicit_zero_connections": true,
+      "before_lf_sha256": "080059cf888589de6267887954944de5339fbb7887b38a65f28535e5331f5520",
+      "after_lf_sha256": "3ff611d6fda3af9fd94c052b0e7d07456cd03f6eba24d5ec0ffa5850242af6d5"
+    },
+    {
+      "path": "tb/cpu5_trap_control_tb.v",
+      "kind": "core",
+      "old": " dut(",
+      "new": " dut(.irq_external(1'b0),.irq_software(1'b0),.irq_timer(1'b0),",
+      "before_raw_sha256": "58c2c28cfb2896fe3f4b6d44329ae78dd6191af8c3354e7fc38579b2d59246bc",
+      "after_raw_sha256": "c5bb90aa6c238311ab48654208d7edbab8df4550e6affbe5d54420c380dfff82",
+      "only_explicit_zero_connections": true,
+      "before_lf_sha256": "58c2c28cfb2896fe3f4b6d44329ae78dd6191af8c3354e7fc38579b2d59246bc",
+      "after_lf_sha256": "c5bb90aa6c238311ab48654208d7edbab8df4550e6affbe5d54420c380dfff82"
+    },
+    {
+      "path": "tb/cpu5_alu_top_tb.v",
+      "kind": "top",
+      "old": " dut(",
+      "new": " dut(.irq_software(1'b0),.irq_timer(1'b0),",
+      "before_raw_sha256": "f11e35fef0b7438f1991d27d41417174ab3fecc0985cce1b673aeebc93915bd0",
+      "after_raw_sha256": "01d3b9060363fcc69786745678a76f222f401f7eae8ddf90045618e77cea5baf",
+      "only_explicit_zero_connections": true,
+      "before_lf_sha256": "f11e35fef0b7438f1991d27d41417174ab3fecc0985cce1b673aeebc93915bd0",
+      "after_lf_sha256": "01d3b9060363fcc69786745678a76f222f401f7eae8ddf90045618e77cea5baf"
+    },
+    {
+      "path": "tb/cpu5_branch_top_tb.v",
+      "kind": "top",
+      "old": " dut(",
+      "new": " dut(.irq_software(1'b0),.irq_timer(1'b0),",
+      "before_raw_sha256": "6c6f673b888a4632e7593f2e0c6f7ca0cb8b1093d4e47a6f50381b6cbea3a806",
+      "after_raw_sha256": "e3430545837b9605cf2591e0e0dd35672897efe9a439f89df8c3dc9abc97a953",
+      "only_explicit_zero_connections": true,
+      "before_lf_sha256": "6c6f673b888a4632e7593f2e0c6f7ca0cb8b1093d4e47a6f50381b6cbea3a806",
+      "after_lf_sha256": "e3430545837b9605cf2591e0e0dd35672897efe9a439f89df8c3dc9abc97a953"
+    },
+    {
+      "path": "tb/cpu5_csr_program_tb.v",
+      "kind": "top",
+      "old": " dut(",
+      "new": " dut(.irq_software(1'b0),.irq_timer(1'b0),",
+      "before_raw_sha256": "4c3202b7c2b2acf1ef16d0939a28dcbdf5b42bdec38fffb91d10cc96b4f6f8aa",
+      "after_raw_sha256": "ab3ea0ade705a165e3ba9307d842c423ccd99485e10622001e9aae1803a4bb21",
+      "only_explicit_zero_connections": true,
+      "before_lf_sha256": "4c3202b7c2b2acf1ef16d0939a28dcbdf5b42bdec38fffb91d10cc96b4f6f8aa",
+      "after_lf_sha256": "ab3ea0ade705a165e3ba9307d842c423ccd99485e10622001e9aae1803a4bb21"
+    },
+    {
+      "path": "tb/cpu5_m_program_tb.v",
+      "kind": "top",
+      "old": " dut(",
+      "new": " dut(.irq_software(1'b0),.irq_timer(1'b0),",
+      "before_raw_sha256": "dd8dee9d11c7afdcb3b1738f778edf7007a1618edcb4ee6f70ff94f4a77edc66",
+      "after_raw_sha256": "408e6f0143c1204406138eccb17dc796c352f5c631bf872533b2530b10ac8830",
+      "only_explicit_zero_connections": true,
+      "before_lf_sha256": "dd8dee9d11c7afdcb3b1738f778edf7007a1618edcb4ee6f70ff94f4a77edc66",
+      "after_lf_sha256": "408e6f0143c1204406138eccb17dc796c352f5c631bf872533b2530b10ac8830"
+    },
+    {
+      "path": "tb/cpu5_ram_top_tb.v",
+      "kind": "top",
+      "old": " dut(",
+      "new": " dut(.irq_software(1'b0),.irq_timer(1'b0),",
+      "before_raw_sha256": "2adc26f2e95eca9562b8a1a1961a9aadfbbe83d3c04a3e4b50b1703c20c9513f",
+      "after_raw_sha256": "6b5eccccb0fd398b988194d8c352ed3bf5c356eb9f1935ca3cc962f2b7a1ad9c",
+      "only_explicit_zero_connections": true,
+      "before_lf_sha256": "2adc26f2e95eca9562b8a1a1961a9aadfbbe83d3c04a3e4b50b1703c20c9513f",
+      "after_lf_sha256": "6b5eccccb0fd398b988194d8c352ed3bf5c356eb9f1935ca3cc962f2b7a1ad9c"
+    },
+    {
+      "path": "tb/cpu5_top_scaffold_tb.v",
+      "kind": "top",
+      "old": " dut(",
+      "new": " dut(.irq_software(1'b0),.irq_timer(1'b0),",
+      "before_raw_sha256": "533d631d4345feee1e00a79cb11058b99b87c85faa62d4cf168527186220a1f3",
+      "after_raw_sha256": "3640d1d1395960617d156fcf204b72e6e35ddd4c67a23d91920d6d50019a49fc",
+      "only_explicit_zero_connections": true,
+      "before_lf_sha256": "533d631d4345feee1e00a79cb11058b99b87c85faa62d4cf168527186220a1f3",
+      "after_lf_sha256": "3640d1d1395960617d156fcf204b72e6e35ddd4c67a23d91920d6d50019a49fc"
+    },
+    {
+      "path": "tb/cpu5_trap_top_tb.v",
+      "kind": "top",
+      "old": " dut(",
+      "new": " dut(.irq_software(1'b0),.irq_timer(1'b0),",
+      "before_raw_sha256": "b48fd199e10b635d82a08b820ed353b2dbab2f65563aa05764c7764f7418a23c",
+      "after_raw_sha256": "304aec0a45a0cacc0be61478ba9d27e8662d9cef83f4dc81d140d4975a8203df",
+      "only_explicit_zero_connections": true,
+      "before_lf_sha256": "b48fd199e10b635d82a08b820ed353b2dbab2f65563aa05764c7764f7418a23c",
+      "after_lf_sha256": "304aec0a45a0cacc0be61478ba9d27e8662d9cef83f4dc81d140d4975a8203df"
+    }
+  ]
+}

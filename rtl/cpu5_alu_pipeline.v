@@ -1,14 +1,16 @@
 // CPU5 ALU subset: stage 3A-1 reference or opt-in stage 3A-2 forwarding.
 // Optional control flow, ordinary RAM, synchronous traps and machine CSR/MRET.
-// RV32M has a separate opt-in owner; IRQ remains outside this stage.
+// RV32M and synchronized machine IRQs are separately opt-in.
 // The unchanged regfile defines only x0 after reset; software initializes x1..31.
 module cpu5_alu_pipeline #(
     parameter integer SEQ_BITS=64,EPOCH_BITS=8,ENABLE_FORWARDING=0,
     ENABLE_CONTROL_FLOW=0,BRANCH_RESOLVE_IN_ID=0,ENABLE_BRANCH_PRED=0,
     ENABLE_RAM=0,DMEM_WORDS=4096,ENABLE_SYNC_TRAPS=0,ENABLE_CSR=0,ENABLE_RV32M=0,
+    ENABLE_EXTERNAL_IRQ=0,ENABLE_SOFTWARE_IRQ=0,ENABLE_TIMER_IRQ=0,
     parameter [31:0] DMEM_BASE_ADDR=32'h00010000,TRAP_VECTOR=32'h00000100
 )(
     input wire clk,rst_n,
+    input wire irq_external,irq_software,irq_timer,
     input wire in_valid,output wire in_ready,
     input wire [31:0] in_pc,in_instr,in_pred_next_pc,
     input wire in_pred_taken,in_pred_hit,in_fetch_error,
@@ -54,6 +56,7 @@ module cpu5_alu_pipeline #(
     output reg [SEQ_BITS-1:0] trap_seq
 );
     `include "rtl/cpu5_pipeline_types.vh"
+    localparam integer IRQ_ENABLED=ENABLE_EXTERNAL_IRQ||ENABLE_SOFTWARE_IRQ||ENABLE_TIMER_IRQ;
     reg idex_valid_q,exmem_valid_q,memwb_valid_q;
     cpu5_idex_t idex_q,idex_next;
     cpu5_exmem_t exmem_q,exmem_next;
@@ -88,6 +91,11 @@ module cpu5_alu_pipeline #(
     wire [63:0] m_owner_generation,m_result_generation;
     wire ex_move,owner_kill_valid;
     wire [SEQ_BITS-1:0] owner_kill_cut;
+    wire irq_take,irq_arm_q,irq_eligible_now,irq_safe_boundary;
+    wire [31:0] irq_pending_sync,irq_cause,csr_mstatus_value,csr_mie_value,csr_post_commit_mie;
+    wire csr_post_commit_global_enable;
+    wire [SEQ_BITS-1:0] irq_seq=exmem_valid_q?exmem_q.seq:idex_valid_q?idex_q.seq:
+        in_valid?in_seq:{SEQ_BITS{1'b1}};
     wire supported,uses_rs1,uses_rs2,writes_rd,a_pc,a_zero,b_imm;
     wire [4:0] rs1,rs2,rd;
     wire [31:0] imm,rf1,rf2,alu_result;
@@ -154,7 +162,12 @@ module cpu5_alu_pipeline #(
     wire ram_mem_matches=ENABLE_RAM && ram_completion_valid && exmem_valid_q &&
         ram_completion_seq==exmem_q.seq && !ram_completion_killed;
     wire ram_mem_error=ram_mem_matches && (exmem_q.is_load||exmem_q.is_store) && ram_completion_error;
-    assign mem_result_ready=ENABLE_CSR && exmem_q.is_csr?!csr_access_illegal:(exmem_q.is_load||exmem_q.is_store)?
+    wire wb_can_load=!memwb_valid_q || wb_fire;
+    // MIP changes independently of retirement. ID must not capture its value
+    // before the same edge can retire this CSR into WB; static CSRs retain
+    // their existing early MEM forwarding under WB backpressure.
+    wire csr_read_stable=exmem_q.csr_addr!=12'h344 || (mem_enable && wb_can_load);
+    assign mem_result_ready=ENABLE_CSR && exmem_q.is_csr?(!csr_access_illegal && csr_read_stable):(exmem_q.is_load||exmem_q.is_store)?
         (ram_mem_matches && !ram_completion_error):exmem_q.result_ready;
     assign mem_result_value=ENABLE_CSR && exmem_q.is_csr?csr_read_value:
         exmem_q.is_load?ram_load_value:exmem_q.is_store?32'd0:exmem_q.alu_result;
@@ -162,7 +175,6 @@ module cpu5_alu_pipeline #(
     assign wb_fire=rst_n && memwb_valid_q && wb_ready;
     assign wb_we=wb_fire && memwb_q.writes_rd && memwb_q.rd!=0;
     assign wb_pc=memwb_q.pc;assign wb_rd=memwb_q.rd;assign wb_data=memwb_q.result;
-    wire wb_can_load=!memwb_valid_q || wb_fire;
     wire csr_mem_fault=ENABLE_CSR && exmem_q.is_csr && !exmem_q.exception_valid && csr_access_illegal;
     wire mem_fault=rst_n && exmem_valid_q && !kill_mem &&
         (!exmem_supported_q || exmem_q.exception_valid || ram_mem_error || csr_mem_fault);
@@ -178,20 +190,44 @@ module cpu5_alu_pipeline #(
     assign halt_tval=ram_mem_error?exmem_q.mem_addr:csr_mem_fault?exmem_q.instr:exmem_q.exception_tval;
     assign dmem_fault=ENABLE_RAM && mem_fault && (exmem_q.is_load||exmem_q.is_store) &&
         halt_cause>=4 && halt_cause<=7;
-    assign retire_fire=rst_n && exmem_valid_q && !kill_mem && !mem_fault &&
+    assign retire_fire=rst_n && exmem_valid_q && !kill_mem && !mem_fault && !irq_take &&
         mem_result_ready && mem_enable && wb_can_load;
     assign csr_commit_fire=ENABLE_CSR && retire_fire && exmem_q.is_csr;
     assign mret_fire=ENABLE_CSR && retire_fire && exmem_q.is_mret;
     generate if(ENABLE_CSR)begin:g_csr
-        cpu5_csr_unit #(.TRAP_VECTOR(TRAP_VECTOR),.ENABLE_RV32M(ENABLE_RV32M)) u_csr(
+        cpu5_csr_unit #(.TRAP_VECTOR(TRAP_VECTOR),.ENABLE_RV32M(ENABLE_RV32M),
+            .ENABLE_EXTERNAL_IRQ(ENABLE_EXTERNAL_IRQ),.ENABLE_SOFTWARE_IRQ(ENABLE_SOFTWARE_IRQ),
+            .ENABLE_TIMER_IRQ(ENABLE_TIMER_IRQ)) u_csr(
             .clk(clk),.rst_n(rst_n),.access_addr(exmem_q.csr_addr),
             .access_funct3(exmem_q.instr[14:12]),.access_write_intent(exmem_q.csr_write_intent),
             .access_operand(exmem_q.csr_operand),.read_value(csr_read_value),.access_illegal(csr_access_illegal),
-            .commit_fire(csr_commit_fire),.mret_fire(mret_fire),.trap_fire(trap_fire),
-            .fault_pc(exmem_q.pc),.fault_cause(halt_cause),.fault_tval(halt_tval),
-            .mtvec_value(csr_mtvec_value),.mepc_value(csr_mepc_value));
+            .commit_fire(csr_commit_fire),.mret_fire(mret_fire),.trap_fire(trap_fire||irq_take),
+            .fault_pc(irq_take?arch_next_pc_q:exmem_q.pc),.fault_cause(irq_take?irq_cause:halt_cause),
+            .fault_tval(irq_take?32'd0:halt_tval),.irq_pending(irq_pending_sync),
+            .mtvec_value(csr_mtvec_value),.mepc_value(csr_mepc_value),
+            .mstatus_value(csr_mstatus_value),.mie_value(csr_mie_value),
+            .post_commit_global_enable(csr_post_commit_global_enable),.post_commit_mie(csr_post_commit_mie));
     end else begin:g_no_csr
-        assign {csr_read_value,csr_mtvec_value,csr_mepc_value,csr_access_illegal}=0;
+        assign {csr_read_value,csr_mtvec_value,csr_mepc_value,csr_access_illegal,
+                csr_mstatus_value,csr_mie_value,csr_post_commit_global_enable,csr_post_commit_mie}=0;
+    end endgenerate
+    // Presented STOREs remain irrevocable through their successful retirement
+    // edge. A live oldest LOAD also finishes first. An unissued STORE can be
+    // preempted before first presentation. EX M and killed background owners
+    // are cancelable and do not delay entry.
+    assign irq_safe_boundary=!ram_store_lock &&
+        !(exmem_valid_q && !kill_mem && exmem_q.is_load);
+    generate if(IRQ_ENABLED)begin:g_irq
+        cpu5_irq_ctrl #(.ENABLE_EXTERNAL_IRQ(ENABLE_EXTERNAL_IRQ),.ENABLE_SOFTWARE_IRQ(ENABLE_SOFTWARE_IRQ),
+            .ENABLE_TIMER_IRQ(ENABLE_TIMER_IRQ)) u_irq(
+            .clk(clk),.rst_n(rst_n),.irq_external(irq_external),.irq_software(irq_software),.irq_timer(irq_timer),
+            .global_enable(csr_mstatus_value[3]),.mie_value(csr_mie_value),.retire_fire(retire_fire),
+            .post_commit_global_enable(csr_post_commit_global_enable),.post_commit_mie(csr_post_commit_mie),
+            .trap_enter_fire(trap_fire||irq_take),.safe_boundary(irq_safe_boundary),.mem_enable(mem_enable),
+            .flush_active(flush_valid),.sync_fault(mem_fault),.pending_sync(irq_pending_sync),
+            .irq_arm_q(irq_arm_q),.irq_eligible_now(irq_eligible_now),.irq_take(irq_take),.irq_cause(irq_cause));
+    end else begin:g_no_irq
+        assign {irq_pending_sync,irq_arm_q,irq_eligible_now,irq_take,irq_cause}=0;
     end endgenerate
     wire m_ex_matches=ENABLE_RV32M && m_completion_valid && idex_valid_q &&
         m_completion_seq==idex_q.seq && !m_completion_killed;
@@ -200,6 +236,7 @@ module cpu5_alu_pipeline #(
     wire m_older_risk=exmem_valid_q && !kill_mem &&
         (mem_fault || exmem_q.is_load || exmem_q.is_store || exmem_q.is_csr || exmem_q.is_mret);
     assign m_issue_valid=ENABLE_RV32M && rst_n && idex_valid_q && idex_q.is_m &&
+        !irq_take &&
         !kill_ex && !idex_q.exception_valid && !flush_valid && !trap_fire && !mret_fire &&
         ex_enable && !m_older_risk && (!ENABLE_FORWARDING || !ex_source_stall);
     assign m_completion_ready=m_ex_matches && ex_move;
@@ -221,17 +258,18 @@ module cpu5_alu_pipeline #(
                 m_completion_epoch,m_completion_result,m_completion_killed,m_completion_op,m_owner_valid,m_owner_seq,
                 m_owner_killed,m_unit_start,m_unit_busy,m_unit_done,m_owner_generation,m_result_generation,m_drain_fire}=0;
     end endgenerate
-    wire mem_can_load=!exmem_valid_q || kill_mem || retire_fire || trap_fire;
+    wire mem_can_load=!exmem_valid_q || kill_mem || retire_fire || trap_fire || irq_take;
     wire ex_base_move=rst_n && idex_valid_q && !kill_ex && !trap_fire && !mret_fire && ex_enable && mem_can_load &&
+        !irq_take &&
         (!idex_q.is_m || idex_q.exception_valid || m_ex_matches) &&
         (!ENABLE_FORWARDING || !ex_source_stall) && !((ENABLE_CONTROL_FLOW||ENABLE_RAM) && flush_valid);
     wire ex_load_request=ENABLE_RAM && idex_q.is_load && !idex_q.exception_valid && !ex_ram_fault && ex_base_move;
     assign ex_move=ex_base_move && (!ex_load_request || ram_issue_ready);
-    wire ex_can_load=!idex_valid_q || kill_ex || ex_move || trap_fire || mret_fire;
+    wire ex_can_load=!idex_valid_q || kill_ex || ex_move || trap_fire || mret_fire || irq_take;
     // A STORE is first offered only by the oldest live, commit-qualified MEM
     // packet. Once offered, the owner retains it regardless of later stalls.
     wire ram_mem_owned=ram_owner_valid && ram_owner_seq==exmem_q.seq;
-    wire mem_store_request=ENABLE_RAM && rst_n && exmem_valid_q && !kill_mem &&
+    wire mem_store_request=ENABLE_RAM && rst_n && !irq_take && exmem_valid_q && !kill_mem &&
         exmem_q.is_store && exmem_supported_q && !exmem_q.exception_valid &&
         mem_enable && !flush_valid && !mem_fault && !ram_mem_owned;
     assign ram_issue_valid=mem_store_request || ex_load_request;
@@ -240,8 +278,8 @@ module cpu5_alu_pipeline #(
     // younger owners are age-killed; killing this source combinationally would
     // feed completion_killed back into fault detection and cancel the trap.
     assign ram_completion_ready=ram_mem_matches && (retire_fire || trap_fire);
-    assign owner_kill_valid=flush_fire || trap_fire || mret_fire;
-    assign owner_kill_cut=flush_fire?flush_cut_seq:exmem_q.seq+1'b1;
+    assign owner_kill_valid=flush_fire || trap_fire || mret_fire || irq_take;
+    assign owner_kill_cut=irq_take?{SEQ_BITS{1'b0}}:flush_fire?flush_cut_seq:exmem_q.seq+1'b1;
     generate if(ENABLE_RAM)begin:g_ram
         cpu5_ram_unit #(.DMEM_BASE_ADDR(DMEM_BASE_ADDR),.DMEM_WORDS(DMEM_WORDS)) u_decode(
             .instr(in_instr),.rs1_value(rf1),.rs2_value(rf2),.response_word(32'd0),
@@ -329,7 +367,7 @@ module cpu5_alu_pipeline #(
          (exmem_valid_q && !kill_mem && (exmem_q.is_csr || exmem_q.is_mret)));
     assign id_raw_wait=(!ENABLE_FORWARDING && in_valid && !in_fetch_error && supported &&
         ((uses_rs1&&pending_rs1) || (uses_rs2&&pending_rs2))) || id_branch_stall || csr_serial_wait;
-    assign in_ready=rst_n && id_enable && !kill_input && !trap_fire && !mret_fire &&
+    assign in_ready=rst_n && id_enable && !kill_input && !trap_fire && !mret_fire && !irq_take &&
         !(ENABLE_SYNC_TRAPS && mem_fault) && !id_raw_wait && ex_can_load &&
         !ex_redirect && !((ENABLE_CONTROL_FLOW||ENABLE_RAM) && flush_valid) &&
         !(ENABLE_CONTROL_FLOW && BRANCH_RESOLVE_IN_ID && known_ex_fault);
@@ -349,10 +387,10 @@ module cpu5_alu_pipeline #(
         !mem_fault && !known_ex_fault && id_move && supported && !ram_supported &&
         !id_ecall && !id_ebreak && !id_csr && !id_mret && !in_fetch_error && !id_target_fault &&
         id_next_pc!=in_pred_next_pc;
-    assign redirect_valid=trap_fire||mret_fire||ex_redirect||id_redirect;
-    assign redirect_kill_ifid=trap_fire||mret_fire||ex_redirect;
-    assign redirect_pc=trap_fire?trap_target:mret_fire?csr_mepc_value:ex_redirect?ex_actual_next:id_next_pc;
-    assign redirect_seq=(trap_fire||mret_fire)?exmem_q.seq:ex_redirect?idex_q.seq:in_seq;
+    assign redirect_valid=trap_fire||mret_fire||ex_redirect||id_redirect||irq_take;
+    assign redirect_kill_ifid=trap_fire||mret_fire||ex_redirect||irq_take;
+    assign redirect_pc=trap_fire?trap_target:irq_take?trap_target:mret_fire?csr_mepc_value:ex_redirect?ex_actual_next:id_next_pc;
+    assign redirect_seq=(trap_fire||mret_fire)?exmem_q.seq:irq_take?irq_seq:ex_redirect?idex_q.seq:in_seq;
     assign bp_commit_valid=ENABLE_CONTROL_FLOW && retire_fire && !exmem_q.is_csr && !exmem_q.is_mret;
     assign bp_commit_seq=exmem_q.seq;assign bp_commit_pc=exmem_q.pc;
     assign bp_commit_target=exmem_q.branch_target;assign bp_commit_taken=exmem_q.branch_taken;
@@ -476,10 +514,11 @@ module cpu5_alu_pipeline #(
         end else begin
             cycle_count<=cycle_count+64'd1;
             retire_valid<=retire_fire;
-            trap_valid<=trap_fire;
-            if(trap_fire)begin
-                trap_pc<=exmem_q.pc;trap_cause<=halt_cause;trap_tval<=halt_tval;
-                trap_seq<=exmem_q.seq;arch_next_pc_q<=trap_target;
+            trap_valid<=trap_fire||irq_take;
+            if(trap_fire||irq_take)begin
+                trap_pc<=irq_take?arch_next_pc_q:exmem_q.pc;trap_cause<=irq_take?irq_cause:halt_cause;
+                trap_tval<=irq_take?32'd0:halt_tval;
+                trap_seq<=irq_take?irq_seq:exmem_q.seq;arch_next_pc_q<=trap_target;
             end
             if(retire_fire)begin
                 instret_count<=instret_count+64'd1;
@@ -531,7 +570,11 @@ module cpu5_alu_pipeline #(
     initial if(SEQ_BITS!=64 || EPOCH_BITS<1 || (ENABLE_FORWARDING!=0 && ENABLE_FORWARDING!=1) ||
                (ENABLE_SYNC_TRAPS!=0 && ENABLE_SYNC_TRAPS!=1) || (ENABLE_SYNC_TRAPS && TRAP_VECTOR[1:0]!=0) ||
                (ENABLE_CSR!=0 && ENABLE_CSR!=1) || (ENABLE_CSR && (!ENABLE_SYNC_TRAPS || !ENABLE_CONTROL_FLOW)) ||
-               (ENABLE_RV32M!=0 && ENABLE_RV32M!=1))
+               (ENABLE_RV32M!=0 && ENABLE_RV32M!=1) ||
+               (ENABLE_EXTERNAL_IRQ!=0 && ENABLE_EXTERNAL_IRQ!=1) ||
+               (ENABLE_SOFTWARE_IRQ!=0 && ENABLE_SOFTWARE_IRQ!=1) ||
+               (ENABLE_TIMER_IRQ!=0 && ENABLE_TIMER_IRQ!=1) ||
+               (IRQ_ENABLED && (!ENABLE_CSR || !ENABLE_SYNC_TRAPS || !ENABLE_CONTROL_FLOW)))
         $fatal(1,"CPU5 ALU requires 64-bit age, positive epoch and supported forwarding mode");
     always @(posedge clk)if(rst_n)begin
         if(retire_fire && (!exmem_supported_q||exmem_q.exception_valid||kill_mem))
@@ -561,6 +604,10 @@ module cpu5_alu_pipeline #(
            (!m_ex_matches || m_completion_pc!==idex_q.pc || m_completion_instr!==idex_q.instr))
             $fatal(1,"CPU5 M result lacks matching live EX identity");
         if((trap_fire || mret_fire) && m_issue_fire)$fatal(1,"CPU5 redirect leaked younger M start");
+        if(irq_take && (retire_fire || trap_fire || mret_fire || csr_commit_fire || bp_commit_valid ||
+            ex_move || id_move || ram_issue_fire || m_issue_fire))$fatal(1,"CPU5 IRQ leaked retirement or younger action");
+        if(irq_take && (!mem_enable || ram_store_lock || !irq_safe_boundary || mem_fault || flush_valid))
+            $fatal(1,"CPU5 IRQ crossed unsafe or paused boundary");
     end
     // synthesis translate_on
 endmodule

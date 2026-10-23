@@ -1,0 +1,3118 @@
+{
+  "status": "PARTIAL VERIFIED: CPU5 synchronized machine IRQ",
+  "source_sha256": {
+    "docs/cpu5_csr_contract_20261023.md": "565d19551857283e6109f63d6e30d9aac0bd7ed2a964767bba32201557e98cdb",
+    "docs/cpu5_irq_contract_20261024.md": "5377e468e438c58af1fed8df4d56f47682a5e0906e1acdc5474f739afe7c3f88",
+    "docs/cpu5_irq_legacy_ports_20261024.json": "109f9fb97f3aa67bebffcc1646772f623e750da344e10379712a95f2c20169e6",
+    "docs/cpu5_m_contract_20261023.md": "ef6fef8735afebb7ba573338287b338f6a020248869e5c6ac4fef894bd15803c",
+    "programs/data_handshake_blank.hex": "f2e6f0a6c64128b0c96d7a8c2605cd02fda84b265881b2401fe76e045eadd1c5",
+    "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+    "rtl/branch_predictor.v": "27d6ab676db29b48a902e7ae68775e736e7be354b4c61dba495353fd537df578",
+    "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+    "rtl/cpu5_alu_pipeline.v": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+    "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+    "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+    "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+    "rtl/cpu5_if_adapter.v": "3c9d383ec37b23586d6b3602cf43ba450cc76cb99de48b3a0f9512275b0b4667",
+    "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+    "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+    "rtl/cpu5_pipeline_skeleton.v": "4e82307ff7b4de70b7bd0884c0aa4635237a173df3be4605c75357b37d3100f9",
+    "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+    "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+    "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+    "rtl/cpu5_top.v": "9d738c0a73094cf14112c67628aa92990d2cd14b60b8996e292b8b38c41abd6d",
+    "rtl/if_stage.v": "028464cec28c3e8348fc06d970740726cfe3664ccd8fc93aae343e301ee61927",
+    "rtl/instr_bus_adapter.v": "64e7a01e22d47bb7cd244457c1144f374cfccb3917d8f8dad06d0005e393f1b1",
+    "rtl/instr_mem.v": "28bcce1944b5ff366f7ecb989eb23acd085dbd3492a94da91af8483c5c4acbaa",
+    "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+    "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+    "run_cpu5_alu_control.do": "e9e0594a42a32e987461c5841405e63ada4f85b20a56da797a29c5ce1c518aa9",
+    "run_cpu5_alu_decode.do": "57856bf2e1c62523cdb4201ad021176b21e03e93e4e89bd7b3632b1fc10ca336",
+    "run_cpu5_alu_top.do": "1c8c09252b2a9cb17988f70fca24b491a147b6565d326eadefc02ecb0a260d1d",
+    "run_cpu5_branch_control.do": "9a90ecb1803a663c37a8c980a80243e110fc229766ba77c0392e169a1e8b21f2",
+    "run_cpu5_branch_top.do": "6eef62793d6ed0d208c21392c826adcde9e39e6899668b208f32f9cf40434035",
+    "run_cpu5_branch_unit.do": "56cfa33239fa9610ba218a2383ce9099650617d60eb49db75b2de8b02a3632b1",
+    "run_cpu5_csr_control.do": "06499dc6ba827fb0abddff54d674bbc643f58fed139b60c5146d594cc2919ce2",
+    "run_cpu5_csr_program.do": "be0f3b1e787fc0cbcb7b54b7096fb1925bfea56f5a1892a07b9014f627ec9e3b",
+    "run_cpu5_forward_control.do": "d7c4c589f2ed32cc9b8ff0ad9984c8079b73ffc053bee9b1c03b16912c86b574",
+    "run_cpu5_forward_top.do": "a236090889d2a59a4063e31e3e4aeb27b199b2668c071a95184536ecea2a1b19",
+    "run_cpu5_if_adapter.do": "828008aaf2e94cb873d94f997e2348e9613bf162551273aa17826033e70d8bf8",
+    "run_cpu5_irq_control.do": "e7096887664475f128a7785f439def9ca1e88bc5a9e4ff91b629264bd8f2767b",
+    "run_cpu5_irq_ctrl.do": "f532c61e557ecdf5b2b0eb71119b8b5326c9f1a2d2e60201e42d548652fc9eeb",
+    "run_cpu5_irq_program.do": "b1e2c7474c756e342f2664486bf1ba32da59f6b25fdb68212aa44f115f169579",
+    "run_cpu5_m_control.do": "ee04a7b530517091c2b17e0e2aa2e9f540b3bd92c9b2eab3672c4ec2fe5d6b5f",
+    "run_cpu5_m_owner.do": "fdafe1f4ca96055e508103d03864e7a697c18dae2975f1aa878d963e0e6bbbdc",
+    "run_cpu5_m_program.do": "11498d50cd4e441195389318faba34a25526beefd91970aef142c29762b64e54",
+    "run_cpu5_ram_control.do": "dd97857e48f9bd57f7b4769db29aeac0b1bdd89f287b77011743a5a5f2621c92",
+    "run_cpu5_ram_owner.do": "827fb0551d8f2e626a5916f4ec545f9ee785cb472dc2ffa8be0313ecaa8f2228",
+    "run_cpu5_ram_top.do": "830ed4bf70c91fb69e891120cab6adff14dd5cbb0940e7f2c5c3ae3424f8d6c3",
+    "run_cpu5_ram_unit.do": "0fc08bdb69649a765e5ccb55ca89c8642aa2caebd3d12b1c3c2fe4c0e367e9ba",
+    "run_cpu5_scaffold.do": "5ee218df9b8142cc5818db504811461731789dd94bf87b1ed30d5d829afa1d73",
+    "run_cpu5_trap_control.do": "8e3964c04b4a329d63e73c873f3a0034cb62f6c7125c24279b93a95c3d94878e",
+    "run_cpu5_trap_top.do": "1b8f84a63dceb35662695aaa0ff44e8ba5b5046f7c9756d3ece177c281c220ca",
+    "software/cpu5_ram/README.md": "ea5cc67a9c1a7a21ddc69409958d5938d4d46986b0b3ae9b550c70fff19f4524",
+    "software/cpu5_ram/link.ld": "a3ddb225693ca3942feb50eb2d41023fd37c705fc049806a002d93f59830d8a0",
+    "software/cpu5_ram/main.c": "304e53d99655b634257c78b1a482f8db987ab244fa1994841dbdf35def8ba8b3",
+    "software/cpu5_ram/start.S": "b05d0579b5f4902aeee30f88b0120a5b7f084de631f23fc348b1be5d807b9bd3",
+    "tb/cpu5_alu_control_tb.v": "f9034cfa2b9a06d6cd148000fafcaa1e04a2f9be188a8b44e33c7ab2f16be13a",
+    "tb/cpu5_alu_decode_tb.v": "f70817a0dd2e200959daa20cd77bb1469be7417270da0db7e1de3fdec455b562",
+    "tb/cpu5_alu_top_tb.v": "01d3b9060363fcc69786745678a76f222f401f7eae8ddf90045618e77cea5baf",
+    "tb/cpu5_branch_control_tb.v": "ec71339dafe115a4eee6849834d22dfd395d606c80916d744c28dcf0125de189",
+    "tb/cpu5_branch_top_tb.v": "e3430545837b9605cf2591e0e0dd35672897efe9a439f89df8c3dc9abc97a953",
+    "tb/cpu5_branch_unit_tb.v": "5830786279bf4df21b7977a3e1bc629ec78f7d314d867b13ac754600e70c5f8f",
+    "tb/cpu5_csr_control_tb.v": "7a002128d649e2f2140d8b78e5e28c56235f21972bf394ab4aea1a0f339d7ecc",
+    "tb/cpu5_csr_program_tb.v": "ab3ea0ade705a165e3ba9307d842c423ccd99485e10622001e9aae1803a4bb21",
+    "tb/cpu5_forward_control_tb.v": "d80709a3ce61b464a6ba22791cdb82c9afb9295747462df67a18610c49ddadec",
+    "tb/cpu5_forward_top_tb.v": "8178a463aa1f3c92446e44af559b59e4b3ee1b93e4967fd519cbac3097daf8b6",
+    "tb/cpu5_if_adapter_tb.v": "8c691a2e498d10747cc4593ea476bd5b3d3e60028a61c94a02bbd863847d71cc",
+    "tb/cpu5_irq_control_tb.v": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f",
+    "tb/cpu5_irq_ctrl_tb.v": "991967c954953aead2c962a8cb8611a3764dcad13df1106eeb8697e1c95909b8",
+    "tb/cpu5_irq_program_tb.v": "9773ce998e67f2bbfbc48ea9842f34039db5d8500515103a9be9e89238d6bffe",
+    "tb/cpu5_m_control_tb.v": "f51259d160c8c2849e5d359fe8676cd082b240145a4085880e9629e04e4ecd78",
+    "tb/cpu5_m_owner_tb.v": "c46a7c108bd2403ba5d2153df0b040482d0526d8fe9d0816c0f865d09a157a5f",
+    "tb/cpu5_m_program_tb.v": "408e6f0143c1204406138eccb17dc796c352f5c631bf872533b2530b10ac8830",
+    "tb/cpu5_pipeline_skeleton_tb.v": "9b480c19aaf9f2f68ef8b208df239865057435292613b1aaed3353f614517132",
+    "tb/cpu5_ram_control_tb.v": "3ff611d6fda3af9fd94c052b0e7d07456cd03f6eba24d5ec0ffa5850242af6d5",
+    "tb/cpu5_ram_owner_tb.v": "6d19483afd34d07b6e108d5c1b610320a028b6beb3037f1cab59164fe282065e",
+    "tb/cpu5_ram_top_tb.v": "6b5eccccb0fd398b988194d8c352ed3bf5c356eb9f1935ca3cc962f2b7a1ad9c",
+    "tb/cpu5_ram_unit_tb.v": "0ed22c2e707e0a1f059f20562072616ee7821e5c95a781ee58b2dcb486ed8bbe",
+    "tb/cpu5_top_scaffold_tb.v": "3640d1d1395960617d156fcf204b72e6e35ddd4c67a23d91920d6d50019a49fc",
+    "tb/cpu5_trap_control_tb.v": "c5bb90aa6c238311ab48654208d7edbab8df4550e6affbe5d54420c380dfff82",
+    "tb/cpu5_trap_top_tb.v": "304aec0a45a0cacc0be61478ba9d27e8662d9cef83f4dc81d140d4975a8203df",
+    "tools/analyze_cpu5_alu_trace.py": "64ca1b5076c7ac98c71678a0701ecbd5aa45fb565d72049a1bf323105d31cae5",
+    "tools/analyze_cpu5_branch.py": "5d463137f20d8a10441079f38cf0fb769b04041809a5319afde500f2e97b0bd7",
+    "tools/analyze_cpu5_forward.py": "6a02b1569f5627caafb92465dd12b0ae7b17bca4e8f180ca822075208a9c8fed",
+    "tools/analyze_cpu5_if_adapter.py": "eaa23f38c456b66a7c2c35ab028b181eaf839ee9251fe0f8e2b14d0cb893404c",
+    "tools/analyze_cpu5_ram.py": "a84c2d8d39d1a99651384dd4fc546f3f93197d1deee0c5d200dfd28eee2a10c9",
+    "tools/analyze_cpu5_trap.py": "7d33ed76c6a69079f713bfd13b5191a0a3c233f97b1b44381f7ea4091c158377",
+    "tools/cpu5_csr_reference.py": "39f472c48dff8891eeb2068adfbc1cb0ae2ca840ad400d5e15af89a52f639fbb",
+    "tools/cpu5_irq_reference.py": "8c2344168d8e938839357ece14e2755601782f9f8c45991cf8c34f961b37a818",
+    "tools/cpu5_m_reference.py": "ab3ae9ccb9791a9cf6822f76f1afa9e19c1b1cbf744c52b3bac17289a4a497de",
+    "tools/freeze_cpu5_csr.py": "1381eb06d46aa12469d4bd1643546946ac50cb732aa987f214b9c97dad501684",
+    "tools/freeze_cpu5_irq.py": "29c0df5895e610f8f681f2ef9375d89477a6ecb4fbc099c900e94eaa71eb4a53",
+    "tools/freeze_cpu5_m.py": "4e16a2fc847a1cb9e2076b923875ac014543effc27c2e504782be907c5998d57",
+    "tools/generate_cpu5_alu_vectors.py": "92355798bb89474f9636239399fc8024309ce062069bd839dcbc7f6a1cb3a866",
+    "tools/generate_cpu5_branch_vectors.py": "45a8ecfdde443f7a1ec92cc241118dd23fbdd83d38e17beb9fc01db22dc78a19",
+    "tools/generate_cpu5_ram_vectors.py": "752442e4b59bd2f85f85f6568a70c04cfcc7e08827fc27ee5d206f44b9460257",
+    "tools/generate_cpu5_trap_vectors.py": "a970bc0c609ab888ea44d610d08a44981ce0f2a5d31b4d702ec5301351fd0b52",
+    "tools/run_cpu5_csr_control.py": "92d6ff27842cf78977aeeae27143cf2ef42f628d301546e3297907bafec1016a",
+    "tools/run_cpu5_csr_program.py": "c0ff62690e4928d7c2ce50e65abf1a8318248b2ba1f961227e38c4f52093b6c0",
+    "tools/run_cpu5_irq_control.py": "533419a990f977873cd40294d3025f3dcf3f179198ebdc6c6897093ae9b6f536",
+    "tools/run_cpu5_irq_ctrl.py": "7acb79be4eb6a708d4bc3bd9fb0d4efe359bd489b94db6ff1ae6e0a9111a8b85",
+    "tools/run_cpu5_irq_program.py": "9b10e6a3d1dacdbc17a0ec7b7c18ae7d7779f3e348a5f6ae41c78acb8772d96b",
+    "tools/run_cpu5_m_control.py": "2268b97df13e6f451ff0efb7dd95acc13030c0757c45da795892cc924836e3d3",
+    "tools/run_cpu5_m_owner.py": "8cec821bc0c867ce7e0364a4fe02519ac737d3460a561c1a59602fbd7411ddaa",
+    "tools/run_cpu5_m_program.py": "cc081d607a5d79c74c526a374bf2181a94230ab6b162c235e72f240e81b45ac9",
+    "tools/verify_cpu5_alu.py": "d1a7bd88cd8719e24c3affca4f34656eeaf2e99456f588bd97602949b856ac5a",
+    "tools/verify_cpu5_branch.py": "9e90cd1b9b688d3d2239f32b2b44431a97420bbe8b5b482d8574d2c469dd6214",
+    "tools/verify_cpu5_csr.py": "d52f0dde5b4c9da2240a21b2d9b693db7da00401af423c348439fa604e563e06",
+    "tools/verify_cpu5_csr_mutations.py": "82e957491eff4c93ee8afc9886d2cdaeb31d4a811c25b24dc6b3dd04aa45ddfd",
+    "tools/verify_cpu5_forward.py": "f647bd2d7889aaacfa332e89decbfc6154238aed877b7a39dc595842651923c2",
+    "tools/verify_cpu5_irq.py": "ade1a87bfd1872c68168ddd07476c5fe1b01657f1386310958ed97f41cc7c582",
+    "tools/verify_cpu5_irq_mutations.py": "f0b28ba997276476ecf6896f3946495c24242b1f18f64f5d29b09be901ae3ff7",
+    "tools/verify_cpu5_m.py": "8cc94b215fb3a1acabb635f0f50878be0b5835a0a8a6a09b5ef1ef80fce24f59",
+    "tools/verify_cpu5_m_mutations.py": "c5791826248623d88160be35af6a49617d73ca38ee461fc163358e17d308545c",
+    "tools/verify_cpu5_ram.py": "de8a0cfb2e67cca4155adfd4398fafaa92c84aef573d91ba4abc9033e870b3e4",
+    "tools/verify_cpu5_scaffold.py": "8d847361ed7f7186a975e7a345dc34a77ae1e1a8ee5aa71c7482c8baa0bd4cb5",
+    "tools/verify_cpu5_trap.py": "c421ab21a1d43e94ff86f7cf39027753132ae21100d0c57a5fd36343b95290ab"
+  },
+  "sources_unchanged": true,
+  "processes": [
+    {
+      "name": "reference",
+      "status": "PASS",
+      "exit_code": 0,
+      "reused": true,
+      "source_sha_checks": 98
+    },
+    {
+      "name": "ctrl",
+      "status": "PASS",
+      "exit_code": 0,
+      "reused": true,
+      "source_sha_checks": 5
+    },
+    {
+      "name": "control",
+      "status": "PASS",
+      "exit_code": 0,
+      "reused": true,
+      "source_sha_checks": 16
+    },
+    {
+      "name": "program",
+      "status": "PASS",
+      "exit_code": 0,
+      "reused": true,
+      "source_sha_checks": 26
+    },
+    {
+      "name": "mutations",
+      "status": "PASS",
+      "exit_code": 0,
+      "reused": true,
+      "source_sha_checks": 16
+    }
+  ],
+  "suites": {
+    "ctrl": {
+      "status": "PASS",
+      "source_sha256": {
+        "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+        "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+        "tb/cpu5_irq_ctrl_tb.v": "991967c954953aead2c962a8cb8611a3764dcad13df1106eeb8697e1c95909b8",
+        "run_cpu5_irq_ctrl.do": "f532c61e557ecdf5b2b0eb71119b8b5326c9f1a2d2e60201e42d548652fc9eeb",
+        "tools/run_cpu5_irq_ctrl.py": "7acb79be4eb6a708d4bc3bd9fb0d4efe359bd489b94db6ff1ae6e0a9111a8b85"
+      },
+      "sources_unchanged": true,
+      "run_id": "20261023T120645809843Z_349b117c",
+      "positive": {
+        "name": "good_reference",
+        "kind": "good_reference",
+        "status": "PASS",
+        "directory": "build/cpu5_s9_irq_ctrl/runs/20261023T120645809843Z_349b117c/good_reference",
+        "compile": {
+          "status": "PASS",
+          "exit_code": 0,
+          "warnings": 0,
+          "errors": 0,
+          "console_sha256": "36a1d3645d1bc442f0f7de74b9f44e4747c5655597f2307790b53f5213e91542"
+        },
+        "simulation_exit_code": 0,
+        "expected_assertion": null,
+        "actual_assertion": null,
+        "changed_source": null,
+        "source_sha256": {
+          "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+          "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+          "tb/cpu5_irq_ctrl_tb.v": "991967c954953aead2c962a8cb8611a3764dcad13df1106eeb8697e1c95909b8"
+        },
+        "simulation_console_sha256": "8a3e2affd04e25f03a4b048122ae816b5b7df6fa669601c4e4a6a036d916f8a6",
+        "retained_artifact_sha256": {
+          "compile.do": "756391382a00dfe3e2042a844c64155def431e21ae890c81fb739c92e8de362b",
+          "compile_console.log": "36a1d3645d1bc442f0f7de74b9f44e4747c5655597f2307790b53f5213e91542",
+          "compile_transcript.log": "04726e00b31ef7a17aac3682f5365746f1fce70fadafd6bbd9c9ae69a27c20a2",
+          "simulate.do": "f465732392a21c5d09bf1663f7831f6a64ce2447d4cb4408151664f4d53cedca",
+          "simulation_console.log": "8a3e2affd04e25f03a4b048122ae816b5b7df6fa669601c4e4a6a036d916f8a6",
+          "simulation_transcript.log": "f6ccf738fe0542d494b2441fe58f5271b777f24df1ac69365ed0ff39b7ac102e",
+          "specimen.wlf": "500082109a4d532f22f727a0826e8f6968c28e16ab0b6e7e21ee0fcf2c441f90"
+        },
+        "summaries": {
+          "ctrl": [
+            {
+              "pass": true,
+              "mask": 0,
+              "checks": 611,
+              "takes": 0,
+              "retired": 23,
+              "post_commit_open": 0,
+              "post_commit_mie_open": 0,
+              "unsafe_blocked": 0,
+              "mem_blocked": 0,
+              "flush_blocked": 0,
+              "fault_blocked": 0,
+              "withdrawn": 0,
+              "priority_checks": 0
+            },
+            {
+              "pass": true,
+              "mask": 1,
+              "checks": 611,
+              "takes": 5,
+              "retired": 22,
+              "post_commit_open": 2,
+              "post_commit_mie_open": 1,
+              "unsafe_blocked": 43,
+              "mem_blocked": 5,
+              "flush_blocked": 7,
+              "fault_blocked": 6,
+              "withdrawn": 47,
+              "priority_checks": 176
+            },
+            {
+              "pass": true,
+              "mask": 2,
+              "checks": 611,
+              "takes": 5,
+              "retired": 22,
+              "post_commit_open": 2,
+              "post_commit_mie_open": 2,
+              "unsafe_blocked": 53,
+              "mem_blocked": 7,
+              "flush_blocked": 4,
+              "fault_blocked": 5,
+              "withdrawn": 38,
+              "priority_checks": 189
+            },
+            {
+              "pass": true,
+              "mask": 3,
+              "checks": 611,
+              "takes": 5,
+              "retired": 22,
+              "post_commit_open": 2,
+              "post_commit_mie_open": 2,
+              "unsafe_blocked": 81,
+              "mem_blocked": 14,
+              "flush_blocked": 9,
+              "fault_blocked": 8,
+              "withdrawn": 59,
+              "priority_checks": 287
+            },
+            {
+              "pass": true,
+              "mask": 4,
+              "checks": 611,
+              "takes": 5,
+              "retired": 22,
+              "post_commit_open": 1,
+              "post_commit_mie_open": 1,
+              "unsafe_blocked": 58,
+              "mem_blocked": 6,
+              "flush_blocked": 6,
+              "fault_blocked": 7,
+              "withdrawn": 39,
+              "priority_checks": 181
+            },
+            {
+              "pass": true,
+              "mask": 5,
+              "checks": 611,
+              "takes": 5,
+              "retired": 22,
+              "post_commit_open": 2,
+              "post_commit_mie_open": 1,
+              "unsafe_blocked": 82,
+              "mem_blocked": 12,
+              "flush_blocked": 13,
+              "fault_blocked": 12,
+              "withdrawn": 64,
+              "priority_checks": 280
+            },
+            {
+              "pass": true,
+              "mask": 6,
+              "checks": 611,
+              "takes": 5,
+              "retired": 22,
+              "post_commit_open": 2,
+              "post_commit_mie_open": 2,
+              "unsafe_blocked": 89,
+              "mem_blocked": 13,
+              "flush_blocked": 10,
+              "fault_blocked": 9,
+              "withdrawn": 59,
+              "priority_checks": 286
+            },
+            {
+              "pass": true,
+              "mask": 7,
+              "checks": 611,
+              "takes": 5,
+              "retired": 22,
+              "post_commit_open": 2,
+              "post_commit_mie_open": 2,
+              "unsafe_blocked": 112,
+              "mem_blocked": 21,
+              "flush_blocked": 16,
+              "fault_blocked": 15,
+              "withdrawn": 69,
+              "priority_checks": 357
+            }
+          ],
+          "bank": [
+            {
+              "pass": true,
+              "mask": 0,
+              "checks": 139,
+              "writes": 2,
+              "mip_writes": 0,
+              "trap_checks": 1,
+              "mret_checks": 2
+            },
+            {
+              "pass": true,
+              "mask": 1,
+              "checks": 139,
+              "writes": 39,
+              "mip_writes": 24,
+              "trap_checks": 1,
+              "mret_checks": 2
+            },
+            {
+              "pass": true,
+              "mask": 2,
+              "checks": 139,
+              "writes": 39,
+              "mip_writes": 24,
+              "trap_checks": 1,
+              "mret_checks": 2
+            },
+            {
+              "pass": true,
+              "mask": 3,
+              "checks": 139,
+              "writes": 39,
+              "mip_writes": 24,
+              "trap_checks": 1,
+              "mret_checks": 2
+            },
+            {
+              "pass": true,
+              "mask": 4,
+              "checks": 139,
+              "writes": 39,
+              "mip_writes": 24,
+              "trap_checks": 1,
+              "mret_checks": 2
+            },
+            {
+              "pass": true,
+              "mask": 5,
+              "checks": 139,
+              "writes": 39,
+              "mip_writes": 24,
+              "trap_checks": 1,
+              "mret_checks": 2
+            },
+            {
+              "pass": true,
+              "mask": 6,
+              "checks": 139,
+              "writes": 39,
+              "mip_writes": 24,
+              "trap_checks": 1,
+              "mret_checks": 2
+            },
+            {
+              "pass": true,
+              "mask": 7,
+              "checks": 139,
+              "writes": 39,
+              "mip_writes": 24,
+              "trap_checks": 1,
+              "mret_checks": 2
+            }
+          ]
+        }
+      },
+      "specimens": [
+        {
+          "name": "external_synchronizer_bypassed",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build/cpu5_s9_irq_ctrl/runs/20261023T120645809843Z_349b117c/external_synchronizer_bypassed",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "0cae462911811ca43aff27a5f45a9cdb26f61b46ad8645161d0849376cca482e"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "IRQ CTRL post-edge synchronizer",
+          "actual_assertion": "# ** Fatal: IRQ CTRL post-edge synchronizer",
+          "changed_source": {
+            "path": "rtl/cpu5_irq_ctrl.v",
+            "good_sha256": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "bad_sha256": "3db230bad8ee8c615d3d6efcd7e6dd489aeb7164b4ecccc94cdcb8c409636bcf",
+            "old": "external_sync_q<=external_meta_q;",
+            "new": "external_sync_q<=irq_external;"
+          },
+          "source_sha256": {
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/cpu5_irq_ctrl.v": "3db230bad8ee8c615d3d6efcd7e6dd489aeb7164b4ecccc94cdcb8c409636bcf",
+            "tb/cpu5_irq_ctrl_tb.v": "991967c954953aead2c962a8cb8611a3764dcad13df1106eeb8697e1c95909b8"
+          },
+          "simulation_console_sha256": "d718a482bdcd28cdc76610f6036626811da19a1eab81e7f2ea1ce91e4a4753b4",
+          "retained_artifact_sha256": {
+            "compile.do": "756391382a00dfe3e2042a844c64155def431e21ae890c81fb739c92e8de362b",
+            "compile_console.log": "0cae462911811ca43aff27a5f45a9cdb26f61b46ad8645161d0849376cca482e",
+            "compile_transcript.log": "047655ed213e3f88231ad6874600197e0e4c9f0a12b2cc0a0220369ca56bd0d1",
+            "simulate.do": "1420b66ec56502440aba149272506ccf0f89af9fd95acf8f45fc0778d0a1bc59",
+            "simulation_console.log": "d718a482bdcd28cdc76610f6036626811da19a1eab81e7f2ea1ce91e4a4753b4",
+            "simulation_transcript.log": "5f574f1109f0d4643bc6e296f6bc70c4b36abc8caf3ae9649e9cba029268f703",
+            "specimen.wlf": "c17346b92377cd09d9abaec1f88cf490959395d2f942e167610625983b84dd69"
+          }
+        },
+        {
+          "name": "irq_bypasses_old_arm",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build/cpu5_s9_irq_ctrl/runs/20261023T120645809843Z_349b117c/irq_bypasses_old_arm",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "47b21e4bbbab561b36bf5ac08c408e75918c1de09fed977d05c1cd6c794b7f40"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "CPU5 IRQ lacks pre-edge safe armed eligibility",
+          "actual_assertion": "# ** Fatal: CPU5 IRQ lacks pre-edge safe armed eligibility",
+          "changed_source": {
+            "path": "rtl/cpu5_irq_ctrl.v",
+            "good_sha256": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "bad_sha256": "4625b8a17efefa0c0c791f6252f2f1c34371ec3520bbeaa8c8f7af61c7557015",
+            "old": "assign irq_take=rst_n && irq_arm_q && irq_eligible_now && safe_boundary &&",
+            "new": "assign irq_take=rst_n && irq_eligible_now && safe_boundary &&"
+          },
+          "source_sha256": {
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/cpu5_irq_ctrl.v": "4625b8a17efefa0c0c791f6252f2f1c34371ec3520bbeaa8c8f7af61c7557015",
+            "tb/cpu5_irq_ctrl_tb.v": "991967c954953aead2c962a8cb8611a3764dcad13df1106eeb8697e1c95909b8"
+          },
+          "simulation_console_sha256": "939d1ad067735ee9b3998fee60ba237884e06ec3acbf2f5acb77829d23183a49",
+          "retained_artifact_sha256": {
+            "compile.do": "756391382a00dfe3e2042a844c64155def431e21ae890c81fb739c92e8de362b",
+            "compile_console.log": "47b21e4bbbab561b36bf5ac08c408e75918c1de09fed977d05c1cd6c794b7f40",
+            "compile_transcript.log": "2be466b5b5f5f49bbef08d2e94abdaa898e2fbeb2706d40397cd6aa0752145be",
+            "simulate.do": "1420b66ec56502440aba149272506ccf0f89af9fd95acf8f45fc0778d0a1bc59",
+            "simulation_console.log": "939d1ad067735ee9b3998fee60ba237884e06ec3acbf2f5acb77829d23183a49",
+            "simulation_transcript.log": "4b36954305758a884d87bd250aff21a34e8a7044f185d48c355abefbae77928a",
+            "specimen.wlf": "292fbb5036d0e928de3574a847a2c1e3b3877141ef36258570a5a4f4a6c73234"
+          }
+        },
+        {
+          "name": "speculative_post_status_arbitrates_now",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build/cpu5_s9_irq_ctrl/runs/20261023T120645809843Z_349b117c/speculative_post_status_arbitrates_now",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "76e0af9da6561719a03a1b9f3979b38ba6989b121d62f7fe47dd3ffd580b6341"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "IRQ CTRL current CSR eligibility",
+          "actual_assertion": "# ** Fatal: IRQ CTRL current CSR eligibility",
+          "changed_source": {
+            "path": "rtl/cpu5_irq_ctrl.v",
+            "good_sha256": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "bad_sha256": "c218f50d5e5991543cdf34106cb3fd6192eccceeaa74dce9900ab65153b8b052",
+            "old": "assign irq_eligible_now=global_enable && |enabled_pending;",
+            "new": "assign irq_eligible_now=post_commit_global_enable && |enabled_pending;"
+          },
+          "source_sha256": {
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/cpu5_irq_ctrl.v": "c218f50d5e5991543cdf34106cb3fd6192eccceeaa74dce9900ab65153b8b052",
+            "tb/cpu5_irq_ctrl_tb.v": "991967c954953aead2c962a8cb8611a3764dcad13df1106eeb8697e1c95909b8"
+          },
+          "simulation_console_sha256": "0eec854ce22d91446a2313237e23065d520c2957b0b04e170b6e0a60dd216c2b",
+          "retained_artifact_sha256": {
+            "compile.do": "756391382a00dfe3e2042a844c64155def431e21ae890c81fb739c92e8de362b",
+            "compile_console.log": "76e0af9da6561719a03a1b9f3979b38ba6989b121d62f7fe47dd3ffd580b6341",
+            "compile_transcript.log": "6c8386efda2e9563b5b6d4cfa0730d821018c57cebda86b131fb111572e4a4ae",
+            "simulate.do": "1420b66ec56502440aba149272506ccf0f89af9fd95acf8f45fc0778d0a1bc59",
+            "simulation_console.log": "0eec854ce22d91446a2313237e23065d520c2957b0b04e170b6e0a60dd216c2b",
+            "simulation_transcript.log": "7537f611a158bf55f2031b8a8c734ad56c06c7d2fb4126d69e2b5d011ce51739",
+            "specimen.wlf": "7b8720f66ffe581e1bcce54b2243c8fc96b82f349f0daaf8189769d144136573"
+          }
+        },
+        {
+          "name": "arm_ignores_retired_global_enable",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build/cpu5_s9_irq_ctrl/runs/20261023T120645809843Z_349b117c/arm_ignores_retired_global_enable",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "9edf8bb27af98fa8f5ef5fdeff788e2ae5f4bda3d82ebdbe40ab126a13bc0b12"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "IRQ CTRL post-commit arm timing",
+          "actual_assertion": "# ** Fatal: IRQ CTRL post-commit arm timing mask=7 got=0 want=1",
+          "changed_source": {
+            "path": "rtl/cpu5_irq_ctrl.v",
+            "good_sha256": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "bad_sha256": "d2a66f113c1e26046f562d1ad652c2ab31a86a6e3daebdd14c95cb5f72298408",
+            "old": "wire next_global=retire_fire?post_commit_global_enable:global_enable;",
+            "new": "wire next_global=global_enable;"
+          },
+          "source_sha256": {
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/cpu5_irq_ctrl.v": "d2a66f113c1e26046f562d1ad652c2ab31a86a6e3daebdd14c95cb5f72298408",
+            "tb/cpu5_irq_ctrl_tb.v": "991967c954953aead2c962a8cb8611a3764dcad13df1106eeb8697e1c95909b8"
+          },
+          "simulation_console_sha256": "799fcec8095b578f00c5a2cebe3eb1b2e36f445d10e076eeaf168bd374e8f9b9",
+          "retained_artifact_sha256": {
+            "compile.do": "756391382a00dfe3e2042a844c64155def431e21ae890c81fb739c92e8de362b",
+            "compile_console.log": "9edf8bb27af98fa8f5ef5fdeff788e2ae5f4bda3d82ebdbe40ab126a13bc0b12",
+            "compile_transcript.log": "8a2404b202d5cfe1a8ac7cf8131f9bd328f783fd3e6a2329a624af68bd624603",
+            "simulate.do": "1420b66ec56502440aba149272506ccf0f89af9fd95acf8f45fc0778d0a1bc59",
+            "simulation_console.log": "799fcec8095b578f00c5a2cebe3eb1b2e36f445d10e076eeaf168bd374e8f9b9",
+            "simulation_transcript.log": "daa0b75313f64c807a21167d04b09a6ed9dece92f50e2d6196623965e16bf3ea",
+            "specimen.wlf": "97e6f329281d44cb677d9536c2eb8e4a577d6e391f1fa02bb0411314a43e2d8c"
+          }
+        },
+        {
+          "name": "arm_ignores_retired_mie",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build/cpu5_s9_irq_ctrl/runs/20261023T120645809843Z_349b117c/arm_ignores_retired_mie",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "0bea028ec5acf525c587307fae0d804a08e9a42800f36e915d140370a2f89451"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "IRQ CTRL post-commit arm timing",
+          "actual_assertion": "# ** Fatal: IRQ CTRL post-commit arm timing mask=7 got=0 want=1",
+          "changed_source": {
+            "path": "rtl/cpu5_irq_ctrl.v",
+            "good_sha256": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "bad_sha256": "a6300d6b5658be3ae003526dba18ab8985c7843cbfb5cf330bac5b667c695b73",
+            "old": "wire [31:0] next_mie=retire_fire?post_commit_mie:mie_value;",
+            "new": "wire [31:0] next_mie=mie_value;"
+          },
+          "source_sha256": {
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/cpu5_irq_ctrl.v": "a6300d6b5658be3ae003526dba18ab8985c7843cbfb5cf330bac5b667c695b73",
+            "tb/cpu5_irq_ctrl_tb.v": "991967c954953aead2c962a8cb8611a3764dcad13df1106eeb8697e1c95909b8"
+          },
+          "simulation_console_sha256": "72bac5adc695ffcaee418198ad80b70bfda48185647e84f6e2b9b8907b07e94d",
+          "retained_artifact_sha256": {
+            "compile.do": "756391382a00dfe3e2042a844c64155def431e21ae890c81fb739c92e8de362b",
+            "compile_console.log": "0bea028ec5acf525c587307fae0d804a08e9a42800f36e915d140370a2f89451",
+            "compile_transcript.log": "a6555001648bdab0611d7770342853a41d3a2c20f8f89b0ccf3a4b627f0048a2",
+            "simulate.do": "1420b66ec56502440aba149272506ccf0f89af9fd95acf8f45fc0778d0a1bc59",
+            "simulation_console.log": "72bac5adc695ffcaee418198ad80b70bfda48185647e84f6e2b9b8907b07e94d",
+            "simulation_transcript.log": "c140e39abd5265cd41bada4fa666d80998ab5c6cbb63039beec99008467b9547",
+            "specimen.wlf": "6a3997da86e447df93e910579b4cb2b60a1fc133a470a8e2dbd217bbc1a85e27"
+          }
+        },
+        {
+          "name": "software_preempts_external_priority",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build/cpu5_s9_irq_ctrl/runs/20261023T120645809843Z_349b117c/software_preempts_external_priority",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "1f2fee5f4492d89a1f2eb592bea9ca8cb3e25fd0ba6d148f4c5fb93068c1cce7"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "IRQ CTRL source priority",
+          "actual_assertion": "# ** Fatal: IRQ CTRL source priority mask=7 got=80000003 want=8000000b",
+          "changed_source": {
+            "path": "rtl/cpu5_irq_ctrl.v",
+            "good_sha256": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "bad_sha256": "85226e223f51fdbcbba76c954d2201a7110ee28705d82ff534ebae7e2d539057",
+            "old": "assign irq_cause=enabled_pending[11]?32'h8000000b:\n        enabled_pending[3]?32'h80000003:",
+            "new": "assign irq_cause=enabled_pending[3]?32'h80000003:\n        enabled_pending[11]?32'h8000000b:"
+          },
+          "source_sha256": {
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/cpu5_irq_ctrl.v": "85226e223f51fdbcbba76c954d2201a7110ee28705d82ff534ebae7e2d539057",
+            "tb/cpu5_irq_ctrl_tb.v": "991967c954953aead2c962a8cb8611a3764dcad13df1106eeb8697e1c95909b8"
+          },
+          "simulation_console_sha256": "bb911463a2a524103376d420d2d12800dddc5c7c8fad71d6798a90cd6904d9dd",
+          "retained_artifact_sha256": {
+            "compile.do": "756391382a00dfe3e2042a844c64155def431e21ae890c81fb739c92e8de362b",
+            "compile_console.log": "1f2fee5f4492d89a1f2eb592bea9ca8cb3e25fd0ba6d148f4c5fb93068c1cce7",
+            "compile_transcript.log": "3abd5fc761000990d0555f0d06e3aa2c196c9c05ab90971a819b38cb98f43875",
+            "simulate.do": "1420b66ec56502440aba149272506ccf0f89af9fd95acf8f45fc0778d0a1bc59",
+            "simulation_console.log": "bb911463a2a524103376d420d2d12800dddc5c7c8fad71d6798a90cd6904d9dd",
+            "simulation_transcript.log": "56ffdc76c32ec22e8017e3069f0ccaa41eb21ca35b3377ab20f360175997393c",
+            "specimen.wlf": "018f8b3b56a52e1f52eaaaef985ef5f108fad2c5fe54272986b57a1cbd14bd36"
+          }
+        },
+        {
+          "name": "arm_not_canceled_when_ineligible",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build/cpu5_s9_irq_ctrl/runs/20261023T120645809843Z_349b117c/arm_not_canceled_when_ineligible",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "b13d0bffbe17be60ab6f9121a5be47f387ee425eef5a5a7ec9c429c5114f181f"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "IRQ CTRL post-commit arm timing",
+          "actual_assertion": "# ** Fatal: IRQ CTRL post-commit arm timing mask=7 got=1 want=0",
+          "changed_source": {
+            "path": "rtl/cpu5_irq_ctrl.v",
+            "good_sha256": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "bad_sha256": "3fa98f1ca6f99137701c46a238ca287de59384e4e118a8333cde3e05d408bfb8",
+            "old": "else irq_arm_q<=next_eligible;",
+            "new": "else irq_arm_q<=irq_arm_q || next_eligible;"
+          },
+          "source_sha256": {
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/cpu5_irq_ctrl.v": "3fa98f1ca6f99137701c46a238ca287de59384e4e118a8333cde3e05d408bfb8",
+            "tb/cpu5_irq_ctrl_tb.v": "991967c954953aead2c962a8cb8611a3764dcad13df1106eeb8697e1c95909b8"
+          },
+          "simulation_console_sha256": "f7cc808ea52f8dbe3dcdfd5db21419c752aa8ef8eed3a82e3f1189caa2380130",
+          "retained_artifact_sha256": {
+            "compile.do": "756391382a00dfe3e2042a844c64155def431e21ae890c81fb739c92e8de362b",
+            "compile_console.log": "b13d0bffbe17be60ab6f9121a5be47f387ee425eef5a5a7ec9c429c5114f181f",
+            "compile_transcript.log": "6c0c5c75846bf74198a48544ab4f7c6b0a6cafaf9d0563fd1bbfdb2a287a9eda",
+            "simulate.do": "1420b66ec56502440aba149272506ccf0f89af9fd95acf8f45fc0778d0a1bc59",
+            "simulation_console.log": "f7cc808ea52f8dbe3dcdfd5db21419c752aa8ef8eed3a82e3f1189caa2380130",
+            "simulation_transcript.log": "af00b60dfbf62993b3e12c3f125773bf3ffce89330305c7ebcdc81c10c9b5612",
+            "specimen.wlf": "30966674565cb4a8239be95a6cf5aa5f9dbea50c6a0b1910a815403c0e58306f"
+          }
+        },
+        {
+          "name": "irq_ignores_sync_fault_priority",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build/cpu5_s9_irq_ctrl/runs/20261023T120645809843Z_349b117c/irq_ignores_sync_fault_priority",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "3298b15325561c4667f79f5149546c7dca8c353afb89a5b6f3e3238575f17110"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "CPU5 IRQ lacks pre-edge safe armed eligibility",
+          "actual_assertion": "# ** Fatal: CPU5 IRQ lacks pre-edge safe armed eligibility",
+          "changed_source": {
+            "path": "rtl/cpu5_irq_ctrl.v",
+            "good_sha256": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "bad_sha256": "6954d19bab6bce05bd9035db00ca0884eadbd83e913b05a9834247411daac092",
+            "old": "mem_enable && !flush_active && !sync_fault;",
+            "new": "mem_enable && !flush_active;"
+          },
+          "source_sha256": {
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/cpu5_irq_ctrl.v": "6954d19bab6bce05bd9035db00ca0884eadbd83e913b05a9834247411daac092",
+            "tb/cpu5_irq_ctrl_tb.v": "991967c954953aead2c962a8cb8611a3764dcad13df1106eeb8697e1c95909b8"
+          },
+          "simulation_console_sha256": "05ffd88bd1df6ab8a83d980ff849aa3f1290e8b46f8cacb92ba7eac384d6fe5e",
+          "retained_artifact_sha256": {
+            "compile.do": "756391382a00dfe3e2042a844c64155def431e21ae890c81fb739c92e8de362b",
+            "compile_console.log": "3298b15325561c4667f79f5149546c7dca8c353afb89a5b6f3e3238575f17110",
+            "compile_transcript.log": "05aa975780909e202974da8ca8992e9b2bfb75ffd3ee452b790ddc20795bb49d",
+            "simulate.do": "1420b66ec56502440aba149272506ccf0f89af9fd95acf8f45fc0778d0a1bc59",
+            "simulation_console.log": "05ffd88bd1df6ab8a83d980ff849aa3f1290e8b46f8cacb92ba7eac384d6fe5e",
+            "simulation_transcript.log": "ee34317a940420c2e880e9c35096755b08eed0510488c29550ee0c6d7f669a75",
+            "specimen.wlf": "193ade9ce7ada858e68e2bed88b2c50ea45e4236af612362dab10e81947ba4a7"
+          }
+        },
+        {
+          "name": "irq_ignores_safe_boundary",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build/cpu5_s9_irq_ctrl/runs/20261023T120645809843Z_349b117c/irq_ignores_safe_boundary",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "e151f08ed020d0f29466df70b4e4a4c2c8d44e40df0cd63e774b197e432c4404"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "CPU5 IRQ lacks pre-edge safe armed eligibility",
+          "actual_assertion": "# ** Fatal: CPU5 IRQ lacks pre-edge safe armed eligibility",
+          "changed_source": {
+            "path": "rtl/cpu5_irq_ctrl.v",
+            "good_sha256": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "bad_sha256": "0c1a743129cc8280640ebae9c5958064e1825faf4faa8de321b9bed2957d8619",
+            "old": "irq_arm_q && irq_eligible_now && safe_boundary &&",
+            "new": "irq_arm_q && irq_eligible_now &&"
+          },
+          "source_sha256": {
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/cpu5_irq_ctrl.v": "0c1a743129cc8280640ebae9c5958064e1825faf4faa8de321b9bed2957d8619",
+            "tb/cpu5_irq_ctrl_tb.v": "991967c954953aead2c962a8cb8611a3764dcad13df1106eeb8697e1c95909b8"
+          },
+          "simulation_console_sha256": "f45548ef1f1e24f4241c68eb333998ef7b69859a2611b866ace338bb198361b5",
+          "retained_artifact_sha256": {
+            "compile.do": "756391382a00dfe3e2042a844c64155def431e21ae890c81fb739c92e8de362b",
+            "compile_console.log": "e151f08ed020d0f29466df70b4e4a4c2c8d44e40df0cd63e774b197e432c4404",
+            "compile_transcript.log": "e35be7703e51e125c283fd8919f28421f9cb5ea41211143234950009c55d913f",
+            "simulate.do": "1420b66ec56502440aba149272506ccf0f89af9fd95acf8f45fc0778d0a1bc59",
+            "simulation_console.log": "f45548ef1f1e24f4241c68eb333998ef7b69859a2611b866ace338bb198361b5",
+            "simulation_transcript.log": "ce4fb9f676c09577c3e7c7fd73bde4a372dbc8f68631125a887da35e6aa1789f",
+            "specimen.wlf": "03c09df2d9fec2235723cf9452fd896df0748dd0536da9873e50c575719a7cb2"
+          }
+        },
+        {
+          "name": "mie_unsupported_bits_writable",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build/cpu5_s9_irq_ctrl/runs/20261023T120645809843Z_349b117c/mie_unsupported_bits_writable",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "8250626cc2961d8d562e5179cd95285a665374a1a5540370f2414db40b71928f"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "IRQ BANK committed state",
+          "actual_assertion": "# ** Fatal: IRQ BANK committed state mask=7 status=00001800/00001800 mie=ffffffff/00000888",
+          "changed_source": {
+            "path": "rtl/cpu5_csr_unit.v",
+            "good_sha256": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "bad_sha256": "16bdf803a93b215b049cad5fd20145b5a3440585732b8411abec6fe5518786b8",
+            "old": "12'h304:csr_mie<=write_value & IRQ_MASK;",
+            "new": "12'h304:csr_mie<=write_value;"
+          },
+          "source_sha256": {
+            "rtl/cpu5_csr_unit.v": "16bdf803a93b215b049cad5fd20145b5a3440585732b8411abec6fe5518786b8",
+            "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "tb/cpu5_irq_ctrl_tb.v": "991967c954953aead2c962a8cb8611a3764dcad13df1106eeb8697e1c95909b8"
+          },
+          "simulation_console_sha256": "c513b9eff76bb1113869e93c77f38e5745ac540e7425bda798a36e89f1e86065",
+          "retained_artifact_sha256": {
+            "compile.do": "756391382a00dfe3e2042a844c64155def431e21ae890c81fb739c92e8de362b",
+            "compile_console.log": "8250626cc2961d8d562e5179cd95285a665374a1a5540370f2414db40b71928f",
+            "compile_transcript.log": "2827ff1ff0bd98ed0133e267363f69dee5ed72f74e2322c00d179a2b732b6158",
+            "simulate.do": "1420b66ec56502440aba149272506ccf0f89af9fd95acf8f45fc0778d0a1bc59",
+            "simulation_console.log": "c513b9eff76bb1113869e93c77f38e5745ac540e7425bda798a36e89f1e86065",
+            "simulation_transcript.log": "cdf7f2654dda4ba6f6bc6cd71c998438564e06d3b7a5a0362190b83c60473c89",
+            "specimen.wlf": "287e9f42c213199e87649358cf3679bca2e9f425320065f2f88878fc74a5d69f"
+          }
+        },
+        {
+          "name": "mip_write_has_software_side_effect",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build/cpu5_s9_irq_ctrl/runs/20261023T120645809843Z_349b117c/mip_write_has_software_side_effect",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "6306df03b1c2145bd206a639db1ff314b37aed00957ceb127b6e95e50a0b9f09"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "IRQ BANK committed state",
+          "actual_assertion": "# ** Fatal: IRQ BANK committed state mask=7 status=00001800/00001800 mie=00000888/00000000",
+          "changed_source": {
+            "path": "rtl/cpu5_csr_unit.v",
+            "good_sha256": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "bad_sha256": "98659e77c8e619e1eedb12432764ce3dce6b1725c8b0fb91863710f55415bfe8",
+            "old": "12'h304:csr_mie<=write_value & IRQ_MASK;",
+            "new": "12'h304:csr_mie<=write_value & IRQ_MASK;\n                12'h344:csr_mie<=write_value & IRQ_MASK;"
+          },
+          "source_sha256": {
+            "rtl/cpu5_csr_unit.v": "98659e77c8e619e1eedb12432764ce3dce6b1725c8b0fb91863710f55415bfe8",
+            "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "tb/cpu5_irq_ctrl_tb.v": "991967c954953aead2c962a8cb8611a3764dcad13df1106eeb8697e1c95909b8"
+          },
+          "simulation_console_sha256": "c3d1e904948641df17f7cc5cb548d8c1c92664cc3984f4f64c96a3be0f2e53be",
+          "retained_artifact_sha256": {
+            "compile.do": "756391382a00dfe3e2042a844c64155def431e21ae890c81fb739c92e8de362b",
+            "compile_console.log": "6306df03b1c2145bd206a639db1ff314b37aed00957ceb127b6e95e50a0b9f09",
+            "compile_transcript.log": "610a6fdb1f003050580ec92213b7b237f6d547c4ab76c06a57864c3f48cd4b55",
+            "simulate.do": "1420b66ec56502440aba149272506ccf0f89af9fd95acf8f45fc0778d0a1bc59",
+            "simulation_console.log": "c3d1e904948641df17f7cc5cb548d8c1c92664cc3984f4f64c96a3be0f2e53be",
+            "simulation_transcript.log": "8258ed17374f6a56b4f282fb88479519c9ca3b8ab4293550bb40cc6c5e157251",
+            "specimen.wlf": "77801879e8d0e60470ad1ac5d15a94cb134a2977b5799df13dcf61610d159aa1"
+          }
+        },
+        {
+          "name": "mip_reports_unimplemented_sources",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build/cpu5_s9_irq_ctrl/runs/20261023T120645809843Z_349b117c/mip_reports_unimplemented_sources",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "10185db0c14afd1ddd031b7b66f7456e188041c74b278b8f6550cbf0708a70db"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "IRQ BANK CSR decode/read",
+          "actual_assertion": "# ** Fatal: IRQ BANK CSR decode/read mask=7 addr=344 value=fffff777/00000000 illegal=0/0",
+          "changed_source": {
+            "path": "rtl/cpu5_csr_unit.v",
+            "good_sha256": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "bad_sha256": "42e767f7806408e368143a6d6a50dd56f4ea0c6cde4f663896c935c7a96b1e0b",
+            "old": "12'h344:begin known=IRQ_ENABLED;read_value=irq_pending & IRQ_MASK;end",
+            "new": "12'h344:begin known=IRQ_ENABLED;read_value=irq_pending;end"
+          },
+          "source_sha256": {
+            "rtl/cpu5_csr_unit.v": "42e767f7806408e368143a6d6a50dd56f4ea0c6cde4f663896c935c7a96b1e0b",
+            "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "tb/cpu5_irq_ctrl_tb.v": "991967c954953aead2c962a8cb8611a3764dcad13df1106eeb8697e1c95909b8"
+          },
+          "simulation_console_sha256": "3ed19009d72d1e3d4c98b67a888109e5f3b9d5628a56bbd9f7938a1f7a2bb18a",
+          "retained_artifact_sha256": {
+            "compile.do": "756391382a00dfe3e2042a844c64155def431e21ae890c81fb739c92e8de362b",
+            "compile_console.log": "10185db0c14afd1ddd031b7b66f7456e188041c74b278b8f6550cbf0708a70db",
+            "compile_transcript.log": "c00a7d2e8795cee3b97db4fcf2f540895986dc8eb51a2998e7ec3bd1e62279e6",
+            "simulate.do": "1420b66ec56502440aba149272506ccf0f89af9fd95acf8f45fc0778d0a1bc59",
+            "simulation_console.log": "3ed19009d72d1e3d4c98b67a888109e5f3b9d5628a56bbd9f7938a1f7a2bb18a",
+            "simulation_transcript.log": "fc53cd3e9cc86b301e0abc524394f663f3ad374752f3bec65f5d54224a25c6ea",
+            "specimen.wlf": "c3154862a4f334387ee2408bd6db403ea51ea409310457bbb5fd39cf94ae23c0"
+          }
+        },
+        {
+          "name": "mie_present_without_any_irq_source",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build/cpu5_s9_irq_ctrl/runs/20261023T120645809843Z_349b117c/mie_present_without_any_irq_source",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "98621c15f6f06706d91a5b18f3f42a47d035f7f779d37ff1568e442f2b319dbf"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "IRQ BANK CSR decode/read",
+          "actual_assertion": "# ** Fatal: IRQ BANK CSR decode/read mask=0 addr=304 value=00000000/00000000 illegal=0/1",
+          "changed_source": {
+            "path": "rtl/cpu5_csr_unit.v",
+            "good_sha256": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "bad_sha256": "8fd1694391ad5e667dbd0daac091ac79980732f446e57098cecf604272ef5368",
+            "old": "12'h304:begin known=IRQ_ENABLED;read_value=csr_mie;end",
+            "new": "12'h304:begin known=1'b1;read_value=csr_mie;end"
+          },
+          "source_sha256": {
+            "rtl/cpu5_csr_unit.v": "8fd1694391ad5e667dbd0daac091ac79980732f446e57098cecf604272ef5368",
+            "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "tb/cpu5_irq_ctrl_tb.v": "991967c954953aead2c962a8cb8611a3764dcad13df1106eeb8697e1c95909b8"
+          },
+          "simulation_console_sha256": "b750ea1d4ca6ec2c21c725953d222c752f1ce510b9c50edbd1c2b6ec97ac6c06",
+          "retained_artifact_sha256": {
+            "compile.do": "756391382a00dfe3e2042a844c64155def431e21ae890c81fb739c92e8de362b",
+            "compile_console.log": "98621c15f6f06706d91a5b18f3f42a47d035f7f779d37ff1568e442f2b319dbf",
+            "compile_transcript.log": "953f0cb9b5857c21dd6d795d55dbaed11805f68738b628d0e2d47caef84e8d9f",
+            "simulate.do": "1420b66ec56502440aba149272506ccf0f89af9fd95acf8f45fc0778d0a1bc59",
+            "simulation_console.log": "b750ea1d4ca6ec2c21c725953d222c752f1ce510b9c50edbd1c2b6ec97ac6c06",
+            "simulation_transcript.log": "032658370ce95143a8556f4d79344d7b85fb39bd58991a3d6f7dc5b361f71a1b",
+            "specimen.wlf": "26be41c2895bb61f06b615defae9e5e388d8e5d5b33880d257bc97c21c709bdc"
+          }
+        },
+        {
+          "name": "mret_preview_uses_old_mie",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build/cpu5_s9_irq_ctrl/runs/20261023T120645809843Z_349b117c/mret_preview_uses_old_mie",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "96a1c0f38e533e338f05036b768709c051360b907fff6c38e97cfd96f4799ffa"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "IRQ BANK post-commit preview",
+          "actual_assertion": "# ** Fatal: IRQ BANK post-commit preview mask=7 global=0/1 mie=00000888/00000888",
+          "changed_source": {
+            "path": "rtl/cpu5_csr_unit.v",
+            "good_sha256": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "bad_sha256": "050ee3e71bbc75fa81478f9c953103d26521adba7a486068b832643286e4b0ac",
+            "old": "assign post_commit_global_enable=mret_fire?csr_mstatus[7]:",
+            "new": "assign post_commit_global_enable=mret_fire?csr_mstatus[3]:"
+          },
+          "source_sha256": {
+            "rtl/cpu5_csr_unit.v": "050ee3e71bbc75fa81478f9c953103d26521adba7a486068b832643286e4b0ac",
+            "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "tb/cpu5_irq_ctrl_tb.v": "991967c954953aead2c962a8cb8611a3764dcad13df1106eeb8697e1c95909b8"
+          },
+          "simulation_console_sha256": "048ff2c8976f1d2f6a33d9494c3d602fcf27f86b3e771f0fca00b61b743c0f8f",
+          "retained_artifact_sha256": {
+            "compile.do": "756391382a00dfe3e2042a844c64155def431e21ae890c81fb739c92e8de362b",
+            "compile_console.log": "96a1c0f38e533e338f05036b768709c051360b907fff6c38e97cfd96f4799ffa",
+            "compile_transcript.log": "55c1e76e399e1ed8227ea1821d4844f05e16257796bee76778f9c8a768473399",
+            "simulate.do": "1420b66ec56502440aba149272506ccf0f89af9fd95acf8f45fc0778d0a1bc59",
+            "simulation_console.log": "048ff2c8976f1d2f6a33d9494c3d602fcf27f86b3e771f0fca00b61b743c0f8f",
+            "simulation_transcript.log": "bfa34ebcb476665241f2280b4885f8ed38b8fbe306639d9bae9e3917c003b24e",
+            "specimen.wlf": "5f23ec38fb8d46807d8aacf4e6f79445f41368d7368b019878ff0dc628ff3c72"
+          }
+        },
+        {
+          "name": "post_mie_preview_not_warl",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build/cpu5_s9_irq_ctrl/runs/20261023T120645809843Z_349b117c/post_mie_preview_not_warl",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "4e7b0120e7f30bf95b2b6ac1bc57436887bcb53e15a56db26e26c15fdc66c00d"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "IRQ BANK post-commit preview",
+          "actual_assertion": "# ** Fatal: IRQ BANK post-commit preview mask=7 global=0/0 mie=ffffffff/00000888",
+          "changed_source": {
+            "path": "rtl/cpu5_csr_unit.v",
+            "good_sha256": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "bad_sha256": "3021bda0cb5c9e4947e6d513b6e22d6ff0a9d0429b75f1a095ab82f89096ea56",
+            "old": "(write_value & IRQ_MASK):csr_mie;",
+            "new": "(write_value):csr_mie;"
+          },
+          "source_sha256": {
+            "rtl/cpu5_csr_unit.v": "3021bda0cb5c9e4947e6d513b6e22d6ff0a9d0429b75f1a095ab82f89096ea56",
+            "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "tb/cpu5_irq_ctrl_tb.v": "991967c954953aead2c962a8cb8611a3764dcad13df1106eeb8697e1c95909b8"
+          },
+          "simulation_console_sha256": "ed082b2acfd7322afde871feac6d824cd83cc8fa1c0e00c18f8a7c72b6c85c8b",
+          "retained_artifact_sha256": {
+            "compile.do": "756391382a00dfe3e2042a844c64155def431e21ae890c81fb739c92e8de362b",
+            "compile_console.log": "4e7b0120e7f30bf95b2b6ac1bc57436887bcb53e15a56db26e26c15fdc66c00d",
+            "compile_transcript.log": "2028127b3389300a0c45cea247b8f66c567c0c0ab49c9fbbb4ce4e454e1c6127",
+            "simulate.do": "1420b66ec56502440aba149272506ccf0f89af9fd95acf8f45fc0778d0a1bc59",
+            "simulation_console.log": "ed082b2acfd7322afde871feac6d824cd83cc8fa1c0e00c18f8a7c72b6c85c8b",
+            "simulation_transcript.log": "20642cdd8d92880c49627c450fabee8d8a070cf4940c4cb8b93f42a537ef6171",
+            "specimen.wlf": "03a0e1ab9ffc243883bd974e74aa9a739eee9729c0e7182146e9d8e370f19855"
+          }
+        },
+        {
+          "name": "controller_invalid_source_boolean",
+          "kind": "parameter_guard",
+          "status": "REJECTED",
+          "directory": "build/cpu5_s9_irq_ctrl/runs/20261023T120645809843Z_349b117c/controller_invalid_source_boolean",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "a07487750ef99567c5bae59596185c1d20131f049c7ff5a1e0018e01352c6e5e"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "CPU5 IRQ source parameters must be boolean",
+          "actual_assertion": "# ** Fatal: CPU5 IRQ source parameters must be boolean",
+          "changed_source": null,
+          "source_sha256": {
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "tb/cpu5_irq_ctrl_tb.v": "991967c954953aead2c962a8cb8611a3764dcad13df1106eeb8697e1c95909b8"
+          },
+          "simulation_console_sha256": "b4e04996ebd8482e1e247a7a1461151fcd88bf301f35a8f28824cbc2e438c1aa",
+          "retained_artifact_sha256": {
+            "compile.do": "756391382a00dfe3e2042a844c64155def431e21ae890c81fb739c92e8de362b",
+            "compile_console.log": "a07487750ef99567c5bae59596185c1d20131f049c7ff5a1e0018e01352c6e5e",
+            "compile_transcript.log": "f02bf6fb4d4bce29c5d3c02e7a47cc49f1daff7b35fdf58d0bb778401a773e53",
+            "simulate.do": "de9a48c6a65618919867aec2ff762334525b0d76a7b77bea44ef16c1b87f58da",
+            "simulation_console.log": "b4e04996ebd8482e1e247a7a1461151fcd88bf301f35a8f28824cbc2e438c1aa",
+            "simulation_transcript.log": "4553c35e24d3a643fefb5d67b9f7ad28989d0c2579db8375a7949b33784c6a81",
+            "specimen.wlf": "1c0dbdddd335edb9e1cc44046b921f224a6d7d6fc65f6af95b4c076264bc551e"
+          }
+        },
+        {
+          "name": "bank_invalid_source_boolean",
+          "kind": "parameter_guard",
+          "status": "REJECTED",
+          "directory": "build/cpu5_s9_irq_ctrl/runs/20261023T120645809843Z_349b117c/bank_invalid_source_boolean",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "bb2bed8d5d085d834b5c05105abea6a1285ac4625eebfdd91720da254d435441"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "CPU5 CSR IRQ source parameters must be boolean",
+          "actual_assertion": "# ** Fatal: CPU5 CSR IRQ source parameters must be boolean",
+          "changed_source": null,
+          "source_sha256": {
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "tb/cpu5_irq_ctrl_tb.v": "991967c954953aead2c962a8cb8611a3764dcad13df1106eeb8697e1c95909b8"
+          },
+          "simulation_console_sha256": "d5e531c9d9d616f515b7831ad1f860033807f072f1cdd48378d1d275c15df271",
+          "retained_artifact_sha256": {
+            "compile.do": "756391382a00dfe3e2042a844c64155def431e21ae890c81fb739c92e8de362b",
+            "compile_console.log": "bb2bed8d5d085d834b5c05105abea6a1285ac4625eebfdd91720da254d435441",
+            "compile_transcript.log": "3daf26491925fd73260d46b7fea789e4a74e78b6e4619c87b681d73e24cbaba1",
+            "simulate.do": "0e1e5e1e19046266b6116973241e54e27323d7732bddc877a36574a28d9e0ac6",
+            "simulation_console.log": "d5e531c9d9d616f515b7831ad1f860033807f072f1cdd48378d1d275c15df271",
+            "simulation_transcript.log": "9f4667d4fe9a805c480e7a38868508beb4a3f58e4d61156c0a3c341764e1ab26",
+            "specimen.wlf": "931b7de69262b0f80d712a3ab6ef1bd3ca5b42ce76b92759f0c9c3e287044110"
+          }
+        }
+      ],
+      "source_configurations": 8,
+      "controller_checks": 4888,
+      "bank_checks": 1112,
+      "rtl_mutations_rejected": 15,
+      "parameter_guards_rejected": 2,
+      "compile_zero_warning_error": true,
+      "scope": "independent IRQ controller and machine CSR bank; no CPU/board/performance claim"
+    },
+    "control": {
+      "status": "PASS",
+      "sources_unchanged": true,
+      "source_sha256": {
+        "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+        "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+        "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+        "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+        "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+        "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+        "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+        "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+        "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+        "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+        "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+        "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+        "rtl/cpu5_alu_pipeline.v": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+        "tb/cpu5_irq_control_tb.v": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f",
+        "run_cpu5_irq_control.do": "e7096887664475f128a7785f439def9ca1e88bc5a9e4ff91b629264bd8f2767b",
+        "tools/run_cpu5_irq_control.py": "533419a990f977873cd40294d3025f3dcf3f179198ebdc6c6897093ae9b6f536"
+      },
+      "command": [
+        "D:\\modeltech64_10.6e\\win64\\vsim.exe",
+        "-c",
+        "-do",
+        "run_cpu5_irq_control.do"
+      ],
+      "exit_code": 0,
+      "modes": [
+        {
+          "pass": true,
+          "mode": 0,
+          "cases": 27,
+          "retired": 142,
+          "wb": 142,
+          "sync_traps": 3,
+          "irqs": 22,
+          "requests": 6,
+          "responses": 6,
+          "m_issued": 3,
+          "m_completed": 2,
+          "m_drained": 1,
+          "irq_with_old_wb_write": 3,
+          "irq_with_held_wb": 1,
+          "revoked_arm_edges": 1,
+          "arm_edges": 61,
+          "killed_d_responses": 1,
+          "handler_retire_during_m_drain": 2,
+          "held_d_edges": 21,
+          "committed_state_checks": 1655
+        },
+        {
+          "pass": true,
+          "mode": 1,
+          "cases": 27,
+          "retired": 142,
+          "wb": 142,
+          "sync_traps": 3,
+          "irqs": 22,
+          "requests": 6,
+          "responses": 6,
+          "m_issued": 3,
+          "m_completed": 2,
+          "m_drained": 1,
+          "irq_with_old_wb_write": 3,
+          "irq_with_held_wb": 1,
+          "revoked_arm_edges": 1,
+          "arm_edges": 61,
+          "killed_d_responses": 1,
+          "handler_retire_during_m_drain": 2,
+          "held_d_edges": 21,
+          "committed_state_checks": 1655
+        }
+      ],
+      "cases": 54,
+      "retired": 284,
+      "sync_traps": 6,
+      "irqs": 44,
+      "m_issued": 6,
+      "m_completed": 4,
+      "m_drained": 2,
+      "scope": "CPU5 opt-in machine IRQ directed control; raw IRQ pins only; no MMIO/SoC claim"
+    },
+    "program": {
+      "status": "PASS",
+      "scope": "CPU5 synchronized machine IRQ real IF program",
+      "case_count": 16,
+      "cases": [
+        {
+          "case": 0,
+          "id_mode": 0,
+          "predict": 0,
+          "wait": 0,
+          "forwarding": 0,
+          "status": "PASS",
+          "events": 71,
+          "retired": 68,
+          "wb_packets": 68,
+          "irqs": 3,
+          "accepted": 72,
+          "m_issues": 5,
+          "m_starts": 5,
+          "m_completions": 4,
+          "m_drains": 1,
+          "d_requests": 14,
+          "d_responses": 14,
+          "requests": 81,
+          "responses": 81,
+          "stale_if_errors": 1,
+          "cycle_audit": {
+            "status": "PASS",
+            "cycles": 257,
+            "exact_irq_edges": 3,
+            "synchronizer_stages": 2,
+            "immediate_post_mret_irqs": 2
+          },
+          "cycles": 257,
+          "held_if_cycles": 9,
+          "defined_gpr": 21,
+          "unchanged_unknown_gpr": 11
+        },
+        {
+          "case": 1,
+          "id_mode": 1,
+          "predict": 0,
+          "wait": 0,
+          "forwarding": 0,
+          "status": "PASS",
+          "events": 72,
+          "retired": 69,
+          "wb_packets": 69,
+          "irqs": 3,
+          "accepted": 73,
+          "m_issues": 5,
+          "m_starts": 5,
+          "m_completions": 4,
+          "m_drains": 1,
+          "d_requests": 14,
+          "d_responses": 14,
+          "requests": 82,
+          "responses": 82,
+          "stale_if_errors": 1,
+          "cycle_audit": {
+            "status": "PASS",
+            "cycles": 257,
+            "exact_irq_edges": 3,
+            "synchronizer_stages": 2,
+            "immediate_post_mret_irqs": 2
+          },
+          "cycles": 257,
+          "held_if_cycles": 9,
+          "defined_gpr": 21,
+          "unchanged_unknown_gpr": 11
+        },
+        {
+          "case": 2,
+          "id_mode": 0,
+          "predict": 1,
+          "wait": 0,
+          "forwarding": 0,
+          "status": "PASS",
+          "events": 71,
+          "retired": 68,
+          "wb_packets": 68,
+          "irqs": 3,
+          "accepted": 72,
+          "m_issues": 5,
+          "m_starts": 5,
+          "m_completions": 4,
+          "m_drains": 1,
+          "d_requests": 14,
+          "d_responses": 14,
+          "requests": 81,
+          "responses": 81,
+          "stale_if_errors": 1,
+          "cycle_audit": {
+            "status": "PASS",
+            "cycles": 257,
+            "exact_irq_edges": 3,
+            "synchronizer_stages": 2,
+            "immediate_post_mret_irqs": 2
+          },
+          "cycles": 257,
+          "held_if_cycles": 9,
+          "defined_gpr": 21,
+          "unchanged_unknown_gpr": 11
+        },
+        {
+          "case": 3,
+          "id_mode": 1,
+          "predict": 1,
+          "wait": 0,
+          "forwarding": 0,
+          "status": "PASS",
+          "events": 72,
+          "retired": 69,
+          "wb_packets": 69,
+          "irqs": 3,
+          "accepted": 73,
+          "m_issues": 5,
+          "m_starts": 5,
+          "m_completions": 4,
+          "m_drains": 1,
+          "d_requests": 14,
+          "d_responses": 14,
+          "requests": 82,
+          "responses": 82,
+          "stale_if_errors": 1,
+          "cycle_audit": {
+            "status": "PASS",
+            "cycles": 257,
+            "exact_irq_edges": 3,
+            "synchronizer_stages": 2,
+            "immediate_post_mret_irqs": 2
+          },
+          "cycles": 257,
+          "held_if_cycles": 9,
+          "defined_gpr": 21,
+          "unchanged_unknown_gpr": 11
+        },
+        {
+          "case": 4,
+          "id_mode": 0,
+          "predict": 0,
+          "wait": 1,
+          "forwarding": 0,
+          "status": "PASS",
+          "events": 70,
+          "retired": 67,
+          "wb_packets": 67,
+          "irqs": 3,
+          "accepted": 69,
+          "m_issues": 5,
+          "m_starts": 5,
+          "m_completions": 4,
+          "m_drains": 1,
+          "d_requests": 14,
+          "d_responses": 14,
+          "requests": 77,
+          "responses": 77,
+          "stale_if_errors": 1,
+          "cycle_audit": {
+            "status": "PASS",
+            "cycles": 340,
+            "exact_irq_edges": 3,
+            "synchronizer_stages": 2,
+            "immediate_post_mret_irqs": 2
+          },
+          "cycles": 340,
+          "held_if_cycles": 7,
+          "defined_gpr": 21,
+          "unchanged_unknown_gpr": 11
+        },
+        {
+          "case": 5,
+          "id_mode": 1,
+          "predict": 0,
+          "wait": 1,
+          "forwarding": 0,
+          "status": "PASS",
+          "events": 71,
+          "retired": 68,
+          "wb_packets": 68,
+          "irqs": 3,
+          "accepted": 70,
+          "m_issues": 5,
+          "m_starts": 5,
+          "m_completions": 4,
+          "m_drains": 1,
+          "d_requests": 14,
+          "d_responses": 14,
+          "requests": 77,
+          "responses": 77,
+          "stale_if_errors": 1,
+          "cycle_audit": {
+            "status": "PASS",
+            "cycles": 343,
+            "exact_irq_edges": 3,
+            "synchronizer_stages": 2,
+            "immediate_post_mret_irqs": 2
+          },
+          "cycles": 343,
+          "held_if_cycles": 7,
+          "defined_gpr": 21,
+          "unchanged_unknown_gpr": 11
+        },
+        {
+          "case": 6,
+          "id_mode": 0,
+          "predict": 1,
+          "wait": 1,
+          "forwarding": 0,
+          "status": "PASS",
+          "events": 70,
+          "retired": 67,
+          "wb_packets": 67,
+          "irqs": 3,
+          "accepted": 69,
+          "m_issues": 5,
+          "m_starts": 5,
+          "m_completions": 4,
+          "m_drains": 1,
+          "d_requests": 14,
+          "d_responses": 14,
+          "requests": 77,
+          "responses": 77,
+          "stale_if_errors": 1,
+          "cycle_audit": {
+            "status": "PASS",
+            "cycles": 340,
+            "exact_irq_edges": 3,
+            "synchronizer_stages": 2,
+            "immediate_post_mret_irqs": 2
+          },
+          "cycles": 340,
+          "held_if_cycles": 7,
+          "defined_gpr": 21,
+          "unchanged_unknown_gpr": 11
+        },
+        {
+          "case": 7,
+          "id_mode": 1,
+          "predict": 1,
+          "wait": 1,
+          "forwarding": 0,
+          "status": "PASS",
+          "events": 71,
+          "retired": 68,
+          "wb_packets": 68,
+          "irqs": 3,
+          "accepted": 70,
+          "m_issues": 5,
+          "m_starts": 5,
+          "m_completions": 4,
+          "m_drains": 1,
+          "d_requests": 14,
+          "d_responses": 14,
+          "requests": 77,
+          "responses": 77,
+          "stale_if_errors": 1,
+          "cycle_audit": {
+            "status": "PASS",
+            "cycles": 343,
+            "exact_irq_edges": 3,
+            "synchronizer_stages": 2,
+            "immediate_post_mret_irqs": 2
+          },
+          "cycles": 343,
+          "held_if_cycles": 7,
+          "defined_gpr": 21,
+          "unchanged_unknown_gpr": 11
+        },
+        {
+          "case": 8,
+          "id_mode": 0,
+          "predict": 0,
+          "wait": 0,
+          "forwarding": 1,
+          "status": "PASS",
+          "events": 71,
+          "retired": 68,
+          "wb_packets": 68,
+          "irqs": 3,
+          "accepted": 72,
+          "m_issues": 5,
+          "m_starts": 5,
+          "m_completions": 4,
+          "m_drains": 1,
+          "d_requests": 14,
+          "d_responses": 14,
+          "requests": 81,
+          "responses": 81,
+          "stale_if_errors": 1,
+          "cycle_audit": {
+            "status": "PASS",
+            "cycles": 207,
+            "exact_irq_edges": 3,
+            "synchronizer_stages": 2,
+            "immediate_post_mret_irqs": 2
+          },
+          "cycles": 207,
+          "held_if_cycles": 8,
+          "defined_gpr": 21,
+          "unchanged_unknown_gpr": 11
+        },
+        {
+          "case": 9,
+          "id_mode": 1,
+          "predict": 0,
+          "wait": 0,
+          "forwarding": 1,
+          "status": "PASS",
+          "events": 72,
+          "retired": 69,
+          "wb_packets": 69,
+          "irqs": 3,
+          "accepted": 73,
+          "m_issues": 5,
+          "m_starts": 5,
+          "m_completions": 4,
+          "m_drains": 1,
+          "d_requests": 14,
+          "d_responses": 14,
+          "requests": 82,
+          "responses": 82,
+          "stale_if_errors": 1,
+          "cycle_audit": {
+            "status": "PASS",
+            "cycles": 207,
+            "exact_irq_edges": 3,
+            "synchronizer_stages": 2,
+            "immediate_post_mret_irqs": 2
+          },
+          "cycles": 207,
+          "held_if_cycles": 8,
+          "defined_gpr": 21,
+          "unchanged_unknown_gpr": 11
+        },
+        {
+          "case": 10,
+          "id_mode": 0,
+          "predict": 1,
+          "wait": 0,
+          "forwarding": 1,
+          "status": "PASS",
+          "events": 71,
+          "retired": 68,
+          "wb_packets": 68,
+          "irqs": 3,
+          "accepted": 72,
+          "m_issues": 5,
+          "m_starts": 5,
+          "m_completions": 4,
+          "m_drains": 1,
+          "d_requests": 14,
+          "d_responses": 14,
+          "requests": 81,
+          "responses": 81,
+          "stale_if_errors": 1,
+          "cycle_audit": {
+            "status": "PASS",
+            "cycles": 207,
+            "exact_irq_edges": 3,
+            "synchronizer_stages": 2,
+            "immediate_post_mret_irqs": 2
+          },
+          "cycles": 207,
+          "held_if_cycles": 8,
+          "defined_gpr": 21,
+          "unchanged_unknown_gpr": 11
+        },
+        {
+          "case": 11,
+          "id_mode": 1,
+          "predict": 1,
+          "wait": 0,
+          "forwarding": 1,
+          "status": "PASS",
+          "events": 72,
+          "retired": 69,
+          "wb_packets": 69,
+          "irqs": 3,
+          "accepted": 73,
+          "m_issues": 5,
+          "m_starts": 5,
+          "m_completions": 4,
+          "m_drains": 1,
+          "d_requests": 14,
+          "d_responses": 14,
+          "requests": 82,
+          "responses": 82,
+          "stale_if_errors": 1,
+          "cycle_audit": {
+            "status": "PASS",
+            "cycles": 207,
+            "exact_irq_edges": 3,
+            "synchronizer_stages": 2,
+            "immediate_post_mret_irqs": 2
+          },
+          "cycles": 207,
+          "held_if_cycles": 8,
+          "defined_gpr": 21,
+          "unchanged_unknown_gpr": 11
+        },
+        {
+          "case": 12,
+          "id_mode": 0,
+          "predict": 0,
+          "wait": 1,
+          "forwarding": 1,
+          "status": "PASS",
+          "events": 70,
+          "retired": 67,
+          "wb_packets": 67,
+          "irqs": 3,
+          "accepted": 68,
+          "m_issues": 5,
+          "m_starts": 5,
+          "m_completions": 4,
+          "m_drains": 1,
+          "d_requests": 14,
+          "d_responses": 14,
+          "requests": 77,
+          "responses": 77,
+          "stale_if_errors": 1,
+          "cycle_audit": {
+            "status": "PASS",
+            "cycles": 333,
+            "exact_irq_edges": 3,
+            "synchronizer_stages": 2,
+            "immediate_post_mret_irqs": 2
+          },
+          "cycles": 333,
+          "held_if_cycles": 7,
+          "defined_gpr": 21,
+          "unchanged_unknown_gpr": 11
+        },
+        {
+          "case": 13,
+          "id_mode": 1,
+          "predict": 0,
+          "wait": 1,
+          "forwarding": 1,
+          "status": "PASS",
+          "events": 71,
+          "retired": 68,
+          "wb_packets": 68,
+          "irqs": 3,
+          "accepted": 69,
+          "m_issues": 5,
+          "m_starts": 5,
+          "m_completions": 4,
+          "m_drains": 1,
+          "d_requests": 14,
+          "d_responses": 14,
+          "requests": 77,
+          "responses": 77,
+          "stale_if_errors": 1,
+          "cycle_audit": {
+            "status": "PASS",
+            "cycles": 336,
+            "exact_irq_edges": 3,
+            "synchronizer_stages": 2,
+            "immediate_post_mret_irqs": 2
+          },
+          "cycles": 336,
+          "held_if_cycles": 7,
+          "defined_gpr": 21,
+          "unchanged_unknown_gpr": 11
+        },
+        {
+          "case": 14,
+          "id_mode": 0,
+          "predict": 1,
+          "wait": 1,
+          "forwarding": 1,
+          "status": "PASS",
+          "events": 70,
+          "retired": 67,
+          "wb_packets": 67,
+          "irqs": 3,
+          "accepted": 68,
+          "m_issues": 5,
+          "m_starts": 5,
+          "m_completions": 4,
+          "m_drains": 1,
+          "d_requests": 14,
+          "d_responses": 14,
+          "requests": 77,
+          "responses": 77,
+          "stale_if_errors": 1,
+          "cycle_audit": {
+            "status": "PASS",
+            "cycles": 333,
+            "exact_irq_edges": 3,
+            "synchronizer_stages": 2,
+            "immediate_post_mret_irqs": 2
+          },
+          "cycles": 333,
+          "held_if_cycles": 7,
+          "defined_gpr": 21,
+          "unchanged_unknown_gpr": 11
+        },
+        {
+          "case": 15,
+          "id_mode": 1,
+          "predict": 1,
+          "wait": 1,
+          "forwarding": 1,
+          "status": "PASS",
+          "events": 71,
+          "retired": 68,
+          "wb_packets": 68,
+          "irqs": 3,
+          "accepted": 69,
+          "m_issues": 5,
+          "m_starts": 5,
+          "m_completions": 4,
+          "m_drains": 1,
+          "d_requests": 14,
+          "d_responses": 14,
+          "requests": 77,
+          "responses": 77,
+          "stale_if_errors": 1,
+          "cycle_audit": {
+            "status": "PASS",
+            "cycles": 336,
+            "exact_irq_edges": 3,
+            "synchronizer_stages": 2,
+            "immediate_post_mret_irqs": 2
+          },
+          "cycles": 336,
+          "held_if_cycles": 7,
+          "defined_gpr": 21,
+          "unchanged_unknown_gpr": 11
+        }
+      ],
+      "total_retired": 1088,
+      "total_wb_packets": 1088,
+      "total_irqs": 48,
+      "total_m_issues": 80,
+      "total_m_drains": 16,
+      "total_d_requests": 224,
+      "total_d_responses": 224,
+      "total_i_requests": 1268,
+      "total_i_responses": 1268,
+      "total_stale_if_errors": 16,
+      "decoder_selftest": {
+        "status": "PASS",
+        "fixed_word_checks": 12
+      },
+      "limitation": "Raw device fixture only; no MMIO, timer device, cache/AXI/SoC, STA, board or performance claim",
+      "negative_evidence_tests": {
+        "status": "PASS",
+        "rejected_count": 11,
+        "rejected": [
+          {
+            "name": "irq_mepc",
+            "status": "REJECTED",
+            "reason": "event pc mismatch row12",
+            "good_sha256": "2a70f9eafd0f91c9866384ea4cbbe55b7acf4181f7c809d4362cd7a6af255d36",
+            "bad_sha256": "a8734361c96b182015fac3f0b16308cb236f0f71cd4357f8d28592495b913b73"
+          },
+          {
+            "name": "irq_cause",
+            "status": "REJECTED",
+            "reason": "event cause mismatch row12",
+            "good_sha256": "2a70f9eafd0f91c9866384ea4cbbe55b7acf4181f7c809d4362cd7a6af255d36",
+            "bad_sha256": "a5a6bfe456f5875b1061fd5907645c118d3088d21b13f067042c3acda95a687d"
+          },
+          {
+            "name": "irq_status",
+            "status": "REJECTED",
+            "reason": "event mstatus mismatch row12",
+            "good_sha256": "2a70f9eafd0f91c9866384ea4cbbe55b7acf4181f7c809d4362cd7a6af255d36",
+            "bad_sha256": "cba1c527f6b1fd76bf0b510319c0e01e282b4881fb5971d30b892a505cbe02c4"
+          },
+          {
+            "name": "mret_pc",
+            "status": "REJECTED",
+            "reason": "event nextpc mismatch row27",
+            "good_sha256": "2a70f9eafd0f91c9866384ea4cbbe55b7acf4181f7c809d4362cd7a6af255d36",
+            "bad_sha256": "138b4100317cdb4bc3485a24ddf4bd851dba2decb8cb69bbd09d56deb14efb94"
+          },
+          {
+            "name": "sync_pending",
+            "status": "REJECTED",
+            "reason": "two-flop pending mismatch cycle37",
+            "good_sha256": "4bc082622b71e83ce038b2343fefdc4f250f8a0d7000f425509538852a1c26aa",
+            "bad_sha256": "240161bb791222c5cdf2fd38f7ef24557a33804db45dc8a1cca79dfe362ad2ba"
+          },
+          {
+            "name": "arm",
+            "status": "REJECTED",
+            "reason": "old arm/current eligibility mismatch cycle37",
+            "good_sha256": "4bc082622b71e83ce038b2343fefdc4f250f8a0d7000f425509538852a1c26aa",
+            "bad_sha256": "d6efc2a0b14395f53c1691f9551bd930fa99049e820a286c7a90bcacc1182e95"
+          },
+          {
+            "name": "take",
+            "status": "REJECTED",
+            "reason": "IRQ first safe edge mismatch cycle37",
+            "good_sha256": "4bc082622b71e83ce038b2343fefdc4f250f8a0d7000f425509538852a1c26aa",
+            "bad_sha256": "8bee642bfa9be96ec6700b9eeedf73fbaf4f666991d5007aa1d46f7173ba0543"
+          },
+          {
+            "name": "killed_m_result",
+            "status": "REJECTED",
+            "reason": "killed DIV drain ownership/result",
+            "good_sha256": "f81ac187738ce5df5729ec22976db0b882a4ed8d85fbe323eaeb2af0b308300e",
+            "bad_sha256": "17fb59abb06f28094e5a78a64b259ba702a6acd3ab742ed2d0572184b4b4d9df"
+          },
+          {
+            "name": "stale_if_error",
+            "status": "REJECTED",
+            "reason": "held stale IF error/request ledgers not closed",
+            "good_sha256": "c99eaca6d8f16ad5d6251bc72f409c36ccd6b93be15c0999b9b949be9a3b8a96",
+            "bad_sha256": "ccf2839719ddcacb91d6539db6ed19ee602af753280e94ef1b4a088bf35c59eb"
+          },
+          {
+            "name": "final_ram",
+            "status": "REJECTED",
+            "reason": "complete RAM mismatch",
+            "good_sha256": "845d6246a584b4ad3763016867c232ad4376125e403d4c9dc9bac340b7e3289b",
+            "bad_sha256": "d2e8a514c17dc9585ae10c8276417dfb436cf15e19f093c0ab343eef6aeefb34"
+          },
+          {
+            "name": "final_gpr",
+            "status": "REJECTED",
+            "reason": "final GPR x7 mismatch",
+            "good_sha256": "b6e1ccd8028d38181f04af8cea1f75968cf46041fa79d62c65de96da57f9b2f4",
+            "bad_sha256": "5a2a5d3bdbf569ec14111ca0a5679e1fee44a2e574f17d5c980291a3504ba1b9"
+          }
+        ],
+        "good_inputs_unchanged": true
+      },
+      "source_sha256": {
+        "rtl/instr_mem.v": "28bcce1944b5ff366f7ecb989eb23acd085dbd3492a94da91af8483c5c4acbaa",
+        "rtl/instr_bus_adapter.v": "64e7a01e22d47bb7cd244457c1144f374cfccb3917d8f8dad06d0005e393f1b1",
+        "rtl/branch_predictor.v": "27d6ab676db29b48a902e7ae68775e736e7be354b4c61dba495353fd537df578",
+        "rtl/if_stage.v": "028464cec28c3e8348fc06d970740726cfe3664ccd8fc93aae343e301ee61927",
+        "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+        "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+        "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+        "rtl/cpu5_if_adapter.v": "3c9d383ec37b23586d6b3602cf43ba450cc76cb99de48b3a0f9512275b0b4667",
+        "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+        "rtl/cpu5_pipeline_skeleton.v": "4e82307ff7b4de70b7bd0884c0aa4635237a173df3be4605c75357b37d3100f9",
+        "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+        "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+        "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+        "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+        "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+        "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+        "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+        "rtl/cpu5_alu_pipeline.v": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+        "rtl/cpu5_top.v": "9d738c0a73094cf14112c67628aa92990d2cd14b60b8996e292b8b38c41abd6d",
+        "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+        "tb/cpu5_irq_program_tb.v": "9773ce998e67f2bbfbc48ea9842f34039db5d8500515103a9be9e89238d6bffe",
+        "run_cpu5_irq_program.do": "b1e2c7474c756e342f2664486bf1ba32da59f6b25fdb68212aa44f115f169579",
+        "tools/run_cpu5_irq_program.py": "9b10e6a3d1dacdbc17a0ec7b7c18ae7d7779f3e348a5f6ae41c78acb8772d96b",
+        "tools/cpu5_irq_reference.py": "8c2344168d8e938839357ece14e2755601782f9f8c45991cf8c34f961b37a818",
+        "tools/cpu5_m_reference.py": "ab3ae9ccb9791a9cf6822f76f1afa9e19c1b1cbf744c52b3bac17289a4a497de",
+        "tools/cpu5_csr_reference.py": "39f472c48dff8891eeb2068adfbc1cb0ae2ca840ad400d5e15af89a52f639fbb"
+      },
+      "sources_unchanged": true,
+      "processes": [
+        {
+          "name": "program",
+          "status": "PASS",
+          "exit_code": 0
+        }
+      ]
+    },
+    "mutations": {
+      "status": "PASS",
+      "run_id": "20261023T162305342808Z_2291844a",
+      "source_sha256": {
+        "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+        "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+        "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+        "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+        "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+        "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+        "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+        "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+        "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+        "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+        "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+        "rtl/cpu5_alu_pipeline.v": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+        "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+        "tb/cpu5_irq_control_tb.v": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f",
+        "run_cpu5_irq_control.do": "e7096887664475f128a7785f439def9ca1e88bc5a9e4ff91b629264bd8f2767b",
+        "tools/verify_cpu5_irq_mutations.py": "f0b28ba997276476ecf6896f3946495c24242b1f18f64f5d29b09be901ae3ff7"
+      },
+      "good_sources_unchanged": true,
+      "good_reference": {
+        "name": "good_reference",
+        "kind": "good_reference",
+        "status": "PASS",
+        "directory": "build\\cpu5_s9_irq_mutations\\runs\\20261023T162305342808Z_2291844a\\good_reference",
+        "compile": {
+          "status": "PASS",
+          "exit_code": 0,
+          "warnings": 0,
+          "errors": 0,
+          "console_sha256": "e1d7739ad3621e5d01d3f0060a4beda8a361c0dc809ed95298b7dd4ab9a4f9be"
+        },
+        "simulation_exit_code": 0,
+        "expected_assertion": null,
+        "simulation_console_sha256": "4e8c452c582e1df701aaf98db8416cc0ce5d1882109594190099a84489f25ad8",
+        "actual_assertion": null,
+        "changed_source": null,
+        "specimen_source_sha256": {
+          "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+          "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+          "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+          "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+          "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+          "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+          "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+          "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+          "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+          "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+          "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+          "rtl/cpu5_alu_pipeline.v": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+          "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+          "tb/cpu5_irq_control_tb.v": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f"
+        },
+        "retained_artifact_sha256": {
+          "compile.do": "c8a8f870e6862a7a8a1df7a376ede4e1459eb6099a8f2c8931b8fa1dc6b180a5",
+          "compile_console.log": "e1d7739ad3621e5d01d3f0060a4beda8a361c0dc809ed95298b7dd4ab9a4f9be",
+          "compile_transcript.log": "813c54361cbabe27c2960c9a8dc7dd9f97622f9fbaf40e877162dda69eb835c6",
+          "simulate.do": "1819e34d4a62a41cb2dd0e34319e8d3344f0abc7137ec947b257578f53ebb27f",
+          "simulation_console.log": "4e8c452c582e1df701aaf98db8416cc0ce5d1882109594190099a84489f25ad8",
+          "simulation_transcript.log": "a1541f5ea33aae4e259998850fc65fca6970cdf20719259227a19aea10c46589"
+        }
+      },
+      "specimens": [
+        {
+          "name": "irq_uses_one_sync_flop",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build\\cpu5_s9_irq_mutations\\runs\\20261023T162305342808Z_2291844a\\irq_uses_one_sync_flop",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "1ecbe2b54ed882a4f9604398944da8c90bd4c5054bba1fb9e84c4bdcefd628b0"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "IRQ post-commit arm/synchronizer model",
+          "simulation_console_sha256": "73759541f52794ed0e703394289b76602c147fb114e64fa8b900912125368ff0",
+          "actual_assertion": "# ** Fatal: IRQ post-commit arm/synchronizer model",
+          "changed_source": {
+            "path": "rtl/cpu5_irq_ctrl.v",
+            "good_sha256": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "bad_sha256": "3db230bad8ee8c615d3d6efcd7e6dd489aeb7164b4ecccc94cdcb8c409636bcf",
+            "old": "external_sync_q<=external_meta_q;",
+            "new": "external_sync_q<=irq_external;"
+          },
+          "specimen_source_sha256": {
+            "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+            "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+            "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+            "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+            "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+            "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+            "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+            "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+            "rtl/cpu5_irq_ctrl.v": "3db230bad8ee8c615d3d6efcd7e6dd489aeb7164b4ecccc94cdcb8c409636bcf",
+            "rtl/cpu5_alu_pipeline.v": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+            "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+            "tb/cpu5_irq_control_tb.v": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f"
+          },
+          "retained_artifact_sha256": {
+            "compile.do": "c8a8f870e6862a7a8a1df7a376ede4e1459eb6099a8f2c8931b8fa1dc6b180a5",
+            "compile_console.log": "1ecbe2b54ed882a4f9604398944da8c90bd4c5054bba1fb9e84c4bdcefd628b0",
+            "compile_transcript.log": "ec8f3d3763c7a2afdefbdca5d3220151f5726b9e02315fefbdfea8764c0cdad1",
+            "simulate.do": "1819e34d4a62a41cb2dd0e34319e8d3344f0abc7137ec947b257578f53ebb27f",
+            "simulation_console.log": "73759541f52794ed0e703394289b76602c147fb114e64fa8b900912125368ff0",
+            "simulation_transcript.log": "e160006e858000ca92bf6b808686c802f576fd962fa53b112de688b83662acdf"
+          }
+        },
+        {
+          "name": "irq_bypasses_old_arm",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build\\cpu5_s9_irq_mutations\\runs\\20261023T162305342808Z_2291844a\\irq_bypasses_old_arm",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "9e37130c76fee42fd4ba60931bf7d59ab56562e0acfdb7075c5e95d24c649b72"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": [
+            "IRQ independent arbitration model",
+            "CPU5 IRQ lacks pre-edge safe armed eligibility"
+          ],
+          "simulation_console_sha256": "afb899543e9914f1cb61b2f66ce5f9dac68a40f1fba8c5e361ba33cbd8f4af42",
+          "actual_assertion": "# ** Fatal: CPU5 IRQ lacks pre-edge safe armed eligibility",
+          "changed_source": {
+            "path": "rtl/cpu5_irq_ctrl.v",
+            "good_sha256": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "bad_sha256": "4625b8a17efefa0c0c791f6252f2f1c34371ec3520bbeaa8c8f7af61c7557015",
+            "old": "irq_arm_q && irq_eligible_now && safe_boundary",
+            "new": "irq_eligible_now && safe_boundary"
+          },
+          "specimen_source_sha256": {
+            "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+            "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+            "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+            "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+            "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+            "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+            "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+            "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+            "rtl/cpu5_irq_ctrl.v": "4625b8a17efefa0c0c791f6252f2f1c34371ec3520bbeaa8c8f7af61c7557015",
+            "rtl/cpu5_alu_pipeline.v": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+            "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+            "tb/cpu5_irq_control_tb.v": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f"
+          },
+          "retained_artifact_sha256": {
+            "compile.do": "c8a8f870e6862a7a8a1df7a376ede4e1459eb6099a8f2c8931b8fa1dc6b180a5",
+            "compile_console.log": "9e37130c76fee42fd4ba60931bf7d59ab56562e0acfdb7075c5e95d24c649b72",
+            "compile_transcript.log": "1d64b38a2333cc0ea7569697fa51da5fe674ad2ad093d27d3afa6422c769340b",
+            "simulate.do": "1819e34d4a62a41cb2dd0e34319e8d3344f0abc7137ec947b257578f53ebb27f",
+            "simulation_console.log": "afb899543e9914f1cb61b2f66ce5f9dac68a40f1fba8c5e361ba33cbd8f4af42",
+            "simulation_transcript.log": "e132e8f431d5fa1e3805a8796f3dc01a65b77f83ebd3533fb7db7459d323697a"
+          }
+        },
+        {
+          "name": "irq_ignores_current_eligibility",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build\\cpu5_s9_irq_mutations\\runs\\20261023T162305342808Z_2291844a\\irq_ignores_current_eligibility",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "d23c5ee618e8bfaff87fb62d5b11e1b7f73d5d708ee2ce81710582a60d866e31"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": [
+            "IRQ independent arbitration model",
+            "CPU5 IRQ lacks pre-edge safe armed eligibility"
+          ],
+          "simulation_console_sha256": "2823ca2501984d9538c903be65b8fefe21966b22b48ddb9881314b622744f5cf",
+          "actual_assertion": "# ** Fatal: CPU5 IRQ lacks pre-edge safe armed eligibility",
+          "changed_source": {
+            "path": "rtl/cpu5_irq_ctrl.v",
+            "good_sha256": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "bad_sha256": "b4ed350d2cf7552a020c31ff1e520497df08bb48ce8f6d8626635a511261f7cf",
+            "old": "irq_arm_q && irq_eligible_now && safe_boundary",
+            "new": "irq_arm_q && safe_boundary"
+          },
+          "specimen_source_sha256": {
+            "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+            "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+            "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+            "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+            "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+            "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+            "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+            "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+            "rtl/cpu5_irq_ctrl.v": "b4ed350d2cf7552a020c31ff1e520497df08bb48ce8f6d8626635a511261f7cf",
+            "rtl/cpu5_alu_pipeline.v": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+            "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+            "tb/cpu5_irq_control_tb.v": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f"
+          },
+          "retained_artifact_sha256": {
+            "compile.do": "c8a8f870e6862a7a8a1df7a376ede4e1459eb6099a8f2c8931b8fa1dc6b180a5",
+            "compile_console.log": "d23c5ee618e8bfaff87fb62d5b11e1b7f73d5d708ee2ce81710582a60d866e31",
+            "compile_transcript.log": "ac8e3f2ad514ff07112fb75fa6916c9c43a8c5b9cb5e24771db05407262e4aed",
+            "simulate.do": "1819e34d4a62a41cb2dd0e34319e8d3344f0abc7137ec947b257578f53ebb27f",
+            "simulation_console.log": "2823ca2501984d9538c903be65b8fefe21966b22b48ddb9881314b622744f5cf",
+            "simulation_transcript.log": "f0cd76074106b3bf9a641468a93d15728e34d211f9c4847765e118c696a726bc"
+          }
+        },
+        {
+          "name": "irq_arm_uses_old_global_enable",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build\\cpu5_s9_irq_mutations\\runs\\20261023T162305342808Z_2291844a\\irq_arm_uses_old_global_enable",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "02e66e50a28ed4a679c6b7859734c920153eefeb3f5f4520eda600c573860f63"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "IRQ post-commit arm/synchronizer model",
+          "simulation_console_sha256": "dca2ab37e412a782875e3a5311a3ebf6570a7a9dc5bd41933ac5f56d836d8ca0",
+          "actual_assertion": "# ** Fatal: IRQ post-commit arm/synchronizer model",
+          "changed_source": {
+            "path": "rtl/cpu5_irq_ctrl.v",
+            "good_sha256": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "bad_sha256": "d2a66f113c1e26046f562d1ad652c2ab31a86a6e3daebdd14c95cb5f72298408",
+            "old": "wire next_global=retire_fire?post_commit_global_enable:global_enable;",
+            "new": "wire next_global=global_enable;"
+          },
+          "specimen_source_sha256": {
+            "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+            "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+            "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+            "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+            "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+            "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+            "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+            "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+            "rtl/cpu5_irq_ctrl.v": "d2a66f113c1e26046f562d1ad652c2ab31a86a6e3daebdd14c95cb5f72298408",
+            "rtl/cpu5_alu_pipeline.v": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+            "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+            "tb/cpu5_irq_control_tb.v": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f"
+          },
+          "retained_artifact_sha256": {
+            "compile.do": "c8a8f870e6862a7a8a1df7a376ede4e1459eb6099a8f2c8931b8fa1dc6b180a5",
+            "compile_console.log": "02e66e50a28ed4a679c6b7859734c920153eefeb3f5f4520eda600c573860f63",
+            "compile_transcript.log": "bcaa6264c8dab9cad5f97cf5e6c62d1c89483ecd934de03998a3c5c686d2a0e4",
+            "simulate.do": "1819e34d4a62a41cb2dd0e34319e8d3344f0abc7137ec947b257578f53ebb27f",
+            "simulation_console.log": "dca2ab37e412a782875e3a5311a3ebf6570a7a9dc5bd41933ac5f56d836d8ca0",
+            "simulation_transcript.log": "5655b196b5532e89c86f825de3d6f4773eac7bc685477b04bc47389fa9172ccb"
+          }
+        },
+        {
+          "name": "irq_arm_uses_old_mie",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build\\cpu5_s9_irq_mutations\\runs\\20261023T162305342808Z_2291844a\\irq_arm_uses_old_mie",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "862f5dfc9de89425ce0621d9d82666893fc557efc46d6bfe868dd4bb52c97fc5"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "IRQ post-commit arm/synchronizer model",
+          "simulation_console_sha256": "321aa22bc2162915207749cc95a66c54608e31776b77c0339d4d35767464ee98",
+          "actual_assertion": "# ** Fatal: IRQ post-commit arm/synchronizer model",
+          "changed_source": {
+            "path": "rtl/cpu5_irq_ctrl.v",
+            "good_sha256": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "bad_sha256": "a6300d6b5658be3ae003526dba18ab8985c7843cbfb5cf330bac5b667c695b73",
+            "old": "wire [31:0] next_mie=retire_fire?post_commit_mie:mie_value;",
+            "new": "wire [31:0] next_mie=mie_value;"
+          },
+          "specimen_source_sha256": {
+            "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+            "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+            "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+            "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+            "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+            "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+            "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+            "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+            "rtl/cpu5_irq_ctrl.v": "a6300d6b5658be3ae003526dba18ab8985c7843cbfb5cf330bac5b667c695b73",
+            "rtl/cpu5_alu_pipeline.v": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+            "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+            "tb/cpu5_irq_control_tb.v": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f"
+          },
+          "retained_artifact_sha256": {
+            "compile.do": "c8a8f870e6862a7a8a1df7a376ede4e1459eb6099a8f2c8931b8fa1dc6b180a5",
+            "compile_console.log": "862f5dfc9de89425ce0621d9d82666893fc557efc46d6bfe868dd4bb52c97fc5",
+            "compile_transcript.log": "1ded3682853122338009277cc3128919478f995058005d3335feec5eed432e21",
+            "simulate.do": "1819e34d4a62a41cb2dd0e34319e8d3344f0abc7137ec947b257578f53ebb27f",
+            "simulation_console.log": "321aa22bc2162915207749cc95a66c54608e31776b77c0339d4d35767464ee98",
+            "simulation_transcript.log": "4525aaa8d5d642d503a998892aeb4213c3047c726c3898a0f39fa5b2d40ee17e"
+          }
+        },
+        {
+          "name": "irq_mret_arm_uses_old_mie_status",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build\\cpu5_s9_irq_mutations\\runs\\20261023T162305342808Z_2291844a\\irq_mret_arm_uses_old_mie_status",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "fa971cafdced7e93b5edfcc30189228479d46bb493d64912db36c641bcd8628b"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "IRQ post-commit arm/synchronizer model",
+          "simulation_console_sha256": "8ba1169e6cc31e4332f92bfd2b900d4376d02998297c115e77a122e46f6ee4df",
+          "actual_assertion": "# ** Fatal: IRQ post-commit arm/synchronizer model",
+          "changed_source": {
+            "path": "rtl/cpu5_csr_unit.v",
+            "good_sha256": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "bad_sha256": "050ee3e71bbc75fa81478f9c953103d26521adba7a486068b832643286e4b0ac",
+            "old": "assign post_commit_global_enable=mret_fire?csr_mstatus[7]:",
+            "new": "assign post_commit_global_enable=mret_fire?csr_mstatus[3]:"
+          },
+          "specimen_source_sha256": {
+            "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+            "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+            "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+            "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+            "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+            "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+            "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+            "rtl/cpu5_csr_unit.v": "050ee3e71bbc75fa81478f9c953103d26521adba7a486068b832643286e4b0ac",
+            "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+            "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+            "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "rtl/cpu5_alu_pipeline.v": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+            "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+            "tb/cpu5_irq_control_tb.v": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f"
+          },
+          "retained_artifact_sha256": {
+            "compile.do": "c8a8f870e6862a7a8a1df7a376ede4e1459eb6099a8f2c8931b8fa1dc6b180a5",
+            "compile_console.log": "fa971cafdced7e93b5edfcc30189228479d46bb493d64912db36c641bcd8628b",
+            "compile_transcript.log": "2186d37f9612e2348145449adfb2bf2dc634eaf0e52a7ce0d61206b967c966d8",
+            "simulate.do": "1819e34d4a62a41cb2dd0e34319e8d3344f0abc7137ec947b257578f53ebb27f",
+            "simulation_console.log": "8ba1169e6cc31e4332f92bfd2b900d4376d02998297c115e77a122e46f6ee4df",
+            "simulation_transcript.log": "f6e7f1e3d2656f51fc34043c13efb3d6baf7f8cd34373f4ab5e64ce977a098cb"
+          }
+        },
+        {
+          "name": "irq_uncommitted_disable_shields_entry",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build\\cpu5_s9_irq_mutations\\runs\\20261023T162305342808Z_2291844a\\irq_uncommitted_disable_shields_entry",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "65640b336cb34d583de65bab42c9308b0d79d065764b272a9517f9548e3f618f"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "IRQ independent arbitration model",
+          "simulation_console_sha256": "ce58212fbf7508eef48472ab5f4d7aff890aaadcdce044ea5d2f34e6969b6515",
+          "actual_assertion": "# ** Fatal: IRQ independent arbitration model mode=1 case=5 pending=00000800/00000800 arm=0/0 eligible=0/1 take=0/0",
+          "changed_source": {
+            "path": "rtl/cpu5_alu_pipeline.v",
+            "good_sha256": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+            "bad_sha256": "f035cb096d0e6c12e2b66a7ad3f1dcb55ae650eca91f5882bce3948ee027b863",
+            "old": ".global_enable(csr_mstatus_value[3]),.mie_value(csr_mie_value),",
+            "new": ".global_enable(csr_mstatus_value[3] && !(exmem_valid_q && exmem_q.is_csr && (exmem_q.csr_addr==12'h300 || exmem_q.csr_addr==12'h304) && exmem_q.csr_write_intent && exmem_q.csr_operand==0)),.mie_value(csr_mie_value),"
+          },
+          "specimen_source_sha256": {
+            "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+            "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+            "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+            "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+            "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+            "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+            "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+            "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+            "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "rtl/cpu5_alu_pipeline.v": "f035cb096d0e6c12e2b66a7ad3f1dcb55ae650eca91f5882bce3948ee027b863",
+            "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+            "tb/cpu5_irq_control_tb.v": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f"
+          },
+          "retained_artifact_sha256": {
+            "compile.do": "c8a8f870e6862a7a8a1df7a376ede4e1459eb6099a8f2c8931b8fa1dc6b180a5",
+            "compile_console.log": "65640b336cb34d583de65bab42c9308b0d79d065764b272a9517f9548e3f618f",
+            "compile_transcript.log": "8908c519da2fdd1ce7e98f0c791fe27698d4e6a9eae15b67951b3246406947ea",
+            "simulate.do": "1819e34d4a62a41cb2dd0e34319e8d3344f0abc7137ec947b257578f53ebb27f",
+            "simulation_console.log": "ce58212fbf7508eef48472ab5f4d7aff890aaadcdce044ea5d2f34e6969b6515",
+            "simulation_transcript.log": "b511f0c172f339db62ed52c95a5981620a011c561cb6d880647388ca16730f96"
+          }
+        },
+        {
+          "name": "irq_waits_for_wb_space",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build\\cpu5_s9_irq_mutations\\runs\\20261023T162305342808Z_2291844a\\irq_waits_for_wb_space",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "57628c26272b50204f698bc2eb0e016795dc662cadb815a1b72f2f769883c584"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "IRQ independent arbitration model",
+          "simulation_console_sha256": "abc67879f3c6af6d3f75bdc0c2cafff6d68ffa97aae216f2f1a5bddc9ff55d6f",
+          "actual_assertion": "# ** Fatal: IRQ independent arbitration model mode=1 case=9 pending=00000800/00000800 arm=1/1 eligible=1/1 take=0/1",
+          "changed_source": {
+            "path": "rtl/cpu5_alu_pipeline.v",
+            "good_sha256": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+            "bad_sha256": "a5609c8ed8408e175aa7a6d90cbbc7f9c82e8f719eea3e9e8ca5d34dd04072a6",
+            "old": "assign irq_safe_boundary=!ram_store_lock &&",
+            "new": "assign irq_safe_boundary=wb_can_load && !ram_store_lock &&"
+          },
+          "specimen_source_sha256": {
+            "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+            "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+            "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+            "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+            "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+            "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+            "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+            "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+            "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "rtl/cpu5_alu_pipeline.v": "a5609c8ed8408e175aa7a6d90cbbc7f9c82e8f719eea3e9e8ca5d34dd04072a6",
+            "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+            "tb/cpu5_irq_control_tb.v": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f"
+          },
+          "retained_artifact_sha256": {
+            "compile.do": "c8a8f870e6862a7a8a1df7a376ede4e1459eb6099a8f2c8931b8fa1dc6b180a5",
+            "compile_console.log": "57628c26272b50204f698bc2eb0e016795dc662cadb815a1b72f2f769883c584",
+            "compile_transcript.log": "be0b68b57484de8b745af3d60628a1c8a4edb9c7da5e890082d2e955eb9ff124",
+            "simulate.do": "1819e34d4a62a41cb2dd0e34319e8d3344f0abc7137ec947b257578f53ebb27f",
+            "simulation_console.log": "abc67879f3c6af6d3f75bdc0c2cafff6d68ffa97aae216f2f1a5bddc9ff55d6f",
+            "simulation_transcript.log": "4b7d2a15dda044be0779bfaec18b9d505f07cae25b574213ee160be0ea1583bb"
+          }
+        },
+        {
+          "name": "irq_starves_at_empty_boundary",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build\\cpu5_s9_irq_mutations\\runs\\20261023T162305342808Z_2291844a\\irq_starves_at_empty_boundary",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "0ca4c3a27383961a01db09de3e6def7a5221fee544afd9fa97f973909eb421c8"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "IRQ independent arbitration model",
+          "simulation_console_sha256": "27c2020bb760e7d9fdd0eef116e19e59c66c87061c7039dab46e6a44a1470efe",
+          "actual_assertion": "# ** Fatal: IRQ independent arbitration model mode=1 case=3 pending=00000800/00000800 arm=1/1 eligible=1/1 take=0/1",
+          "changed_source": {
+            "path": "rtl/cpu5_alu_pipeline.v",
+            "good_sha256": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+            "bad_sha256": "b1ea5e33dcd24550c241dc03d64998eb42739aab0c2cc16c72b04869dbcb550c",
+            "old": "assign irq_safe_boundary=!ram_store_lock &&",
+            "new": "assign irq_safe_boundary=exmem_valid_q && !ram_store_lock &&"
+          },
+          "specimen_source_sha256": {
+            "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+            "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+            "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+            "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+            "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+            "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+            "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+            "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+            "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "rtl/cpu5_alu_pipeline.v": "b1ea5e33dcd24550c241dc03d64998eb42739aab0c2cc16c72b04869dbcb550c",
+            "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+            "tb/cpu5_irq_control_tb.v": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f"
+          },
+          "retained_artifact_sha256": {
+            "compile.do": "c8a8f870e6862a7a8a1df7a376ede4e1459eb6099a8f2c8931b8fa1dc6b180a5",
+            "compile_console.log": "0ca4c3a27383961a01db09de3e6def7a5221fee544afd9fa97f973909eb421c8",
+            "compile_transcript.log": "a82f2ece901a5eb6e7da8cf6352b17680feb0e386421bcc2f4206813f2fe7ca1",
+            "simulate.do": "1819e34d4a62a41cb2dd0e34319e8d3344f0abc7137ec947b257578f53ebb27f",
+            "simulation_console.log": "27c2020bb760e7d9fdd0eef116e19e59c66c87061c7039dab46e6a44a1470efe",
+            "simulation_transcript.log": "f32697c8f56421accdfb3deee04339bb184d5c56228d3d5a8d9ecaee23a2b1c7"
+          }
+        },
+        {
+          "name": "irq_steals_store_completion_edge",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build\\cpu5_s9_irq_mutations\\runs\\20261023T162305342808Z_2291844a\\irq_steals_store_completion_edge",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "ff1cc5f2a5f61b6924a125195447eefce845386d2f577aacafd2b4274cb4f9fa"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": [
+            "IRQ independent arbitration model",
+            "CPU5 IRQ crossed unsafe or paused boundary"
+          ],
+          "simulation_console_sha256": "ae25e1caa2443c3618bc8272cb252bf520af1cebe15179a8b1cdc21a6981dbc6",
+          "actual_assertion": "# ** Fatal: CPU5 IRQ crossed unsafe or paused boundary",
+          "changed_source": {
+            "path": "rtl/cpu5_alu_pipeline.v",
+            "good_sha256": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+            "bad_sha256": "2a781a8fc8a3e72672922fdc52a4564d9a30e5d7c45a45b70ad7ca5a8d6446c8",
+            "old": "assign irq_safe_boundary=!ram_store_lock &&",
+            "new": "assign irq_safe_boundary=(!ram_store_lock || (ram_mem_matches && !ram_completion_error)) &&"
+          },
+          "specimen_source_sha256": {
+            "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+            "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+            "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+            "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+            "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+            "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+            "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+            "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+            "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "rtl/cpu5_alu_pipeline.v": "2a781a8fc8a3e72672922fdc52a4564d9a30e5d7c45a45b70ad7ca5a8d6446c8",
+            "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+            "tb/cpu5_irq_control_tb.v": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f"
+          },
+          "retained_artifact_sha256": {
+            "compile.do": "c8a8f870e6862a7a8a1df7a376ede4e1459eb6099a8f2c8931b8fa1dc6b180a5",
+            "compile_console.log": "ff1cc5f2a5f61b6924a125195447eefce845386d2f577aacafd2b4274cb4f9fa",
+            "compile_transcript.log": "f63bd872e53d031ffe133fb41b4e4347ff1572d9ea1fa96dadab968ca24bce53",
+            "simulate.do": "1819e34d4a62a41cb2dd0e34319e8d3344f0abc7137ec947b257578f53ebb27f",
+            "simulation_console.log": "ae25e1caa2443c3618bc8272cb252bf520af1cebe15179a8b1cdc21a6981dbc6",
+            "simulation_transcript.log": "260096e3e76565c5bf39454a8f98e9c4179bf398949dc92a06a45f0edfef0583"
+          }
+        },
+        {
+          "name": "irq_preempts_live_load",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build\\cpu5_s9_irq_mutations\\runs\\20261023T162305342808Z_2291844a\\irq_preempts_live_load",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "ca881d8661b3d80181f0f0e511cc2a4eb55df0b2304633a081efa511981b59a9"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": [
+            "IRQ independent arbitration model",
+            "CPU5 IRQ crossed unsafe or paused boundary"
+          ],
+          "simulation_console_sha256": "5651db9f51f48f4a8da816c93329fba6281e9221c07141779b660fbb145e69db",
+          "actual_assertion": "# ** Fatal: IRQ independent arbitration model mode=1 case=16 pending=00000800/00000800 arm=1/1 eligible=1/1 take=1/0",
+          "changed_source": {
+            "path": "rtl/cpu5_alu_pipeline.v",
+            "good_sha256": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+            "bad_sha256": "93c656b155626348a7a93075ac50aac839b3bf7b475198d5a088326f3a6cf71c",
+            "old": "!(exmem_valid_q && !kill_mem && exmem_q.is_load);",
+            "new": "1'b1;"
+          },
+          "specimen_source_sha256": {
+            "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+            "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+            "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+            "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+            "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+            "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+            "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+            "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+            "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "rtl/cpu5_alu_pipeline.v": "93c656b155626348a7a93075ac50aac839b3bf7b475198d5a088326f3a6cf71c",
+            "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+            "tb/cpu5_irq_control_tb.v": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f"
+          },
+          "retained_artifact_sha256": {
+            "compile.do": "c8a8f870e6862a7a8a1df7a376ede4e1459eb6099a8f2c8931b8fa1dc6b180a5",
+            "compile_console.log": "ca881d8661b3d80181f0f0e511cc2a4eb55df0b2304633a081efa511981b59a9",
+            "compile_transcript.log": "4400f7fd28414b4823139a839e59b992421f5931ae1ae5d598b644b9e1f3c85e",
+            "simulate.do": "1819e34d4a62a41cb2dd0e34319e8d3344f0abc7137ec947b257578f53ebb27f",
+            "simulation_console.log": "5651db9f51f48f4a8da816c93329fba6281e9221c07141779b660fbb145e69db",
+            "simulation_transcript.log": "348d41d7a5e88ebfd6123589cf4499195ce0796673f862c4964ebb8e0c978a8a"
+          }
+        },
+        {
+          "name": "irq_waits_for_cancelable_m",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build\\cpu5_s9_irq_mutations\\runs\\20261023T162305342808Z_2291844a\\irq_waits_for_cancelable_m",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "49413db45c5e1f1a11fd965d6c486500d5e11599abd60387c91dc267e12315f8"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "IRQ independent arbitration model",
+          "simulation_console_sha256": "ba33bc7069e78c2106321cfc06caa0889d9b57faef9bce679832371a83b8986c",
+          "actual_assertion": "# ** Fatal: IRQ independent arbitration model mode=1 case=18 pending=00000800/00000800 arm=1/1 eligible=1/1 take=0/1",
+          "changed_source": {
+            "path": "rtl/cpu5_alu_pipeline.v",
+            "good_sha256": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+            "bad_sha256": "6dfe26d40b39e2ddee4dc9a3bdc089fdd3fab68ee24210689c21049d8f2b99db",
+            "old": "assign irq_safe_boundary=!ram_store_lock &&",
+            "new": "assign irq_safe_boundary=!m_owner_valid && !ram_store_lock &&"
+          },
+          "specimen_source_sha256": {
+            "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+            "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+            "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+            "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+            "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+            "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+            "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+            "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+            "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "rtl/cpu5_alu_pipeline.v": "6dfe26d40b39e2ddee4dc9a3bdc089fdd3fab68ee24210689c21049d8f2b99db",
+            "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+            "tb/cpu5_irq_control_tb.v": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f"
+          },
+          "retained_artifact_sha256": {
+            "compile.do": "c8a8f870e6862a7a8a1df7a376ede4e1459eb6099a8f2c8931b8fa1dc6b180a5",
+            "compile_console.log": "49413db45c5e1f1a11fd965d6c486500d5e11599abd60387c91dc267e12315f8",
+            "compile_transcript.log": "fdac6f621535f04324939b53781229c59b41851d4a417d1bea749387b9bcdda1",
+            "simulate.do": "1819e34d4a62a41cb2dd0e34319e8d3344f0abc7137ec947b257578f53ebb27f",
+            "simulation_console.log": "ba33bc7069e78c2106321cfc06caa0889d9b57faef9bce679832371a83b8986c",
+            "simulation_transcript.log": "f3721fc5ea786fbe6951622625194a9246cd4df375da20e3e83853f0ef7f5b9b"
+          }
+        },
+        {
+          "name": "irq_waits_for_killed_d_drain",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build\\cpu5_s9_irq_mutations\\runs\\20261023T162305342808Z_2291844a\\irq_waits_for_killed_d_drain",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "afe94643da396161ae21d1f26b102efc173f5f8acaa0f9ead06c108c894a5651"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "IRQ independent arbitration model",
+          "simulation_console_sha256": "310d49ccccb83619061aa47b0155befafa1e6bfb746142fced9340b2d5d26975",
+          "actual_assertion": "# ** Fatal: IRQ independent arbitration model mode=1 case=19 pending=00000800/00000800 arm=1/1 eligible=1/1 take=0/1",
+          "changed_source": {
+            "path": "rtl/cpu5_alu_pipeline.v",
+            "good_sha256": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+            "bad_sha256": "a6e96b935793d3a70deabdd9da3f36a8e353953aa81911ccf048d3b3419bfa9f",
+            "old": "assign irq_safe_boundary=!ram_store_lock &&",
+            "new": "assign irq_safe_boundary=!ram_owner_valid && !ram_store_lock &&"
+          },
+          "specimen_source_sha256": {
+            "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+            "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+            "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+            "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+            "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+            "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+            "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+            "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+            "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "rtl/cpu5_alu_pipeline.v": "a6e96b935793d3a70deabdd9da3f36a8e353953aa81911ccf048d3b3419bfa9f",
+            "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+            "tb/cpu5_irq_control_tb.v": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f"
+          },
+          "retained_artifact_sha256": {
+            "compile.do": "c8a8f870e6862a7a8a1df7a376ede4e1459eb6099a8f2c8931b8fa1dc6b180a5",
+            "compile_console.log": "afe94643da396161ae21d1f26b102efc173f5f8acaa0f9ead06c108c894a5651",
+            "compile_transcript.log": "aa64403fa9fa660fbefb85b21df02452a78d2a5f66cb1a6a6c055e238660b626",
+            "simulate.do": "1819e34d4a62a41cb2dd0e34319e8d3344f0abc7137ec947b257578f53ebb27f",
+            "simulation_console.log": "310d49ccccb83619061aa47b0155befafa1e6bfb746142fced9340b2d5d26975",
+            "simulation_transcript.log": "ca7013a37897d70bde6db889816149e1d2dc01ad122a10ce26a4eba6373b1238"
+          }
+        },
+        {
+          "name": "irq_does_not_kill_running_m",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build\\cpu5_s9_irq_mutations\\runs\\20261023T162305342808Z_2291844a\\irq_does_not_kill_running_m",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "a3e04393b641a80041042290666e9e7f30f6f53d1c5b43b0870ed7e6ec488bd0"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "IRQ did not cancel running M owner",
+          "simulation_console_sha256": "c3ebe4bcb95ecf0ad904bdd0de1906c1c0c91c9426ebef9cbd07f05c75be9ed6",
+          "actual_assertion": "# ** Fatal: IRQ did not cancel running M owner",
+          "changed_source": {
+            "path": "rtl/cpu5_alu_pipeline.v",
+            "good_sha256": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+            "bad_sha256": "f83417193cac9eaf168df10085124d58ec1543d215251d3eefe9084e3e40219c",
+            "old": "assign owner_kill_valid=flush_fire || trap_fire || mret_fire || irq_take;",
+            "new": "assign owner_kill_valid=flush_fire || trap_fire || mret_fire;"
+          },
+          "specimen_source_sha256": {
+            "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+            "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+            "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+            "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+            "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+            "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+            "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+            "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+            "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "rtl/cpu5_alu_pipeline.v": "f83417193cac9eaf168df10085124d58ec1543d215251d3eefe9084e3e40219c",
+            "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+            "tb/cpu5_irq_control_tb.v": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f"
+          },
+          "retained_artifact_sha256": {
+            "compile.do": "c8a8f870e6862a7a8a1df7a376ede4e1459eb6099a8f2c8931b8fa1dc6b180a5",
+            "compile_console.log": "a3e04393b641a80041042290666e9e7f30f6f53d1c5b43b0870ed7e6ec488bd0",
+            "compile_transcript.log": "e0fc2c20600da3187068de60947d218aae32e80ce6df86ae16a02dd1c4c7867a",
+            "simulate.do": "1819e34d4a62a41cb2dd0e34319e8d3344f0abc7137ec947b257578f53ebb27f",
+            "simulation_console.log": "c3ebe4bcb95ecf0ad904bdd0de1906c1c0c91c9426ebef9cbd07f05c75be9ed6",
+            "simulation_transcript.log": "a0e48280f640a9f573cf34c402cbd93f8af986801f3959cf4404d0452813c0b0"
+          }
+        },
+        {
+          "name": "irq_saves_mem_pc_instead_of_committed_next_pc",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build\\cpu5_s9_irq_mutations\\runs\\20261023T162305342808Z_2291844a\\irq_saves_mem_pc_instead_of_committed_next_pc",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "5063ea78f776668962b708bcac2d232ce4354f9da9b9ea26b117512581035068"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "CSR committed state",
+          "simulation_console_sha256": "9e0db1ee2756adfdd73215f197a058a477317c4cca75bd1ab79ab0378d8688ca",
+          "actual_assertion": "# ** Fatal: CSR committed state mode=1 case=3 status=00001880/00001880 vector=00000100/00000100 scratch=00000000/00000000 epc=00000000/0000020c cause=8000000b/8000000b tval=00000000/00000000",
+          "changed_source": {
+            "path": "rtl/cpu5_alu_pipeline.v",
+            "good_sha256": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+            "bad_sha256": "b32afd517fe86e1a1bccb486ea3d4d84db12135b02ce303301088f11512f3fdb",
+            "old": ".fault_pc(irq_take?arch_next_pc_q:exmem_q.pc),",
+            "new": ".fault_pc(exmem_q.pc),"
+          },
+          "specimen_source_sha256": {
+            "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+            "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+            "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+            "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+            "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+            "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+            "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+            "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+            "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "rtl/cpu5_alu_pipeline.v": "b32afd517fe86e1a1bccb486ea3d4d84db12135b02ce303301088f11512f3fdb",
+            "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+            "tb/cpu5_irq_control_tb.v": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f"
+          },
+          "retained_artifact_sha256": {
+            "compile.do": "c8a8f870e6862a7a8a1df7a376ede4e1459eb6099a8f2c8931b8fa1dc6b180a5",
+            "compile_console.log": "5063ea78f776668962b708bcac2d232ce4354f9da9b9ea26b117512581035068",
+            "compile_transcript.log": "de7e206f40005ca96190b362fc00f0f70d2e583ad60bb6288cf0b1afe31b6ee4",
+            "simulate.do": "1819e34d4a62a41cb2dd0e34319e8d3344f0abc7137ec947b257578f53ebb27f",
+            "simulation_console.log": "9e0db1ee2756adfdd73215f197a058a477317c4cca75bd1ab79ab0378d8688ca",
+            "simulation_transcript.log": "08860cd49047ca0e1292db141050452c9bfa26a0a7bbf5242010efd788329dd7"
+          }
+        },
+        {
+          "name": "irq_overlaps_retirement",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build\\cpu5_s9_irq_mutations\\runs\\20261023T162305342808Z_2291844a\\irq_overlaps_retirement",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "c7e3a374803bc5e031d406819fd02dd4659ffe0bc27ed8853328d9781b8a2f27"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": [
+            "IRQ entry priority/diagnostic owner",
+            "CPU5 IRQ leaked retirement or younger action",
+            "CPU5 IRQ and retirement overlap"
+          ],
+          "simulation_console_sha256": "612bf5465f7a60f1baddbe2817308ab4defb28dae61078b91be3e42344d37e89",
+          "actual_assertion": "# ** Fatal: CPU5 IRQ leaked retirement or younger action",
+          "changed_source": {
+            "path": "rtl/cpu5_alu_pipeline.v",
+            "good_sha256": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+            "bad_sha256": "a8b0a56a642c94639428d7dfcd036fe51a797289b0f5e66469f25dac5061ddec",
+            "old": "!kill_mem && !mem_fault && !irq_take &&",
+            "new": "!kill_mem && !mem_fault &&"
+          },
+          "specimen_source_sha256": {
+            "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+            "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+            "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+            "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+            "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+            "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+            "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+            "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+            "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "rtl/cpu5_alu_pipeline.v": "a8b0a56a642c94639428d7dfcd036fe51a797289b0f5e66469f25dac5061ddec",
+            "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+            "tb/cpu5_irq_control_tb.v": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f"
+          },
+          "retained_artifact_sha256": {
+            "compile.do": "c8a8f870e6862a7a8a1df7a376ede4e1459eb6099a8f2c8931b8fa1dc6b180a5",
+            "compile_console.log": "c7e3a374803bc5e031d406819fd02dd4659ffe0bc27ed8853328d9781b8a2f27",
+            "compile_transcript.log": "3a2454492390f0ce31360a9945c1f0ffcb4bc2b0ae90c054ba87879bdb839525",
+            "simulate.do": "1819e34d4a62a41cb2dd0e34319e8d3344f0abc7137ec947b257578f53ebb27f",
+            "simulation_console.log": "612bf5465f7a60f1baddbe2817308ab4defb28dae61078b91be3e42344d37e89",
+            "simulation_transcript.log": "7303737062ffda32bbe06ae4460662030c36acb87df99e457151ee5918f037a4"
+          }
+        },
+        {
+          "name": "irq_drops_already_retired_wb",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build\\cpu5_s9_irq_mutations\\runs\\20261023T162305342808Z_2291844a\\irq_drops_already_retired_wb",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "3a43f3f7dbdcd90f3549307f6a2357649156f83f951151f75ab8634df43fe2d8"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "CSR WB stream",
+          "simulation_console_sha256": "6ac31851fb81d818d37fe5994bdc8f4c7f5f7e2d2fa36dec6da3f7f74383dc3e",
+          "actual_assertion": "# ** Fatal: CSR WB stream mode=1 case=2 index=3 seq=4 value=0000000b/0000000b",
+          "changed_source": {
+            "path": "rtl/cpu5_alu_pipeline.v",
+            "good_sha256": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+            "bad_sha256": "898d5d12b64eb1bd37d592c120ca9b8cfec88a820dfd83000076ede38380da1f",
+            "old": "assign wb_we=wb_fire && memwb_q.writes_rd && memwb_q.rd!=0;",
+            "new": "assign wb_we=wb_fire && memwb_q.writes_rd && memwb_q.rd!=0 && !irq_take;"
+          },
+          "specimen_source_sha256": {
+            "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+            "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+            "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+            "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+            "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+            "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+            "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+            "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+            "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "rtl/cpu5_alu_pipeline.v": "898d5d12b64eb1bd37d592c120ca9b8cfec88a820dfd83000076ede38380da1f",
+            "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+            "tb/cpu5_irq_control_tb.v": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f"
+          },
+          "retained_artifact_sha256": {
+            "compile.do": "c8a8f870e6862a7a8a1df7a376ede4e1459eb6099a8f2c8931b8fa1dc6b180a5",
+            "compile_console.log": "3a43f3f7dbdcd90f3549307f6a2357649156f83f951151f75ab8634df43fe2d8",
+            "compile_transcript.log": "fa88e9da68ae7ba772febd18e52c9cf5cdc99c64ad3802fba1d8f07c177a254a",
+            "simulate.do": "1819e34d4a62a41cb2dd0e34319e8d3344f0abc7137ec947b257578f53ebb27f",
+            "simulation_console.log": "6ac31851fb81d818d37fe5994bdc8f4c7f5f7e2d2fa36dec6da3f7f74383dc3e",
+            "simulation_transcript.log": "7a0c0cb7621df7339979e8a65622f8cf63a5c4ff739508d564afe956988df6f0"
+          }
+        },
+        {
+          "name": "irq_timer_wrongly_beats_external",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build\\cpu5_s9_irq_mutations\\runs\\20261023T162305342808Z_2291844a\\irq_timer_wrongly_beats_external",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "eca3bf733d8682b5d276eb585001bd5e0de1ac068289f03d634db392b3f112dc"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "CSR committed state",
+          "simulation_console_sha256": "85425a1789c1774adace1bc3d7e1d3fb751889982ebc9655687e333243d55312",
+          "actual_assertion": "# ** Fatal: CSR committed state mode=1 case=7 status=00001880/00001880 vector=00000100/00000100 scratch=00000000/00000000 epc=0000020c/0000020c cause=80000007/8000000b tval=00000000/00000000",
+          "changed_source": {
+            "path": "rtl/cpu5_irq_ctrl.v",
+            "good_sha256": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "bad_sha256": "e3bfc71b114a97f918a0fb19e10f02dcf893c65d9220c5e8c234e83c3b22076b",
+            "old": "assign irq_cause=enabled_pending[11]?32'h8000000b:\n        enabled_pending[3]?32'h80000003:enabled_pending[7]?32'h80000007:32'd0;",
+            "new": "assign irq_cause=enabled_pending[7]?32'h80000007:\n        enabled_pending[11]?32'h8000000b:enabled_pending[3]?32'h80000003:32'd0;"
+          },
+          "specimen_source_sha256": {
+            "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+            "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+            "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+            "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+            "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+            "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+            "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+            "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+            "rtl/cpu5_irq_ctrl.v": "e3bfc71b114a97f918a0fb19e10f02dcf893c65d9220c5e8c234e83c3b22076b",
+            "rtl/cpu5_alu_pipeline.v": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+            "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+            "tb/cpu5_irq_control_tb.v": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f"
+          },
+          "retained_artifact_sha256": {
+            "compile.do": "c8a8f870e6862a7a8a1df7a376ede4e1459eb6099a8f2c8931b8fa1dc6b180a5",
+            "compile_console.log": "eca3bf733d8682b5d276eb585001bd5e0de1ac068289f03d634db392b3f112dc",
+            "compile_transcript.log": "e4769c66b26afeb4124cd77fe16812a839c25be90b32d89b59c684ff20973284",
+            "simulate.do": "1819e34d4a62a41cb2dd0e34319e8d3344f0abc7137ec947b257578f53ebb27f",
+            "simulation_console.log": "85425a1789c1774adace1bc3d7e1d3fb751889982ebc9655687e333243d55312",
+            "simulation_transcript.log": "a04c36afa767233c40a69da9ac0a1e8bab934a5ffe5328732726d2be10d06539"
+          }
+        },
+        {
+          "name": "irq_ignores_sync_fault_priority",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build\\cpu5_s9_irq_mutations\\runs\\20261023T162305342808Z_2291844a\\irq_ignores_sync_fault_priority",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "931112dce8945d65887df82cccbaeec51afe7d81b6d2a231047a886508dce2ca"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": [
+            "IRQ independent arbitration model",
+            "CPU5 IRQ lacks pre-edge safe armed eligibility",
+            "CPU5 IRQ leaked retirement or younger action"
+          ],
+          "simulation_console_sha256": "89c2f6b2724fbb7258413136382ad664a09fc7e5cb87fe639ead1d5e2184c63f",
+          "actual_assertion": "# ** Fatal: CPU5 IRQ lacks pre-edge safe armed eligibility",
+          "changed_source": {
+            "path": "rtl/cpu5_irq_ctrl.v",
+            "good_sha256": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "bad_sha256": "6954d19bab6bce05bd9035db00ca0884eadbd83e913b05a9834247411daac092",
+            "old": "mem_enable && !flush_active && !sync_fault;",
+            "new": "mem_enable && !flush_active;"
+          },
+          "specimen_source_sha256": {
+            "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+            "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+            "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+            "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+            "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+            "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+            "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+            "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+            "rtl/cpu5_irq_ctrl.v": "6954d19bab6bce05bd9035db00ca0884eadbd83e913b05a9834247411daac092",
+            "rtl/cpu5_alu_pipeline.v": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+            "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+            "tb/cpu5_irq_control_tb.v": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f"
+          },
+          "retained_artifact_sha256": {
+            "compile.do": "c8a8f870e6862a7a8a1df7a376ede4e1459eb6099a8f2c8931b8fa1dc6b180a5",
+            "compile_console.log": "931112dce8945d65887df82cccbaeec51afe7d81b6d2a231047a886508dce2ca",
+            "compile_transcript.log": "c567d8f97620ca631ba1fd9e62bb3aff5d903d4c3c32ef379c7c1c1f63457085",
+            "simulate.do": "1819e34d4a62a41cb2dd0e34319e8d3344f0abc7137ec947b257578f53ebb27f",
+            "simulation_console.log": "89c2f6b2724fbb7258413136382ad664a09fc7e5cb87fe639ead1d5e2184c63f",
+            "simulation_transcript.log": "cc1722f71b8f537da8aed182db307ef76cc8d544d91b41ae60ef71279ccf69a7"
+          }
+        },
+        {
+          "name": "irq_mip_reads_mie_instead_of_pending",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build\\cpu5_s9_irq_mutations\\runs\\20261023T162305342808Z_2291844a\\irq_mip_reads_mie_instead_of_pending",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "a8b77fb0656334a41ac544a16e69d885bae7ecba5666ebc546a15ae5e4689471"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "CSR retirement payload",
+          "simulation_console_sha256": "2e967ec9771939ad3512e1549bb68eee294f09e95bee11d45b1847dc6e32613f",
+          "actual_assertion": "# ** Fatal: CSR retirement payload mode=1 case=1 index=3 seq=4 value=00000888/00000000 rd=10/10",
+          "changed_source": {
+            "path": "rtl/cpu5_csr_unit.v",
+            "good_sha256": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "bad_sha256": "d0ac1e11e4acc51ff714606aee5472b97daa19b5cf9815b865e6219315308b0b",
+            "old": "12'h344:begin known=IRQ_ENABLED;read_value=irq_pending & IRQ_MASK;end",
+            "new": "12'h344:begin known=IRQ_ENABLED;read_value=csr_mie;end"
+          },
+          "specimen_source_sha256": {
+            "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+            "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+            "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+            "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+            "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+            "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+            "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+            "rtl/cpu5_csr_unit.v": "d0ac1e11e4acc51ff714606aee5472b97daa19b5cf9815b865e6219315308b0b",
+            "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+            "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+            "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "rtl/cpu5_alu_pipeline.v": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+            "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+            "tb/cpu5_irq_control_tb.v": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f"
+          },
+          "retained_artifact_sha256": {
+            "compile.do": "c8a8f870e6862a7a8a1df7a376ede4e1459eb6099a8f2c8931b8fa1dc6b180a5",
+            "compile_console.log": "a8b77fb0656334a41ac544a16e69d885bae7ecba5666ebc546a15ae5e4689471",
+            "compile_transcript.log": "69f470b1df76667fca40b6dfc841a3a3430aecb92b12185f0d4ee61d9e39dd39",
+            "simulate.do": "1819e34d4a62a41cb2dd0e34319e8d3344f0abc7137ec947b257578f53ebb27f",
+            "simulation_console.log": "2e967ec9771939ad3512e1549bb68eee294f09e95bee11d45b1847dc6e32613f",
+            "simulation_transcript.log": "6df97645f6a7d19c842cc909a27528125a50637cf73f81280b9c7cde707b3942"
+          }
+        },
+        {
+          "name": "irq_volatile_mip_forwarded_before_retirement",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build\\cpu5_s9_irq_mutations\\runs\\20261023T162305342808Z_2291844a\\irq_volatile_mip_forwarded_before_retirement",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "2ec6a428e344aacbb9c652f38b424e56ad90f9b07b52d12d664991aff89daa77"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": [
+            "IRQ volatile MIP branch captured before CSR retirement",
+            "CSR unexpected younger redirect mode=1 case=26"
+          ],
+          "simulation_console_sha256": "f33008bff14e85c4543ac13e7a6d5e61cadcbdf58d34a7eaeb2d385b8bd4f644",
+          "actual_assertion": "# ** Fatal: CSR unexpected younger redirect mode=1 case=26 seq=3",
+          "changed_source": {
+            "path": "rtl/cpu5_alu_pipeline.v",
+            "good_sha256": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+            "bad_sha256": "6f3552b8b449781454c8b6bc24395b34b94791aa14206f45b737d7fe9b8fe4a5",
+            "old": "wire csr_read_stable=exmem_q.csr_addr!=12'h344 || (mem_enable && wb_can_load);",
+            "new": "wire csr_read_stable=1'b1;"
+          },
+          "specimen_source_sha256": {
+            "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+            "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+            "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+            "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+            "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+            "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+            "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+            "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+            "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "rtl/cpu5_alu_pipeline.v": "6f3552b8b449781454c8b6bc24395b34b94791aa14206f45b737d7fe9b8fe4a5",
+            "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+            "tb/cpu5_irq_control_tb.v": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f"
+          },
+          "retained_artifact_sha256": {
+            "compile.do": "c8a8f870e6862a7a8a1df7a376ede4e1459eb6099a8f2c8931b8fa1dc6b180a5",
+            "compile_console.log": "2ec6a428e344aacbb9c652f38b424e56ad90f9b07b52d12d664991aff89daa77",
+            "compile_transcript.log": "230f73479adba6f0b3eb778f0096583d65d52594de3881d8034bd7350c4ca241",
+            "simulate.do": "1819e34d4a62a41cb2dd0e34319e8d3344f0abc7137ec947b257578f53ebb27f",
+            "simulation_console.log": "f33008bff14e85c4543ac13e7a6d5e61cadcbdf58d34a7eaeb2d385b8bd4f644",
+            "simulation_transcript.log": "00f91f46bd577e40db0b937c318ab06eecff2e9a8b61230a2f09fd0edc5bda33"
+          }
+        },
+        {
+          "name": "irq_mie_warl_not_masked",
+          "kind": "rtl_semantic",
+          "status": "REJECTED",
+          "directory": "build\\cpu5_s9_irq_mutations\\runs\\20261023T162305342808Z_2291844a\\irq_mie_warl_not_masked",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "35971fa8cf6f5d73ca461542a1e979daa01efa7aa178754d47a686b6fd71a305"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": "CSR committed state",
+          "simulation_console_sha256": "e788216f060bfc15c82d39771b5237f1c8c70c88ad77ce2eb3a7936dcae81270",
+          "actual_assertion": "# ** Fatal: CSR committed state mode=1 case=1 status=00001800/00001800 vector=00000100/00000100 scratch=00000000/00000000 epc=00000000/00000000 cause=00000000/00000000 tval=00000000/00000000",
+          "changed_source": {
+            "path": "rtl/cpu5_csr_unit.v",
+            "good_sha256": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "bad_sha256": "16bdf803a93b215b049cad5fd20145b5a3440585732b8411abec6fe5518786b8",
+            "old": "12'h304:csr_mie<=write_value & IRQ_MASK;",
+            "new": "12'h304:csr_mie<=write_value;"
+          },
+          "specimen_source_sha256": {
+            "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+            "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+            "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+            "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+            "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+            "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+            "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+            "rtl/cpu5_csr_unit.v": "16bdf803a93b215b049cad5fd20145b5a3440585732b8411abec6fe5518786b8",
+            "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+            "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+            "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "rtl/cpu5_alu_pipeline.v": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+            "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+            "tb/cpu5_irq_control_tb.v": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f"
+          },
+          "retained_artifact_sha256": {
+            "compile.do": "c8a8f870e6862a7a8a1df7a376ede4e1459eb6099a8f2c8931b8fa1dc6b180a5",
+            "compile_console.log": "35971fa8cf6f5d73ca461542a1e979daa01efa7aa178754d47a686b6fd71a305",
+            "compile_transcript.log": "7afe88f12e850a1c90216d2e2ec159128b416faeed3e6c77e3aaf653ceae076f",
+            "simulate.do": "1819e34d4a62a41cb2dd0e34319e8d3344f0abc7137ec947b257578f53ebb27f",
+            "simulation_console.log": "e788216f060bfc15c82d39771b5237f1c8c70c88ad77ce2eb3a7936dcae81270",
+            "simulation_transcript.log": "f84f01d5f2e7a4b97c2015560743408ab64e6d1783a422b32aa8a50c9cde9304"
+          }
+        },
+        {
+          "name": "invalid_external_boolean",
+          "kind": "parameter_guard",
+          "status": "REJECTED",
+          "directory": "build\\cpu5_s9_irq_mutations\\runs\\20261023T162305342808Z_2291844a\\invalid_external_boolean",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "6d2b1f1b9714af44ecc81d53c9ee815ddee21413cee1b180338208ed6be918d4"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": [
+            "CPU5 ALU requires 64-bit age, positive epoch and supported forwarding mode",
+            "CPU5 IRQ source parameters must be boolean",
+            "CPU5 CSR IRQ source parameters must be boolean"
+          ],
+          "simulation_console_sha256": "1f5ecc48f9f91629b8ac6015bcb8fc3e4ca35907cc4e8932ba3f74e9039dbb97",
+          "actual_assertion": "# ** Fatal: CPU5 CSR IRQ source parameters must be boolean",
+          "changed_source": {
+            "path": "tb/cpu5_irq_control_tb.v",
+            "good_sha256": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f",
+            "bad_sha256": "02d6c936e23886371dd61648bd501e2b9019b4b509d299a304a138d19ff1e084",
+            "old": ".ENABLE_EXTERNAL_IRQ(1)",
+            "new": ".ENABLE_EXTERNAL_IRQ(2)"
+          },
+          "specimen_source_sha256": {
+            "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+            "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+            "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+            "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+            "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+            "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+            "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+            "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+            "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "rtl/cpu5_alu_pipeline.v": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+            "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+            "tb/cpu5_irq_control_tb.v": "02d6c936e23886371dd61648bd501e2b9019b4b509d299a304a138d19ff1e084"
+          },
+          "retained_artifact_sha256": {
+            "compile.do": "c8a8f870e6862a7a8a1df7a376ede4e1459eb6099a8f2c8931b8fa1dc6b180a5",
+            "compile_console.log": "6d2b1f1b9714af44ecc81d53c9ee815ddee21413cee1b180338208ed6be918d4",
+            "compile_transcript.log": "421ed4542ba9ecdec28f83dfe06b825b15cf09c0598840eabb66abc296a30ddb",
+            "simulate.do": "1819e34d4a62a41cb2dd0e34319e8d3344f0abc7137ec947b257578f53ebb27f",
+            "simulation_console.log": "1f5ecc48f9f91629b8ac6015bcb8fc3e4ca35907cc4e8932ba3f74e9039dbb97",
+            "simulation_transcript.log": "0e85bd3f31eec7f7b3143164d5aa6b4765635d6d46d2db7ca99b7bbadf712528"
+          }
+        },
+        {
+          "name": "invalid_software_boolean",
+          "kind": "parameter_guard",
+          "status": "REJECTED",
+          "directory": "build\\cpu5_s9_irq_mutations\\runs\\20261023T162305342808Z_2291844a\\invalid_software_boolean",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "93313b208dd4afd72cb8758061d060e4a35881bcf508d20a2b3c778b7761d7c8"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": [
+            "CPU5 ALU requires 64-bit age, positive epoch and supported forwarding mode",
+            "CPU5 IRQ source parameters must be boolean",
+            "CPU5 CSR IRQ source parameters must be boolean"
+          ],
+          "simulation_console_sha256": "62e5c4f18b1acdba4aaa486e586ec6fef98cd3c49c31359a3e7b3390b885eac5",
+          "actual_assertion": "# ** Fatal: CPU5 CSR IRQ source parameters must be boolean",
+          "changed_source": {
+            "path": "tb/cpu5_irq_control_tb.v",
+            "good_sha256": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f",
+            "bad_sha256": "2ccfa144cf15126a706fe92a555dbc140f9b230340ec87b4fd46da91ec1fc0be",
+            "old": ".ENABLE_SOFTWARE_IRQ(1)",
+            "new": ".ENABLE_SOFTWARE_IRQ(2)"
+          },
+          "specimen_source_sha256": {
+            "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+            "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+            "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+            "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+            "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+            "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+            "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+            "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+            "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "rtl/cpu5_alu_pipeline.v": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+            "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+            "tb/cpu5_irq_control_tb.v": "2ccfa144cf15126a706fe92a555dbc140f9b230340ec87b4fd46da91ec1fc0be"
+          },
+          "retained_artifact_sha256": {
+            "compile.do": "c8a8f870e6862a7a8a1df7a376ede4e1459eb6099a8f2c8931b8fa1dc6b180a5",
+            "compile_console.log": "93313b208dd4afd72cb8758061d060e4a35881bcf508d20a2b3c778b7761d7c8",
+            "compile_transcript.log": "ad0388a59b96b0ed6bd2f374668895cbea2f4017e3b9d0af9cb3b7c4fa9fabcf",
+            "simulate.do": "1819e34d4a62a41cb2dd0e34319e8d3344f0abc7137ec947b257578f53ebb27f",
+            "simulation_console.log": "62e5c4f18b1acdba4aaa486e586ec6fef98cd3c49c31359a3e7b3390b885eac5",
+            "simulation_transcript.log": "7aad8d2427aa1a39a3cb9d18f2d6ef4b8286d3a62ee23b77e05b584565d781ed"
+          }
+        },
+        {
+          "name": "invalid_timer_boolean",
+          "kind": "parameter_guard",
+          "status": "REJECTED",
+          "directory": "build\\cpu5_s9_irq_mutations\\runs\\20261023T162305342808Z_2291844a\\invalid_timer_boolean",
+          "compile": {
+            "status": "PASS",
+            "exit_code": 0,
+            "warnings": 0,
+            "errors": 0,
+            "console_sha256": "f8b2d72c30670d9f3d1b9dd4f0f3817d5476f1a13274dd51c25643f10e87afcb"
+          },
+          "simulation_exit_code": 1,
+          "expected_assertion": [
+            "CPU5 ALU requires 64-bit age, positive epoch and supported forwarding mode",
+            "CPU5 IRQ source parameters must be boolean",
+            "CPU5 CSR IRQ source parameters must be boolean"
+          ],
+          "simulation_console_sha256": "76be849b6fb64ee125c2fecddcbec8cf85deec35be95eaa79f80cb0b689b47d5",
+          "actual_assertion": "# ** Fatal: CPU5 CSR IRQ source parameters must be boolean",
+          "changed_source": {
+            "path": "tb/cpu5_irq_control_tb.v",
+            "good_sha256": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f",
+            "bad_sha256": "e30cc22c6986989c846200daed8f438c78b1628d4e5e742a9f95483d55edd278",
+            "old": ".ENABLE_TIMER_IRQ(1)",
+            "new": ".ENABLE_TIMER_IRQ(2)"
+          },
+          "specimen_source_sha256": {
+            "rtl/alu.v": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+            "rtl/regfile.v": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+            "rtl/cpu5_alu_decode.v": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+            "rtl/cpu5_branch_unit.v": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+            "rtl/cpu5_hazard.v": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+            "rtl/cpu5_ram_unit.v": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+            "rtl/cpu5_ram_owner.v": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+            "rtl/cpu5_csr_unit.v": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+            "rtl/rv32m_unit.v": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+            "rtl/cpu5_m_owner.v": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+            "rtl/cpu5_irq_ctrl.v": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+            "rtl/cpu5_alu_pipeline.v": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+            "rtl/cpu5_pipeline_types.vh": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+            "tb/cpu5_irq_control_tb.v": "e30cc22c6986989c846200daed8f438c78b1628d4e5e742a9f95483d55edd278"
+          },
+          "retained_artifact_sha256": {
+            "compile.do": "c8a8f870e6862a7a8a1df7a376ede4e1459eb6099a8f2c8931b8fa1dc6b180a5",
+            "compile_console.log": "f8b2d72c30670d9f3d1b9dd4f0f3817d5476f1a13274dd51c25643f10e87afcb",
+            "compile_transcript.log": "82a001617d812b9edd2fcba3dc3e8bd53cb11825614313f25200499dfdbdafa3",
+            "simulate.do": "1819e34d4a62a41cb2dd0e34319e8d3344f0abc7137ec947b257578f53ebb27f",
+            "simulation_console.log": "76be849b6fb64ee125c2fecddcbec8cf85deec35be95eaa79f80cb0b689b47d5",
+            "simulation_transcript.log": "7b44762a312454e47b9be9f823e8c793aa254669e570657e72ac38de717624dc"
+          }
+        }
+      ],
+      "rtl_semantic_rejected": 22,
+      "parameter_guards_rejected": 3,
+      "compile_zero_warning_error": true,
+      "semantic_rejection_requires": "clean compile, nonzero simulation exit, Fatal and designated assertion token",
+      "performance_claim": "NONE"
+    }
+  },
+  "compatibility_reference": "build/cpu5_s8_verification/verification.json",
+  "legacy_port_proof": {
+    "status": "PASS",
+    "reversible_explicit_zero_connections": 14,
+    "stimuli_and_assertions_unchanged": true
+  },
+  "legacy_cpu_top_if_rv32m_unchanged": true,
+  "MMIO": "NOT IMPLEMENTED; raw level pins and device fixtures only",
+  "FENCE": "NOT IMPLEMENTED",
+  "cache_AXI_SoC": "NOT INTEGRATED",
+  "full_A01_A16": "NOT RUN",
+  "STA": "NOT RUN",
+  "board": "NOT RUN",
+  "performance_claim": "NONE"
+}

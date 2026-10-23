@@ -1,7 +1,7 @@
 // SKELETON_ONLY=1 preserves the metadata-only scaffold. =0 enables stage3A-1:
 // 21 ALU instructions, MEM retirement/GPR WB; ENABLE_FORWARDING=1 adds 3A-2.
 // ENABLE_CONTROL_FLOW adds branches/JAL/JALR; ENABLE_RAM adds ordinary RAM.
-// Synchronous traps, machine CSR/MRET and RV32M owner are opt-in; IRQ absent.
+// Synchronous traps, machine CSR/MRET, RV32M and machine IRQs are opt-in.
 // No board/project references this module; cpu_top is the verified product.
 module cpu5_top #(
     parameter PROGRAM_FILE="programs/rv32i_regression.hex", DATA_FILE="",
@@ -46,7 +46,7 @@ module cpu5_top #(
     output wire [31:0] bp_lookup_count,bp_hit_count,bp_taken_count,
     output wire [31:0] bp_resolved_count,bp_mispredict_count,
     output wire [31:0] bp_direction_error_count,bp_target_error_count,
-    input wire irq_external,
+    input wire irq_external,irq_software,irq_timer,
     // New width is explicit. Classification hardware is NOT IMPLEMENTED.
     output wire [9:0] perf_cycle_events
 );
@@ -114,8 +114,11 @@ module cpu5_top #(
             .ENABLE_BRANCH_PRED(ENABLE_BRANCH_PRED),.ENABLE_RAM(ENABLE_RAM),
             .DMEM_WORDS(DMEM_WORDS),.DMEM_BASE_ADDR(DMEM_BASE_ADDR),
             .ENABLE_SYNC_TRAPS(ENABLE_SYNC_TRAPS && ENABLE_TRAPS),.ENABLE_CSR(ENABLE_CSR),
-            .ENABLE_RV32M(ENABLE_RV32M && ENABLE_M),.TRAP_VECTOR(TRAP_VECTOR)) u_pipeline(
+            .ENABLE_RV32M(ENABLE_RV32M && ENABLE_M),.TRAP_VECTOR(TRAP_VECTOR),
+            .ENABLE_EXTERNAL_IRQ(ENABLE_EXTERNAL_IRQ),.ENABLE_SOFTWARE_IRQ(ENABLE_SOFTWARE_IRQ),
+            .ENABLE_TIMER_IRQ(ENABLE_TIMER_IRQ)) u_pipeline(
             .clk(clk),.rst_n(rst_n),.in_valid(ifid_valid_q),.in_ready(alu_ready),
+            .irq_external(irq_external),.irq_software(irq_software),.irq_timer(irq_timer),
             .in_pc(ifid_q.pc),.in_instr(ifid_q.instr),.in_pred_next_pc(ifid_q.pred_next_pc),
             .in_pred_taken(ifid_q.pred_taken),.in_pred_hit(ifid_q.pred_hit),
             .in_fetch_error(ifid_q.fetch_error),.in_fetch_tval(ifid_q.fetch_tval),
@@ -185,6 +188,11 @@ module cpu5_top #(
            (ENABLE_CSR!=0 && ENABLE_CSR!=1) ||
            (ENABLE_CSR && (SKELETON_ONLY!=0 || !ENABLE_CONTROL_FLOW || !ENABLE_SYNC_TRAPS || !ENABLE_TRAPS)) ||
            (ENABLE_RV32M!=0 && ENABLE_RV32M!=1) || (ENABLE_RV32M && (SKELETON_ONLY!=0 || !ENABLE_M)) ||
+           (ENABLE_EXTERNAL_IRQ!=0 && ENABLE_EXTERNAL_IRQ!=1) ||
+           (ENABLE_SOFTWARE_IRQ!=0 && ENABLE_SOFTWARE_IRQ!=1) ||
+           (ENABLE_TIMER_IRQ!=0 && ENABLE_TIMER_IRQ!=1) ||
+           ((ENABLE_EXTERNAL_IRQ||ENABLE_SOFTWARE_IRQ||ENABLE_TIMER_IRQ) &&
+            (SKELETON_ONLY!=0 || !ENABLE_CSR || !ENABLE_SYNC_TRAPS || !ENABLE_TRAPS || !ENABLE_CONTROL_FLOW)) ||
            (BRANCH_RESOLVE_IN_ID!=0 && BRANCH_RESOLVE_IN_ID!=1))
             $fatal(1,"cpu5_top requires external I, 64-bit age and a supported scaffold/ALU-subset mode");
     end

@@ -60,7 +60,7 @@ module cpu5_alu_top_case #(
     assign sv=pending && delay==0;
     cpu5_top #(.PROGRAM_FILE("programs/data_handshake_blank.hex"),.IMEM_WORDS(2048),
         .SKELETON_ONLY(0),.ENABLE_FORWARDING(FORWARD),
-        .ENABLE_BRANCH_PRED(WAIT),.BRANCH_RESOLVE_IN_ID(WAIT)) dut(
+        .ENABLE_BRANCH_PRED(WAIT),.BRANCH_RESOLVE_IN_ID(WAIT)) dut(.irq_software(1'b0),.irq_timer(1'b0),
         .clk(clk),.rst_n(rst_n),.pc_x(),.instr_x(),.valid_x(),
         .wb_pc(wpc),.wb_rd(wrd),.wb_data(wdata),.wb_we(we),.retire_valid(rv),
         .cycle_count(cc),.instret_count(ic),.uart_tx(tx),.uart_rx(1'b1),

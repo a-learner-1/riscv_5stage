@@ -1,0 +1,461 @@
+{
+  "base_commit": "baa2275d5a2ccb204f23b37414bc7a59f746ecaa",
+  "sources": {
+    "docs/cpu5_csr_contract_20261023.md": {
+      "raw_sha256": "565d19551857283e6109f63d6e30d9aac0bd7ed2a964767bba32201557e98cdb",
+      "lf_sha256": "565d19551857283e6109f63d6e30d9aac0bd7ed2a964767bba32201557e98cdb"
+    },
+    "docs/cpu5_irq_contract_20261024.md": {
+      "raw_sha256": "5377e468e438c58af1fed8df4d56f47682a5e0906e1acdc5474f739afe7c3f88",
+      "lf_sha256": "5377e468e438c58af1fed8df4d56f47682a5e0906e1acdc5474f739afe7c3f88"
+    },
+    "docs/cpu5_irq_legacy_ports_20261024.json": {
+      "raw_sha256": "109f9fb97f3aa67bebffcc1646772f623e750da344e10379712a95f2c20169e6",
+      "lf_sha256": "109f9fb97f3aa67bebffcc1646772f623e750da344e10379712a95f2c20169e6"
+    },
+    "docs/cpu5_m_contract_20261023.md": {
+      "raw_sha256": "ef6fef8735afebb7ba573338287b338f6a020248869e5c6ac4fef894bd15803c",
+      "lf_sha256": "ef6fef8735afebb7ba573338287b338f6a020248869e5c6ac4fef894bd15803c"
+    },
+    "programs/data_handshake_blank.hex": {
+      "raw_sha256": "f2e6f0a6c64128b0c96d7a8c2605cd02fda84b265881b2401fe76e045eadd1c5",
+      "lf_sha256": "f2e6f0a6c64128b0c96d7a8c2605cd02fda84b265881b2401fe76e045eadd1c5"
+    },
+    "rtl/alu.v": {
+      "raw_sha256": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1",
+      "lf_sha256": "f67831f98b3610fd6397694b87703656b026e95be1b4ee282af25c265c720bd1"
+    },
+    "rtl/branch_predictor.v": {
+      "raw_sha256": "27d6ab676db29b48a902e7ae68775e736e7be354b4c61dba495353fd537df578",
+      "lf_sha256": "27d6ab676db29b48a902e7ae68775e736e7be354b4c61dba495353fd537df578"
+    },
+    "rtl/cpu5_alu_decode.v": {
+      "raw_sha256": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a",
+      "lf_sha256": "8ac37c8eb328e82a2750b47fb94cd45012ac928db2c954bb89507999753cfb6a"
+    },
+    "rtl/cpu5_alu_pipeline.v": {
+      "raw_sha256": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993",
+      "lf_sha256": "2caea8f8c674a8c949dfeb4159a791ca1e16cb56a80b2b5ba542934ecf678993"
+    },
+    "rtl/cpu5_branch_unit.v": {
+      "raw_sha256": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5",
+      "lf_sha256": "5c0e28e4348dd1b01d813248f8fda085e6eac3d6529e6882ebf72776433b25b5"
+    },
+    "rtl/cpu5_csr_unit.v": {
+      "raw_sha256": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f",
+      "lf_sha256": "afd4cf11df1bc89c510339994831f93ec394705426c8e5adee5bb7bde75b0e9f"
+    },
+    "rtl/cpu5_hazard.v": {
+      "raw_sha256": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e",
+      "lf_sha256": "a3b836009e0f2578f44d1eb66cb75cc1aa193c1f23905cd250b7b827e47f9c0e"
+    },
+    "rtl/cpu5_if_adapter.v": {
+      "raw_sha256": "3c9d383ec37b23586d6b3602cf43ba450cc76cb99de48b3a0f9512275b0b4667",
+      "lf_sha256": "3c9d383ec37b23586d6b3602cf43ba450cc76cb99de48b3a0f9512275b0b4667"
+    },
+    "rtl/cpu5_irq_ctrl.v": {
+      "raw_sha256": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc",
+      "lf_sha256": "df3bdce6cf4808c687e16dfcd3bc172dd02d7ae373f952e928b83e74bb1cbafc"
+    },
+    "rtl/cpu5_m_owner.v": {
+      "raw_sha256": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5",
+      "lf_sha256": "4d13be51c11d3cd4e7b168864aeb0e91a2b81d12a9380588cbacfb58d92eb5b5"
+    },
+    "rtl/cpu5_pipeline_skeleton.v": {
+      "raw_sha256": "4e82307ff7b4de70b7bd0884c0aa4635237a173df3be4605c75357b37d3100f9",
+      "lf_sha256": "4e82307ff7b4de70b7bd0884c0aa4635237a173df3be4605c75357b37d3100f9"
+    },
+    "rtl/cpu5_pipeline_types.vh": {
+      "raw_sha256": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b",
+      "lf_sha256": "a431c31f29df116b864f8bcce3f0fbd6a9496a59f8e94d9960461f8e58f7b62b"
+    },
+    "rtl/cpu5_ram_owner.v": {
+      "raw_sha256": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6",
+      "lf_sha256": "64d7bd12d8d254df4ce0c878c33afcf93e7e842d6b50a2b7d52b6657b48967d6"
+    },
+    "rtl/cpu5_ram_unit.v": {
+      "raw_sha256": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c",
+      "lf_sha256": "a4001f0d6c0cde29235a93a16f8b8788b8349e84de6034d9473e064ed98dbf5c"
+    },
+    "rtl/cpu5_top.v": {
+      "raw_sha256": "9d738c0a73094cf14112c67628aa92990d2cd14b60b8996e292b8b38c41abd6d",
+      "lf_sha256": "9d738c0a73094cf14112c67628aa92990d2cd14b60b8996e292b8b38c41abd6d"
+    },
+    "rtl/if_stage.v": {
+      "raw_sha256": "028464cec28c3e8348fc06d970740726cfe3664ccd8fc93aae343e301ee61927",
+      "lf_sha256": "028464cec28c3e8348fc06d970740726cfe3664ccd8fc93aae343e301ee61927"
+    },
+    "rtl/instr_bus_adapter.v": {
+      "raw_sha256": "64e7a01e22d47bb7cd244457c1144f374cfccb3917d8f8dad06d0005e393f1b1",
+      "lf_sha256": "64e7a01e22d47bb7cd244457c1144f374cfccb3917d8f8dad06d0005e393f1b1"
+    },
+    "rtl/instr_mem.v": {
+      "raw_sha256": "28bcce1944b5ff366f7ecb989eb23acd085dbd3492a94da91af8483c5c4acbaa",
+      "lf_sha256": "28bcce1944b5ff366f7ecb989eb23acd085dbd3492a94da91af8483c5c4acbaa"
+    },
+    "rtl/regfile.v": {
+      "raw_sha256": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc",
+      "lf_sha256": "455ca3fc62bbf5eb61a54b0f7ef0c484284cce627ec0707f32fd49bbc4eb5afc"
+    },
+    "rtl/rv32m_unit.v": {
+      "raw_sha256": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb",
+      "lf_sha256": "464234baaa834ee3eccf0db5961286baf427bd77b951d077834b46a2b51a26fb"
+    },
+    "run_cpu5_alu_control.do": {
+      "raw_sha256": "e9e0594a42a32e987461c5841405e63ada4f85b20a56da797a29c5ce1c518aa9",
+      "lf_sha256": "e9e0594a42a32e987461c5841405e63ada4f85b20a56da797a29c5ce1c518aa9"
+    },
+    "run_cpu5_alu_decode.do": {
+      "raw_sha256": "57856bf2e1c62523cdb4201ad021176b21e03e93e4e89bd7b3632b1fc10ca336",
+      "lf_sha256": "57856bf2e1c62523cdb4201ad021176b21e03e93e4e89bd7b3632b1fc10ca336"
+    },
+    "run_cpu5_alu_top.do": {
+      "raw_sha256": "1c8c09252b2a9cb17988f70fca24b491a147b6565d326eadefc02ecb0a260d1d",
+      "lf_sha256": "1c8c09252b2a9cb17988f70fca24b491a147b6565d326eadefc02ecb0a260d1d"
+    },
+    "run_cpu5_branch_control.do": {
+      "raw_sha256": "9a90ecb1803a663c37a8c980a80243e110fc229766ba77c0392e169a1e8b21f2",
+      "lf_sha256": "9a90ecb1803a663c37a8c980a80243e110fc229766ba77c0392e169a1e8b21f2"
+    },
+    "run_cpu5_branch_top.do": {
+      "raw_sha256": "6eef62793d6ed0d208c21392c826adcde9e39e6899668b208f32f9cf40434035",
+      "lf_sha256": "6eef62793d6ed0d208c21392c826adcde9e39e6899668b208f32f9cf40434035"
+    },
+    "run_cpu5_branch_unit.do": {
+      "raw_sha256": "56cfa33239fa9610ba218a2383ce9099650617d60eb49db75b2de8b02a3632b1",
+      "lf_sha256": "56cfa33239fa9610ba218a2383ce9099650617d60eb49db75b2de8b02a3632b1"
+    },
+    "run_cpu5_csr_control.do": {
+      "raw_sha256": "06499dc6ba827fb0abddff54d674bbc643f58fed139b60c5146d594cc2919ce2",
+      "lf_sha256": "06499dc6ba827fb0abddff54d674bbc643f58fed139b60c5146d594cc2919ce2"
+    },
+    "run_cpu5_csr_program.do": {
+      "raw_sha256": "be0f3b1e787fc0cbcb7b54b7096fb1925bfea56f5a1892a07b9014f627ec9e3b",
+      "lf_sha256": "be0f3b1e787fc0cbcb7b54b7096fb1925bfea56f5a1892a07b9014f627ec9e3b"
+    },
+    "run_cpu5_forward_control.do": {
+      "raw_sha256": "d7c4c589f2ed32cc9b8ff0ad9984c8079b73ffc053bee9b1c03b16912c86b574",
+      "lf_sha256": "d7c4c589f2ed32cc9b8ff0ad9984c8079b73ffc053bee9b1c03b16912c86b574"
+    },
+    "run_cpu5_forward_top.do": {
+      "raw_sha256": "a236090889d2a59a4063e31e3e4aeb27b199b2668c071a95184536ecea2a1b19",
+      "lf_sha256": "a236090889d2a59a4063e31e3e4aeb27b199b2668c071a95184536ecea2a1b19"
+    },
+    "run_cpu5_if_adapter.do": {
+      "raw_sha256": "828008aaf2e94cb873d94f997e2348e9613bf162551273aa17826033e70d8bf8",
+      "lf_sha256": "828008aaf2e94cb873d94f997e2348e9613bf162551273aa17826033e70d8bf8"
+    },
+    "run_cpu5_irq_control.do": {
+      "raw_sha256": "e7096887664475f128a7785f439def9ca1e88bc5a9e4ff91b629264bd8f2767b",
+      "lf_sha256": "e7096887664475f128a7785f439def9ca1e88bc5a9e4ff91b629264bd8f2767b"
+    },
+    "run_cpu5_irq_ctrl.do": {
+      "raw_sha256": "f532c61e557ecdf5b2b0eb71119b8b5326c9f1a2d2e60201e42d548652fc9eeb",
+      "lf_sha256": "f532c61e557ecdf5b2b0eb71119b8b5326c9f1a2d2e60201e42d548652fc9eeb"
+    },
+    "run_cpu5_irq_program.do": {
+      "raw_sha256": "b1e2c7474c756e342f2664486bf1ba32da59f6b25fdb68212aa44f115f169579",
+      "lf_sha256": "b1e2c7474c756e342f2664486bf1ba32da59f6b25fdb68212aa44f115f169579"
+    },
+    "run_cpu5_m_control.do": {
+      "raw_sha256": "ee04a7b530517091c2b17e0e2aa2e9f540b3bd92c9b2eab3672c4ec2fe5d6b5f",
+      "lf_sha256": "ee04a7b530517091c2b17e0e2aa2e9f540b3bd92c9b2eab3672c4ec2fe5d6b5f"
+    },
+    "run_cpu5_m_owner.do": {
+      "raw_sha256": "fdafe1f4ca96055e508103d03864e7a697c18dae2975f1aa878d963e0e6bbbdc",
+      "lf_sha256": "fdafe1f4ca96055e508103d03864e7a697c18dae2975f1aa878d963e0e6bbbdc"
+    },
+    "run_cpu5_m_program.do": {
+      "raw_sha256": "11498d50cd4e441195389318faba34a25526beefd91970aef142c29762b64e54",
+      "lf_sha256": "11498d50cd4e441195389318faba34a25526beefd91970aef142c29762b64e54"
+    },
+    "run_cpu5_ram_control.do": {
+      "raw_sha256": "dd97857e48f9bd57f7b4769db29aeac0b1bdd89f287b77011743a5a5f2621c92",
+      "lf_sha256": "dd97857e48f9bd57f7b4769db29aeac0b1bdd89f287b77011743a5a5f2621c92"
+    },
+    "run_cpu5_ram_owner.do": {
+      "raw_sha256": "827fb0551d8f2e626a5916f4ec545f9ee785cb472dc2ffa8be0313ecaa8f2228",
+      "lf_sha256": "827fb0551d8f2e626a5916f4ec545f9ee785cb472dc2ffa8be0313ecaa8f2228"
+    },
+    "run_cpu5_ram_top.do": {
+      "raw_sha256": "830ed4bf70c91fb69e891120cab6adff14dd5cbb0940e7f2c5c3ae3424f8d6c3",
+      "lf_sha256": "830ed4bf70c91fb69e891120cab6adff14dd5cbb0940e7f2c5c3ae3424f8d6c3"
+    },
+    "run_cpu5_ram_unit.do": {
+      "raw_sha256": "0fc08bdb69649a765e5ccb55ca89c8642aa2caebd3d12b1c3c2fe4c0e367e9ba",
+      "lf_sha256": "0fc08bdb69649a765e5ccb55ca89c8642aa2caebd3d12b1c3c2fe4c0e367e9ba"
+    },
+    "run_cpu5_scaffold.do": {
+      "raw_sha256": "5ee218df9b8142cc5818db504811461731789dd94bf87b1ed30d5d829afa1d73",
+      "lf_sha256": "5ee218df9b8142cc5818db504811461731789dd94bf87b1ed30d5d829afa1d73"
+    },
+    "run_cpu5_trap_control.do": {
+      "raw_sha256": "8e3964c04b4a329d63e73c873f3a0034cb62f6c7125c24279b93a95c3d94878e",
+      "lf_sha256": "8e3964c04b4a329d63e73c873f3a0034cb62f6c7125c24279b93a95c3d94878e"
+    },
+    "run_cpu5_trap_top.do": {
+      "raw_sha256": "1b8f84a63dceb35662695aaa0ff44e8ba5b5046f7c9756d3ece177c281c220ca",
+      "lf_sha256": "1b8f84a63dceb35662695aaa0ff44e8ba5b5046f7c9756d3ece177c281c220ca"
+    },
+    "software/cpu5_ram/README.md": {
+      "raw_sha256": "ea5cc67a9c1a7a21ddc69409958d5938d4d46986b0b3ae9b550c70fff19f4524",
+      "lf_sha256": "ea5cc67a9c1a7a21ddc69409958d5938d4d46986b0b3ae9b550c70fff19f4524"
+    },
+    "software/cpu5_ram/link.ld": {
+      "raw_sha256": "a3ddb225693ca3942feb50eb2d41023fd37c705fc049806a002d93f59830d8a0",
+      "lf_sha256": "a3ddb225693ca3942feb50eb2d41023fd37c705fc049806a002d93f59830d8a0"
+    },
+    "software/cpu5_ram/main.c": {
+      "raw_sha256": "304e53d99655b634257c78b1a482f8db987ab244fa1994841dbdf35def8ba8b3",
+      "lf_sha256": "304e53d99655b634257c78b1a482f8db987ab244fa1994841dbdf35def8ba8b3"
+    },
+    "software/cpu5_ram/start.S": {
+      "raw_sha256": "b05d0579b5f4902aeee30f88b0120a5b7f084de631f23fc348b1be5d807b9bd3",
+      "lf_sha256": "b05d0579b5f4902aeee30f88b0120a5b7f084de631f23fc348b1be5d807b9bd3"
+    },
+    "tb/cpu5_alu_control_tb.v": {
+      "raw_sha256": "f9034cfa2b9a06d6cd148000fafcaa1e04a2f9be188a8b44e33c7ab2f16be13a",
+      "lf_sha256": "f9034cfa2b9a06d6cd148000fafcaa1e04a2f9be188a8b44e33c7ab2f16be13a"
+    },
+    "tb/cpu5_alu_decode_tb.v": {
+      "raw_sha256": "f70817a0dd2e200959daa20cd77bb1469be7417270da0db7e1de3fdec455b562",
+      "lf_sha256": "f70817a0dd2e200959daa20cd77bb1469be7417270da0db7e1de3fdec455b562"
+    },
+    "tb/cpu5_alu_top_tb.v": {
+      "raw_sha256": "01d3b9060363fcc69786745678a76f222f401f7eae8ddf90045618e77cea5baf",
+      "lf_sha256": "01d3b9060363fcc69786745678a76f222f401f7eae8ddf90045618e77cea5baf"
+    },
+    "tb/cpu5_branch_control_tb.v": {
+      "raw_sha256": "ec71339dafe115a4eee6849834d22dfd395d606c80916d744c28dcf0125de189",
+      "lf_sha256": "ec71339dafe115a4eee6849834d22dfd395d606c80916d744c28dcf0125de189"
+    },
+    "tb/cpu5_branch_top_tb.v": {
+      "raw_sha256": "e3430545837b9605cf2591e0e0dd35672897efe9a439f89df8c3dc9abc97a953",
+      "lf_sha256": "e3430545837b9605cf2591e0e0dd35672897efe9a439f89df8c3dc9abc97a953"
+    },
+    "tb/cpu5_branch_unit_tb.v": {
+      "raw_sha256": "5830786279bf4df21b7977a3e1bc629ec78f7d314d867b13ac754600e70c5f8f",
+      "lf_sha256": "5830786279bf4df21b7977a3e1bc629ec78f7d314d867b13ac754600e70c5f8f"
+    },
+    "tb/cpu5_csr_control_tb.v": {
+      "raw_sha256": "7a002128d649e2f2140d8b78e5e28c56235f21972bf394ab4aea1a0f339d7ecc",
+      "lf_sha256": "7a002128d649e2f2140d8b78e5e28c56235f21972bf394ab4aea1a0f339d7ecc"
+    },
+    "tb/cpu5_csr_program_tb.v": {
+      "raw_sha256": "ab3ea0ade705a165e3ba9307d842c423ccd99485e10622001e9aae1803a4bb21",
+      "lf_sha256": "ab3ea0ade705a165e3ba9307d842c423ccd99485e10622001e9aae1803a4bb21"
+    },
+    "tb/cpu5_forward_control_tb.v": {
+      "raw_sha256": "d80709a3ce61b464a6ba22791cdb82c9afb9295747462df67a18610c49ddadec",
+      "lf_sha256": "d80709a3ce61b464a6ba22791cdb82c9afb9295747462df67a18610c49ddadec"
+    },
+    "tb/cpu5_forward_top_tb.v": {
+      "raw_sha256": "8178a463aa1f3c92446e44af559b59e4b3ee1b93e4967fd519cbac3097daf8b6",
+      "lf_sha256": "8178a463aa1f3c92446e44af559b59e4b3ee1b93e4967fd519cbac3097daf8b6"
+    },
+    "tb/cpu5_if_adapter_tb.v": {
+      "raw_sha256": "8c691a2e498d10747cc4593ea476bd5b3d3e60028a61c94a02bbd863847d71cc",
+      "lf_sha256": "8c691a2e498d10747cc4593ea476bd5b3d3e60028a61c94a02bbd863847d71cc"
+    },
+    "tb/cpu5_irq_control_tb.v": {
+      "raw_sha256": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f",
+      "lf_sha256": "126331231593e46a8b5a1296aa8e0753c8ded03bead8de9418457a3afcb1ff0f"
+    },
+    "tb/cpu5_irq_ctrl_tb.v": {
+      "raw_sha256": "991967c954953aead2c962a8cb8611a3764dcad13df1106eeb8697e1c95909b8",
+      "lf_sha256": "991967c954953aead2c962a8cb8611a3764dcad13df1106eeb8697e1c95909b8"
+    },
+    "tb/cpu5_irq_program_tb.v": {
+      "raw_sha256": "9773ce998e67f2bbfbc48ea9842f34039db5d8500515103a9be9e89238d6bffe",
+      "lf_sha256": "9773ce998e67f2bbfbc48ea9842f34039db5d8500515103a9be9e89238d6bffe"
+    },
+    "tb/cpu5_m_control_tb.v": {
+      "raw_sha256": "f51259d160c8c2849e5d359fe8676cd082b240145a4085880e9629e04e4ecd78",
+      "lf_sha256": "f51259d160c8c2849e5d359fe8676cd082b240145a4085880e9629e04e4ecd78"
+    },
+    "tb/cpu5_m_owner_tb.v": {
+      "raw_sha256": "c46a7c108bd2403ba5d2153df0b040482d0526d8fe9d0816c0f865d09a157a5f",
+      "lf_sha256": "c46a7c108bd2403ba5d2153df0b040482d0526d8fe9d0816c0f865d09a157a5f"
+    },
+    "tb/cpu5_m_program_tb.v": {
+      "raw_sha256": "408e6f0143c1204406138eccb17dc796c352f5c631bf872533b2530b10ac8830",
+      "lf_sha256": "408e6f0143c1204406138eccb17dc796c352f5c631bf872533b2530b10ac8830"
+    },
+    "tb/cpu5_pipeline_skeleton_tb.v": {
+      "raw_sha256": "9b480c19aaf9f2f68ef8b208df239865057435292613b1aaed3353f614517132",
+      "lf_sha256": "9b480c19aaf9f2f68ef8b208df239865057435292613b1aaed3353f614517132"
+    },
+    "tb/cpu5_ram_control_tb.v": {
+      "raw_sha256": "3ff611d6fda3af9fd94c052b0e7d07456cd03f6eba24d5ec0ffa5850242af6d5",
+      "lf_sha256": "3ff611d6fda3af9fd94c052b0e7d07456cd03f6eba24d5ec0ffa5850242af6d5"
+    },
+    "tb/cpu5_ram_owner_tb.v": {
+      "raw_sha256": "6d19483afd34d07b6e108d5c1b610320a028b6beb3037f1cab59164fe282065e",
+      "lf_sha256": "6d19483afd34d07b6e108d5c1b610320a028b6beb3037f1cab59164fe282065e"
+    },
+    "tb/cpu5_ram_top_tb.v": {
+      "raw_sha256": "6b5eccccb0fd398b988194d8c352ed3bf5c356eb9f1935ca3cc962f2b7a1ad9c",
+      "lf_sha256": "6b5eccccb0fd398b988194d8c352ed3bf5c356eb9f1935ca3cc962f2b7a1ad9c"
+    },
+    "tb/cpu5_ram_unit_tb.v": {
+      "raw_sha256": "0ed22c2e707e0a1f059f20562072616ee7821e5c95a781ee58b2dcb486ed8bbe",
+      "lf_sha256": "0ed22c2e707e0a1f059f20562072616ee7821e5c95a781ee58b2dcb486ed8bbe"
+    },
+    "tb/cpu5_top_scaffold_tb.v": {
+      "raw_sha256": "3640d1d1395960617d156fcf204b72e6e35ddd4c67a23d91920d6d50019a49fc",
+      "lf_sha256": "3640d1d1395960617d156fcf204b72e6e35ddd4c67a23d91920d6d50019a49fc"
+    },
+    "tb/cpu5_trap_control_tb.v": {
+      "raw_sha256": "c5bb90aa6c238311ab48654208d7edbab8df4550e6affbe5d54420c380dfff82",
+      "lf_sha256": "c5bb90aa6c238311ab48654208d7edbab8df4550e6affbe5d54420c380dfff82"
+    },
+    "tb/cpu5_trap_top_tb.v": {
+      "raw_sha256": "304aec0a45a0cacc0be61478ba9d27e8662d9cef83f4dc81d140d4975a8203df",
+      "lf_sha256": "304aec0a45a0cacc0be61478ba9d27e8662d9cef83f4dc81d140d4975a8203df"
+    },
+    "tools/analyze_cpu5_alu_trace.py": {
+      "raw_sha256": "64ca1b5076c7ac98c71678a0701ecbd5aa45fb565d72049a1bf323105d31cae5",
+      "lf_sha256": "64ca1b5076c7ac98c71678a0701ecbd5aa45fb565d72049a1bf323105d31cae5"
+    },
+    "tools/analyze_cpu5_branch.py": {
+      "raw_sha256": "5d463137f20d8a10441079f38cf0fb769b04041809a5319afde500f2e97b0bd7",
+      "lf_sha256": "5d463137f20d8a10441079f38cf0fb769b04041809a5319afde500f2e97b0bd7"
+    },
+    "tools/analyze_cpu5_forward.py": {
+      "raw_sha256": "6a02b1569f5627caafb92465dd12b0ae7b17bca4e8f180ca822075208a9c8fed",
+      "lf_sha256": "6a02b1569f5627caafb92465dd12b0ae7b17bca4e8f180ca822075208a9c8fed"
+    },
+    "tools/analyze_cpu5_if_adapter.py": {
+      "raw_sha256": "eaa23f38c456b66a7c2c35ab028b181eaf839ee9251fe0f8e2b14d0cb893404c",
+      "lf_sha256": "eaa23f38c456b66a7c2c35ab028b181eaf839ee9251fe0f8e2b14d0cb893404c"
+    },
+    "tools/analyze_cpu5_ram.py": {
+      "raw_sha256": "a84c2d8d39d1a99651384dd4fc546f3f93197d1deee0c5d200dfd28eee2a10c9",
+      "lf_sha256": "a84c2d8d39d1a99651384dd4fc546f3f93197d1deee0c5d200dfd28eee2a10c9"
+    },
+    "tools/analyze_cpu5_trap.py": {
+      "raw_sha256": "7d33ed76c6a69079f713bfd13b5191a0a3c233f97b1b44381f7ea4091c158377",
+      "lf_sha256": "7d33ed76c6a69079f713bfd13b5191a0a3c233f97b1b44381f7ea4091c158377"
+    },
+    "tools/cpu5_csr_reference.py": {
+      "raw_sha256": "39f472c48dff8891eeb2068adfbc1cb0ae2ca840ad400d5e15af89a52f639fbb",
+      "lf_sha256": "39f472c48dff8891eeb2068adfbc1cb0ae2ca840ad400d5e15af89a52f639fbb"
+    },
+    "tools/cpu5_irq_reference.py": {
+      "raw_sha256": "8c2344168d8e938839357ece14e2755601782f9f8c45991cf8c34f961b37a818",
+      "lf_sha256": "8c2344168d8e938839357ece14e2755601782f9f8c45991cf8c34f961b37a818"
+    },
+    "tools/cpu5_m_reference.py": {
+      "raw_sha256": "ab3ae9ccb9791a9cf6822f76f1afa9e19c1b1cbf744c52b3bac17289a4a497de",
+      "lf_sha256": "ab3ae9ccb9791a9cf6822f76f1afa9e19c1b1cbf744c52b3bac17289a4a497de"
+    },
+    "tools/freeze_cpu5_csr.py": {
+      "raw_sha256": "1381eb06d46aa12469d4bd1643546946ac50cb732aa987f214b9c97dad501684",
+      "lf_sha256": "1381eb06d46aa12469d4bd1643546946ac50cb732aa987f214b9c97dad501684"
+    },
+    "tools/freeze_cpu5_irq.py": {
+      "raw_sha256": "29c0df5895e610f8f681f2ef9375d89477a6ecb4fbc099c900e94eaa71eb4a53",
+      "lf_sha256": "29c0df5895e610f8f681f2ef9375d89477a6ecb4fbc099c900e94eaa71eb4a53"
+    },
+    "tools/freeze_cpu5_m.py": {
+      "raw_sha256": "4e16a2fc847a1cb9e2076b923875ac014543effc27c2e504782be907c5998d57",
+      "lf_sha256": "4e16a2fc847a1cb9e2076b923875ac014543effc27c2e504782be907c5998d57"
+    },
+    "tools/generate_cpu5_alu_vectors.py": {
+      "raw_sha256": "92355798bb89474f9636239399fc8024309ce062069bd839dcbc7f6a1cb3a866",
+      "lf_sha256": "92355798bb89474f9636239399fc8024309ce062069bd839dcbc7f6a1cb3a866"
+    },
+    "tools/generate_cpu5_branch_vectors.py": {
+      "raw_sha256": "45a8ecfdde443f7a1ec92cc241118dd23fbdd83d38e17beb9fc01db22dc78a19",
+      "lf_sha256": "45a8ecfdde443f7a1ec92cc241118dd23fbdd83d38e17beb9fc01db22dc78a19"
+    },
+    "tools/generate_cpu5_ram_vectors.py": {
+      "raw_sha256": "752442e4b59bd2f85f85f6568a70c04cfcc7e08827fc27ee5d206f44b9460257",
+      "lf_sha256": "752442e4b59bd2f85f85f6568a70c04cfcc7e08827fc27ee5d206f44b9460257"
+    },
+    "tools/generate_cpu5_trap_vectors.py": {
+      "raw_sha256": "a970bc0c609ab888ea44d610d08a44981ce0f2a5d31b4d702ec5301351fd0b52",
+      "lf_sha256": "a970bc0c609ab888ea44d610d08a44981ce0f2a5d31b4d702ec5301351fd0b52"
+    },
+    "tools/run_cpu5_csr_control.py": {
+      "raw_sha256": "92d6ff27842cf78977aeeae27143cf2ef42f628d301546e3297907bafec1016a",
+      "lf_sha256": "92d6ff27842cf78977aeeae27143cf2ef42f628d301546e3297907bafec1016a"
+    },
+    "tools/run_cpu5_csr_program.py": {
+      "raw_sha256": "c0ff62690e4928d7c2ce50e65abf1a8318248b2ba1f961227e38c4f52093b6c0",
+      "lf_sha256": "c0ff62690e4928d7c2ce50e65abf1a8318248b2ba1f961227e38c4f52093b6c0"
+    },
+    "tools/run_cpu5_irq_control.py": {
+      "raw_sha256": "533419a990f977873cd40294d3025f3dcf3f179198ebdc6c6897093ae9b6f536",
+      "lf_sha256": "533419a990f977873cd40294d3025f3dcf3f179198ebdc6c6897093ae9b6f536"
+    },
+    "tools/run_cpu5_irq_ctrl.py": {
+      "raw_sha256": "7acb79be4eb6a708d4bc3bd9fb0d4efe359bd489b94db6ff1ae6e0a9111a8b85",
+      "lf_sha256": "7acb79be4eb6a708d4bc3bd9fb0d4efe359bd489b94db6ff1ae6e0a9111a8b85"
+    },
+    "tools/run_cpu5_irq_program.py": {
+      "raw_sha256": "9b10e6a3d1dacdbc17a0ec7b7c18ae7d7779f3e348a5f6ae41c78acb8772d96b",
+      "lf_sha256": "9b10e6a3d1dacdbc17a0ec7b7c18ae7d7779f3e348a5f6ae41c78acb8772d96b"
+    },
+    "tools/run_cpu5_m_control.py": {
+      "raw_sha256": "2268b97df13e6f451ff0efb7dd95acc13030c0757c45da795892cc924836e3d3",
+      "lf_sha256": "2268b97df13e6f451ff0efb7dd95acc13030c0757c45da795892cc924836e3d3"
+    },
+    "tools/run_cpu5_m_owner.py": {
+      "raw_sha256": "8cec821bc0c867ce7e0364a4fe02519ac737d3460a561c1a59602fbd7411ddaa",
+      "lf_sha256": "8cec821bc0c867ce7e0364a4fe02519ac737d3460a561c1a59602fbd7411ddaa"
+    },
+    "tools/run_cpu5_m_program.py": {
+      "raw_sha256": "cc081d607a5d79c74c526a374bf2181a94230ab6b162c235e72f240e81b45ac9",
+      "lf_sha256": "cc081d607a5d79c74c526a374bf2181a94230ab6b162c235e72f240e81b45ac9"
+    },
+    "tools/verify_cpu5_alu.py": {
+      "raw_sha256": "d1a7bd88cd8719e24c3affca4f34656eeaf2e99456f588bd97602949b856ac5a",
+      "lf_sha256": "d1a7bd88cd8719e24c3affca4f34656eeaf2e99456f588bd97602949b856ac5a"
+    },
+    "tools/verify_cpu5_branch.py": {
+      "raw_sha256": "9e90cd1b9b688d3d2239f32b2b44431a97420bbe8b5b482d8574d2c469dd6214",
+      "lf_sha256": "9e90cd1b9b688d3d2239f32b2b44431a97420bbe8b5b482d8574d2c469dd6214"
+    },
+    "tools/verify_cpu5_csr.py": {
+      "raw_sha256": "d52f0dde5b4c9da2240a21b2d9b693db7da00401af423c348439fa604e563e06",
+      "lf_sha256": "d52f0dde5b4c9da2240a21b2d9b693db7da00401af423c348439fa604e563e06"
+    },
+    "tools/verify_cpu5_csr_mutations.py": {
+      "raw_sha256": "82e957491eff4c93ee8afc9886d2cdaeb31d4a811c25b24dc6b3dd04aa45ddfd",
+      "lf_sha256": "82e957491eff4c93ee8afc9886d2cdaeb31d4a811c25b24dc6b3dd04aa45ddfd"
+    },
+    "tools/verify_cpu5_forward.py": {
+      "raw_sha256": "f647bd2d7889aaacfa332e89decbfc6154238aed877b7a39dc595842651923c2",
+      "lf_sha256": "f647bd2d7889aaacfa332e89decbfc6154238aed877b7a39dc595842651923c2"
+    },
+    "tools/verify_cpu5_irq.py": {
+      "raw_sha256": "ade1a87bfd1872c68168ddd07476c5fe1b01657f1386310958ed97f41cc7c582",
+      "lf_sha256": "ade1a87bfd1872c68168ddd07476c5fe1b01657f1386310958ed97f41cc7c582"
+    },
+    "tools/verify_cpu5_irq_mutations.py": {
+      "raw_sha256": "f0b28ba997276476ecf6896f3946495c24242b1f18f64f5d29b09be901ae3ff7",
+      "lf_sha256": "f0b28ba997276476ecf6896f3946495c24242b1f18f64f5d29b09be901ae3ff7"
+    },
+    "tools/verify_cpu5_m.py": {
+      "raw_sha256": "8cc94b215fb3a1acabb635f0f50878be0b5835a0a8a6a09b5ef1ef80fce24f59",
+      "lf_sha256": "8cc94b215fb3a1acabb635f0f50878be0b5835a0a8a6a09b5ef1ef80fce24f59"
+    },
+    "tools/verify_cpu5_m_mutations.py": {
+      "raw_sha256": "c5791826248623d88160be35af6a49617d73ca38ee461fc163358e17d308545c",
+      "lf_sha256": "c5791826248623d88160be35af6a49617d73ca38ee461fc163358e17d308545c"
+    },
+    "tools/verify_cpu5_ram.py": {
+      "raw_sha256": "de8a0cfb2e67cca4155adfd4398fafaa92c84aef573d91ba4abc9033e870b3e4",
+      "lf_sha256": "de8a0cfb2e67cca4155adfd4398fafaa92c84aef573d91ba4abc9033e870b3e4"
+    },
+    "tools/verify_cpu5_scaffold.py": {
+      "raw_sha256": "8d847361ed7f7186a975e7a345dc34a77ae1e1a8ee5aa71c7482c8baa0bd4cb5",
+      "lf_sha256": "8d847361ed7f7186a975e7a345dc34a77ae1e1a8ee5aa71c7482c8baa0bd4cb5"
+    },
+    "tools/verify_cpu5_trap.py": {
+      "raw_sha256": "c421ab21a1d43e94ff86f7cf39027753132ae21100d0c57a5fd36343b95290ab",
+      "lf_sha256": "c421ab21a1d43e94ff86f7cf39027753132ae21100d0c57a5fd36343b95290ab"
+    }
+  }
+}

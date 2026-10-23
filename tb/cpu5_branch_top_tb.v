@@ -74,7 +74,7 @@ module cpu5_branch_top_case #(
     assign sv=pending && delay==0;
     cpu5_top #(.PROGRAM_FILE("programs/data_handshake_blank.hex"),.IMEM_WORDS(2048),
         .SKELETON_ONLY(0),.ENABLE_FORWARDING(1),.ENABLE_CONTROL_FLOW(1),
-        .ENABLE_BRANCH_PRED(PRED),.BRANCH_RESOLVE_IN_ID(ID_MODE)) dut(
+        .ENABLE_BRANCH_PRED(PRED),.BRANCH_RESOLVE_IN_ID(ID_MODE)) dut(.irq_software(1'b0),.irq_timer(1'b0),
         .clk(clk),.rst_n(rst_n),.pc_x(),.instr_x(),.valid_x(),
         .wb_pc(wpc),.wb_rd(wrd),.wb_data(wdata),.wb_we(we),.retire_valid(rv),
         .cycle_count(cc),.instret_count(ic),.uart_tx(tx),.uart_rx(1'b1),

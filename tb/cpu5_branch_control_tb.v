@@ -24,7 +24,7 @@ module cpu5_branch_control_case #(parameter integer MODE=0)(output reg done=0);
     wire [31:0] bp_commit_pc,bp_commit_target,bp_resolved_count,bp_mispredict_count;
     wire [31:0] bp_direction_error_count,bp_target_error_count;
     cpu5_alu_pipeline #(.ENABLE_FORWARDING(1),.ENABLE_CONTROL_FLOW(1),
-        .BRANCH_RESOLVE_IN_ID(MODE),.ENABLE_BRANCH_PRED(1)) dut(
+        .BRANCH_RESOLVE_IN_ID(MODE),.ENABLE_BRANCH_PRED(1)) dut(.irq_external(1'b0),.irq_software(1'b0),.irq_timer(1'b0),
         .clk(clk),.rst_n(rst_n),.in_valid(in_valid),.in_ready(in_ready),
         .in_pc(in_pc),.in_instr(in_instr),.in_pred_next_pc(in_pred_next_pc),
         .in_pred_taken(in_pred_taken),.in_pred_hit(in_pred_hit),

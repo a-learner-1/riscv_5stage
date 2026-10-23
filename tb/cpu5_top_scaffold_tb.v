@@ -29,7 +29,7 @@ module cpu5_top_scaffold_case #(parameter FAULT=0,ID_BRANCH=0)(output reg done=0
     assign sv=pending && delay==0;
     function [31:0] word(input [31:0] a);word=32'h20000013^(a<<8);endfunction
     cpu5_top #(.PROGRAM_FILE("programs/data_handshake_blank.hex"),.IMEM_WORDS(256),
-        .ENABLE_BRANCH_PRED(!FAULT),.BRANCH_RESOLVE_IN_ID(ID_BRANCH)) dut(
+        .ENABLE_BRANCH_PRED(!FAULT),.BRANCH_RESOLVE_IN_ID(ID_BRANCH)) dut(.irq_software(1'b0),.irq_timer(1'b0),
         .clk(clk),.rst_n(rst_n),.pc_x(),.instr_x(),.valid_x(),
         .wb_pc(wpc),.wb_rd(wrd),.wb_data(wdata),.wb_we(we),.retire_valid(rv),
         .cycle_count(cc),.instret_count(ic),.uart_tx(tx),.uart_rx(1'b1),

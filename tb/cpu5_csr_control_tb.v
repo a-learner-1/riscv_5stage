@@ -23,7 +23,7 @@ module cpu5_csr_control_case #(parameter integer MODE=0)(output reg done=0);
     wire [31:0] dmem_req_addr,dmem_req_wdata;wire [1:0] dmem_req_size;wire [3:0] dmem_req_wstrb;
     cpu5_alu_pipeline #(.ENABLE_FORWARDING(1),.ENABLE_CONTROL_FLOW(1),
         .BRANCH_RESOLVE_IN_ID(MODE),.ENABLE_BRANCH_PRED(1),.ENABLE_RAM(1),
-        .DMEM_WORDS(8),.ENABLE_SYNC_TRAPS(1),.ENABLE_CSR(1),.TRAP_VECTOR(VECTOR)) dut(.*);
+        .DMEM_WORDS(8),.ENABLE_SYNC_TRAPS(1),.ENABLE_CSR(1),.TRAP_VECTOR(VECTOR)) dut(.irq_external(1'b0),.irq_software(1'b0),.irq_timer(1'b0),.*);
     reg [63:0] eseq[0:255],tseq[0:15],qseq[0:15];
     reg [31:0] epc[0:255],eins[0:255],eval[0:255],enext[0:255];reg [4:0] erd[0:255];
     reg [31:0] tpc[0:15],tcause[0:15],ttval[0:15],tvector[0:15],qa[0:15];
