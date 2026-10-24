@@ -20,7 +20,7 @@ module cpu5_top #(
     parameter integer SEQ_BITS=64, EPOCH_BITS=8, SKELETON_ONLY=1,
     // Opt-in 3A-2 EX/MEM and MEM/WB forwarding; zero preserves the 3A-1 reference.
     parameter integer ENABLE_FORWARDING=0,ENABLE_CONTROL_FLOW=0,ENABLE_RAM=0,
-    ENABLE_SYNC_TRAPS=0,ENABLE_CSR=0,ENABLE_RV32M=0,
+    ENABLE_SYNC_TRAPS=0,ENABLE_CSR=0,ENABLE_RV32M=0,ENABLE_MMIO=0,
     parameter [31:0] TRAP_VECTOR=32'h00000100
 )(
     input wire clk,rst_n,
@@ -68,6 +68,9 @@ module cpu5_top #(
     wire [31:0] alu_redirect_pc,alu_bp_pc,alu_bp_target;
     wire [SEQ_BITS-1:0] alu_redirect_seq,alu_bp_seq;
     wire [31:0] alu_bp_resolved,alu_bp_mismatch,alu_bp_direrr,alu_bp_tgterr;
+    wire core_dreq_valid,core_dreq_ready,core_dreq_write,core_drsp_valid,core_drsp_ready,core_drsp_error;
+    wire [31:0] core_dreq_addr,core_dreq_wdata,core_drsp_rdata;
+    wire [1:0] core_dreq_size;wire [3:0] core_dreq_wstrb;
     assign ifid_ready=SKELETON_ONLY!=0?skeleton_ready:alu_ready;
     assign valid_x=SKELETON_ONLY!=0?skeleton_ex_valid:alu_ex_valid;
     assign pc_x=SKELETON_ONLY!=0?skeleton_ex_pc:alu_ex_pc;
@@ -114,7 +117,7 @@ module cpu5_top #(
             .ENABLE_BRANCH_PRED(ENABLE_BRANCH_PRED),.ENABLE_RAM(ENABLE_RAM),
             .DMEM_WORDS(DMEM_WORDS),.DMEM_BASE_ADDR(DMEM_BASE_ADDR),
             .ENABLE_SYNC_TRAPS(ENABLE_SYNC_TRAPS && ENABLE_TRAPS),.ENABLE_CSR(ENABLE_CSR),
-            .ENABLE_RV32M(ENABLE_RV32M && ENABLE_M),.TRAP_VECTOR(TRAP_VECTOR),
+            .ENABLE_RV32M(ENABLE_RV32M && ENABLE_M),.ENABLE_MMIO(ENABLE_MMIO),.TRAP_VECTOR(TRAP_VECTOR),
             .ENABLE_EXTERNAL_IRQ(ENABLE_EXTERNAL_IRQ),.ENABLE_SOFTWARE_IRQ(ENABLE_SOFTWARE_IRQ),
             .ENABLE_TIMER_IRQ(ENABLE_TIMER_IRQ)) u_pipeline(
             .clk(clk),.rst_n(rst_n),.in_valid(ifid_valid_q),.in_ready(alu_ready),
@@ -138,11 +141,11 @@ module cpu5_top #(
             .bp_resolved_count(alu_bp_resolved),.bp_mispredict_count(alu_bp_mismatch),
             .bp_direction_error_count(alu_bp_direrr),.bp_target_error_count(alu_bp_tgterr),.halt_cause(),.halt_tval(),
             .flush_ready(),.flush_fire(),
-            .dmem_req_valid(dmem_req_valid),.dmem_req_ready(dmem_req_ready),
-            .dmem_req_write(dmem_req_write),.dmem_req_addr(dmem_req_addr),.dmem_req_size(dmem_req_size),
-            .dmem_req_wdata(dmem_req_wdata),.dmem_req_wstrb(dmem_req_wstrb),
-            .dmem_rsp_valid(dmem_rsp_valid),.dmem_rsp_ready(dmem_rsp_ready),
-            .dmem_rsp_rdata(dmem_rsp_rdata),.dmem_rsp_error(dmem_rsp_error),.dmem_fault(dmem_fault),
+            .dmem_req_valid(core_dreq_valid),.dmem_req_ready(core_dreq_ready),
+            .dmem_req_write(core_dreq_write),.dmem_req_addr(core_dreq_addr),.dmem_req_size(core_dreq_size),
+            .dmem_req_wdata(core_dreq_wdata),.dmem_req_wstrb(core_dreq_wstrb),
+            .dmem_rsp_valid(core_drsp_valid),.dmem_rsp_ready(core_drsp_ready),
+            .dmem_rsp_rdata(core_drsp_rdata),.dmem_rsp_error(core_drsp_error),.dmem_fault(dmem_fault),
             .trap_fire(),.trap_valid(trap_valid),.trap_pc(trap_pc),.trap_cause(trap_cause),
             .trap_tval(trap_tval),.trap_seq());
     end else begin:g_no_alu
@@ -150,9 +153,31 @@ module cpu5_top #(
                 alu_wb_data,alu_wb_we,alu_retire_valid,alu_cycle_count,alu_instret_count}=0;
         assign {alu_redirect,alu_redirect_kill,alu_redirect_pc,alu_redirect_seq,alu_bp_valid,alu_bp_pc,alu_bp_target,
                 alu_bp_seq,alu_bp_taken,alu_bp_branch,alu_bp_jal,alu_bp_resolved,alu_bp_mismatch,alu_bp_direrr,alu_bp_tgterr}=0;
-        assign {dmem_req_valid,dmem_req_write,dmem_req_addr,dmem_req_size,
-                dmem_req_wdata,dmem_req_wstrb,dmem_rsp_ready,dmem_fault}=0;
+        assign {core_dreq_valid,core_dreq_write,core_dreq_addr,core_dreq_size,
+                core_dreq_wdata,core_dreq_wstrb,core_drsp_ready,dmem_fault}=0;
         assign {trap_valid,trap_pc,trap_cause,trap_tval}=0;
+    end endgenerate
+
+    generate if(ENABLE_MMIO)begin:g_mmio
+        cpu5_mmio_router #(.UART_CLOCK_HZ(UART_CLOCK_HZ),.UART_BAUD(UART_BAUD),
+            .UART_RX_FIFO_DEPTH(UART_RX_FIFO_DEPTH),.SIM_CONSOLE_ECHO(SIM_CONSOLE_ECHO)) u_router(
+            .clk(clk),.rst_n(rst_n),.req_valid(core_dreq_valid),.req_ready(core_dreq_ready),
+            .req_write(core_dreq_write),.req_addr(core_dreq_addr),.req_size(core_dreq_size),
+            .req_wdata(core_dreq_wdata),.req_wstrb(core_dreq_wstrb),.rsp_valid(core_drsp_valid),
+            .rsp_ready(core_drsp_ready),.rsp_rdata(core_drsp_rdata),.rsp_error(core_drsp_error),
+            .ext_req_valid(dmem_req_valid),.ext_req_ready(dmem_req_ready),.ext_req_write(dmem_req_write),
+            .ext_req_addr(dmem_req_addr),.ext_req_size(dmem_req_size),.ext_req_wdata(dmem_req_wdata),
+            .ext_req_wstrb(dmem_req_wstrb),.ext_rsp_valid(dmem_rsp_valid),.ext_rsp_ready(dmem_rsp_ready),
+            .ext_rsp_rdata(dmem_rsp_rdata),.ext_rsp_error(dmem_rsp_error),
+            .cycle_count(alu_cycle_count),.instret_count(alu_instret_count),
+            .uart_rx(uart_rx),.uart_tx(uart_tx),.gpio_in(gpio_in),.gpio_out(gpio_out),.gpio_oe(gpio_oe));
+    end else begin:g_no_mmio
+        assign dmem_req_valid=core_dreq_valid;assign core_dreq_ready=dmem_req_ready;
+        assign dmem_req_write=core_dreq_write;assign dmem_req_addr=core_dreq_addr;
+        assign dmem_req_size=core_dreq_size;assign dmem_req_wdata=core_dreq_wdata;assign dmem_req_wstrb=core_dreq_wstrb;
+        assign core_drsp_valid=dmem_rsp_valid;assign dmem_rsp_ready=core_drsp_ready;
+        assign core_drsp_rdata=dmem_rsp_rdata;assign core_drsp_error=dmem_rsp_error;
+        assign uart_tx=1'b1;assign gpio_out=8'd0;assign gpio_oe=8'd0;
     end endgenerate
 
     // Forwarding hazard remains an independently verified interface placeholder.
@@ -176,14 +201,15 @@ module cpu5_top #(
     assign perf_cycle_events=0;
     assign bp_resolved_count=alu_bp_resolved;assign bp_mispredict_count=alu_bp_mismatch;
     assign bp_direction_error_count=alu_bp_direrr;assign bp_target_error_count=alu_bp_tgterr;
-    assign uart_tx=1'b1;
-    assign gpio_out=8'd0; assign gpio_oe=8'd0;
     // synthesis translate_off
     initial begin
         if((SKELETON_ONLY!=0 && SKELETON_ONLY!=1) || EXTERNAL_IMEM!=1 || SEQ_BITS!=64 ||
            (ENABLE_FORWARDING!=0 && ENABLE_FORWARDING!=1) ||
            (ENABLE_CONTROL_FLOW!=0 && ENABLE_CONTROL_FLOW!=1) ||
            (ENABLE_RAM!=0 && ENABLE_RAM!=1) || (ENABLE_RAM && EXTERNAL_DMEM!=1) ||
+           (ENABLE_MMIO!=0 && ENABLE_MMIO!=1) || (ENABLE_MMIO && (SKELETON_ONLY!=0 || !ENABLE_RAM)) ||
+           (ENABLE_MMIO && {32'd0,DMEM_BASE_ADDR}<64'h20000100 &&
+               ({32'd0,DMEM_BASE_ADDR}+64'd4*DMEM_WORDS)>64'h20000000) ||
            (ENABLE_SYNC_TRAPS!=0 && ENABLE_SYNC_TRAPS!=1) ||
            (ENABLE_CSR!=0 && ENABLE_CSR!=1) ||
            (ENABLE_CSR && (SKELETON_ONLY!=0 || !ENABLE_CONTROL_FLOW || !ENABLE_SYNC_TRAPS || !ENABLE_TRAPS)) ||

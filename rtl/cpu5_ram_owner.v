@@ -1,9 +1,10 @@
 // One native D transaction. Ownership begins at issue_fire, before the
 // endpoint accepts the request. A killed LOAD still sends and drains its
-// transaction; epochs never decide D ownership. STORE ownership is irrevocable
-// here and the caller must use store_lock when accepting a flush.
+// transaction; epochs never decide D ownership. STORE and ordered non-RAM
+// ownership are irrevocable; the historical store_lock now covers both.
 module cpu5_ram_owner #(
-    parameter integer SEQ_BITS=64, EPOCH_BITS=8
+    parameter integer SEQ_BITS=64, EPOCH_BITS=8, ENABLE_MMIO=0, DMEM_WORDS=4096,
+    parameter [31:0] DMEM_BASE_ADDR=32'h00010000
 )(
     input wire clk,rst_n,
     input wire issue_valid, output wire issue_ready, output wire issue_fire,
@@ -43,12 +44,17 @@ module cpu5_ram_owner #(
     reg [SEQ_BITS-1:0] seq_q;
     reg [31:0] pc_q,instr_q,addr_q,wdata_q,rdata_q;
     reg [EPOCH_BITS-1:0] epoch_q;
-    reg is_store_q,killed_q,error_q;
+    reg is_store_q,is_io_q,killed_q,error_q;
     reg [1:0] size_q;
     reg [3:0] wstrb_q;
     reg [2:0] funct3_q;
 
-    wire kill_owner=kill_valid && !is_store_q && seq_q>=kill_cut_seq;
+    localparam [63:0] RAM_BEGIN={32'd0,DMEM_BASE_ADDR};
+    localparam [63:0] RAM_END=RAM_BEGIN+64'd4*DMEM_WORDS;
+    wire [63:0] issue_first={32'd0,issue_addr};
+    wire [63:0] issue_last=issue_first+(issue_size==0?64'd0:issue_size==1?64'd1:64'd3);
+    wire issue_io=ENABLE_MMIO && (issue_first<RAM_BEGIN || issue_last>=RAM_END);
+    wire kill_owner=kill_valid && !is_store_q && seq_q>=kill_cut_seq && !is_io_q;
     wire effective_killed=killed_q || (owner_valid && kill_owner);
     wire response_available=(state_q==ACCEPTED && dmem_rsp_valid);
     wire result_available=(state_q==COMPLETE) || response_available;
@@ -56,9 +62,9 @@ module cpu5_ram_owner #(
     // The only turnover shortcut is a consumed, successful, live LOAD to a
     // new LOAD. In particular error/store/killed completion cannot present B.
     wire load_turnover=owner_valid && !is_store_q && result_available &&
-        !result_error && !effective_killed && completion_ready;
+        !is_io_q && !result_error && !effective_killed && completion_ready;
     assign issue_ready=rst_n && ((state_q==IDLE) ||
-        (load_turnover && !issue_is_store));
+        (load_turnover && !issue_is_store && !issue_io));
     assign issue_fire=issue_valid && issue_ready;
     wire new_request=issue_fire;
     assign dmem_req_valid=rst_n && ((state_q==PRESENTED) || new_request);
@@ -95,14 +101,14 @@ module cpu5_ram_owner #(
     assign owner_is_store=is_store_q;
     assign owner_killed=owner_valid && effective_killed;
     assign owner_sent=owner_valid && (state_q==ACCEPTED || state_q==COMPLETE);
-    assign store_lock=owner_valid && is_store_q;
+    assign store_lock=owner_valid && (is_store_q || is_io_q);
     assign state_debug=state_q;
 
     always @(posedge clk or negedge rst_n) begin
         if(!rst_n) begin
             state_q<=IDLE; seq_q<=0; pc_q<=0; instr_q<=0; epoch_q<=0;
             addr_q<=0; size_q<=0; wdata_q<=0; wstrb_q<=0; funct3_q<=0;
-            is_store_q<=0; killed_q<=0; rdata_q<=0; error_q<=0;
+            is_store_q<=0; is_io_q<=0; killed_q<=0; rdata_q<=0; error_q<=0;
         end else begin
             if(owner_valid && kill_owner) killed_q<=1'b1;
             case(state_q)
@@ -125,12 +131,21 @@ module cpu5_ram_owner #(
             if(issue_fire) begin
                 state_q<=dmem_req_ready?ACCEPTED:PRESENTED;
                 seq_q<=issue_seq; pc_q<=issue_pc; instr_q<=issue_instr;
-                epoch_q<=issue_epoch; is_store_q<=issue_is_store;
+                epoch_q<=issue_epoch; is_store_q<=issue_is_store;is_io_q<=issue_io;
                 addr_q<=issue_addr; size_q<=issue_size; wdata_q<=issue_wdata;
                 wstrb_q<=issue_wstrb; funct3_q<=issue_funct3;
-                killed_q<=kill_valid && !issue_is_store && issue_seq>=kill_cut_seq;
+                killed_q<=kill_valid && !issue_is_store && issue_seq>=kill_cut_seq && !issue_io;
                 rdata_q<=0; error_q<=0;
             end
         end
     end
+    // synthesis translate_off
+    initial if((ENABLE_MMIO!=0 && ENABLE_MMIO!=1) ||
+        (ENABLE_MMIO && (DMEM_WORDS<=0 || DMEM_BASE_ADDR[1:0]!=0 || RAM_END>64'h100000000)))
+        $fatal(1,"CPU5 ordered D owner requires boolean MMIO and a valid RAM range");
+    always @(posedge clk)if(rst_n)begin
+        if(owner_valid && is_io_q && completion_killed)$fatal(1,"CPU5 ordered I/O owner was canceled");
+        if(issue_fire && owner_valid && (is_io_q || issue_io))$fatal(1,"CPU5 ordered I/O used RAM load turnover");
+    end
+    // synthesis translate_on
 endmodule

@@ -5,7 +5,7 @@
 module cpu5_alu_pipeline #(
     parameter integer SEQ_BITS=64,EPOCH_BITS=8,ENABLE_FORWARDING=0,
     ENABLE_CONTROL_FLOW=0,BRANCH_RESOLVE_IN_ID=0,ENABLE_BRANCH_PRED=0,
-    ENABLE_RAM=0,DMEM_WORDS=4096,ENABLE_SYNC_TRAPS=0,ENABLE_CSR=0,ENABLE_RV32M=0,
+    ENABLE_RAM=0,DMEM_WORDS=4096,ENABLE_SYNC_TRAPS=0,ENABLE_CSR=0,ENABLE_RV32M=0,ENABLE_MMIO=0,
     ENABLE_EXTERNAL_IRQ=0,ENABLE_SOFTWARE_IRQ=0,ENABLE_TIMER_IRQ=0,
     parameter [31:0] DMEM_BASE_ADDR=32'h00010000,TRAP_VECTOR=32'h00000100
 )(
@@ -70,7 +70,7 @@ module cpu5_alu_pipeline #(
     wire [4:0] ram_rs1,ram_rs2,ram_rd;
     wire [31:0] ram_imm,ram_ex_addr,ram_ex_wdata,ram_ex_fault_cause,ram_load_value;
     wire [1:0] ram_ex_size;wire [3:0] ram_ex_wstrb;
-    wire ram_ex_fault;
+    wire ram_ex_fault,ram_ex_raw_fault,ram_ex_misaligned,ram_ex_out_of_range;
     wire ram_owner_valid,ram_owner_store,ram_owner_killed,ram_owner_sent,ram_store_lock;
     wire [SEQ_BITS-1:0] ram_owner_seq,ram_req_seq,ram_rsp_seq,ram_completion_seq;
     wire [31:0] ram_req_pc,ram_req_instr,ram_rsp_pc,ram_rsp_instr;
@@ -158,6 +158,9 @@ module cpu5_alu_pipeline #(
     wire kill_ex=flush_fire && idex_q.seq>=flush_cut_seq;
     wire kill_mem=flush_fire && exmem_q.seq>=flush_cut_seq;
     wire ex_is_mem=idex_q.is_load||idex_q.is_store;
+    // Only the explicit ordinary-RAM whitelist permits speculative reads.
+    // Every other aligned address, including unknown/Stats, orders at MEM.
+    assign ram_ex_fault=ram_ex_misaligned || (!ENABLE_MMIO && ram_ex_out_of_range);
     wire ex_ram_fault=ENABLE_RAM && ex_is_mem && !idex_q.exception_valid && ram_ex_fault;
     wire ram_mem_matches=ENABLE_RAM && ram_completion_valid && exmem_valid_q &&
         ram_completion_seq==exmem_q.seq && !ram_completion_killed;
@@ -263,7 +266,8 @@ module cpu5_alu_pipeline #(
         !irq_take &&
         (!idex_q.is_m || idex_q.exception_valid || m_ex_matches) &&
         (!ENABLE_FORWARDING || !ex_source_stall) && !((ENABLE_CONTROL_FLOW||ENABLE_RAM) && flush_valid);
-    wire ex_load_request=ENABLE_RAM && idex_q.is_load && !idex_q.exception_valid && !ex_ram_fault && ex_base_move;
+    wire ex_load_request=ENABLE_RAM && idex_q.is_load && !idex_q.exception_valid && !ex_ram_fault && ex_base_move &&
+        (!ENABLE_MMIO || !ram_ex_out_of_range);
     assign ex_move=ex_base_move && (!ex_load_request || ram_issue_ready);
     wire ex_can_load=!idex_valid_q || kill_ex || ex_move || trap_fire || mret_fire || irq_take;
     // A STORE is first offered only by the oldest live, commit-qualified MEM
@@ -272,7 +276,11 @@ module cpu5_alu_pipeline #(
     wire mem_store_request=ENABLE_RAM && rst_n && !irq_take && exmem_valid_q && !kill_mem &&
         exmem_q.is_store && exmem_supported_q && !exmem_q.exception_valid &&
         mem_enable && !flush_valid && !mem_fault && !ram_mem_owned;
-    assign ram_issue_valid=mem_store_request || ex_load_request;
+    wire mem_io_request=ENABLE_MMIO && ENABLE_RAM && rst_n && !irq_take && exmem_valid_q && !kill_mem &&
+        exmem_q.is_load && exmem_q.mem_order_barrier && exmem_supported_q && !exmem_q.exception_valid &&
+        mem_enable && !flush_valid && !mem_fault && !ram_mem_owned;
+    wire mem_request=mem_store_request || mem_io_request;
+    assign ram_issue_valid=mem_request || ex_load_request;
     assign ram_issue_store=mem_store_request;
     // A faulting source completion is acknowledged, not marked killed. Only
     // younger owners are age-killed; killing this source combinationally would
@@ -293,26 +301,27 @@ module cpu5_alu_pipeline #(
             .response_word(32'd0),.supported(),.is_load(),.is_store(),
             .uses_rs1(),.uses_rs2(),.writes_rd(),.rs1(),.rs2(),.rd(),.imm(),
             .addr(ram_ex_addr),.wdata(ram_ex_wdata),.load_value(),.size(ram_ex_size),
-            .wstrb(ram_ex_wstrb),.misaligned(),.out_of_range(),
-            .fault(ram_ex_fault),.fault_cause(ram_ex_fault_cause));
+            .wstrb(ram_ex_wstrb),.misaligned(ram_ex_misaligned),.out_of_range(ram_ex_out_of_range),
+            .fault(ram_ex_raw_fault),.fault_cause(ram_ex_fault_cause));
         cpu5_ram_unit #(.DMEM_BASE_ADDR(DMEM_BASE_ADDR),.DMEM_WORDS(DMEM_WORDS)) u_load_format(
             .instr({12'd0,5'd0,exmem_q.mem_funct3,5'd1,7'h03}),
             .rs1_value(exmem_q.mem_addr),.rs2_value(32'd0),.response_word(ram_completion_data),
             .supported(),.is_load(),.is_store(),.uses_rs1(),.uses_rs2(),.writes_rd(),
             .rs1(),.rs2(),.rd(),.imm(),.addr(),.wdata(),.load_value(ram_load_value),
             .size(),.wstrb(),.misaligned(),.out_of_range(),.fault(),.fault_cause());
-        cpu5_ram_owner #(.SEQ_BITS(SEQ_BITS),.EPOCH_BITS(EPOCH_BITS)) u_owner(
+        cpu5_ram_owner #(.SEQ_BITS(SEQ_BITS),.EPOCH_BITS(EPOCH_BITS),.ENABLE_MMIO(ENABLE_MMIO),
+            .DMEM_BASE_ADDR(DMEM_BASE_ADDR),.DMEM_WORDS(DMEM_WORDS)) u_owner(
             .clk(clk),.rst_n(rst_n),.issue_valid(ram_issue_valid),.issue_ready(ram_issue_ready),
             .issue_fire(ram_issue_fire),.issue_is_store(ram_issue_store),
-            .issue_seq(mem_store_request?exmem_q.seq:idex_q.seq),
-            .issue_pc(mem_store_request?exmem_q.pc:idex_q.pc),
-            .issue_instr(mem_store_request?exmem_q.instr:idex_q.instr),
-            .issue_epoch(mem_store_request?exmem_q.epoch:idex_q.epoch),
-            .issue_addr(mem_store_request?exmem_q.mem_addr:ram_ex_addr),
-            .issue_size(mem_store_request?exmem_q.mem_size:ram_ex_size),
-            .issue_wdata(mem_store_request?exmem_q.mem_wdata:ram_ex_wdata),
-            .issue_wstrb(mem_store_request?exmem_q.mem_wstrb:ram_ex_wstrb),
-            .issue_funct3(mem_store_request?exmem_q.mem_funct3:idex_q.funct3),
+            .issue_seq(mem_request?exmem_q.seq:idex_q.seq),
+            .issue_pc(mem_request?exmem_q.pc:idex_q.pc),
+            .issue_instr(mem_request?exmem_q.instr:idex_q.instr),
+            .issue_epoch(mem_request?exmem_q.epoch:idex_q.epoch),
+            .issue_addr(mem_request?exmem_q.mem_addr:ram_ex_addr),
+            .issue_size(mem_request?exmem_q.mem_size:ram_ex_size),
+            .issue_wdata(mem_request?exmem_q.mem_wdata:ram_ex_wdata),
+            .issue_wstrb(mem_request?exmem_q.mem_wstrb:ram_ex_wstrb),
+            .issue_funct3(mem_request?exmem_q.mem_funct3:idex_q.funct3),
             .kill_valid(owner_kill_valid),.kill_cut_seq(owner_kill_cut),
             .dmem_req_valid(dmem_req_valid),.dmem_req_ready(dmem_req_ready),
             .dmem_req_write(dmem_req_write),.dmem_req_addr(dmem_req_addr),.dmem_req_size(dmem_req_size),
@@ -334,7 +343,7 @@ module cpu5_alu_pipeline #(
     end else begin:g_no_ram
         assign {ram_supported,ram_load,ram_store,ram_uses1,ram_uses2,ram_writes,
                 ram_rs1,ram_rs2,ram_rd,ram_imm,ram_ex_addr,ram_ex_wdata,ram_ex_fault_cause,
-                ram_load_value,ram_ex_size,ram_ex_wstrb,ram_ex_fault,
+                ram_load_value,ram_ex_size,ram_ex_wstrb,ram_ex_raw_fault,ram_ex_misaligned,ram_ex_out_of_range,
                 ram_owner_valid,ram_owner_store,ram_owner_killed,ram_owner_sent,ram_store_lock,
                 ram_owner_seq,ram_req_seq,ram_rsp_seq,ram_completion_seq,ram_req_pc,ram_req_instr,
                 ram_rsp_pc,ram_rsp_instr,ram_completion_valid,ram_completion_error,
@@ -481,6 +490,8 @@ module cpu5_alu_pipeline #(
         exmem_next.mem_wdata=ram_ex_wdata;exmem_next.mem_wstrb=ram_ex_wstrb;
         exmem_next.store_raw=ENABLE_FORWARDING?ex_rs2_value:idex_q.rs2_value;
         exmem_next.mem_funct3=idex_q.funct3;
+        exmem_next.mem_class=(ENABLE_MMIO && ex_is_mem && ram_ex_out_of_range)?3'd1:3'd0;
+        exmem_next.mem_order_barrier=ENABLE_MMIO && ex_is_mem && ram_ex_out_of_range;
         exmem_next.is_csr=idex_q.is_csr;exmem_next.is_mret=idex_q.is_mret;
         exmem_next.csr_addr=idex_q.csr_addr;exmem_next.csr_write_intent=idex_q.csr_write_intent;
         exmem_next.csr_operand=idex_q.funct3[2]?{27'd0,idex_q.rs1}:ex_rs1_value;
@@ -571,6 +582,9 @@ module cpu5_alu_pipeline #(
                (ENABLE_SYNC_TRAPS!=0 && ENABLE_SYNC_TRAPS!=1) || (ENABLE_SYNC_TRAPS && TRAP_VECTOR[1:0]!=0) ||
                (ENABLE_CSR!=0 && ENABLE_CSR!=1) || (ENABLE_CSR && (!ENABLE_SYNC_TRAPS || !ENABLE_CONTROL_FLOW)) ||
                (ENABLE_RV32M!=0 && ENABLE_RV32M!=1) ||
+               (ENABLE_MMIO!=0 && ENABLE_MMIO!=1) || (ENABLE_MMIO && !ENABLE_RAM) ||
+               (ENABLE_MMIO && {32'd0,DMEM_BASE_ADDR}<64'h20000100 &&
+                   ({32'd0,DMEM_BASE_ADDR}+64'd4*DMEM_WORDS)>64'h20000000) ||
                (ENABLE_EXTERNAL_IRQ!=0 && ENABLE_EXTERNAL_IRQ!=1) ||
                (ENABLE_SOFTWARE_IRQ!=0 && ENABLE_SOFTWARE_IRQ!=1) ||
                (ENABLE_TIMER_IRQ!=0 && ENABLE_TIMER_IRQ!=1) ||
@@ -582,12 +596,17 @@ module cpu5_alu_pipeline #(
         if(wb_we && wb_rd==0)$fatal(1,"CPU5 x0 write");
         if(id_move && id_raw_wait)$fatal(1,"CPU5 stale operand admission");
         if(ENABLE_FORWARDING && ex_move && ex_source_stall)$fatal(1,"CPU5 unresolved EX source advanced");
-        if(ENABLE_RAM && ram_issue_fire && !ram_issue_store &&
+        if(ENABLE_RAM && ram_issue_fire && !ram_issue_store && !mem_io_request &&
            (!ex_move || !idex_q.is_load || ex_ram_fault || kill_ex))
             $fatal(1,"CPU5 LOAD issue lacks live advancing EX owner");
         if(ENABLE_RAM && ram_issue_fire && ram_issue_store &&
            (!exmem_valid_q || !exmem_q.is_store || exmem_q.exception_valid || kill_mem || !mem_enable))
             $fatal(1,"CPU5 STORE issue lacks oldest qualified MEM owner");
+        if(mem_io_request && ram_issue_fire && (!exmem_valid_q || !exmem_q.is_load ||
+            !exmem_q.mem_order_barrier || !mem_enable || kill_mem || irq_take || flush_valid || mem_fault))
+            $fatal(1,"CPU5 ordered I/O read lacks oldest MEM authorization");
+        if(ENABLE_MMIO && ex_load_request && ram_ex_out_of_range)
+            $fatal(1,"CPU5 non-RAM read speculated in EX");
         if(ram_mem_matches && (ram_completion_pc!==exmem_q.pc || ram_completion_instr!==exmem_q.instr))
             $fatal(1,"CPU5 D completion owner identity mismatch");
         if(trap_fire && (retire_fire || bp_commit_valid || ex_move || id_move || ram_issue_fire))
