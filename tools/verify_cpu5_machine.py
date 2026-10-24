@@ -32,6 +32,7 @@ def main():
     ap.add_argument('--vsim', type=Path, default=Path(r'D:\modeltech64_10.6e\win64\vsim.exe'))
     ap.add_argument('--reuse-reference', action='store_true', help='reuse completed MMIO compatibility only on every tested-source SHA match')
     ap.add_argument('--reuse-suites', action='store_true', help='reuse completed machine suites only on every tested-source SHA match')
+    ap.add_argument('--allow-core-extension', action='store_true', help='authorize only cpu5_alu_pipeline.v to evolve for a later opt-in core stage; keep all functional and source SHA gates')
     a = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
     before = {p: sha(ROOT / p) for p in SOURCES}
@@ -105,15 +106,18 @@ def main():
     assert program['decoder_selftest']['fixed_word_checks'] == 15
     assert program['decoder_selftest']['device_state_checks'] == 5 and program['decoder_selftest']['total_checks'] == 20
     assert program['negative_evidence_tests']['rejected_count'] == 14 and program['negative_evidence_tests']['good_inputs_unchanged']
-    for path in LEGACY:
+    authorized_core_extension = ['rtl/cpu5_alu_pipeline.v'] if a.allow_core_extension else []
+    legacy_checked = [path for path in LEGACY if path not in authorized_core_extension]
+    for path in legacy_checked:
         original = subprocess.check_output(['git', 'show', BASE + ':' + path], cwd=ROOT)
         assert original == (ROOT / path).read_bytes().replace(b'\r\n', b'\n'), path
     assert before == {p: sha(ROOT / p) for p in SOURCES}, 'verification changed source'
     result = dict(status='PARTIAL VERIFIED: CPU5 machine timer and software interrupt devices', source_sha256=before,
                   sources_unchanged=True, processes=processes, suites=suites,
                   compatibility_reference='build/cpu5_s10_verification/verification.json',
-                  legacy_components_unchanged=LEGACY, rtl_mutations_rejected=40, parameter_guards_rejected=5,
-                  BP_Stats_devices='NOT IMPLEMENTED', FENCE='NOT IMPLEMENTED',
+                  legacy_components_unchanged=legacy_checked, authorized_core_extension=authorized_core_extension,
+                  rtl_mutations_rejected=40, parameter_guards_rejected=5,
+                  BP_Stats_devices='NOT IMPLEMENTED', FENCE='NOT ENABLED IN THIS COMPATIBILITY CONFIGURATION' if a.allow_core_extension else 'NOT IMPLEMENTED',
                   cache_AXI_SoC='NOT INTEGRATED', full_A01_A16='NOT RUN', STA='NOT RUN', board='NOT RUN', performance_claim='NONE')
     (OUT / 'verification.json').write_text(json.dumps(result, indent=2) + '\n', encoding='utf-8', newline='\n')
     print(json.dumps(dict(status=result['status'], sources=len(before), rtl_mutations_rejected=40, parameter_guards_rejected=5)))

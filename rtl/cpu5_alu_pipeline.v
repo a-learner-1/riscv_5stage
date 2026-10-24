@@ -5,7 +5,7 @@
 module cpu5_alu_pipeline #(
     parameter integer SEQ_BITS=64,EPOCH_BITS=8,ENABLE_FORWARDING=0,
     ENABLE_CONTROL_FLOW=0,BRANCH_RESOLVE_IN_ID=0,ENABLE_BRANCH_PRED=0,
-    ENABLE_RAM=0,DMEM_WORDS=4096,ENABLE_SYNC_TRAPS=0,ENABLE_CSR=0,ENABLE_RV32M=0,ENABLE_MMIO=0,
+    ENABLE_RAM=0,DMEM_WORDS=4096,ENABLE_SYNC_TRAPS=0,ENABLE_CSR=0,ENABLE_RV32M=0,ENABLE_MMIO=0,ENABLE_FENCE=0,
     ENABLE_EXTERNAL_IRQ=0,ENABLE_SOFTWARE_IRQ=0,ENABLE_TIMER_IRQ=0,
     parameter [31:0] DMEM_BASE_ADDR=32'h00010000,TRAP_VECTOR=32'h00000100
 )(
@@ -126,20 +126,24 @@ module cpu5_alu_pipeline #(
         (in_instr[14:12]==1 || in_instr[14:12]==2 || in_instr[14:12]==3 ||
          in_instr[14:12]==5 || in_instr[14:12]==6 || in_instr[14:12]==7);
     wire id_mret=ENABLE_CSR && in_instr==32'h30200073;
+    // Every base FENCE encoding conservatively orders all data accesses.
+    // Reserved rs1/rd and fm/pred/succ fields do not create operands.
+    // FENCE.I remains outside this subset.
+    wire id_fence=ENABLE_FENCE && in_instr[6:0]==7'h0f && in_instr[14:12]==0;
     wire id_m=ENABLE_RV32M && in_instr[6:0]==7'h33 && in_instr[31:25]==7'h01;
     wire csr_write_intent=in_instr[13:12]==2'b01 || in_instr[19:15]!=0;
     wire [31:0] csr_read_value,csr_mtvec_value,csr_mepc_value;
     wire csr_access_illegal,csr_commit_fire,mret_fire;
     wire [31:0] trap_target=ENABLE_CSR?csr_mtvec_value:TRAP_VECTOR;
     wire [31:0] mem_actual_next_pc=ENABLE_CSR && exmem_q.is_mret?csr_mepc_value:exmem_q.actual_next_pc;
-    assign supported=alu_supported||cf_supported||ram_supported||id_ecall||id_ebreak||id_csr||id_mret||id_m;
+    assign supported=alu_supported||cf_supported||ram_supported||id_ecall||id_ebreak||id_csr||id_mret||id_m||id_fence;
     wire id_illegal=ENABLE_SYNC_TRAPS && !supported;
-    assign {uses_rs1,uses_rs2,writes_rd}=id_m?{1'b1,1'b1,(in_instr[11:7]!=0)}:id_csr?{!in_instr[14],1'b0,1'b1}:
+    assign {uses_rs1,uses_rs2,writes_rd}=id_fence?3'b000:id_m?{1'b1,1'b1,(in_instr[11:7]!=0)}:id_csr?{!in_instr[14],1'b0,1'b1}:
         ram_supported?{ram_uses1,ram_uses2,ram_writes}:
         cf_supported?{cf_uses1,cf_uses2,cf_writes}:{alu_uses1,alu_uses2,alu_writes};
-    assign rs1=(id_csr||id_m)?in_instr[19:15]:ram_supported?ram_rs1:cf_supported?cf_rs1:alu_rs1;
-    assign rs2=id_m?in_instr[24:20]:ram_supported?ram_rs2:cf_supported?cf_rs2:alu_rs2;
-    assign rd=(id_csr||id_m)?in_instr[11:7]:ram_supported?ram_rd:cf_supported?cf_rd:alu_rd;
+    assign rs1=id_fence?5'd0:(id_csr||id_m)?in_instr[19:15]:ram_supported?ram_rs1:cf_supported?cf_rs1:alu_rs1;
+    assign rs2=id_fence?5'd0:id_m?in_instr[24:20]:ram_supported?ram_rs2:cf_supported?cf_rs2:alu_rs2;
+    assign rd=id_fence?5'd0:(id_csr||id_m)?in_instr[11:7]:ram_supported?ram_rd:cf_supported?cf_rd:alu_rd;
     assign imm=ram_supported?ram_imm:cf_supported?cf_imm:alu_imm;
     regfile u_regfile(.clk(clk),.we(wb_we),.rs1_addr(rs1),.rs2_addr(rs2),
         .rd_addr(wb_rd),.rd_data(wb_data),.rs1_data(rf1),.rs2_data(rf2));
@@ -170,7 +174,10 @@ module cpu5_alu_pipeline #(
     // before the same edge can retire this CSR into WB; static CSRs retain
     // their existing early MEM forwarding under WB backpressure.
     wire csr_read_stable=exmem_q.csr_addr!=12'h344 || (mem_enable && wb_can_load);
-    assign mem_result_ready=ENABLE_CSR && exmem_q.is_csr?(!csr_access_illegal && csr_read_stable):(exmem_q.is_load||exmem_q.is_store)?
+    // Use the registered owner state: a final response edge drains the old
+    // owner first, and FENCE becomes eligible on the following edge.
+    wire mem_fence_barrier=ENABLE_FENCE && exmem_valid_q && exmem_q.fence_op && !kill_mem;
+    assign mem_result_ready=ENABLE_FENCE && exmem_q.fence_op?(!ram_owner_valid && exmem_q.result_ready):ENABLE_CSR && exmem_q.is_csr?(!csr_access_illegal && csr_read_stable):(exmem_q.is_load||exmem_q.is_store)?
         (ram_mem_matches && !ram_completion_error):exmem_q.result_ready;
     assign mem_result_value=ENABLE_CSR && exmem_q.is_csr?csr_read_value:
         exmem_q.is_load?ram_load_value:exmem_q.is_store?32'd0:exmem_q.alu_result;
@@ -239,7 +246,7 @@ module cpu5_alu_pipeline #(
     wire m_older_risk=exmem_valid_q && !kill_mem &&
         (mem_fault || exmem_q.is_load || exmem_q.is_store || exmem_q.is_csr || exmem_q.is_mret);
     assign m_issue_valid=ENABLE_RV32M && rst_n && idex_valid_q && idex_q.is_m &&
-        !irq_take &&
+        !irq_take && !mem_fence_barrier &&
         !kill_ex && !idex_q.exception_valid && !flush_valid && !trap_fire && !mret_fire &&
         ex_enable && !m_older_risk && (!ENABLE_FORWARDING || !ex_source_stall);
     assign m_completion_ready=m_ex_matches && ex_move;
@@ -263,7 +270,7 @@ module cpu5_alu_pipeline #(
     end endgenerate
     wire mem_can_load=!exmem_valid_q || kill_mem || retire_fire || trap_fire || irq_take;
     wire ex_base_move=rst_n && idex_valid_q && !kill_ex && !trap_fire && !mret_fire && ex_enable && mem_can_load &&
-        !irq_take &&
+        !irq_take && !mem_fence_barrier &&
         (!idex_q.is_m || idex_q.exception_valid || m_ex_matches) &&
         (!ENABLE_FORWARDING || !ex_source_stall) && !((ENABLE_CONTROL_FLOW||ENABLE_RAM) && flush_valid);
     wire ex_load_request=ENABLE_RAM && idex_q.is_load && !idex_q.exception_valid && !ex_ram_fault && ex_base_move &&
@@ -367,7 +374,7 @@ module cpu5_alu_pipeline #(
         (!idex_supported_q || idex_q.exception_valid || ex_target_fault || ex_ram_fault);
     // Memory instructions repair stale predictions in EX, after validating
     // their effective address, even when branches resolve in ID.
-    wire ex_redirect=ENABLE_CONTROL_FLOW && (!BRANCH_RESOLVE_IN_ID || ex_is_mem || idex_q.is_csr) &&
+    wire ex_redirect=ENABLE_CONTROL_FLOW && (!BRANCH_RESOLVE_IN_ID || ex_is_mem || idex_q.is_csr || idex_q.is_fence) &&
         !idex_q.is_mret && !flush_valid &&
         ex_move && idex_supported_q && !idex_q.exception_valid && !ex_target_fault && !ex_ram_fault &&
         ex_actual_next!=idex_q.pred_next_pc;
@@ -394,7 +401,7 @@ module cpu5_alu_pipeline #(
     wire id_target_fault=ENABLE_CONTROL_FLOW && BRANCH_RESOLVE_IN_ID && cf_supported && id_misaligned;
     wire id_redirect=ENABLE_CONTROL_FLOW && BRANCH_RESOLVE_IN_ID && !flush_valid &&
         !mem_fault && !known_ex_fault && id_move && supported && !ram_supported &&
-        !id_ecall && !id_ebreak && !id_csr && !id_mret && !in_fetch_error && !id_target_fault &&
+        !id_ecall && !id_ebreak && !id_csr && !id_mret && !id_fence && !in_fetch_error && !id_target_fault &&
         id_next_pc!=in_pred_next_pc;
     assign redirect_valid=trap_fire||mret_fire||ex_redirect||id_redirect||irq_take;
     assign redirect_kill_ifid=trap_fire||mret_fire||ex_redirect||irq_take;
@@ -471,6 +478,7 @@ module cpu5_alu_pipeline #(
         idex_next.is_branch=cf_branch;idex_next.is_jal=cf_jal;idex_next.is_jalr=cf_jalr;
         idex_next.is_load=ram_load;idex_next.is_store=ram_store;
         idex_next.is_csr=id_csr;idex_next.is_mret=id_mret;
+        idex_next.is_fence=id_fence;
         idex_next.is_m=id_m;
         idex_next.csr_addr=in_instr[31:20];idex_next.csr_write_intent=csr_write_intent;
         idex_next.exception_valid=in_fetch_error || id_target_fault || id_ecall || id_ebreak || id_illegal;
@@ -483,7 +491,7 @@ module cpu5_alu_pipeline #(
         exmem_next.seq=idex_q.seq;exmem_next.epoch=idex_q.epoch;
         exmem_next.rd=idex_q.rd;exmem_next.writes_rd=idex_q.writes_rd;
         exmem_next.alu_result=idex_q.is_m?m_completion_result:
-            (ex_is_mem||idex_q.is_mret)?32'd0:ex_is_cf?(idex_q.is_branch?32'd0:idex_q.pc+32'd4):alu_result;
+            (ex_is_mem||idex_q.is_mret||idex_q.is_fence)?32'd0:ex_is_cf?(idex_q.is_branch?32'd0:idex_q.pc+32'd4):alu_result;
         exmem_next.is_m=idex_q.is_m;
         exmem_next.is_load=idex_q.is_load;exmem_next.is_store=idex_q.is_store;
         exmem_next.mem_addr=ram_ex_addr;exmem_next.mem_size=ram_ex_size;
@@ -493,6 +501,7 @@ module cpu5_alu_pipeline #(
         exmem_next.mem_class=(ENABLE_MMIO && ex_is_mem && ram_ex_out_of_range)?3'd1:3'd0;
         exmem_next.mem_order_barrier=ENABLE_MMIO && ex_is_mem && ram_ex_out_of_range;
         exmem_next.is_csr=idex_q.is_csr;exmem_next.is_mret=idex_q.is_mret;
+        exmem_next.fence_op=idex_q.is_fence;
         exmem_next.csr_addr=idex_q.csr_addr;exmem_next.csr_write_intent=idex_q.csr_write_intent;
         exmem_next.csr_operand=idex_q.funct3[2]?{27'd0,idex_q.rs1}:ex_rs1_value;
         exmem_next.link_pc4=idex_q.pc+32'd4;exmem_next.actual_next_pc=ex_actual_next;
@@ -582,6 +591,7 @@ module cpu5_alu_pipeline #(
                (ENABLE_SYNC_TRAPS!=0 && ENABLE_SYNC_TRAPS!=1) || (ENABLE_SYNC_TRAPS && TRAP_VECTOR[1:0]!=0) ||
                (ENABLE_CSR!=0 && ENABLE_CSR!=1) || (ENABLE_CSR && (!ENABLE_SYNC_TRAPS || !ENABLE_CONTROL_FLOW)) ||
                (ENABLE_RV32M!=0 && ENABLE_RV32M!=1) ||
+               (ENABLE_FENCE!=0 && ENABLE_FENCE!=1) ||
                (ENABLE_MMIO!=0 && ENABLE_MMIO!=1) || (ENABLE_MMIO && !ENABLE_RAM) ||
                (ENABLE_MMIO && {32'd0,DMEM_BASE_ADDR}<64'h20000100 &&
                    ({32'd0,DMEM_BASE_ADDR}+64'd4*DMEM_WORDS)>64'h20000000) ||
@@ -595,6 +605,12 @@ module cpu5_alu_pipeline #(
             $fatal(1,"CPU5 invalid retirement authorization");
         if(wb_we && wb_rd==0)$fatal(1,"CPU5 x0 write");
         if(id_move && id_raw_wait)$fatal(1,"CPU5 stale operand admission");
+        if(id_move && id_fence && (uses_rs1 || uses_rs2 || writes_rd || rs1!=0 || rs2!=0 || rd!=0))
+            $fatal(1,"CPU5 FENCE reserved fields created operands");
+        if(mem_fence_barrier && (ex_move || ram_issue_fire || m_issue_fire))
+            $fatal(1,"CPU5 FENCE leaked younger execution or issue");
+        if(retire_fire && exmem_q.fence_op && (ram_owner_valid || exmem_q.writes_rd || exmem_q.rd!=0 || mem_result_value!==32'd0))
+            $fatal(1,"CPU5 FENCE retired before data drain or wrote a register");
         if(ENABLE_FORWARDING && ex_move && ex_source_stall)$fatal(1,"CPU5 unresolved EX source advanced");
         if(ENABLE_RAM && ram_issue_fire && !ram_issue_store && !mem_io_request &&
            (!ex_move || !idex_q.is_load || ex_ram_fault || kill_ex))
