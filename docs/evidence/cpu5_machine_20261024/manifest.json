@@ -1,0 +1,13 @@
+{
+  "status": "FROZEN",
+  "files": {
+    ".gitattributes": "a37f77d666686e606a1248de2c02c9de858a86608325bd4db75f8d9e18d208d0",
+    "archive_entries.json": "d07052ec98a66075cf0f05fe5432f7fdcc19e5b8e532213b0ccfdc577e37e86b",
+    "raw_evidence.zip": "1d8b4a74a2b738adc8ee8353e246ac5e459c9f7f1321892129103bc60a4e1b61",
+    "README.md": "1bf8bb4b0aeadf89b7b8918b70ab7aaa82a7a4e3559789d58df56031d114e92b",
+    "selected_runs.json": "38b4e0b7eec1d904467ce80a7f38e550be2fdb509185a2c4623edba9afb2c9f2",
+    "source_identity.json": "48790df9909c160e9bf3b5eccf976bdbfa2e7adc21cc5698032484b3dc3ced4e",
+    "verification.json": "5c21c2dc227443710d693a8f3d87205a3332b2be001d179b27dc7706c6a91a4a"
+  },
+  "archive_entries": 8494
+}

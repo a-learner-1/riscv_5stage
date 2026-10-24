@@ -21,6 +21,7 @@ module cpu5_top #(
     // Opt-in 3A-2 EX/MEM and MEM/WB forwarding; zero preserves the 3A-1 reference.
     parameter integer ENABLE_FORWARDING=0,ENABLE_CONTROL_FLOW=0,ENABLE_RAM=0,
     ENABLE_SYNC_TRAPS=0,ENABLE_CSR=0,ENABLE_RV32M=0,ENABLE_MMIO=0,
+    ENABLE_TIMER_DEVICE=0,ENABLE_SOFTWARE_DEVICE=0,
     parameter [31:0] TRAP_VECTOR=32'h00000100
 )(
     input wire clk,rst_n,
@@ -71,6 +72,7 @@ module cpu5_top #(
     wire core_dreq_valid,core_dreq_ready,core_dreq_write,core_drsp_valid,core_drsp_ready,core_drsp_error;
     wire [31:0] core_dreq_addr,core_dreq_wdata,core_drsp_rdata;
     wire [1:0] core_dreq_size;wire [3:0] core_dreq_wstrb;
+    wire machine_timer_irq,machine_software_irq;
     assign ifid_ready=SKELETON_ONLY!=0?skeleton_ready:alu_ready;
     assign valid_x=SKELETON_ONLY!=0?skeleton_ex_valid:alu_ex_valid;
     assign pc_x=SKELETON_ONLY!=0?skeleton_ex_pc:alu_ex_pc;
@@ -121,7 +123,8 @@ module cpu5_top #(
             .ENABLE_EXTERNAL_IRQ(ENABLE_EXTERNAL_IRQ),.ENABLE_SOFTWARE_IRQ(ENABLE_SOFTWARE_IRQ),
             .ENABLE_TIMER_IRQ(ENABLE_TIMER_IRQ)) u_pipeline(
             .clk(clk),.rst_n(rst_n),.in_valid(ifid_valid_q),.in_ready(alu_ready),
-            .irq_external(irq_external),.irq_software(irq_software),.irq_timer(irq_timer),
+            .irq_external(irq_external),.irq_software(irq_software || machine_software_irq),
+            .irq_timer(irq_timer || machine_timer_irq),
             .in_pc(ifid_q.pc),.in_instr(ifid_q.instr),.in_pred_next_pc(ifid_q.pred_next_pc),
             .in_pred_taken(ifid_q.pred_taken),.in_pred_hit(ifid_q.pred_hit),
             .in_fetch_error(ifid_q.fetch_error),.in_fetch_tval(ifid_q.fetch_tval),
@@ -158,7 +161,23 @@ module cpu5_top #(
         assign {trap_valid,trap_pc,trap_cause,trap_tval}=0;
     end endgenerate
 
-    generate if(ENABLE_MMIO)begin:g_mmio
+    generate if(ENABLE_MMIO && (ENABLE_TIMER_DEVICE || ENABLE_SOFTWARE_DEVICE))begin:g_machine
+        cpu5_machine_router #(.ENABLE_TIMER_DEVICE(ENABLE_TIMER_DEVICE),.ENABLE_SOFTWARE_DEVICE(ENABLE_SOFTWARE_DEVICE),
+            .UART_CLOCK_HZ(UART_CLOCK_HZ),.UART_BAUD(UART_BAUD),
+            .UART_RX_FIFO_DEPTH(UART_RX_FIFO_DEPTH),.SIM_CONSOLE_ECHO(SIM_CONSOLE_ECHO)) u_router(
+            .clk(clk),.rst_n(rst_n),.req_valid(core_dreq_valid),.req_ready(core_dreq_ready),
+            .req_write(core_dreq_write),.req_addr(core_dreq_addr),.req_size(core_dreq_size),
+            .req_wdata(core_dreq_wdata),.req_wstrb(core_dreq_wstrb),.rsp_valid(core_drsp_valid),
+            .rsp_ready(core_drsp_ready),.rsp_rdata(core_drsp_rdata),.rsp_error(core_drsp_error),
+            .ext_req_valid(dmem_req_valid),.ext_req_ready(dmem_req_ready),.ext_req_write(dmem_req_write),
+            .ext_req_addr(dmem_req_addr),.ext_req_size(dmem_req_size),.ext_req_wdata(dmem_req_wdata),
+            .ext_req_wstrb(dmem_req_wstrb),.ext_rsp_valid(dmem_rsp_valid),.ext_rsp_ready(dmem_rsp_ready),
+            .ext_rsp_rdata(dmem_rsp_rdata),.ext_rsp_error(dmem_rsp_error),
+            .cycle_count(alu_cycle_count),.instret_count(alu_instret_count),
+            .uart_rx(uart_rx),.uart_tx(uart_tx),.gpio_in(gpio_in),.gpio_out(gpio_out),.gpio_oe(gpio_oe),
+            .irq_timer(machine_timer_irq),.irq_software(machine_software_irq));
+    end else if(ENABLE_MMIO)begin:g_mmio
+        assign machine_timer_irq=0;assign machine_software_irq=0;
         cpu5_mmio_router #(.UART_CLOCK_HZ(UART_CLOCK_HZ),.UART_BAUD(UART_BAUD),
             .UART_RX_FIFO_DEPTH(UART_RX_FIFO_DEPTH),.SIM_CONSOLE_ECHO(SIM_CONSOLE_ECHO)) u_router(
             .clk(clk),.rst_n(rst_n),.req_valid(core_dreq_valid),.req_ready(core_dreq_ready),
@@ -172,6 +191,7 @@ module cpu5_top #(
             .cycle_count(alu_cycle_count),.instret_count(alu_instret_count),
             .uart_rx(uart_rx),.uart_tx(uart_tx),.gpio_in(gpio_in),.gpio_out(gpio_out),.gpio_oe(gpio_oe));
     end else begin:g_no_mmio
+        assign machine_timer_irq=0;assign machine_software_irq=0;
         assign dmem_req_valid=core_dreq_valid;assign core_dreq_ready=dmem_req_ready;
         assign dmem_req_write=core_dreq_write;assign dmem_req_addr=core_dreq_addr;
         assign dmem_req_size=core_dreq_size;assign dmem_req_wdata=core_dreq_wdata;assign dmem_req_wstrb=core_dreq_wstrb;
@@ -208,6 +228,9 @@ module cpu5_top #(
            (ENABLE_CONTROL_FLOW!=0 && ENABLE_CONTROL_FLOW!=1) ||
            (ENABLE_RAM!=0 && ENABLE_RAM!=1) || (ENABLE_RAM && EXTERNAL_DMEM!=1) ||
            (ENABLE_MMIO!=0 && ENABLE_MMIO!=1) || (ENABLE_MMIO && (SKELETON_ONLY!=0 || !ENABLE_RAM)) ||
+           (ENABLE_TIMER_DEVICE!=0 && ENABLE_TIMER_DEVICE!=1) ||
+           (ENABLE_SOFTWARE_DEVICE!=0 && ENABLE_SOFTWARE_DEVICE!=1) ||
+           ((ENABLE_TIMER_DEVICE || ENABLE_SOFTWARE_DEVICE) && !ENABLE_MMIO) ||
            (ENABLE_MMIO && {32'd0,DMEM_BASE_ADDR}<64'h20000100 &&
                ({32'd0,DMEM_BASE_ADDR}+64'd4*DMEM_WORDS)>64'h20000000) ||
            (ENABLE_SYNC_TRAPS!=0 && ENABLE_SYNC_TRAPS!=1) ||
