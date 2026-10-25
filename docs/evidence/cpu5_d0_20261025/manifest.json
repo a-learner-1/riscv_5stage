@@ -1,0 +1,21 @@
+{
+  "status": "FROZEN",
+  "files": {
+    ".gitattributes": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da",
+    "archive_entries.json": "5607a16896efec8fb7d2c39c770c365487de14ea077b0e09625551fe0844b436",
+    "raw_evidence.zip": "4c957de8c0497cd1e3241aca325b48b2a03f93665c646d0243a8666121441905",
+    "README.md": "9d0d3e4af9a2ba98255855e638de1a126071ebd0ef8b50280899f9c87218bbb9",
+    "selected_runs.json": "5f112984a89716ced28a41a2048433ced2b8b6721eda9322778e1e476c1e4627",
+    "source_identity.json": "14a3362e2f9bb677591114bda490e4556f0f3e5284e31ecace68888204c751a0",
+    "verification.json": "6029107c96c80347fe4d239cb76452142cb6bc913557f1dbffcbaf2e1df44ad5"
+  },
+  "archive_entries": 10207,
+  "baseline_dependency": {
+    "commit": "aad84b44eae382cf243a4929a3114c5db6980198",
+    "path": "docs/evidence/cpu5_axi_20261025",
+    "raw_archive_sha256": "a9616511aa5b79b179fe8cc7d796340a592e271c31a5d7c8b1995f36b4188bb2",
+    "manifest_sha256": "ac67cbc0d5e57ff0f363305148a02c094bef31e844130b462baddc0b85f03660",
+    "archive_entries": 17365,
+    "simulations_rerun": false
+  }
+}
