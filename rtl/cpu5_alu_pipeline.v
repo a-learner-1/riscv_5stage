@@ -26,6 +26,7 @@ module cpu5_alu_pipeline #(
     output reg [31:0] retire_pc,retire_instr,retire_value,
     output reg [4:0] retire_rd,output reg retire_writes_rd,
     output reg [SEQ_BITS-1:0] retire_seq,
+    output reg [9:0] perf_cycle_events,
     output reg [63:0] cycle_count,instret_count,
     output reg [31:0] arch_next_pc_q,
     output wire halted,output wire [31:0] halt_pc,halt_instr,
@@ -586,6 +587,81 @@ module cpu5_alu_pipeline #(
             end
         end
     end
+    // CPU5_PROFILE_BEGIN
+    // Observation only: no classification signal feeds architectural control.
+    // Every non-reset edge increments cycle_count, including external stalls.
+    // A cause is eligible only when its stage could otherwise make progress.
+    wire perf_mem_open=mem_enable && wb_can_load && !kill_mem &&
+        !mem_fault && !trap_fire && !mret_fire && !irq_take;
+    wire perf_mem_data_wait=ENABLE_RAM && exmem_valid_q && perf_mem_open &&
+        (exmem_q.is_load || exmem_q.is_store) && !ram_mem_matches &&
+        (ram_mem_owned || mem_request);
+    wire perf_fence_data_wait=ENABLE_RAM && mem_fence_barrier && perf_mem_open && ram_owner_valid;
+    wire perf_ex_data_wait=ex_load_request && !ram_issue_ready;
+    wire perf_data_wait=perf_mem_data_wait || perf_fence_data_wait || perf_ex_data_wait;
+    wire [31:0] perf_data_addr=perf_mem_data_wait?exmem_q.mem_addr:
+        (perf_fence_data_wait || (perf_ex_data_wait && ram_owner_valid))?ram_completion_addr:ram_ex_addr;
+    wire perf_data_write=perf_mem_data_wait?exmem_q.is_store:
+        (perf_fence_data_wait || (perf_ex_data_wait && ram_owner_valid))?ram_owner_store:1'b0;
+    wire perf_data_local=ENABLE_MMIO && perf_data_addr[31:8]==24'h200000;
+    // A live M instruction can wait before start, on a fast-path result, or
+    // for a killed old generation to release the unit. Background drain alone
+    // does not prevent ALU/CSR progress and is never an M wait.
+    wire perf_m_wait=ENABLE_RV32M && rst_n && idex_valid_q && idex_supported_q &&
+        idex_q.is_m && !idex_q.exception_valid && !kill_ex && ex_enable &&
+        mem_can_load && !mem_fence_barrier && !m_older_risk &&
+        (!ENABLE_FORWARDING || !ex_source_stall) && !m_ex_matches &&
+        !flush_valid && !trap_fire && !mret_fire && !irq_take && !mem_fault;
+    wire perf_id_wait=rst_n && in_valid && id_enable && supported && !in_fetch_error &&
+        !kill_input && !trap_fire && !mret_fire && !irq_take && !mem_fault &&
+        mem_can_load && ex_can_load && !ex_redirect && !((ENABLE_CONTROL_FLOW||ENABLE_RAM) && flush_valid) &&
+        !(ENABLE_CONTROL_FLOW && BRANCH_RESOLVE_IN_ID && known_ex_fault) && id_raw_wait;
+    // Resolve the newest writer before asking whether a LOAD operand is
+    // usable through this consumer's actual path. With forwarding disabled,
+    // even the current WB write is unavailable to the pre-edge RF read.
+    function perf_load_dependency;
+        input use_source;input [4:0] source;
+        begin
+            perf_load_dependency=1'b0;
+            if(use_source && source!=0)begin
+                if(!ENABLE_FORWARDING)begin
+                    if(ex_writer && idex_q.rd==source)perf_load_dependency=idex_q.is_load;
+                    else if(mem_writer && exmem_q.rd==source)perf_load_dependency=exmem_q.is_load;
+                    else if(wb_writer && memwb_q.rd==source)perf_load_dependency=memwb_q.instr[6:0]==7'h03;
+                end else if(ENABLE_CONTROL_FLOW && BRANCH_RESOLVE_IN_ID && cf_supported)begin
+                    if(ex_writer && idex_q.rd==source)perf_load_dependency=idex_q.is_load;
+                    else if(mem_writer && exmem_q.rd==source && !mem_result_ready)perf_load_dependency=exmem_q.is_load;
+                end
+            end
+        end
+    endfunction
+    wire perf_load_use=perf_id_wait &&
+        (perf_load_dependency(uses_rs1,rs1) || perf_load_dependency(uses_rs2,rs2));
+    reg perf_redirect_pending;
+    reg [9:0] perf_cycle_next;
+    always @* begin
+        perf_cycle_next=10'b0000000001;
+        if(perf_data_wait && perf_data_local)perf_cycle_next=10'b0000010000;
+        else if(perf_data_wait && perf_data_write)perf_cycle_next=10'b0000001000;
+        else if(perf_data_wait)perf_cycle_next=10'b0000000100;
+        else if(perf_m_wait && !idex_q.funct3[2])perf_cycle_next=10'b0001000000;
+        else if(perf_m_wait)perf_cycle_next=10'b0010000000;
+        else if(perf_load_use)perf_cycle_next=10'b0100000000;
+        else if(perf_id_wait)perf_cycle_next=10'b1000000000;
+        else if(!in_valid && in_ready && mem_can_load && perf_redirect_pending)perf_cycle_next=10'b0000100000;
+        else if(!in_valid && in_ready && mem_can_load)perf_cycle_next=10'b0000000010;
+    end
+    always @(posedge clk or negedge rst_n)begin
+        if(!rst_n)begin perf_cycle_events<=10'b0;perf_redirect_pending<=1'b0;end
+        else begin
+            perf_cycle_events<=perf_cycle_next;
+            // The winning redirect starts a new recovery interval. Its own
+            // instruction/action edge is useful work, not recovery wait.
+            if(redirect_valid)perf_redirect_pending<=1'b1;
+            else if(flush_fire || id_move)perf_redirect_pending<=1'b0;
+        end
+    end
+    // CPU5_PROFILE_END
     // synthesis translate_off
     initial if(SEQ_BITS!=64 || EPOCH_BITS<1 || (ENABLE_FORWARDING!=0 && ENABLE_FORWARDING!=1) ||
                (ENABLE_SYNC_TRAPS!=0 && ENABLE_SYNC_TRAPS!=1) || (ENABLE_SYNC_TRAPS && TRAP_VECTOR[1:0]!=0) ||

@@ -15,7 +15,7 @@ module cpu5_alu_control_tb;
     wire halted,halt_fetch_error;
     wire [31:0] halt_pc,halt_instr;
     wire [63:0] halt_seq;
-    cpu5_alu_pipeline dut(.irq_external(1'b0),.irq_software(1'b0),.irq_timer(1'b0),.clk(clk),.rst_n(rst_n),
+    cpu5_alu_pipeline dut(.perf_cycle_events(),.irq_external(1'b0),.irq_software(1'b0),.irq_timer(1'b0),.clk(clk),.rst_n(rst_n),
         .in_valid(in_valid),.in_ready(in_ready),.in_pc(in_pc),.in_instr(in_instr),
         .in_pred_next_pc(in_pc+32'd4),.in_pred_taken(1'b0),.in_pred_hit(1'b0),
         .in_fetch_error(in_fetch_error),.in_fetch_tval(in_pc),.in_seq(in_seq),.in_epoch(8'd0),

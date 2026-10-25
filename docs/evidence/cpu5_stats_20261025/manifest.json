@@ -1,0 +1,29 @@
+{
+  "status": "FROZEN",
+  "files": {
+    ".gitattributes": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da",
+    "archive_entries.json": "c5432e7c1cfa71e6b0a4d20b76475038fb40bcf6a1b53c36a5f7c421954c8af7",
+    "raw_evidence.zip": "6621311396e7c74ef13031603c6374b6a5d5a38e2ed382173c331fa48e02a20d",
+    "README.md": "62ffa8839435fa7bcd6f54ee5aa8c688f6320e196eac063d556533fcf2229b88",
+    "selected_runs.json": "c10b5d3878eeb7d262728ec5a86ec14b86e39d4a9f36a180cb213d26e4c3119d",
+    "source_identity.json": "35f722a4fb19ec330226be3fe84fb7198dd37fde6c8e3f812f5d42d1e582aae4",
+    "verification.json": "c792a38c3e1311ffcfd9a2bb7b8423b21c123a7f59d98a06ce1b398d8e846023"
+  },
+  "archive_entries": 11129,
+  "baseline_dependency": {
+    "commit": "102806a554a9ebee497289d4830e59d22bccbdef",
+    "path": "docs/evidence/cpu5_d0_20261025",
+    "manifest_sha256": "fe2455165762ac6b9d8a452a43c78727801b29916e9fc1c6231962773981869f",
+    "raw_archive_sha256": "4c957de8c0497cd1e3241aca325b48b2a03f93665c646d0243a8666121441905",
+    "archive_entries": 10207,
+    "simulations_rerun": false,
+    "transitive_dependency": {
+      "commit": "aad84b44eae382cf243a4929a3114c5db6980198",
+      "path": "docs/evidence/cpu5_axi_20261025",
+      "raw_archive_sha256": "a9616511aa5b79b179fe8cc7d796340a592e271c31a5d7c8b1995f36b4188bb2",
+      "manifest_sha256": "ac67cbc0d5e57ff0f363305148a02c094bef31e844130b462baddc0b85f03660",
+      "archive_entries": 17365,
+      "simulations_rerun": false
+    }
+  }
+}

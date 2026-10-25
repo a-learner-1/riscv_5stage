@@ -48,7 +48,7 @@ module cpu5_top #(
     output wire [31:0] bp_resolved_count,bp_mispredict_count,
     output wire [31:0] bp_direction_error_count,bp_target_error_count,
     input wire irq_external,irq_software,irq_timer,
-    // New width is explicit. Classification hardware is NOT IMPLEMENTED.
+    // Registered schema4/profile2 events; zero in metadata-only scaffold.
     output wire [9:0] perf_cycle_events
 );
     `include "rtl/cpu5_pipeline_types.vh"
@@ -65,6 +65,7 @@ module cpu5_top #(
     wire [31:0] alu_ex_pc,alu_ex_instr,alu_wb_pc,alu_wb_data;
     wire [4:0] alu_wb_rd;
     wire [63:0] alu_cycle_count,alu_instret_count;
+    wire [9:0] alu_perf_cycle_events;
     wire alu_redirect,alu_redirect_kill,alu_bp_valid,alu_bp_taken,alu_bp_branch,alu_bp_jal;
     wire [31:0] alu_redirect_pc,alu_bp_pc,alu_bp_target;
     wire [SEQ_BITS-1:0] alu_redirect_seq,alu_bp_seq;
@@ -135,6 +136,7 @@ module cpu5_top #(
             .wb_pc(alu_wb_pc),.wb_rd(alu_wb_rd),.wb_data(alu_wb_data),.wb_we(alu_wb_we),
             .retire_valid(alu_retire_valid),.retire_pc(),.retire_instr(),.retire_seq(),
             .retire_rd(),.retire_value(),.retire_writes_rd(),
+            .perf_cycle_events(alu_perf_cycle_events),
             .cycle_count(alu_cycle_count),.instret_count(alu_instret_count),.arch_next_pc_q(),
             .halted(),.halt_pc(),.halt_instr(),.halt_seq(),.halt_fetch_error(),
             .id_raw_wait(),.retire_fire(),.wb_fire(),
@@ -152,6 +154,7 @@ module cpu5_top #(
             .trap_fire(),.trap_valid(trap_valid),.trap_pc(trap_pc),.trap_cause(trap_cause),
             .trap_tval(trap_tval),.trap_seq());
     end else begin:g_no_alu
+        assign alu_perf_cycle_events=0;
         assign {alu_ready,alu_ex_valid,alu_ex_pc,alu_ex_instr,alu_wb_pc,alu_wb_rd,
                 alu_wb_data,alu_wb_we,alu_retire_valid,alu_cycle_count,alu_instret_count}=0;
         assign {alu_redirect,alu_redirect_kill,alu_redirect_pc,alu_redirect_seq,alu_bp_valid,alu_bp_pc,alu_bp_target,
@@ -217,8 +220,8 @@ module cpu5_top #(
     assign wb_pc=alu_wb_pc;assign wb_rd=alu_wb_rd;assign wb_data=alu_wb_data;
     assign wb_we=alu_wb_we;assign retire_valid=alu_retire_valid;
     assign cycle_count=alu_cycle_count;assign instret_count=alu_instret_count;
-    // Full ten-class profiling is not connected in this ALU-only subset.
-    assign perf_cycle_events=0;
+    // Registered classifier and cycle_count describe the same counted edge.
+    assign perf_cycle_events=alu_perf_cycle_events;
     assign bp_resolved_count=alu_bp_resolved;assign bp_mispredict_count=alu_bp_mismatch;
     assign bp_direction_error_count=alu_bp_direrr;assign bp_target_error_count=alu_bp_tgterr;
     // synthesis translate_off

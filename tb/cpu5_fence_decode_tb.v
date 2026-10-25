@@ -26,7 +26,7 @@ module cpu5_fence_decode_case #(
     wire [31:0] dmem_req_addr,dmem_req_wdata;wire [1:0] dmem_req_size;wire [3:0] dmem_req_wstrb;
     cpu5_alu_pipeline #(.ENABLE_FENCE(FENCE_ENABLE),.ENABLE_FORWARDING(FWD),
         .ENABLE_CONTROL_FLOW(1),.BRANCH_RESOLVE_IN_ID(ID_MODE),.ENABLE_BRANCH_PRED(1),
-        .ENABLE_SYNC_TRAPS(1),.ENABLE_RAM(0)) dut(.*);
+        .ENABLE_SYNC_TRAPS(1),.ENABLE_RAM(0)) dut(.perf_cycle_events(),.*);
 
     // kind: 0=FENCE, 1=ADDI, 2=precise synchronous exception.
     reg [1:0] ekind[0:4399];reg [63:0] eseq[0:4399];

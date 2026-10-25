@@ -42,7 +42,7 @@ module cpu5_axi_lite_top #(
     output wire [31:0] bp_resolved_count,bp_mispredict_count,
     output wire [31:0] bp_direction_error_count,bp_target_error_count,
     input wire irq_external,irq_software,irq_timer,
-    // New width is explicit. Classification hardware is NOT IMPLEMENTED.
+    // Registered schema4/profile2 events; zero in the metadata-only scaffold.
     output wire [9:0] perf_cycle_events,
     output wire [31:0] icache_access_count,
     output wire [31:0] icache_hit_count,

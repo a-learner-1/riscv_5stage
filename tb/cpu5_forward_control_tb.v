@@ -15,7 +15,7 @@ module cpu5_forward_control_tb;
     wire retire_writes_rd,halted,halt_fetch_error;
     wire [63:0] retire_seq,cycle_count,instret_count,halt_seq;
     wire [31:0] halt_pc,halt_instr;
-    cpu5_alu_pipeline #(.ENABLE_FORWARDING(1)) dut(.irq_external(1'b0),.irq_software(1'b0),.irq_timer(1'b0),.clk(clk),.rst_n(rst_n),
+    cpu5_alu_pipeline #(.ENABLE_FORWARDING(1)) dut(.perf_cycle_events(),.irq_external(1'b0),.irq_software(1'b0),.irq_timer(1'b0),.clk(clk),.rst_n(rst_n),
         .in_valid(in_valid),.in_ready(in_ready),.in_pc(in_pc),.in_instr(in_instr),
         .in_pred_next_pc(in_pc+32'd4),.in_pred_taken(1'b0),.in_pred_hit(1'b0),
         .in_fetch_error(in_fetch_error),.in_fetch_tval(in_pc),.in_seq(in_seq),.in_epoch(in_epoch),
