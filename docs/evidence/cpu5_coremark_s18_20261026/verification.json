@@ -1,0 +1,774 @@
+{
+  "status": "PASS",
+  "run_id": "20261026T064014588804Z_ab4fa6cd",
+  "configurations": 4,
+  "receipt": {
+    "status": "VERIFIED",
+    "sources": 67,
+    "case_files": 44,
+    "compressed_files": 28,
+    "firmware_files": 84,
+    "canonical_lf_identity_verified": true,
+    "current_raw_line_ending_differences": [
+      "benchmarks/coremark/core_list_join.c",
+      "benchmarks/coremark/core_main.c",
+      "benchmarks/coremark/core_matrix.c",
+      "benchmarks/coremark/core_state.c",
+      "benchmarks/coremark/core_util.c",
+      "benchmarks/coremark/coremark.h",
+      "rtl/alu.v",
+      "rtl/axi_lite_1x2.v",
+      "rtl/axi_lite_cpu5_stats.v",
+      "rtl/axi_lite_ram.v",
+      "rtl/branch_predictor.v",
+      "rtl/cpu5_alu_decode.v",
+      "rtl/cpu5_alu_pipeline.v",
+      "rtl/cpu5_branch_unit.v",
+      "rtl/cpu5_cache_adapter.v",
+      "rtl/cpu5_cached_top.v",
+      "rtl/cpu5_csr_unit.v",
+      "rtl/cpu5_d0_axi_lite_top.v",
+      "rtl/cpu5_d0_backend.v",
+      "rtl/cpu5_hazard.v",
+      "rtl/cpu5_if_adapter.v",
+      "rtl/cpu5_irq_ctrl.v",
+      "rtl/cpu5_m_owner.v",
+      "rtl/cpu5_machine_endpoint.v",
+      "rtl/cpu5_machine_router.v",
+      "rtl/cpu5_mmio_endpoint.v",
+      "rtl/cpu5_mmio_router.v",
+      "rtl/cpu5_pipeline_skeleton.v",
+      "rtl/cpu5_pipeline_types.vh",
+      "rtl/cpu5_ram_owner.v",
+      "rtl/cpu5_ram_unit.v",
+      "rtl/cpu5_stats_axi_lite_top.v",
+      "rtl/cpu5_top.v",
+      "rtl/data_bus_adapter.v",
+      "rtl/data_cache.v",
+      "rtl/data_mem.v",
+      "rtl/dmem_axi_lite_bridge.v",
+      "rtl/dmem_region_router.v",
+      "rtl/gpio_mmio.v",
+      "rtl/if_stage.v",
+      "rtl/instr_bus_adapter.v",
+      "rtl/instr_cache.v",
+      "rtl/instr_mem.v",
+      "rtl/machine_timer.v",
+      "rtl/regfile.v",
+      "rtl/rv32m_unit.v",
+      "rtl/soc_data_mem.v",
+      "rtl/soc_instr_mem.v",
+      "rtl/uart_rx.v",
+      "rtl/uart_rx_fifo.v",
+      "rtl/uart_rx_mmio.v",
+      "rtl/uart_tx.v",
+      "run_cpu5_coremark.do",
+      "software/coremark_port/core_portme.c",
+      "software/coremark_port/core_portme.h",
+      "software/coremark_port/coremark_axi_stats.h",
+      "software/cpu5_coremark/core_portme_cpu5.c",
+      "software/cpu5_coremark/link.ld",
+      "software/cpu5_coremark/start.S",
+      "software/mmio.h",
+      "software/timer.h",
+      "tools/run_cpu5_d0_program.py"
+    ]
+  },
+  "cases": [
+    {
+      "case": 0,
+      "d0": 0,
+      "cache": 0,
+      "cycles": 1289357,
+      "retired": 594480,
+      "writebacks": 594480,
+      "window_cycles": 661985,
+      "window_retired": 289747,
+      "raw_ticks": 661901,
+      "window_tick_gap": 84,
+      "cycle_classes": {
+        "work_other": 302117,
+        "ifetch_wait": 0,
+        "data_read_wait": 233924,
+        "data_write_wait": 73004,
+        "local_mmio_wait": 12,
+        "redirect_wait": 24740,
+        "mul_wait": 28188,
+        "div_wait": 0,
+        "load_use_wait": 0,
+        "id_hazard_wait": 0
+      },
+      "icache_delta": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dcache_delta": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "bp_delta": [
+        314487,
+        46904,
+        28569,
+        57268,
+        12370,
+        8728,
+        0
+      ],
+      "native_transactions": 156282,
+      "ram_writes": 19158,
+      "stats_responses": 96,
+      "timer_reads": 6,
+      "console_bytes": 3747,
+      "terminal_seq": 617509,
+      "drained": true,
+      "architectural_instructions": 594480,
+      "quick_probe": false,
+      "uart_file_lf_expanded_to_crlf": true
+    },
+    {
+      "case": 1,
+      "d0": 0,
+      "cache": 3,
+      "cycles": 2083902,
+      "retired": 605310,
+      "writebacks": 605310,
+      "window_cycles": 1235984,
+      "window_retired": 289747,
+      "raw_ticks": 1235820,
+      "window_tick_gap": 164,
+      "cycle_classes": {
+        "work_other": 301443,
+        "ifetch_wait": 193895,
+        "data_read_wait": 518718,
+        "data_write_wait": 86899,
+        "local_mmio_wait": 12,
+        "redirect_wait": 106829,
+        "mul_wait": 28188,
+        "div_wait": 0,
+        "load_use_wait": 0,
+        "id_hazard_wait": 0
+      },
+      "icache_delta": [
+        313174,
+        273260,
+        39914,
+        159653,
+        0
+      ],
+      "dcache_delta": [
+        68887,
+        33092,
+        21613,
+        86452,
+        0,
+        14181,
+        1
+      ],
+      "bp_delta": [
+        313174,
+        46873,
+        28541,
+        57268,
+        12370,
+        8728,
+        0
+      ],
+      "native_transactions": 158063,
+      "ram_writes": 19208,
+      "stats_responses": 96,
+      "timer_reads": 6,
+      "console_bytes": 3797,
+      "terminal_seq": 626681,
+      "drained": true,
+      "architectural_instructions": 605310,
+      "quick_probe": false,
+      "uart_file_lf_expanded_to_crlf": true
+    },
+    {
+      "case": 2,
+      "d0": 1,
+      "cache": 0,
+      "cycles": 964798,
+      "retired": 603176,
+      "writebacks": 603176,
+      "window_cycles": 386441,
+      "window_retired": 289747,
+      "raw_ticks": 386389,
+      "window_tick_gap": 52,
+      "cycle_classes": {
+        "work_other": 302117,
+        "ifetch_wait": 0,
+        "data_read_wait": 15104,
+        "data_write_wait": 16280,
+        "local_mmio_wait": 12,
+        "redirect_wait": 24740,
+        "mul_wait": 28188,
+        "div_wait": 0,
+        "load_use_wait": 0,
+        "id_hazard_wait": 0
+      },
+      "icache_delta": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dcache_delta": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "bp_delta": [
+        314487,
+        46904,
+        28569,
+        57268,
+        12370,
+        8728,
+        0
+      ],
+      "native_transactions": 159204,
+      "ram_writes": 19157,
+      "stats_responses": 96,
+      "timer_reads": 6,
+      "console_bytes": 3749,
+      "terminal_seq": 626219,
+      "drained": true,
+      "architectural_instructions": 603176,
+      "quick_probe": false,
+      "uart_file_lf_expanded_to_crlf": true
+    },
+    {
+      "case": 3,
+      "d0": 1,
+      "cache": 3,
+      "cycles": 1641030,
+      "retired": 606459,
+      "writebacks": 606459,
+      "window_cycles": 845286,
+      "window_retired": 289747,
+      "raw_ticks": 845166,
+      "window_tick_gap": 120,
+      "cycle_classes": {
+        "work_other": 301449,
+        "ifetch_wait": 202149,
+        "data_read_wait": 172910,
+        "data_write_wait": 29706,
+        "local_mmio_wait": 12,
+        "redirect_wait": 110872,
+        "mul_wait": 28188,
+        "div_wait": 0,
+        "load_use_wait": 0,
+        "id_hazard_wait": 0
+      },
+      "icache_delta": [
+        312323,
+        272919,
+        39404,
+        157613,
+        0
+      ],
+      "dcache_delta": [
+        68887,
+        33092,
+        21613,
+        86452,
+        0,
+        14181,
+        1
+      ],
+      "bp_delta": [
+        312323,
+        46867,
+        28567,
+        57268,
+        12370,
+        8728,
+        0
+      ],
+      "native_transactions": 158583,
+      "ram_writes": 19204,
+      "stats_responses": 96,
+      "timer_reads": 6,
+      "console_bytes": 3794,
+      "terminal_seq": 626552,
+      "drained": true,
+      "architectural_instructions": 606459,
+      "quick_probe": false,
+      "uart_file_lf_expanded_to_crlf": true
+    }
+  ],
+  "observations": {
+    "window_cycles_by_case": {
+      "0": 661985,
+      "1": 1235984,
+      "2": 386441,
+      "3": 845286
+    },
+    "cache_cycle_cost": {
+      "0->1": 573999,
+      "2->3": 458845
+    },
+    "d0_cycle_saving": {
+      "0->2": 275544,
+      "1->3": 390698
+    },
+    "correctness_gate": false
+  },
+  "metrics_claimed": "NONE",
+  "total_cycles": 5979087,
+  "total_retired": 2409425,
+  "total_window_cycles": 3129696,
+  "total_window_retired": 1158988,
+  "total_console_bytes": 15087,
+  "negative_evidence": {
+    "status": "PASS",
+    "rejected": 43,
+    "receipt_rejected": 13,
+    "semantic_rejected": 30,
+    "specimens": [
+      {
+        "name": "zero_cases",
+        "phase": "receipt",
+        "status": "REJECTED",
+        "expected_assertion": "SCOPE_CASE_COUNT",
+        "actual_assertion": "SCOPE_CASE_COUNT",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/receipts"
+      },
+      {
+        "name": "partial_disguised_full",
+        "phase": "receipt",
+        "status": "REJECTED",
+        "expected_assertion": "SCOPE_FULL_FOUR_REQUIRED",
+        "actual_assertion": "SCOPE_FULL_FOUR_REQUIRED",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/receipts"
+      },
+      {
+        "name": "label_only_pass",
+        "phase": "receipt",
+        "status": "REJECTED",
+        "expected_assertion": "SCOPE_SIMULATED_REQUIRED",
+        "actual_assertion": "SCOPE_SIMULATED_REQUIRED",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/receipts"
+      },
+      {
+        "name": "mixed_run_id",
+        "phase": "receipt",
+        "status": "REJECTED",
+        "expected_assertion": "RUN_DIRECTORIES",
+        "actual_assertion": "RUN_DIRECTORIES",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/receipts"
+      },
+      {
+        "name": "stale_case_directory",
+        "phase": "receipt",
+        "status": "REJECTED",
+        "expected_assertion": "RUN_DIRECTORIES",
+        "actual_assertion": "RUN_DIRECTORIES",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/receipts"
+      },
+      {
+        "name": "formal_score_claim",
+        "phase": "receipt",
+        "status": "REJECTED",
+        "expected_assertion": "SCOPE_NO_SCORE",
+        "actual_assertion": "SCOPE_NO_SCORE",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/receipts"
+      },
+      {
+        "name": "source_closure_missing",
+        "phase": "receipt",
+        "status": "REJECTED",
+        "expected_assertion": "SOURCE_CLOSURE",
+        "actual_assertion": "SOURCE_CLOSURE",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/receipts"
+      },
+      {
+        "name": "bad_snapshot_hash",
+        "phase": "receipt",
+        "status": "REJECTED",
+        "expected_assertion": "SNAPSHOT_HASH",
+        "actual_assertion": "SNAPSHOT_HASH: D:\\FPGA\\riscv_3stage_github_lfs\\build\\cpu5_s18_coremark\\runs\\20261026T064014588804Z_ab4fa6cd\\good_reference\\benchmarks\\coremark\\core_list_join.c",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/receipts"
+      },
+      {
+        "name": "missing_case_receipt",
+        "phase": "receipt",
+        "status": "REJECTED",
+        "expected_assertion": "RAW_ARTIFACT_CLOSURE",
+        "actual_assertion": "RAW_ARTIFACT_CLOSURE",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/receipts"
+      },
+      {
+        "name": "bad_case_receipt_hash",
+        "phase": "receipt",
+        "status": "REJECTED",
+        "expected_assertion": "RECEIPT_HASH",
+        "actual_assertion": "RECEIPT_HASH: D:\\FPGA\\riscv_3stage_github_lfs\\build\\cpu5_s18_coremark\\runs\\20261026T064014588804Z_ab4fa6cd\\raw\\cases\\case0\\actual_ram.hex",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/receipts"
+      },
+      {
+        "name": "bad_compressed_raw_identity",
+        "phase": "receipt",
+        "status": "REJECTED",
+        "expected_assertion": "COMPRESSION_RAW_HASH",
+        "actual_assertion": "COMPRESSION_RAW_HASH",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/receipts"
+      },
+      {
+        "name": "bad_firmware_receipt",
+        "phase": "receipt",
+        "status": "REJECTED",
+        "expected_assertion": "RECEIPT_HASH",
+        "actual_assertion": "RECEIPT_HASH: D:\\FPGA\\riscv_3stage_github_lfs\\build\\cpu5_s18_coremark\\runs\\20261026T064014588804Z_ab4fa6cd\\good_reference\\build\\cpu5_s18_coremark\\firmware\\case0\\build.json",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/receipts"
+      },
+      {
+        "name": "process_exit_nonzero",
+        "phase": "receipt",
+        "status": "REJECTED",
+        "expected_assertion": "PROCESS_STATUS",
+        "actual_assertion": "PROCESS_STATUS",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/receipts"
+      },
+      {
+        "name": "summary_total_balanced_forgery",
+        "phase": "semantic_fixture",
+        "status": "REJECTED",
+        "expected_assertion": "TOTAL_RETIRE_WB",
+        "actual_assertion": "TOTAL_RETIRE_WB",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic/summary_total_balanced_forgery"
+      },
+      {
+        "name": "summary_timer_forgery",
+        "phase": "semantic_fixture",
+        "status": "REJECTED",
+        "expected_assertion": "RAW_TIMER_SUMMARY",
+        "actual_assertion": "RAW_TIMER_SUMMARY",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic/summary_timer_forgery"
+      },
+      {
+        "name": "summary_window_forgery",
+        "phase": "semantic_fixture",
+        "status": "REJECTED",
+        "expected_assertion": "RAW_WINDOW_SUMMARY",
+        "actual_assertion": "RAW_WINDOW_SUMMARY",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic/summary_window_forgery"
+      },
+      {
+        "name": "summary_class_forgery",
+        "phase": "semantic_fixture",
+        "status": "REJECTED",
+        "expected_assertion": "RAW_PROFILE_SUMMARY",
+        "actual_assertion": "RAW_PROFILE_SUMMARY",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic/summary_class_forgery"
+      },
+      {
+        "name": "terminal_seq_forgery",
+        "phase": "semantic_fixture",
+        "status": "REJECTED",
+        "expected_assertion": "TERMINAL_DESCRIPTOR",
+        "actual_assertion": "TERMINAL_DESCRIPTOR",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic/terminal_seq_forgery"
+      },
+      {
+        "name": "terminal_failure_value",
+        "phase": "semantic_fixture",
+        "status": "REJECTED",
+        "expected_assertion": "TERMINAL_VALUE",
+        "actual_assertion": "TERMINAL_VALUE",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic/terminal_failure_value"
+      },
+      {
+        "name": "native_rsp_seq_forgery",
+        "phase": "semantic_fixture",
+        "status": "REJECTED",
+        "expected_assertion": "NATIVE_DESCRIPTOR",
+        "actual_assertion": "NATIVE_DESCRIPTOR",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic/native_rsp_seq_forgery"
+      },
+      {
+        "name": "timer_data_forgery",
+        "phase": "semantic_fixture",
+        "status": "REJECTED",
+        "expected_assertion": "TIMER_DATA",
+        "actual_assertion": "TIMER_DATA",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic/timer_data_forgery"
+      },
+      {
+        "name": "timer_clock_forgery",
+        "phase": "semantic_fixture",
+        "status": "REJECTED",
+        "expected_assertion": "TIMER_INDEPENDENT_CLOCK",
+        "actual_assertion": "TIMER_INDEPENDENT_CLOCK",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic/timer_clock_forgery"
+      },
+      {
+        "name": "wb_packet_forgery",
+        "phase": "semantic_fixture",
+        "status": "REJECTED",
+        "expected_assertion": "WB_PACKET",
+        "actual_assertion": "WB_PACKET",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic/wb_packet_forgery"
+      },
+      {
+        "name": "retire_wb_coherent_value_forgery",
+        "phase": "semantic_fixture",
+        "status": "REJECTED",
+        "expected_assertion": "ISA_RESULT",
+        "actual_assertion": "ISA_RESULT: pc=00000000 actual=30000001 expected=30000000",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic/retire_wb_coherent_value_forgery"
+      },
+      {
+        "name": "retire_wb_coherent_pc_forgery",
+        "phase": "semantic_fixture",
+        "status": "REJECTED",
+        "expected_assertion": "ISA_PC_INSTRUCTION",
+        "actual_assertion": "ISA_PC_INSTRUCTION: 0x4",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic/retire_wb_coherent_pc_forgery"
+      },
+      {
+        "name": "edge_instret_forgery",
+        "phase": "semantic_fixture",
+        "status": "REJECTED",
+        "expected_assertion": "EDGE_COUNTER",
+        "actual_assertion": "EDGE_COUNTER",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic/edge_instret_forgery"
+      },
+      {
+        "name": "edge_counter_forgery",
+        "phase": "semantic_fixture",
+        "status": "REJECTED",
+        "expected_assertion": "EDGE_COUNTER",
+        "actual_assertion": "EDGE_COUNTER",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic/edge_counter_forgery"
+      },
+      {
+        "name": "non_one_hot_event",
+        "phase": "semantic_fixture",
+        "status": "REJECTED",
+        "expected_assertion": "EVENT_ONE_HOT",
+        "actual_assertion": "EVENT_ONE_HOT",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic/non_one_hot_event"
+      },
+      {
+        "name": "trigger_owner_forgery",
+        "phase": "semantic_fixture",
+        "status": "REJECTED",
+        "expected_assertion": "TRIGGER_NATIVE_OWNER",
+        "actual_assertion": "TRIGGER_NATIVE_OWNER",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic/trigger_owner_forgery"
+      },
+      {
+        "name": "trigger_event_gold_forgery",
+        "phase": "semantic_fixture",
+        "status": "REJECTED",
+        "expected_assertion": "TRIGGER_GOLD",
+        "actual_assertion": "TRIGGER_GOLD",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic/trigger_event_gold_forgery"
+      },
+      {
+        "name": "stats_frozen_data_forgery",
+        "phase": "semantic_fixture",
+        "status": "REJECTED",
+        "expected_assertion": "STATS_BANK_DATA",
+        "actual_assertion": "STATS_BANK_DATA: 0x0",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic/stats_frozen_data_forgery"
+      },
+      {
+        "name": "final_ram_forgery",
+        "phase": "semantic_fixture",
+        "status": "REJECTED",
+        "expected_assertion": "RAM_FINAL_IMAGE",
+        "actual_assertion": "RAM_FINAL_IMAGE",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic/final_ram_forgery"
+      },
+      {
+        "name": "uart_serial_forgery",
+        "phase": "semantic_fixture",
+        "status": "REJECTED",
+        "expected_assertion": "UART_PIN_NATIVE_MATCH",
+        "actual_assertion": "UART_PIN_NATIVE_MATCH",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic/uart_serial_forgery"
+      },
+      {
+        "name": "if_drain_forgery",
+        "phase": "semantic_fixture",
+        "status": "REJECTED",
+        "expected_assertion": "DRAIN_STRUCTURE",
+        "actual_assertion": "DRAIN_STRUCTURE",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic/if_drain_forgery"
+      },
+      {
+        "name": "drain_tail_forgery",
+        "phase": "semantic_fixture",
+        "status": "REJECTED",
+        "expected_assertion": "DRAIN_TAIL",
+        "actual_assertion": "DRAIN_TAIL",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic/drain_tail_forgery"
+      },
+      {
+        "name": "summary_terminal_seq_forgery",
+        "phase": "semantic_fixture",
+        "status": "REJECTED",
+        "expected_assertion": "SUMMARY_TOHOST_IDENTITY",
+        "actual_assertion": "SUMMARY_TOHOST_IDENTITY",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic/summary_terminal_seq_forgery"
+      },
+      {
+        "name": "quick_probe_disguised_full",
+        "phase": "semantic_fixture",
+        "status": "REJECTED",
+        "expected_assertion": "QUICK_PROBE_SCOPE",
+        "actual_assertion": "QUICK_PROBE_SCOPE",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic/quick_probe_disguised_full"
+      },
+      {
+        "name": "duplicate_summary_key",
+        "phase": "semantic_fixture",
+        "status": "REJECTED",
+        "expected_assertion": "JSON_DUPLICATE",
+        "actual_assertion": "JSON_DUPLICATE: retired",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic/duplicate_summary_key"
+      },
+      {
+        "name": "coherent_console_summary_trigger_forgery",
+        "phase": "semantic_real_coremark",
+        "status": "REJECTED",
+        "expected_assertion": "TRIGGER_GOLD",
+        "actual_assertion": "TRIGGER_GOLD",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic_full/coherent_console_summary_trigger_forgery"
+      },
+      {
+        "name": "coherent_ticks_and_gap_forgery",
+        "phase": "semantic_real_coremark",
+        "status": "REJECTED",
+        "expected_assertion": "RAW_TIMER_SUMMARY",
+        "actual_assertion": "RAW_TIMER_SUMMARY",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic_full/coherent_ticks_and_gap_forgery"
+      },
+      {
+        "name": "duplicate_console_key",
+        "phase": "semantic_real_coremark",
+        "status": "REJECTED",
+        "expected_assertion": "CONSOLE_DUPLICATE",
+        "actual_assertion": "CONSOLE_DUPLICATE: raw_ticks",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic_full/duplicate_console_key"
+      },
+      {
+        "name": "junk_console_record",
+        "phase": "semantic_real_coremark",
+        "status": "REJECTED",
+        "expected_assertion": "CONSOLE_SYNTAX",
+        "actual_assertion": "CONSOLE_SYNTAX: COREMARK broken-record",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic_full/junk_console_record"
+      },
+      {
+        "name": "numeric_console_junk",
+        "phase": "semantic_real_coremark",
+        "status": "REJECTED",
+        "expected_assertion": "RAW_CONSOLE_VALUE",
+        "actual_assertion": "RAW_CONSOLE_VALUE: raw_ticks",
+        "directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303/negative_evidence/semantic_full/numeric_console_junk"
+      }
+    ],
+    "common_mode_metadata_consistent_but_raw_edges_rejected": true,
+    "arithmetic_reference": {
+      "status": "PASS",
+      "positive_vectors": 23,
+      "incorrect_m_results_rejected": 18
+    },
+    "performance_ordering_observational": true,
+    "good_inputs_unchanged": true,
+    "quick_fixture_positive": {
+      "case": 0,
+      "d0": 0,
+      "cache": 0,
+      "cycles": 52,
+      "retired": 18,
+      "writebacks": 18,
+      "window_cycles": 26,
+      "window_retired": 10,
+      "raw_ticks": 11,
+      "window_tick_gap": 15,
+      "cycle_classes": {
+        "work_other": 10,
+        "ifetch_wait": 0,
+        "data_read_wait": 4,
+        "data_write_wait": 0,
+        "local_mmio_wait": 12,
+        "redirect_wait": 0,
+        "mul_wait": 0,
+        "div_wait": 0,
+        "load_use_wait": 0,
+        "id_hazard_wait": 0
+      },
+      "icache_delta": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "dcache_delta": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "bp_delta": [
+        10,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "native_transactions": 10,
+      "ram_writes": 1,
+      "stats_responses": 3,
+      "timer_reads": 6,
+      "console_bytes": 0,
+      "terminal_seq": 16,
+      "drained": true,
+      "architectural_instructions": 18,
+      "quick_probe": true,
+      "uart_file_lf_expanded_to_crlf": false
+    }
+  },
+  "source_identity": {
+    "mode": "COMMITTED",
+    "source_commit": "19e6575eacc7856df269f3c8e01ba57db7120a9a",
+    "canonical_lf_sources": 70,
+    "index_used": false,
+    "no_commit_claim_for_uncommitted_sources": false
+  },
+  "audit_source_sha256": {
+    "tools/verify_cpu5_coremark.py": "8babf00244a12171e91709d3c9937e505454b1c42bf1dcb8a73ddb5340495a97",
+    "tools/cpu5_coremark_reference.py": "9733d7d85a5bd7a3f5c3c4bbceac8b62e55c7b9cbc040de1744fd6228b2ff0c3",
+    "tools/test_cpu5_coremark_evidence.py": "cdd4cd0ee13da3eeb7793a56ad3ddfad67ee62ecff54bb049a17b7f4afc66865"
+  },
+  "audit_sources_unchanged": true,
+  "record_sha256": "96cdcf1583f9c6bbc69639c2600186b37c0f29278866b270e50c4cdadcf6854f",
+  "audit_directory": "build/cpu5_s18_coremark/runs/20261026T064014588804Z_ab4fa6cd/audits/20261026T073213062012Z_788c7303",
+  "simulations_rerun": false,
+  "source_commit_required_for_delivery": false
+}

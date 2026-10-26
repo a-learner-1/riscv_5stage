@@ -1,0 +1,42 @@
+{
+  "status": "VERIFIED",
+  "source_commit": "19e6575eacc7856df269f3c8e01ba57db7120a9a",
+  "evidence_directory": "docs/evidence/cpu5_coremark_s18_20261026",
+  "evidence_manifest_sha256": "5fcdd0653bd53f475deea5efce1bb95ed85c305053c2830f015104443290c727",
+  "archive_bytes": 103794619,
+  "archive_entries": 928,
+  "frozen_replay": {
+    "status": "PASS",
+    "source_commit": "19e6575eacc7856df269f3c8e01ba57db7120a9a",
+    "archive_sha256": "9731aa0e650d62a61c8f6450a6334a527fe00ce885f7d088e8ed7b3f0da6e276",
+    "archive_entries_extracted": 928,
+    "original_commit_objects_absent": 19,
+    "object_alternates": false,
+    "artifact_storage": "ordinary extracted directories; no runtime junction",
+    "simulation_rerun": false,
+    "full_raw_replay_cases": 4,
+    "total_retired": 2409425,
+    "total_window_cycles": 3129696,
+    "receipt_negative_rejected": 13,
+    "semantic_negative_rejected": 30,
+    "committed_sources_verified": 70,
+    "audit_console_sha256": "e6283fa77bcf13e9ec85fe6c55142692239bfd42b2864800b1a229a3ae14cccd",
+    "original_archive_unchanged": true
+  },
+  "original_checkout_protection": {
+    "status": "PASS",
+    "files_checked": 4744,
+    "changed": [],
+    "old_head_preserved": true,
+    "old_status_preserved": true,
+    "product_rtl_unchanged": true,
+    "board_release_files_preserved": 5
+  },
+  "not_run": [
+    "formal >=10 second CoreMark score",
+    "CPU5 P&R/STA",
+    "CPU5 bitstream",
+    "board performance"
+  ],
+  "agent_pushed": false
+}

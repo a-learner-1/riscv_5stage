@@ -1,0 +1,20 @@
+{
+  "status": "FROZEN",
+  "source_commit": "19e6575eacc7856df269f3c8e01ba57db7120a9a",
+  "real_run_id": "20261026T064014588804Z_ab4fa6cd",
+  "archive_entries": 928,
+  "archive_bytes": 103794619,
+  "files": {
+    ".gitattributes": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da",
+    "README.md": "9ffb5def7223897640082d3730c9c04138d56d263f27676c4b168369f222f33c",
+    "archive_entries.json": "7d1935fad6c005c36ae092bf13f590d0518d17204b8a81411128928f28d8ad9e",
+    "raw_evidence.zip": "9731aa0e650d62a61c8f6450a6334a527fe00ce885f7d088e8ed7b3f0da6e276",
+    "selected_runs.json": "a4084c02940b114af5790da85da9508b575560573e7e4b8f923c8a0aae0674a7",
+    "source_identity.json": "6973038dc2a634c5a00d6376c2b4ac860786de2b6def80ab374871588110af30",
+    "verification.json": "0fa5430487e2cbc281d277eab7037d0997f2e090eb329f4ae8d654d13d7c1f17"
+  },
+  "simulations_this_milestone": 4,
+  "rtl_modified": false,
+  "formal_score": false,
+  "board_test": false
+}

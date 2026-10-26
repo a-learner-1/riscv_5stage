@@ -1,0 +1,12 @@
+{
+  "real_coremark_run_id": "20261026T064014588804Z_ab4fa6cd",
+  "probe_run_id": "20261026T070647805139Z_e83b6d79_probes",
+  "real_coremark_cases": 4,
+  "quick_probes_used_as_coremark": false,
+  "source_commit": "19e6575eacc7856df269f3c8e01ba57db7120a9a",
+  "reused_historical_s17_runs": [],
+  "fresh_four_configuration_simulation": true,
+  "metrics_claimed": "NONE",
+  "formal_score": false,
+  "board_test": false
+}
