@@ -4,6 +4,10 @@
 
 **更新时间：2026-10-21。** RV32IM＋D0 同步 BRAM＋双 Cache＋64 项 BTB 的 performance／validation 均已上板 `FORMAL PASS`，完成双种子正式验收。50 MHz、GCC 15.2.0、O2 下，正式性能为 **117.958048697 CoreMark／2.359160974 CoreMark/MHz**，相对上一版 D0/RV32I 的 55.333377791 CoreMark 提升 **113.18%（2.132 倍）**。validation 用于验证另一组种子，不参与性能分数平均。完整实现、回归、资源、时序及板测证据见 [RV32M 交付记录](docs/rv32m_execution_20261021.md)和[双种子原始证据](docs/evidence/rv32m_board_20261021/README.md)。
 
+## CPU5 五级流水线：下载后初始化
+
+CPU5 的历史验收证据归档现由 Git LFS 保存。新 clone 请先执行 `git lfs pull`，再执行 `python tools/setup_cpu5_git_baselines.py --install`，以恢复归档并建立旧提交编号的本地兼容引用。详细步骤、迁移完整性证明和验证范围见 [CPU5 LFS 与历史基线说明](docs/cpu5_git_lfs_compat_20261026.md)。这一步不代表重新完成 CPU5 功能或上板验收。
+
 ## 功能与验证状态
 
 | 功能 | 当前实现 | 验证状态 |
