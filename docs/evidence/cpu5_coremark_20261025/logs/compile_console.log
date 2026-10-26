@@ -1,0 +1,67 @@
+Reading D:/modeltech64_10.6e/tcl/vsim/pref.tcl
+
+# 10.6e
+
+# do compile.do
+# Model Technology ModelSim SE-64 vmap 10.6e Lib Mapping Utility 2018.06 Jun 23 2018
+# vmap -c 
+# Copying D:/modeltech64_10.6e/win64/../modelsim.ini to modelsim.ini
+# Model Technology ModelSim SE-64 vmap 10.6e Lib Mapping Utility 2018.06 Jun 23 2018
+# vmap cpu5_coremark_work work 
+# Modifying modelsim.ini
+# Model Technology ModelSim SE-64 vlog 10.6e Compiler 2018.06 Jun 23 2018
+# Start time: 11:34:45 on Oct 26,2026
+# vlog -sv "+incdir+." -work cpu5_coremark_work rtl/instr_mem.v rtl/instr_bus_adapter.v rtl/branch_predictor.v rtl/if_stage.v rtl/alu.v rtl/regfile.v rtl/rv32m_unit.v rtl/cpu5_if_adapter.v rtl/cpu5_hazard.v rtl/cpu5_pipeline_skeleton.v rtl/cpu5_alu_decode.v rtl/cpu5_branch_unit.v rtl/cpu5_ram_unit.v rtl/cpu5_ram_owner.v rtl/cpu5_csr_unit.v rtl/cpu5_m_owner.v rtl/cpu5_irq_ctrl.v rtl/cpu5_alu_pipeline.v rtl/cpu5_top.v rtl/cpu5_cached_top.v rtl/cpu5_cache_adapter.v rtl/instr_cache.v rtl/data_cache.v rtl/cpu5_d0_axi_lite_top.v rtl/cpu5_d0_backend.v rtl/dmem_region_router.v rtl/soc_data_mem.v rtl/data_bus_adapter.v rtl/dmem_axi_lite_bridge.v rtl/axi_lite_ram.v rtl/data_mem.v rtl/cpu5_mmio_endpoint.v rtl/cpu5_mmio_router.v rtl/cpu5_machine_endpoint.v rtl/cpu5_machine_router.v rtl/machine_timer.v rtl/gpio_mmio.v rtl/uart_tx.v rtl/uart_rx.v rtl/uart_rx_fifo.v rtl/uart_rx_mmio.v rtl/soc_instr_mem.v rtl/axi_lite_1x2.v rtl/axi_lite_cpu5_stats.v rtl/cpu5_stats_axi_lite_top.v tb/cpu5_coremark_tb.v 
+# -- Compiling module instr_mem
+# -- Compiling module instr_bus_adapter
+# -- Compiling module branch_predictor
+# -- Compiling module if_stage
+# -- Compiling module alu
+# -- Compiling module regfile
+# -- Compiling module rv32m_unit
+# -- Compiling module cpu5_if_adapter
+# -- Compiling module cpu5_hazard
+# -- Compiling module cpu5_pipeline_skeleton
+# -- Compiling module cpu5_alu_decode
+# -- Compiling module cpu5_branch_unit
+# -- Compiling module cpu5_ram_unit
+# -- Compiling module cpu5_ram_owner
+# -- Compiling module cpu5_csr_unit
+# -- Compiling module cpu5_m_owner
+# -- Compiling module cpu5_irq_ctrl
+# -- Compiling module cpu5_alu_pipeline
+# -- Compiling module cpu5_top
+# -- Compiling module cpu5_cached_top
+# -- Compiling module cpu5_cache_adapter
+# -- Compiling module instr_cache
+# -- Compiling module data_cache
+# -- Compiling module cpu5_d0_axi_lite_top
+# -- Compiling module cpu5_d0_backend
+# -- Compiling module dmem_region_router
+# -- Compiling module soc_data_mem
+# -- Compiling module data_bus_adapter
+# -- Compiling module dmem_axi_lite_bridge
+# -- Compiling module axi_lite_ram
+# -- Compiling module data_mem
+# -- Compiling module cpu5_mmio_endpoint
+# -- Compiling module cpu5_mmio_router
+# -- Compiling module cpu5_machine_endpoint
+# -- Compiling module cpu5_machine_router
+# -- Compiling module machine_timer
+# -- Compiling module gpio_mmio
+# -- Compiling module uart_tx
+# -- Compiling module uart_rx
+# -- Compiling module uart_rx_fifo
+# -- Compiling module uart_rx_mmio
+# -- Compiling module soc_instr_mem
+# -- Compiling module axi_lite_1x2
+# -- Compiling module axi_lite_cpu5_stats
+# -- Compiling module cpu5_stats_axi_lite_top
+# -- Compiling module cpu5_coremark_tb
+# -- Compiling module cpu5_coremark_case
+# 
+# Top level modules:
+# 	cpu5_coremark_tb
+# End time: 11:34:46 on Oct 26,2026, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 0
+# CPU5 COREMARK CLEAN COMPILE PASS

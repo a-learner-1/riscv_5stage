@@ -1,0 +1,89 @@
+2K performance run parameters for coremark.
+CoreMark Size    : 666
+Total ticks      : 1235820
+Total time (secs): 0.024716
+Iterations/Sec   : 40.458967
+ERROR! Must execute for at least 10 secs for a valid result!
+Iterations       : 1
+Compiler version : riscv-none-elf-gcc (xPack GNU RISC-V Embedded GCC x86_64) 15.2.0
+Compiler flags   : -march=rv32im -mabi=ilp32 -O2 -ffreestanding -fno-builtin -fno-stack-protector -fno-pic -msmall-data-limit=0 -mno-relax -ffunction-sections -fdata-sections -Wall -Wextra -Wno-maybe-uninitialized -DITERATIONS=1 -DPERFORMANCE_RUN=1 -DTOTAL_DATA_SIZE=2000 -Ibuild/cpu5_s17_coremark/firmware/case1 -Isoftware/cpu5_coremark -Isoftware/coremark_port -Ibenchmarks/coremark -Isoftware -lgcc
+Memory location  : Static; ROM 32 KiB @0x00000000; RAM 16 KiB @0x00010000; CPU5; schema4 ten-class statistics @0x30000000; core:memory clock=1:1
+seedcrc          : 0xe9f5
+[0]crclist       : 0xe714
+[0]crcmatrix     : 0x1fd7
+[0]crcstate      : 0x8e3a
+[0]crcfinal      : 0xe714
+Errors detected
+COREMARK platform=cpu5
+COREMARK isa=rv32im
+COREMARK data_backend=axi
+COREMARK backend_id=0
+COREMARK cache_enable=3
+COREMARK cache_geometry=33816592
+COREMARK branch_pred_enable=1
+COREMARK btb_entries=16
+COREMARK btb_config=1048577
+COREMARK stats_schema=4
+COREMARK cycle_profile_schema=2
+COREMARK counter_window=START-before-mtime;STOP-after-mtime;includes-boundary-overhead
+COREMARK counter_valid=1
+COREMARK counter_cycles=1235984
+COREMARK counter_retired=289747
+COREMARK counter_cpi=4.265735279
+COREMARK cycle_profile_valid=1
+COREMARK cycle_work_other=301443
+COREMARK cycle_ifetch_wait=193895
+COREMARK cycle_data_read_wait=518718
+COREMARK cycle_data_write_wait=86899
+COREMARK cycle_local_mmio_wait=12
+COREMARK cycle_redirect_wait=106829
+COREMARK cycle_mul_wait=28188
+COREMARK cycle_div_wait=0
+COREMARK cycle_load_use_wait=0
+COREMARK cycle_id_hazard_wait=0
+COREMARK cycle_profile_sum=1235984
+COREMARK window_tick_gap=164
+COREMARK icache_access=313174
+COREMARK icache_hit=273260
+COREMARK icache_miss=39914
+COREMARK icache_refill_words=159653
+COREMARK icache_errors=0
+COREMARK dcache_access=68887
+COREMARK dcache_hit=33092
+COREMARK dcache_miss=21613
+COREMARK dcache_refill_words=86452
+COREMARK dcache_errors=0
+COREMARK dcache_write=14181
+COREMARK dcache_bypass=1
+COREMARK bp_lookup=313174
+COREMARK bp_hit=46873
+COREMARK bp_predicted_taken=28541
+COREMARK bp_resolved=57268
+COREMARK bp_next_pc_mismatch=12370
+COREMARK bp_direction_error=8728
+COREMARK bp_target_error=0
+COREMARK cache_state=fixed-iterations;no-explicit-flush
+COREMARK predictor_state=fixed-iterations;no-explicit-reset
+COREMARK profile=cpu5-smoke
+COREMARK mode=smoke
+COREMARK run=performance
+COREMARK cpu_hz=50000000
+COREMARK uart_baud=5000000
+COREMARK iterations_requested=1
+COREMARK iterations=1
+COREMARK raw_ticks=1235820
+COREMARK seconds=0.024716400
+COREMARK iterations_per_second=40.458966516
+COREMARK coremark_per_mhz=0.809179330
+COREMARK seed1=0x0000
+COREMARK seed2=0x0000
+COREMARK seed3=0x0066
+COREMARK seedcrc=0xe9f5
+COREMARK crclist=0xe714
+COREMARK crcmatrix=0x1fd7
+COREMARK crcstate=0x8e3a
+COREMARK compiler=riscv-none-elf-gcc (xPack GNU RISC-V Embedded GCC x86_64) 15.2.0
+COREMARK flags=-march=rv32im -mabi=ilp32 -O2 -ffreestanding -fno-builtin -fno-stack-protector -fno-pic -msmall-data-limit=0 -mno-relax -ffunction-sections -fdata-sections -Wall -Wextra -Wno-maybe-uninitialized -DITERATIONS=1 -DPERFORMANCE_RUN=1 -DTOTAL_DATA_SIZE=2000 -Ibuild/cpu5_s17_coremark/firmware/case1 -Isoftware/cpu5_coremark -Isoftware/coremark_port -Ibenchmarks/coremark -Isoftware -lgcc
+COREMARK memory=Static; ROM 32 KiB @0x00000000; RAM 16 KiB @0x00010000; CPU5; schema4 ten-class statistics @0x30000000; core:memory clock=1:1
+NOTE: smoke timing is a functional observation; it is not a formal score.
+COREMARK RESULT: SMOKE PASS

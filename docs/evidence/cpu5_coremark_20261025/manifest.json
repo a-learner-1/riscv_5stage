@@ -1,0 +1,351 @@
+{
+  "status": "FROZEN",
+  "evidence": "docs/evidence/cpu5_coremark_20261025",
+  "run_id": "20261026T033442697661Z_0dfe0c9a",
+  "verification_status": "PASS",
+  "audit_mutations_rejected": 22,
+  "files": [
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/verification.json",
+      "source_path": "build/cpu5_s17_coremark/verification.json",
+      "bytes": 82013,
+      "sha256": "6779d93df07fa79899498122c79bd4bc02e364d6f996615b2d6d7918f158cefd"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/audit.json",
+      "source_path": "build/cpu5_s17_coremark/audit.json",
+      "bytes": 8138,
+      "sha256": "ac6d34479f1659155ecc5aa52cdbdec52ba6f770699ccfa95695a4cafe7ca384"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/cases/case0/console.txt",
+      "source_path": "build/cpu5_s17_coremark/cases/case0/console.txt",
+      "bytes": 3836,
+      "sha256": "4eebe00b37b6d4e0e425857dab37b0e76991ccdba3cb05d609cff3b7e20a6cc0"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/cases/case0/summary.json",
+      "source_path": "build/cpu5_s17_coremark/cases/case0/summary.json",
+      "bytes": 859,
+      "sha256": "3525685e49f7589168971a7c5887c76365e55e500b65c1fd958395f0d03e89ad"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case0/build.json",
+      "source_path": "build/cpu5_s17_coremark/firmware/case0/build.json",
+      "bytes": 11697,
+      "sha256": "15b3a0e66c4074be85832dbae88c43d59c295db9a0757fa9dc81499a107ac426"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case0/coremark_build_config.h",
+      "source_path": "build/cpu5_s17_coremark/firmware/case0/coremark_build_config.h",
+      "bytes": 1673,
+      "sha256": "6a59335e920b1b605d29c4d70e526588b5fa43d78d9753df581017faa1ca67ab"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case0/program.elf",
+      "source_path": "build/cpu5_s17_coremark/firmware/case0/program.elf",
+      "bytes": 110452,
+      "sha256": "c88e96e33c2c543bc7771a82af4c62a994d7c1d13442cd2e3c091eb3f325d293"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case0/program_text.bin",
+      "source_path": "build/cpu5_s17_coremark/firmware/case0/program_text.bin",
+      "bytes": 27724,
+      "sha256": "2f1dcebed0954717cd4fdd2e542dd4f1eae902ebe54a5a4f28bb8e68db2646fe"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case0/program_data.bin",
+      "source_path": "build/cpu5_s17_coremark/firmware/case0/program_data.bin",
+      "bytes": 5568,
+      "sha256": "e2f4c70593d5df4e80975d976c7e59eb70e89f80140d86792aeeb79c0b0a602f"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case0/program.hex",
+      "source_path": "build/cpu5_s17_coremark/firmware/case0/program.hex",
+      "bytes": 81920,
+      "sha256": "f4df7ecc6556c8e004ceecd79149bc7f8b6f73a15f819fdc687f6ba4a6302114"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case0/program_data.hex",
+      "source_path": "build/cpu5_s17_coremark/firmware/case0/program_data.hex",
+      "bytes": 40960,
+      "sha256": "1c1920c9be11a2d8ebb5a574b00070070104d6399219bea2c2efb7020377152a"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case0/program.map",
+      "source_path": "build/cpu5_s17_coremark/firmware/case0/program.map",
+      "bytes": 64357,
+      "sha256": "70f7be81f465eeaf4ec2b084c03317bb0017d728eff8a04f500896c81379d2b8"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case0/program.lst",
+      "source_path": "build/cpu5_s17_coremark/firmware/case0/program.lst",
+      "bytes": 331739,
+      "sha256": "2243a39afa45cccc7e7bbc46500c46e3550ed9419598347497abd9cfd58442a4"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/cases/case1/console.txt",
+      "source_path": "build/cpu5_s17_coremark/cases/case1/console.txt",
+      "bytes": 3886,
+      "sha256": "dd02dc25d11cd825b2f6afcc3499be139e4b4222cc11e4adf697f824ddbebbd9"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/cases/case1/summary.json",
+      "source_path": "build/cpu5_s17_coremark/cases/case1/summary.json",
+      "bytes": 943,
+      "sha256": "5949f5730ef5f7257d0ed2287c92fe00740c6956884fab3be968eb34828589db"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case1/build.json",
+      "source_path": "build/cpu5_s17_coremark/firmware/case1/build.json",
+      "bytes": 11697,
+      "sha256": "fb1c16ada12af0f34a4c40ad0ed09e979615bc46d3727f9fc12352c880d85376"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case1/coremark_build_config.h",
+      "source_path": "build/cpu5_s17_coremark/firmware/case1/coremark_build_config.h",
+      "bytes": 1673,
+      "sha256": "2ab2f27deadc72b5152af5d737374a459a6179d226d0bdf888bda37e00a036f1"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case1/program.elf",
+      "source_path": "build/cpu5_s17_coremark/firmware/case1/program.elf",
+      "bytes": 110452,
+      "sha256": "c50e6fda3828c8b620c852d4c9c4522582d475f70c03b2998d3fe900b76f8bbd"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case1/program_text.bin",
+      "source_path": "build/cpu5_s17_coremark/firmware/case1/program_text.bin",
+      "bytes": 27728,
+      "sha256": "7d68c6746521be57129081dd22ff98e763c8f525019be9065707d597f2c821a3"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case1/program_data.bin",
+      "source_path": "build/cpu5_s17_coremark/firmware/case1/program_data.bin",
+      "bytes": 5568,
+      "sha256": "fa1a095e7e863d80c7b5233e5cebf74e97d9bbfb6eb820731e5bb66a0d3dc304"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case1/program.hex",
+      "source_path": "build/cpu5_s17_coremark/firmware/case1/program.hex",
+      "bytes": 81920,
+      "sha256": "0d197294c18b724aac6eb5ebcd328f711d2ab2f49975dd62b9b4bad3f528845b"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case1/program_data.hex",
+      "source_path": "build/cpu5_s17_coremark/firmware/case1/program_data.hex",
+      "bytes": 40960,
+      "sha256": "8bd26b184d0cc6dbefcd72e889d5c473b9e9f42d78769c3dfda8f3e16f99c0bd"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case1/program.map",
+      "source_path": "build/cpu5_s17_coremark/firmware/case1/program.map",
+      "bytes": 64357,
+      "sha256": "80d1c98a5a6bd0d9ce5f6d609aa5656cdf0a60ad8f932dd6c7fb63523f7ecbf3"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case1/program.lst",
+      "source_path": "build/cpu5_s17_coremark/firmware/case1/program.lst",
+      "bytes": 331778,
+      "sha256": "1f54481b96a6b655f5ecde670fd0a2d5bbbb7105a5144baf36d6df8425750160"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/cases/case2/console.txt",
+      "source_path": "build/cpu5_s17_coremark/cases/case2/console.txt",
+      "bytes": 3838,
+      "sha256": "567a79fe2ae066a0260b8a8002867f3867e48118fd0267996c09fa90bcf8d53d"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/cases/case2/summary.json",
+      "source_path": "build/cpu5_s17_coremark/cases/case2/summary.json",
+      "bytes": 854,
+      "sha256": "74933ce0237aecb9dd3342c3513314b757c60dda326ce3d9206b2c054ad1fbd2"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case2/build.json",
+      "source_path": "build/cpu5_s17_coremark/firmware/case2/build.json",
+      "bytes": 11697,
+      "sha256": "ec0277d3fb5949fb9b8fb192ce2930cfdd19ae48dd9b6ebe921f43ac2996d203"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case2/coremark_build_config.h",
+      "source_path": "build/cpu5_s17_coremark/firmware/case2/coremark_build_config.h",
+      "bytes": 1673,
+      "sha256": "bb42085e1f0820e802c1eae23ed2ea681c7370ec4ab9e1a51a01aaf5636c175a"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case2/program.elf",
+      "source_path": "build/cpu5_s17_coremark/firmware/case2/program.elf",
+      "bytes": 110452,
+      "sha256": "6c04e01f5cafb1cf3257c75f4816766b534fb1d1ade48232b7aabaf391f2bc50"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case2/program_text.bin",
+      "source_path": "build/cpu5_s17_coremark/firmware/case2/program_text.bin",
+      "bytes": 27720,
+      "sha256": "973c25fc26f9c1af3475df1420e4e9a2b1d5b29b0719ea40fd82725803b97993"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case2/program_data.bin",
+      "source_path": "build/cpu5_s17_coremark/firmware/case2/program_data.bin",
+      "bytes": 5568,
+      "sha256": "8529d049be47376c69c0c200a4752337733b96ed191925c22f9a2b67618543d1"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case2/program.hex",
+      "source_path": "build/cpu5_s17_coremark/firmware/case2/program.hex",
+      "bytes": 81920,
+      "sha256": "f939fe91b29a5cb5cae0e5dd2fcf7dfcf4ab5563f850251c6fefdccf0dadad49"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case2/program_data.hex",
+      "source_path": "build/cpu5_s17_coremark/firmware/case2/program_data.hex",
+      "bytes": 40960,
+      "sha256": "d48ca79b52a62dda1f48d0312fee8f7a8ce494c80f15fa16b8f5afff6e4c02e6"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case2/program.map",
+      "source_path": "build/cpu5_s17_coremark/firmware/case2/program.map",
+      "bytes": 64317,
+      "sha256": "05eb4e895311f6966c747f3522b804365f55c63ca27d8fa1acf5a3f816dbc0f9"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case2/program.lst",
+      "source_path": "build/cpu5_s17_coremark/firmware/case2/program.lst",
+      "bytes": 331695,
+      "sha256": "6dc6ba71a1d59f2b7c63936945b207607627b028273c8b13932cff2f2652d8fa"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/cases/case3/console.txt",
+      "source_path": "build/cpu5_s17_coremark/cases/case3/console.txt",
+      "bytes": 3883,
+      "sha256": "baf884642577944bb9beae07f564b634b6352a986d13e76f1a26708ded3b7c84"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/cases/case3/summary.json",
+      "source_path": "build/cpu5_s17_coremark/cases/case3/summary.json",
+      "bytes": 940,
+      "sha256": "61c64d6910e7d37aecc12ec5d73370442dab75b03fe3705119f93bef87c2f887"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case3/build.json",
+      "source_path": "build/cpu5_s17_coremark/firmware/case3/build.json",
+      "bytes": 11697,
+      "sha256": "dd7769bb3e985fa21aa96c54a2d60df55b07a2123f7bd5ab7c8c185d173661c0"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case3/coremark_build_config.h",
+      "source_path": "build/cpu5_s17_coremark/firmware/case3/coremark_build_config.h",
+      "bytes": 1673,
+      "sha256": "af57e32be60d545343aa1f6d4b3dda6d6193b6bc8f324c558b99c2e18022dee9"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case3/program.elf",
+      "source_path": "build/cpu5_s17_coremark/firmware/case3/program.elf",
+      "bytes": 110452,
+      "sha256": "5853b81f6b427628447ee80ef2fb2fe9a310d12e2045f10ce327127d7f44a875"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case3/program_text.bin",
+      "source_path": "build/cpu5_s17_coremark/firmware/case3/program_text.bin",
+      "bytes": 27724,
+      "sha256": "3b527abaab7f935702c59a592d326809656e9c2d20ae8ab7624a0c5b95b0a0b1"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case3/program_data.bin",
+      "source_path": "build/cpu5_s17_coremark/firmware/case3/program_data.bin",
+      "bytes": 5568,
+      "sha256": "c31a74e65a7c9980d220748d4652ca668325f218449d18d8f99ab107ad913d6a"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case3/program.hex",
+      "source_path": "build/cpu5_s17_coremark/firmware/case3/program.hex",
+      "bytes": 81920,
+      "sha256": "0e4d0e71f05e1e375bd3f37ef1f165b7bace09f9bdb95d741525b8df06845b70"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case3/program_data.hex",
+      "source_path": "build/cpu5_s17_coremark/firmware/case3/program_data.hex",
+      "bytes": 40960,
+      "sha256": "adfa6de6a5db007a4e802192af6f6233c759ccc259e06fcc7de782aa6cf17a42"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case3/program.map",
+      "source_path": "build/cpu5_s17_coremark/firmware/case3/program.map",
+      "bytes": 64317,
+      "sha256": "49e8187736dddd064d1fe28abadc6d513e3958c1ba9237410a94fe2958da1375"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/case3/program.lst",
+      "source_path": "build/cpu5_s17_coremark/firmware/case3/program.lst",
+      "bytes": 331738,
+      "sha256": "128c65fc15902da28c89de97c25cda5bed1bf44dcf9d60480a87d0b5bd1ccd81"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/firmware/firmware_manifest.json",
+      "source_path": "build/cpu5_s17_coremark/firmware/firmware_manifest.json",
+      "bytes": 346,
+      "sha256": "6487b160663ef60c5a648670e4c07aa29b1d29f43e5f447af9c6dac9c0907fb4"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/logs/compile.do",
+      "source_path": "build/cpu5_s17_coremark/runs/20261026T033442697661Z_0dfe0c9a/good_reference/compile.do",
+      "bytes": 1172,
+      "sha256": "5db3878c98faf650d2cb29fdb493c62c7fbcb46a685ad43ff320e5345a61f1b6"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/logs/simulate.do",
+      "source_path": "build/cpu5_s17_coremark/runs/20261026T033442697661Z_0dfe0c9a/good_reference/simulate.do",
+      "bytes": 383,
+      "sha256": "5e9b5c53986764857ac537834bb361a34ed0ff0181e5da962ef44898369ba5d4"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/logs/compile_console.log",
+      "source_path": "build/cpu5_s17_coremark/runs/20261026T033442697661Z_0dfe0c9a/good_reference/compile_console.log",
+      "bytes": 3386,
+      "sha256": "a5f40b92b5fadb53d8b2bfb1b91fb06aa2600fb4b90974785db9cc1a26d99d16"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/logs/simulate_console.log",
+      "source_path": "build/cpu5_s17_coremark/runs/20261026T033442697661Z_0dfe0c9a/good_reference/simulate_console.log",
+      "bytes": 21688,
+      "sha256": "cab02c4681a042c7c786a1adcac627c32d23bad4faece93fc07e8abca61f3926"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/README.md",
+      "source_path": null,
+      "bytes": 670,
+      "sha256": "22ad51cc9f9388266dec5296af32984981721986091cf3bbf1ac0d8f0cc066d8"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/selected_runs.json",
+      "source_path": null,
+      "bytes": 1143,
+      "sha256": "da129b66d08ac40a60c6ea8d071bb5b19a2c2b9f628b4cd77eb229a4615fad53"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/source_identity.json",
+      "source_path": null,
+      "bytes": 8517,
+      "sha256": "af8f4e66d4bbadd5ce6b52403e10c5b186e8a8023222e5832dd30bf94e9c2532"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/.gitattributes",
+      "source_path": null,
+      "bytes": 8,
+      "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
+    },
+    {
+      "evidence_path": "docs/evidence/cpu5_coremark_20261025/raw_evidence.zip",
+      "source_path": null,
+      "bytes": 679448,
+      "sha256": "b50be7ba3ddf66a96f287db0dc8806b5dc6209cbce97d9cb08dc65863d15c8a0"
+    }
+  ],
+  "baseline_commit": "6a39363a70440be7b2a3a064ddedf1b6196cc904",
+  "git_head_at_freeze": "6a39363a70440be7b2a3a064ddedf1b6196cc904",
+  "frozen_utc": "2026-10-26T04:09:08Z",
+  "pushed": false,
+  "downloaded": false,
+  "performance_claim": "NONE"
+}

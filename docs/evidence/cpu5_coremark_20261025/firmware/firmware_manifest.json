@@ -1,0 +1,23 @@
+{
+  "status": "FIRMWARE BUILT",
+  "cases": 4,
+  "compiler": "riscv-none-elf-gcc (xPack GNU RISC-V Embedded GCC x86_64) 15.2.0",
+  "text_bytes": [
+    27724,
+    27728,
+    27720,
+    27724
+  ],
+  "data_bytes": [
+    5568,
+    5568,
+    5568,
+    5568
+  ],
+  "stack_headroom": [
+    8488,
+    8488,
+    8488,
+    8488
+  ]
+}

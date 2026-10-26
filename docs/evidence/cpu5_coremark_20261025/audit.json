@@ -1,0 +1,312 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "case": 0,
+      "d0": 0,
+      "cache": 0,
+      "window_cycles": 661985,
+      "window_retired": 289747,
+      "cycle_classes": {
+        "work_other": 302117,
+        "ifetch_wait": 0,
+        "data_read_wait": 233924,
+        "data_write_wait": 73004,
+        "local_mmio_wait": 12,
+        "redirect_wait": 24740,
+        "mul_wait": 28188,
+        "div_wait": 0,
+        "load_use_wait": 0,
+        "id_hazard_wait": 0
+      },
+      "dcache_delta": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "bp_delta": [
+        314487,
+        46904,
+        28569,
+        57268,
+        12370,
+        8728,
+        0
+      ],
+      "console_self_consistent": true,
+      "independent_snapshot_agreement": true
+    },
+    {
+      "case": 1,
+      "d0": 0,
+      "cache": 3,
+      "window_cycles": 1235984,
+      "window_retired": 289747,
+      "cycle_classes": {
+        "work_other": 301443,
+        "ifetch_wait": 193895,
+        "data_read_wait": 518718,
+        "data_write_wait": 86899,
+        "local_mmio_wait": 12,
+        "redirect_wait": 106829,
+        "mul_wait": 28188,
+        "div_wait": 0,
+        "load_use_wait": 0,
+        "id_hazard_wait": 0
+      },
+      "dcache_delta": [
+        68887,
+        33092,
+        21613,
+        86452,
+        0,
+        14181,
+        1
+      ],
+      "bp_delta": [
+        313174,
+        46873,
+        28541,
+        57268,
+        12370,
+        8728,
+        0
+      ],
+      "console_self_consistent": true,
+      "independent_snapshot_agreement": true
+    },
+    {
+      "case": 2,
+      "d0": 1,
+      "cache": 0,
+      "window_cycles": 386441,
+      "window_retired": 289747,
+      "cycle_classes": {
+        "work_other": 302117,
+        "ifetch_wait": 0,
+        "data_read_wait": 15104,
+        "data_write_wait": 16280,
+        "local_mmio_wait": 12,
+        "redirect_wait": 24740,
+        "mul_wait": 28188,
+        "div_wait": 0,
+        "load_use_wait": 0,
+        "id_hazard_wait": 0
+      },
+      "dcache_delta": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "bp_delta": [
+        314487,
+        46904,
+        28569,
+        57268,
+        12370,
+        8728,
+        0
+      ],
+      "console_self_consistent": true,
+      "independent_snapshot_agreement": true
+    },
+    {
+      "case": 3,
+      "d0": 1,
+      "cache": 3,
+      "window_cycles": 845286,
+      "window_retired": 289747,
+      "cycle_classes": {
+        "work_other": 301449,
+        "ifetch_wait": 202149,
+        "data_read_wait": 172910,
+        "data_write_wait": 29706,
+        "local_mmio_wait": 12,
+        "redirect_wait": 110872,
+        "mul_wait": 28188,
+        "div_wait": 0,
+        "load_use_wait": 0,
+        "id_hazard_wait": 0
+      },
+      "dcache_delta": [
+        68887,
+        33092,
+        21613,
+        86452,
+        0,
+        14181,
+        1
+      ],
+      "bp_delta": [
+        312323,
+        46867,
+        28567,
+        57268,
+        12370,
+        8728,
+        0
+      ],
+      "console_self_consistent": true,
+      "independent_snapshot_agreement": true
+    }
+  ],
+  "cross_configuration": {
+    "retired_identical": 289747,
+    "mul_wait_identical": 28188,
+    "local_mmio_wait_identical": 12,
+    "bp_resolved_identical": 57268,
+    "bp_next_pc_mismatch_identical": 12370,
+    "bp_direction_error_identical": 8728,
+    "work_other_spread": 674,
+    "observations_only": {
+      "d0_window_saving": {
+        "0": 275544,
+        "3": 390698
+      },
+      "d0_data_wait_reduction": {
+        "data_read_wait@0": 218820,
+        "data_write_wait@0": 56724,
+        "data_read_wait@3": 345808,
+        "data_write_wait@3": 57193
+      }
+    },
+    "dcache_access_identical": 68887,
+    "dcache_write_identical": 14181
+  },
+  "source_identity_chain": {
+    "sources": 64,
+    "working_tree_matches_recorded_raw_sha256": 64,
+    "canonical_lf_sha256_matches_committed_blob": 64
+  },
+  "mutation_total": 22,
+  "mutation_rejected": 22,
+  "mutations": [
+    {
+      "name": "class_work_other_plus_one",
+      "reason": "ten classes no longer partition the frozen window",
+      "rejection": "(0, 'work_other')"
+    },
+    {
+      "name": "counter_cycles_plus_one",
+      "reason": "the firmware window no longer matches the frozen snapshots",
+      "rejection": "AssertionError"
+    },
+    {
+      "name": "counter_valid_zero",
+      "reason": "an invalid window must never be reported as valid",
+      "rejection": "AssertionError"
+    },
+    {
+      "name": "profile_valid_zero",
+      "reason": "a broken class partition must invalidate the window",
+      "rejection": "AssertionError"
+    },
+    {
+      "name": "seedcrc_wrong",
+      "reason": "the performance-seed CRC is frozen",
+      "rejection": "(0, 'seed')"
+    },
+    {
+      "name": "crclist_wrong",
+      "reason": "the list CRC is frozen",
+      "rejection": "(0, 'list')"
+    },
+    {
+      "name": "icache_access_plus_one",
+      "reason": "printed cache delta must match the frozen snapshot bank",
+      "rejection": "AssertionError"
+    },
+    {
+      "name": "bp_lookup_plus_one",
+      "reason": "printed BTB delta must match the frozen snapshot bank",
+      "rejection": "AssertionError"
+    },
+    {
+      "name": "stats_schema_three",
+      "reason": "only schema 4 is accepted",
+      "rejection": "AssertionError"
+    },
+    {
+      "name": "cache_enable_flip",
+      "reason": "the observed cache switch identity is frozen",
+      "rejection": "AssertionError"
+    },
+    {
+      "name": "tick_gap_plus_one",
+      "reason": "the mtime interval must stay inside the statistics interval",
+      "rejection": "AssertionError"
+    },
+    {
+      "name": "profile_sum_plus_one",
+      "reason": "the published class sum is frozen",
+      "rejection": "AssertionError"
+    },
+    {
+      "name": "drop_result_line",
+      "reason": "a run without a result line is not a pass",
+      "rejection": "AssertionError"
+    },
+    {
+      "name": "inject_error_text",
+      "reason": "an error line must fail the run",
+      "rejection": "(0, 'ERROR:')"
+    },
+    {
+      "name": "inject_formal_claim",
+      "reason": "a formal score must never be claimed from a one-iteration run",
+      "rejection": "(0, 'COREMARK RESULT: FORMAL')"
+    },
+    {
+      "name": "summary_window_plus_one",
+      "reason": "the recorded window must equal the live counter difference",
+      "rejection": "AssertionError"
+    },
+    {
+      "name": "summary_starts_one",
+      "reason": "the statistics trigger closure is frozen",
+      "rejection": "AssertionError"
+    },
+    {
+      "name": "summary_console_bytes_plus_one",
+      "reason": "UART byte count must equal the observed start bits",
+      "rejection": "AssertionError"
+    },
+    {
+      "name": "summary_bp_stop_plus_one",
+      "reason": "snapshot banks and printed deltas are cross-checked",
+      "rejection": "AssertionError"
+    },
+    {
+      "name": "summary_cache_flag_flip",
+      "reason": "the case identity is frozen",
+      "rejection": "AssertionError"
+    },
+    {
+      "name": "summary_retired_impossible",
+      "reason": "a whole-program retirement count above the cycle budget is impossible",
+      "rejection": "AssertionError"
+    },
+    {
+      "name": "console_backend_id_wrong",
+      "reason": "the hardware-observed data backend identity is frozen",
+      "rejection": "AssertionError"
+    }
+  ],
+  "independent_sources": [
+    "testbench event ledger accumulated from CPU5 perf_cycle_events pins",
+    "frozen schema4 START/STOP snapshot banks (sixteen ordinary words each)",
+    "frozen schema4 ten-class 64-bit snapshot banks",
+    "live cycle_count/instret_count sampled at the statistics trigger edges",
+    "real uart_tx start-bit edges versus MMIO transmit edges",
+    "upstream CoreMark performance-seed CRC set 0xe9f5/0xe714/0x1fd7/0x8e3a"
+  ],
+  "scope": "Audits the recorded one-iteration CPU5 CoreMark simulation artifacts. It does not re-run ModelSim, does not measure a formal benchmark score, and says nothing about P&R, timing closure or any board result."
+}

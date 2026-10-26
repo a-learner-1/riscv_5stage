@@ -1,0 +1,52 @@
+{
+  "run_id": "20261026T033442697661Z_0dfe0c9a",
+  "stage_directory": "build/cpu5_s17_coremark/runs/20261026T033442697661Z_0dfe0c9a/good_reference",
+  "cases": [
+    {
+      "case": 0,
+      "d0": 0,
+      "cache": 0,
+      "window_cycles": 661985,
+      "window_retired": 289747,
+      "raw_ticks": 661901,
+      "window_tick_gap": 84
+    },
+    {
+      "case": 1,
+      "d0": 0,
+      "cache": 3,
+      "window_cycles": 1235984,
+      "window_retired": 289747,
+      "raw_ticks": 1235820,
+      "window_tick_gap": 164
+    },
+    {
+      "case": 2,
+      "d0": 1,
+      "cache": 0,
+      "window_cycles": 386441,
+      "window_retired": 289747,
+      "raw_ticks": 386389,
+      "window_tick_gap": 52
+    },
+    {
+      "case": 3,
+      "d0": 1,
+      "cache": 3,
+      "window_cycles": 845286,
+      "window_retired": 289747,
+      "raw_ticks": 845166,
+      "window_tick_gap": 120
+    }
+  ],
+  "all_cases_rerun_this_milestone": true,
+  "reused_historical_runs": [],
+  "not_run": [
+    "formal 10-second CoreMark score",
+    "CPU5 P&R/STA",
+    "LUT/APM/Fmax",
+    "bitstream",
+    "board performance test",
+    "full A01-A16 sign-off"
+  ]
+}
