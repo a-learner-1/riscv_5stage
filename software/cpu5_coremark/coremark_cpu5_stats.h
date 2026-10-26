@@ -36,8 +36,8 @@
 
 #define CPU5_COREMARK_STATS_BASE 0x30000000u
 #define CPU5_COREMARK_STATS_ID   0x434d4158u
-/* START/STOP snapshot banks freeze the twelve ordinary words plus the five
- * I-Cache and seven D-Cache counters on the same read edge. */
+/* Sixteen snapshot words: four cycle/instret words, five I-Cache counters,
+ * and seven D-Cache counters, all frozen on the same read edge. */
 #define CPU5_COREMARK_START_BANK    0x40u
 #define CPU5_COREMARK_STOP_BANK     0x80u
 #define CPU5_COREMARK_BANK_WORDS    16u

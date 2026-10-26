@@ -1,327 +1,220 @@
-"""Independent CPU5 CoreMark audit plus negative evidence.
-
-Two jobs, neither of which trusts the firmware report or the testbench alone:
-
-1. Re-audit every raw case artifact with the frozen identities. The UART report
-   is self-consistent (its ten classes must sum to its own window, and its tick
-   gap must be the printed difference), and it must also agree with the
-   testbench's independently accumulated event ledger and frozen snapshots.
-2. Negative evidence: mutate a good copy of each artifact in one specific way
-   and require the same auditor to reject it. An accepted mutation is a hard
-   failure, because it would prove the corresponding check is not wired.
-"""
+"""Audit CPU5 CoreMark raw receipts, independently replay RV32IM, and reject bad evidence."""
 import argparse
+import copy
+import gzip
 import hashlib
 import json
+import os
+from pathlib import Path, PurePosixPath
+import re
 import shutil
 import subprocess
-import tempfile
-from pathlib import Path
+import sys
+import uuid
+from datetime import datetime,timezone
 
+import build_cpu5_coremark_images as builder
 import run_cpu5_coremark as runner
+from cpu5_coremark_reference import (audit_case as reference_case, check, precheck, read_json, rows, parse_console)
 
-ROOT = Path(__file__).resolve().parents[1]
-OUT = runner.OUT
-
-
-def read_lines(path):
-    return path.read_text(encoding="utf-8").splitlines(True)
+ROOT=Path(__file__).resolve().parents[1]
+OUT=ROOT/"build/cpu5_s18_coremark"
+SOURCES=("tools/verify_cpu5_coremark.py","tools/cpu5_coremark_reference.py","tools/test_cpu5_coremark_evidence.py")
 
 
-def write_lines(path, lines):
-    path.write_text("".join(lines), encoding="utf-8", newline="")
+def sha(path):return runner.sha(path)
+def write(path,value):runner.write(path,value)
 
 
-def bump_console(directory, key, delta=1):
-    path = directory / "console.txt"
-    lines = read_lines(path)
-    for index, line in enumerate(lines):
-        if line.startswith("COREMARK " + key + "="):
-            name, _, value = line.strip().partition("=")
-            lines[index] = f"{name}={int(value) + delta}\n"
-            write_lines(path, lines)
-            return
-    raise AssertionError("mutation target missing in console: " + key)
+def local(root,path):
+    check(isinstance(path,str) and "\\" not in path and ":" not in path and
+          not path.startswith("/") and str(PurePosixPath(path))==path and
+          ".." not in PurePosixPath(path).parts,"RECEIPT_PATH",path)
+    return root/path
 
 
-def set_console(directory, key, value):
-    path = directory / "console.txt"
-    lines = read_lines(path)
-    for index, line in enumerate(lines):
-        if line.startswith("COREMARK " + key + "="):
-            name = line.split("=", 1)[0]
-            lines[index] = f"{name}={value}\n"
-            write_lines(path, lines)
-            return
-    raise AssertionError("mutation target missing in console: " + key)
+def expect_hash(path,expected,label="RECEIPT_HASH"):
+    check(re.fullmatch(r"[0-9a-f]{64}",expected) is not None and path.is_file() and sha(path)==expected,label,str(path))
 
 
-def drop_console(directory, text):
-    path = directory / "console.txt"
-    lines = read_lines(path)
-    kept = [line for line in lines if text not in line]
-    if len(kept) == len(lines):
-        raise AssertionError("mutation target missing in console: " + text)
-    write_lines(path, kept)
+def validate_receipts(record,root=ROOT,full_required=True,check_run_copy=True):
+    check(record.get("schema")==2,"RECORD_SCHEMA")
+    count=record.get("configurations")
+    check(type(count) is int and 1<=count<=4,"SCOPE_CASE_COUNT")
+    check(not full_required or count==4,"SCOPE_FULL_FOUR_REQUIRED")
+    check(record.get("status")==("SIMULATED" if count==4 else "PARTIAL SIMULATED"),"SCOPE_SIMULATED_REQUIRED")
+    check(record.get("metrics_claimed")=="NONE" and record.get("formal_score_measured") is False and
+          record.get("hardware_download_performed") is False,"SCOPE_NO_SCORE")
+    rid=record.get("run_id","");check(re.fullmatch(r"[0-9]{8}T[0-9]{12}Z_[0-9a-f]{8}",rid) is not None,"RUN_ID")
+    prefix="build/cpu5_s18_coremark/runs/"+rid
+    check(record["case_directory"]==prefix+"/raw/cases" and record["positive"]["directory"]==prefix+"/good_reference"
+          and record["firmware_directory"]==prefix+"/good_reference/build/cpu5_s18_coremark/firmware","RUN_DIRECTORIES")
+    stage=local(root,record["positive"]["directory"]);cases=local(root,record["case_directory"])
+    firmware=local(root,record["firmware_directory"])
+    check(record["artifact_storage"]["logical"]=="build/cpu5_s18_coremark/runs","STORAGE_LOGICAL_PATH")
+    # Either ordinary extracted build files, or the explicitly declared junction.
+    physical=Path(record["artifact_storage"]["physical"]).resolve()
+    actual=local(root,"build/cpu5_s18_coremark/runs").resolve()
+    check(actual==physical or actual.is_relative_to(root.resolve()/"build"),"STORAGE_JUNCTION_TARGET")
+    check(record["baseline_commit"]==runner.BASELINE and record["mapped_baseline_commit"]==runner.MAPPED_BASELINE,"BASELINE_ID")
+    sources=record["source_sha256"];lf=record["source_lf_sha256"]
+    check(set(sources)==set(lf)==set(runner.SOURCES) and record["positive"]["source_sha256"]==sources and record["sources_unchanged"] is True,"SOURCE_CLOSURE")
+    current_raw_differences=[]
+    for path,expected in sources.items():
+        original=local(root,path);snapshot=stage/path
+        expect_hash(snapshot,expected,"SNAPSHOT_HASH")
+        data=original.read_bytes()
+        check(hashlib.sha256(data.replace(b"\r\n",b"\n")).hexdigest()==lf[path] and
+              hashlib.sha256(snapshot.read_bytes().replace(b"\r\n",b"\n")).hexdigest()==lf[path],"SOURCE_LF_IDENTITY",path)
+        if sha(original)!=expected:current_raw_differences.append(path)
+    required={"compile.do","simulate.do","compile_console.log","compile_transcript.log","modelsim.ini",
+              "simulate_console.log","simulation_transcript.log","system.wlf"}
+    check(set(record["positive"]["retained_artifact_sha256"])==required and record["positive"]["status"]==record["status"],"PROCESS_ARTIFACT_CLOSURE")
+    for path,expected in record["positive"]["retained_artifact_sha256"].items():expect_hash(stage/path,expected)
+    check((stage/"system.wlf").stat().st_size>=128,"WAVEFORM_EMPTY")
+    processes=record["processes"]
+    check([p["name"] for p in processes]==["compile.do","simulate.do"] and all(p["exit_code"]==0 and p["elapsed_seconds"]>0 for p in processes),"PROCESS_STATUS")
+    for process in processes:
+        expected=record["positive"]["directory"]+"/"+process["name"].split(".")[0]+"_console.log"
+        check(process["console"]==expected and process["command"]==[record["toolchain"]["simulator"],"-c","-do",process["name"]],"PROCESS_COMMAND")
+        expect_hash(local(root,process["console"]),process["console_sha256"])
+        text=local(root,process["console"]).read_text(encoding="utf-8",errors="strict")
+        check(not runner.DIAGNOSTIC.search(text),"PROCESS_DIAGNOSTIC")
+        marker="CPU5 COREMARK CLEAN COMPILE PASS" if process["name"]=="compile.do" else "CPU5 COREMARK REFERENCE PASS"
+        check(marker in text,"PROCESS_MARKER")
+    sim=(stage/"simulate_console.log").read_text(encoding="utf-8")
+    check("CPU5 COREMARK SYSTEM PASS cases="+str(count) in sim,"SYSTEM_CASE_MARKER")
+    script=(stage/"simulate.do").read_text(encoding="utf-8")
+    check("-gCASES="+str(count)+" -gQUICK_PROBE=0" in script and "+RUN_ID="+rid in script and
+          record["case_directory"] in script,"SIMULATION_SCRIPT_IDENTITY")
+    raw=record["raw_artifact_sha256"];compression=record["compressed_artifacts"]
+    expected_raw=set();expected_compressed=set()
+    for number in range(count):
+        base=record["case_directory"]+f"/case{number}/"
+        for name in runner.CASE_FILES:
+            expected_raw.add(base+name+(".gz" if name.endswith(".csv") else ""))
+            if name.endswith(".csv"):expected_compressed.add(base+name)
+    check(set(raw)==expected_raw and set(compression)==expected_compressed,"RAW_ARTIFACT_CLOSURE")
+    check(set(p.name for p in cases.iterdir())=={f"case{n}" for n in range(count)},"CASE_DIRECTORY_CLOSURE")
+    for number in range(count):
+        expected_names={name+(".gz" if name.endswith(".csv") else "") for name in runner.CASE_FILES}
+        check(set(p.name for p in (cases/f"case{number}").iterdir())==expected_names,"CASE_FILE_CLOSURE")
+    for path,expected in raw.items():expect_hash(local(root,path),expected)
+    for path,item in compression.items():
+        check(item["path"]==path+".gz" and raw[item["path"]]==item["sha256"] and
+              not local(root,path).exists(),"COMPRESSION_IDENTITY")
+        h=hashlib.sha256();size=0
+        with gzip.open(local(root,item["path"]),"rb") as stream:
+            while chunk:=stream.read(1024*1024):h.update(chunk);size+=len(chunk)
+        check(h.hexdigest()==item["raw_sha256"] and size==item["raw_bytes"],"COMPRESSION_RAW_HASH")
+    fw_map=record["firmware_artifact_sha256"]
+    expected_fw={p.relative_to(root).as_posix() for p in firmware.rglob("*") if p.is_file()}
+    check(set(fw_map)==expected_fw,"FIRMWARE_ARTIFACT_CLOSURE")
+    for path,expected in fw_map.items():expect_hash(local(root,path),expected)
+    check(len(record["firmware"])==4 and len(record["cases"])==count,"CASE_RECORD_COUNT")
+    for number,build in enumerate(record["firmware"]):
+        check(build==read_json(firmware/f"case{number}/build.json"),"FIRMWARE_BUILD_RECORD")
+        check((build["case"],build["d0"],build["cache"])==(number,number//2,3 if number%2 else 0),"FIRMWARE_CASE")
+        check(build["sources_sha256"]=={p:sources[p] for p in builder.source_hashes()},"FIRMWARE_SOURCE_CLOSURE")
+        check(build["config"]=={k:str(v) for k,v in builder.case_config(builder.CASES[number]).items()},"FIRMWARE_CONFIG")
+        check(build["formal"]==0 and build["iterations"]==1 and build["seed_profile"]=="performance"
+              and build["compiler_generated_warnings"]==0 and all(s["exit_code"]==0 for s in build["steps"]),"FIRMWARE_SCOPE")
+        check(build["toolchain"]["multilib_entry"].endswith(";@march=rv32im@mabi=ilp32")
+              or build["toolchain"]["multilib_entry"].endswith(";@mabi=ilp32@march=rv32im"),"FIRMWARE_MULTILIB")
+        for path,expected in build["artifact_sha256"].items():
+            short=PurePosixPath(path).relative_to("build/cpu5_s18_coremark/firmware")
+            target=firmware/short;expect_hash(target,expected)
+        expect_hash(firmware/f"case{number}/coremark_build_config.h",build["generated_config_sha256"])
+    for number,summary in enumerate(record["cases"]):
+        check(summary==read_json(cases/f"case{number}/summary.json"),"CASE_SUMMARY_RECORD")
+        check(summary["run_id"]==rid and summary["quick_probe"]==0,"CASE_RUNTIME_IDENTITY")
+        marker=f"CPU5 COREMARK CASE PASS case={number} d0={number//2} cache={3 if number%2 else 0} cycles={summary['compute_cycles']} retired={summary['retired']} window={summary['window']['snapshot_cycle_delta']}"
+        check(marker in sim,"CASE_LOG_MARKER")
+    if check_run_copy:check(read_json(root/prefix/"verification.json")==record,"RECORD_RUN_COPY")
+    return dict(status="VERIFIED",sources=len(sources),case_files=len(raw),compressed_files=len(compression),
+                firmware_files=len(fw_map),canonical_lf_identity_verified=True,current_raw_line_ending_differences=current_raw_differences)
 
 
-def append_console(directory, text):
-    path = directory / "console.txt"
-    lines = read_lines(path)
-    lines.append(text + "\n")
-    write_lines(path, lines)
+def audit_case_semantics(directory,number,record=None,root=ROOT):
+    if record is None:record=read_json(root/"build/cpu5_s18_coremark/verification.json")
+    result=reference_case(directory,number,local(root,record["firmware_directory"])/f"case{number}",record["run_id"])
+    values=parse_console((directory/"console.txt").read_text(encoding="ascii"))
+    build=record["firmware"][number]
+    for key,expected in {"compiler":build["compiler"],"flags":" ".join(build["compiler_flags"]+["-lgcc"]),"memory":builder.MEM_LOCATION}.items():
+        check(values[key]==expected,"CONSOLE_BUILD_METADATA",key)
+    return result
 
 
-def bump_summary(directory, path, delta=1):
-    target = directory / "summary.json"
-    record = json.loads(target.read_text(encoding="utf-8"))
-    cursor = record
-    keys = path.split(".")
-    for key in keys[:-1]:
-        cursor = cursor[int(key)] if key.isdigit() else cursor[key]
-    last = keys[-1]
-    if last.isdigit():
-        cursor[int(last)] = cursor[int(last)] + delta
-    else:
-        cursor[last] = cursor[last] + delta
-    target.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8", newline="\n")
+def observations(cases):
+    cycles={c["case"]:c["window_cycles"] for c in cases}
+    return dict(window_cycles_by_case=cycles,
+                cache_cycle_cost={f"{a}->{b}":cycles[b]-cycles[a] for a,b in ((0,1),(2,3)) if a in cycles and b in cycles},
+                d0_cycle_saving={f"{a}->{b}":cycles[a]-cycles[b] for a,b in ((0,2),(1,3)) if a in cycles and b in cycles},
+                correctness_gate=False)
 
 
-# (name, mutation, why it must be rejected)
-MUTATIONS = (
-    ("class_work_other_plus_one", lambda d: bump_console(d, "cycle_work_other"),
-     "ten classes no longer partition the frozen window"),
-    ("counter_cycles_plus_one", lambda d: bump_console(d, "counter_cycles"),
-     "the firmware window no longer matches the frozen snapshots"),
-    ("counter_valid_zero", lambda d: set_console(d, "counter_valid", 0),
-     "an invalid window must never be reported as valid"),
-    ("profile_valid_zero", lambda d: set_console(d, "cycle_profile_valid", 0),
-     "a broken class partition must invalidate the window"),
-    ("seedcrc_wrong", lambda d: set_console(d, "seedcrc", "0x1234"),
-     "the performance-seed CRC is frozen"),
-    ("crclist_wrong", lambda d: set_console(d, "crclist", "0x0000"),
-     "the list CRC is frozen"),
-    ("icache_access_plus_one", lambda d: bump_console(d, "icache_access"),
-     "printed cache delta must match the frozen snapshot bank"),
-    ("bp_lookup_plus_one", lambda d: bump_console(d, "bp_lookup"),
-     "printed BTB delta must match the frozen snapshot bank"),
-    ("stats_schema_three", lambda d: set_console(d, "stats_schema", 3),
-     "only schema 4 is accepted"),
-    ("cache_enable_flip", lambda d: set_console(d, "cache_enable", 1),
-     "the observed cache switch identity is frozen"),
-    ("tick_gap_plus_one", lambda d: bump_console(d, "window_tick_gap"),
-     "the mtime interval must stay inside the statistics interval"),
-    ("profile_sum_plus_one", lambda d: bump_console(d, "cycle_profile_sum"),
-     "the published class sum is frozen"),
-    ("drop_result_line", lambda d: drop_console(d, "COREMARK RESULT: SMOKE PASS"),
-     "a run without a result line is not a pass"),
-    ("inject_error_text", lambda d: append_console(d, "ERROR: injected"),
-     "an error line must fail the run"),
-    ("inject_formal_claim", lambda d: append_console(d, "COREMARK RESULT: FORMAL PASS"),
-     "a formal score must never be claimed from a one-iteration run"),
-    ("summary_window_plus_one", lambda d: bump_summary(d, "window.snapshot_cycle_delta"),
-     "the recorded window must equal the live counter difference"),
-    ("summary_starts_one", lambda d: bump_summary(d, "raw_starts", -1),
-     "the statistics trigger closure is frozen"),
-    ("summary_console_bytes_plus_one",
-     lambda d: bump_summary(d, "console_bytes"),
-     "UART byte count must equal the observed start bits"),
-    ("summary_bp_stop_plus_one", lambda d: bump_summary(d, "bp.stop.0"),
-     "snapshot banks and printed deltas are cross-checked"),
-    ("summary_cache_flag_flip", lambda d: bump_summary(d, "cache"),
-     "the case identity is frozen"),
-    ("summary_retired_impossible", lambda d: bump_summary(d, "retired", 10 ** 9),
-     "a whole-program retirement count above the cycle budget is impossible"),
-    ("console_backend_id_wrong", lambda d: set_console(d, "backend_id", 1),
-     "the hardware-observed data backend identity is frozen"),
-)
+def audit_complete(record,root=ROOT,full_required=True):
+    receipt=validate_receipts(record,root,full_required)
+    cases=[]
+    for n in range(record["configurations"]):
+        print("CPU5 independent audit case"+str(n),flush=True)
+        cases.append(audit_case_semantics(local(root,record["case_directory"])/f"case{n}",n,record,root))
+    return dict(status="PASS" if len(cases)==4 else "PARTIAL VERIFIED",run_id=record["run_id"],configurations=len(cases),
+                receipt=receipt,cases=cases,observations=observations(cases),metrics_claimed="NONE",
+                total_cycles=sum(c["cycles"] for c in cases),total_retired=sum(c["retired"] for c in cases),
+                total_window_cycles=sum(c["window_cycles"] for c in cases),
+                total_window_retired=sum(c["window_retired"] for c in cases),total_console_bytes=sum(c["console_bytes"] for c in cases))
 
 
-def console_self_consistency(console):
-    """Checks that use only the firmware's own UART report."""
-    values = runner.parse_console(console)
-    classes = {name: int(values["cycle_" + name]) for name in runner.CLASSES}
-    window = int(values["counter_cycles"])
-    retired = int(values["counter_retired"])
-    ticks = int(values["raw_ticks"])
-    gap = int(values["window_tick_gap"])
-    assert sum(classes.values()) == window == int(values["cycle_profile_sum"])
-    assert window > 0 and retired > 0 and retired <= window
-    assert 0 < ticks <= window
-    assert window - ticks == gap <= runner.MAX_TICK_GAP
-    for name, value in classes.items():
-        assert 0 <= value <= window, name
-    return {"window_cycles": window, "window_retired": retired,
-            "cycle_classes": classes, "window_tick_gap": gap}
-
-
-def cross_configuration(analysed):
-    """Invariants that follow from running one compiled image family on four
-    memory configurations. These are derived from the recorded artifacts only;
-    they are not testbench or firmware claims."""
-    by_case = {(case["d0"], case["cache"]): case for case in analysed}
-    # 1. One instruction stream: every configuration retires the same count.
-    retired = {case["window_retired"] for case in analysed}
-    assert len(retired) == 1, retired
-    # 2. Purely CPU-internal classes do not depend on the data backend or cache.
-    for name in ("mul_wait", "local_mmio_wait"):
-        values = {case["cycle_classes"][name] for case in analysed}
-        assert len(values) == 1, (name, values)
-    # Resolved branches, next-PC mismatches and direction errors describe the
-    # committed control flow, so they are identical in every configuration;
-    # only the fetch-side lookups/hits/taken may move.
-    for index in (3, 4, 5):
-        values = {case["bp_delta"][index] for case in analysed}
-        assert len(values) == 1, (index, values)
-    # work_other may absorb re-attributed stall cycles; a wide band catches an
-    # implausible re-attribution without encoding a performance expectation.
-    work = [case["cycle_classes"]["work_other"] for case in analysed]
-    assert max(work) - min(work) <= max(work) // 100, work
-    # 3. Fetch wait exists only when an instruction cache is in the path: the
-    # frozen IMEM endpoint itself has no wait states.
-    for case in analysed:
-        wait = case["cycle_classes"]["ifetch_wait"]
-        if case["cache"] == 0:
-            assert wait == 0, case
-        else:
-            assert wait > 0, case
-    # 4. Backend and cache cycle effects are REPORTED, never asserted: a faster
-    # D0 path or a better cache would legitimately invert them.
-    deltas, wait_reduction = {}, {}
-    for cache in (0, 3):
-        if (0, cache) not in by_case or (1, cache) not in by_case:
-            continue
-        axi, d0 = by_case[(0, cache)], by_case[(1, cache)]
-        deltas[str(cache)] = axi["window_cycles"] - d0["window_cycles"]
-        for name in ("data_read_wait", "data_write_wait"):
-            wait_reduction[f"{name}@{cache}"] = (axi["cycle_classes"][name] -
-                                                 d0["cycle_classes"][name])
-    # 5. The cached configurations must see the same data-access stream.
-    if (0, 3) in by_case and (1, 3) in by_case:
-        axi_cache, d0_cache = by_case[(0, 3)], by_case[(1, 3)]
-        assert axi_cache["dcache_delta"][0] == d0_cache["dcache_delta"][0]
-        assert axi_cache["dcache_delta"][5] == d0_cache["dcache_delta"][5]
-    return {"retired_identical": next(iter(retired)),
-            "mul_wait_identical": analysed[0]["cycle_classes"]["mul_wait"],
-            "local_mmio_wait_identical": analysed[0]["cycle_classes"]["local_mmio_wait"],
-            "bp_resolved_identical": analysed[0]["bp_delta"][3],
-            "bp_next_pc_mismatch_identical": analysed[0]["bp_delta"][4],
-            "bp_direction_error_identical": analysed[0]["bp_delta"][5],
-            "work_other_spread": max(work) - min(work),
-            "observations_only": {"d0_window_saving": deltas,
-                                  "d0_data_wait_reduction": wait_reduction},
-            "dcache_access_identical": by_case.get((0, 3), {}).get("dcache_delta", [None])[0],
-            "dcache_write_identical": by_case.get((0, 3), {}).get("dcache_delta", [None] * 6)[5]}
-
-
-def source_identity_chain():
-    """Anchor the measured sources to the local commit.
-
-    The repository keeps a CRLF working tree for its older files while Git
-    stores canonical LF blobs, so the chain is checked in two steps: the current
-    working-tree bytes must still hash to the value recorded at run time, and
-    the LF-normalized bytes must equal the committed blob."""
-    verification = json.loads((OUT / "verification.json").read_text(encoding="utf-8"))
-    sources = verification["source_sha256"]
-    drift, uncommitted, anchored = [], [], 0
-    for path, expected in sorted(sources.items()):
-        data = (ROOT / path).read_bytes()
-        if hashlib.sha256(data).hexdigest() != expected:
-            drift.append(path)
-            continue
-        blob = subprocess.run(["git", "cat-file", "-p", ":" + path], cwd=ROOT,
-                              capture_output=True)
-        if blob.returncode != 0:
-            # Not staged yet: fall back to the committed tree.
-            blob = subprocess.run(["git", "cat-file", "-p", "HEAD:" + path], cwd=ROOT,
-                                  capture_output=True)
-        if blob.returncode != 0:
-            uncommitted.append(path)
-            continue
-        if hashlib.sha256(data.replace(b"\r\n", b"\n")).hexdigest() != \
-                hashlib.sha256(blob.stdout).hexdigest():
-            uncommitted.append(path)
-            continue
-        anchored += 1
-    assert not drift, "sources changed after the measured run: " + json.dumps(drift[:5])
-    assert not uncommitted, ("sources are not in the local commit: "
-                             + json.dumps(uncommitted[:5]))
-    return {"sources": len(sources),
-            "working_tree_matches_recorded_raw_sha256": len(sources),
-            "canonical_lf_sha256_matches_committed_blob": anchored}
+def source_identity_chain(record,root=ROOT,source_commit=None,audit_sources=None):
+    sources={**record["source_lf_sha256"]}
+    for path in audit_sources or SOURCES:
+        sources[path]=hashlib.sha256((root/path).read_bytes().replace(b"\r\n",b"\n")).hexdigest()
+    if source_commit:
+        check(re.fullmatch("[0-9a-f]{40}",source_commit) is not None,"SOURCE_COMMIT_FORMAT")
+        exists=subprocess.run(["git","--no-replace-objects","cat-file","-e",source_commit+"^{commit}"],cwd=root,capture_output=True)
+        check(exists.returncode==0,"SOURCE_COMMIT_MISSING")
+        for path,expected in sources.items():
+            blob=subprocess.check_output(["git","--no-replace-objects","show",source_commit+":"+path],cwd=root)
+            check(hashlib.sha256(blob).hexdigest()==expected,"SOURCE_COMMIT_BLOB",path)
+    return dict(mode="COMMITTED" if source_commit else "RUNTIME_AND_PRIVATE_SNAPSHOT",
+                source_commit=source_commit,canonical_lf_sources=len(sources),index_used=False,
+                no_commit_claim_for_uncommitted_sources=not bool(source_commit))
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--cases", type=int, default=len(runner.CASES))
-    arguments = parser.parse_args()
-    # An empty selection must never produce a PASS: there would be nothing to
-    # audit and the mutation sweep would be the only work performed.
-    if not 1 <= arguments.cases <= len(runner.CASES):
-        parser.error("--cases must be in 1..%d" % len(runner.CASES))
-    report = {}
-    analysed = []
-    for number in range(arguments.cases):
-        directory = OUT / "cases" / f"case{number}"
-        record = runner.audit_case(directory, number)
-        selfcheck = console_self_consistency(
-            (directory / "console.txt").read_text(encoding="utf-8", errors="replace"))
-        assert selfcheck["window_cycles"] == record["window_cycles"]
-        assert selfcheck["window_retired"] == record["window_retired"]
-        assert selfcheck["cycle_classes"] == record["cycle_classes"]
-        assert selfcheck["window_tick_gap"] == record["window_tick_gap"]
-        analysed.append({"case": number, "d0": record["d0"], "cache": record["cache"],
-                         "window_cycles": record["window_cycles"],
-                         "window_retired": record["window_retired"],
-                         "cycle_classes": record["cycle_classes"],
-                         "dcache_delta": record["dcache_delta"],
-                         "bp_delta": record["bp_delta"],
-                         "console_self_consistent": True,
-                         "independent_snapshot_agreement": True})
-    conservation = cross_configuration(analysed) if len(analysed) > 1 else {}
-    rejected, accepted = [], []
-    for name, mutate, reason in MUTATIONS:
-        with tempfile.TemporaryDirectory(dir=OUT) as scratch:
-            directory = Path(scratch) / "case"
-            shutil.copytree(OUT / "cases" / "case0", directory)
-            mutate(directory)
-            try:
-                runner.audit_case(directory, 0)
-            except AssertionError as error:
-                text = str(error).strip()
-                first = text.splitlines()[0] if text else type(error).__name__
-                rejected.append({"name": name, "reason": reason,
-                                 "rejection": first[:200]})
-            else:
-                accepted.append({"name": name, "reason": reason})
-    if accepted:
-        raise AssertionError("accepted negative-evidence mutations: "
-                            + json.dumps(accepted, indent=2))
-    report = {
-        "status": "PASS", "cases": analysed,
-        "cross_configuration": conservation,
-        "source_identity_chain": source_identity_chain(),
-        "mutation_total": len(MUTATIONS), "mutation_rejected": len(rejected),
-        "mutations": rejected,
-        "independent_sources": [
-            "testbench event ledger accumulated from CPU5 perf_cycle_events pins",
-            "frozen schema4 START/STOP snapshot banks (sixteen ordinary words each)",
-            "frozen schema4 ten-class 64-bit snapshot banks",
-            "live cycle_count/instret_count sampled at the statistics trigger edges",
-            "real uart_tx start-bit edges versus MMIO transmit edges",
-            "upstream CoreMark performance-seed CRC set 0xe9f5/0xe714/0x1fd7/0x8e3a",
-        ],
-        "scope": ("Audits the recorded one-iteration CPU5 CoreMark simulation artifacts. "
-                  "It does not re-run ModelSim, does not measure a formal benchmark score, "
-                  "and says nothing about P&R, timing closure or any board result."),
-    }
-    (OUT / "audit.json").write_text(json.dumps(report, indent=2) + "\n",
-                                   encoding="utf-8", newline="\n")
-    print(json.dumps({"status": report["status"],
-                      "cases": len(analysed),
-                      "mutations_rejected": len(rejected),
-                      "mutation_total": len(MUTATIONS)}))
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--root",type=Path,default=ROOT)
+    parser.add_argument("--record",type=Path)
+    parser.add_argument("--source-commit")
+    parser.add_argument("--allow-partial",action="store_true")
+    parser.add_argument("--skip-negative",action="store_true",help="diagnostic audit only; not freezeable")
+    args=parser.parse_args()
+    root=args.root.resolve();record_path=args.record or root/"build/cpu5_s18_coremark/verification.json"
+    record=read_json(record_path);before_record=sha(record_path)
+    audit_id=datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ_")+uuid.uuid4().hex[:8]
+    out=local(root,"build/cpu5_s18_coremark/runs/"+record["run_id"])/"audits"/audit_id
+    out.mkdir(parents=True,exist_ok=True)
+    before={p:sha(root/p) for p in SOURCES}
+    for path in SOURCES:
+        target=out/"tested_sources"/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((root/path).read_bytes())
+    result=audit_complete(record,root,not args.allow_partial)
+    if args.skip_negative:
+        result["status"]="DIAGNOSTIC VERIFIED"
+        result["negative_evidence"]={"status":"NOT RUN"}
+    elif record["configurations"]<4:
+        result["negative_evidence"]={"status":"NOT RUN: partial scope"}
+    else:
+        from test_cpu5_coremark_evidence import run_negative_evidence
+        result["negative_evidence"]=run_negative_evidence(record,out/"negative_evidence",root)
+    result["source_identity"]=source_identity_chain(record,root,args.source_commit)
+    check(before=={p:sha(root/p) for p in SOURCES} and sha(record_path)==before_record,"AUDIT_INPUT_CHANGED")
+    result.update(audit_source_sha256=before,audit_sources_unchanged=True,record_sha256=before_record,
+                  audit_directory=out.relative_to(root).as_posix(),simulations_rerun=False,
+                  source_commit_required_for_delivery=args.source_commit is None)
+    write(out/"audit.json",result);write(root/"build/cpu5_s18_coremark/audit.json",result)
+    print(json.dumps({k:result[k] for k in ("status","configurations","total_retired","total_window_cycles","total_console_bytes")},indent=2))
 
 
-if __name__ == "__main__":
-    main()
+if __name__=="__main__":main()
+

@@ -8,6 +8,8 @@
 
 CPU5 的历史验收证据归档现由 Git LFS 保存。新 clone 请先执行 `git lfs pull`，再执行 `python tools/setup_cpu5_git_baselines.py --install`，以恢复归档并建立旧提交编号的本地兼容引用。详细步骤、迁移完整性证明和验证范围见 [CPU5 LFS 与历史基线说明](docs/cpu5_git_lfs_compat_20261026.md)。这一步不代表重新完成 CPU5 功能或上板验收。
 
+CPU5 五级流水线已完成四配置真实 CoreMark 功能仿真、独立指令回放及计时／终止排空审计；正式成绩、布局布线和上板验证待完成。实现与证据范围见 [CPU5 CoreMark S18 记录](docs/cpu5_coremark_hardening_20261026.md)。
+
 ## 功能与验证状态
 
 | 功能 | 当前实现 | 验证状态 |

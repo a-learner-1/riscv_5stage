@@ -15,7 +15,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "build/cpu5_s17_coremark/firmware"
+OUT = ROOT / "build/cpu5_s18_coremark/firmware"
 ROM_WORDS, RAM_WORDS, MIN_STACK_BYTES = 8192, 4096, 2048
 CLOCK_HZ, UART_BAUD, ITERATIONS = 50000000, 5000000, 1
 CACHE_SETS, CACHE_LINE_WORDS = 4, 4
@@ -52,7 +52,8 @@ def source_hashes():
         sources.update(path.relative_to(ROOT).as_posix()
                        for path in directory.glob("*.h"))
     sources.update(("software/cpu5_coremark/link.ld", "software/mmio.h",
-                    "software/timer.h", "tools/build_cpu5_coremark_images.py"))
+                    "software/timer.h", "software/coremark_port/core_portme.c",
+                    "tools/build_cpu5_coremark_images.py"))
     return {name: sha(ROOT / name) for name in sorted(sources)}
 
 
@@ -138,7 +139,53 @@ def image(payload, target, words, fill):
     target.write_text("".join(f"{word:08x}\n" for word in data), encoding="ascii")
 
 
+def toolchain_identity(cross):
+    probes = []
+
+    def query(arguments):
+        command = [cross + "gcc", *arguments]
+        result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True,
+                                encoding="utf-8", errors="replace")
+        if result.returncode or re.search(r"warning:|error:", result.stdout + result.stderr, re.I):
+            raise RuntimeError("CPU5 compiler probe failed: " + " ".join(command))
+        probes.append(dict(command=command, exit_code=result.returncode,
+                           stdout=result.stdout, stderr=result.stderr))
+        return result.stdout.strip()
+
+    def executable(name):
+        for path in (Path(name), Path(name + ".exe")):
+            if path.is_file():
+                return path.resolve()
+        found = shutil.which(name)
+        if not found:
+            raise RuntimeError("CPU5 compiler tool missing: " + name)
+        return Path(found).resolve()
+
+    version = query(["--version"])
+    options = ["-march=rv32im", "-mabi=ilp32"]
+    selected = query([*options, "-print-multi-directory"])
+    available = query(["-print-multi-lib"])
+    entry = next((line for line in available.splitlines()
+                  if line.split(";", 1)[0] == selected), "")
+    switches = set(entry.split(";", 1)[1].split("@")) if ";" in entry else set()
+    if switches != {"", "march=rv32im", "mabi=ilp32"}:
+        raise RuntimeError("CPU5 CoreMark requires the explicit rv32im/ilp32 multilib")
+    libgcc = Path(query([*options, "-print-libgcc-file-name"])).resolve()
+    if not libgcc.is_file():
+        raise RuntimeError("CPU5 selected libgcc is missing")
+    tools = {name: executable(cross + name)
+             for name in ("gcc", "objcopy", "objdump", "nm", "size")}
+    for name in ("cc1", "as", "ld"):
+        tools[name] = executable(query(["-print-prog-name=" + name]))
+    return dict(compiler_version_full=version, multilib_selected=selected,
+                multilib_entry=entry, multilib_available=available,
+                libgcc_path=str(libgcc), libgcc_sha256=sha(libgcc),
+                tools={name: dict(path=str(path), sha256=sha(path))
+                       for name, path in tools.items()}, probes=probes)
+
+
 def build_case(case, cross):
+    inputs = source_hashes()
     directory = OUT / f"case{case['case']}"
     directory.mkdir(parents=True, exist_ok=True)
     config = case_config(case)
@@ -151,7 +198,8 @@ def build_case(case, cross):
              "-Isoftware/cpu5_coremark", "-Isoftware/coremark_port",
              "-Ibenchmarks/coremark", "-Isoftware"]
     steps = []
-    version = subprocess.check_output([cross + "gcc", "--version"], text=True).splitlines()[0]
+    toolchain = toolchain_identity(cross)
+    version = toolchain["compiler_version_full"].splitlines()[0]
     write_config(directory, config, version, flags)
     elf = directory / "program.elf"
     link = ["-nostdlib", "-nostartfiles", "-static",
@@ -223,9 +271,23 @@ def build_case(case, cross):
         "symbols": {name: f"0x{address:08x}" for name, address in sorted(symbols.items())},
         "expected_crc": {name: f"0x{value:04x}" for name, value in EXPECTED_CRCS.items()},
         "steps": steps, "compiler_generated_warnings": 0,
-        "sources_sha256": source_hashes(),
+        "sources_sha256": inputs,
+        "toolchain": toolchain,
         "hardware_download_performed": False, "formal_score_measured": False,
     }
+    if inputs != source_hashes():
+        raise RuntimeError(f"case{case['case']} build inputs changed during compilation")
+    artifacts = ["coremark_build_config.h", "program.elf", "program_text.bin",
+                 "program_data.bin", "program.hex", "program_data.hex",
+                 "program.lst", "program.map"] + [
+        f"command{index}_{stream}.log" for index in range(len(commands))
+        for stream in ("stdout", "stderr")]
+    # build.json is authenticated by the runner's outer raw receipt. It must
+    # never hash its own previous version when this output folder is reused.
+    record["artifact_sha256"] = {
+        (directory / name).relative_to(ROOT).as_posix(): sha(directory / name)
+        for name in artifacts}
+    record["generated_config_sha256"] = sha(directory / "coremark_build_config.h")
     (directory / "build.json").write_text(json.dumps(record, indent=2) + "\n",
                                           encoding="utf-8")
     return record
