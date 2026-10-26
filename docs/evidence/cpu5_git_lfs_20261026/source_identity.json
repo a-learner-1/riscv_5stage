@@ -1,0 +1,32 @@
+{
+  "source_commit": "6e9da66d3e217aa78b8a7aaf3f5662b5171d4477",
+  "sources": {
+    "README.md": {
+      "raw_sha256": "3953c2573fee15fc6a11b19564505c375ee271ff8457dbd8c19a422c3de1a7b6",
+      "lf_sha256": "44b1fbf75ee611ef3fc0a604f26f73483dfceb904be3a94b6bc5b90e622893b2",
+      "committed_blob": "17c09158767b459637d43830ef84cc8dbd7319ec"
+    },
+    "tools/setup_cpu5_git_baselines.py": {
+      "raw_sha256": "4d11beb832027d9e5b667c1cb6a1bbb1f5e48189e410a229fa71255f82ae09b5",
+      "lf_sha256": "4d11beb832027d9e5b667c1cb6a1bbb1f5e48189e410a229fa71255f82ae09b5",
+      "committed_blob": "3b9d8a1e2aff51e103e83c8472efae8e888f4c69"
+    },
+    "tools/test_cpu5_git_baselines.py": {
+      "raw_sha256": "01e26773bdf79b43ff5db339dce4e63d7e00d22308e2a717631570b956f5a3f1",
+      "lf_sha256": "01e26773bdf79b43ff5db339dce4e63d7e00d22308e2a717631570b956f5a3f1",
+      "committed_blob": "43f34ac627acdee51f714fc08a87d12842cdb7b8"
+    },
+    "docs/cpu5_lfs_migration_20261026.json": {
+      "raw_sha256": "0e059895df2e5257353e40acd5cc234cb1ec4d6eb912b37f837a9562020b5db2",
+      "lf_sha256": "d51d972e24b1778e30340aa10fc38f02915b153cd3edb8a790e321ac83bda5b3",
+      "committed_blob": "9c15cb3dbf7d559bd847c33d60319a1567371775"
+    },
+    "docs/cpu5_git_lfs_compat_20261026.md": {
+      "raw_sha256": "0fb8865decdcc9427c318e6aa4cb854911a174dfa50618ebf635434deae9e40c",
+      "lf_sha256": "0fb8865decdcc9427c318e6aa4cb854911a174dfa50618ebf635434deae9e40c",
+      "committed_blob": "1b2c43eb4deaeae3885dfe74972527488063dec3"
+    }
+  },
+  "sources_unchanged": true,
+  "simulations_rerun": false
+}

@@ -1,0 +1,67 @@
+{
+  "status": "PASS",
+  "original_commits_absent": 19,
+  "object_alternates": false,
+  "aliases_created": 19,
+  "second_install_created": 0,
+  "historical_source_tree_lookups": 76,
+  "historical_archive_entries_checked": 27572,
+  "negative_tests": [
+    {
+      "name": "missing_commit",
+      "reason": "expected exactly 19 migrated commits"
+    },
+    {
+      "name": "corrupt_original_commit",
+      "reason": "proof object hash: fa36f45761ed1de9a9d12fec77d4fed59edc9714"
+    },
+    {
+      "name": "duplicate_mapping",
+      "reason": "duplicate commit mapping"
+    },
+    {
+      "name": "wrong_new_parent",
+      "reason": "commit parent chain"
+    },
+    {
+      "name": "corrupt_original_tree",
+      "reason": "proof object hash: 131ab21699e42fe733a252c2f8a324769d8f80ed"
+    },
+    {
+      "name": "missing_tree_proof",
+      "reason": "missing proof tree: 131ab21699e42fe733a252c2f8a324769d8f80ed"
+    },
+    {
+      "name": "unused_tree_proof",
+      "reason": "unused proof objects"
+    },
+    {
+      "name": "corrupt_lfs_payload",
+      "reason": "LFS payload differs from original Git blob: docs/evidence/cpu5_coremark_20261025/raw_evidence.zip"
+    },
+    {
+      "name": "duplicate_json_key",
+      "reason": "duplicate JSON key: same"
+    },
+    {
+      "name": "unexpanded_pointer_install",
+      "reason": "LFS working files are pointers"
+    },
+    {
+      "name": "conflicting_alias_atomic",
+      "reason": "conflicting baseline alias: refs/replace/fa36f45761ed1de9a9d12fec77d4fed59edc9714"
+    }
+  ],
+  "negative_rejected": 11,
+  "lfs_payloads_verified": 11,
+  "lfs_bytes": 979974279,
+  "simulation_rerun": false,
+  "repository": "D:\\BaiduNetdiskDownload\\2026FPGA\u521b\u65b0\u8bbe\u8ba1\u7ade\u8d5b\u7d2b\u5149\u540c\u521b\u676f\u8d44\u6599\u5305\\cpu5_lfs_compat_20261026\\build\\fresh_clone_test_03\\fresh_clone",
+  "source_commit": "6e9da66d3e217aa78b8a7aaf3f5662b5171d4477",
+  "source_sha256": {
+    "tools/setup_cpu5_git_baselines.py": "4d11beb832027d9e5b667c1cb6a1bbb1f5e48189e410a229fa71255f82ae09b5",
+    "tools/test_cpu5_git_baselines.py": "01e26773bdf79b43ff5db339dce4e63d7e00d22308e2a717631570b956f5a3f1"
+  },
+  "sources_unchanged": true,
+  "proof_canonical_sha256": "c9eaf0be6f6c4b8a36645ea9f4b90109338c774aefd2580b7bfaec10f6506166"
+}

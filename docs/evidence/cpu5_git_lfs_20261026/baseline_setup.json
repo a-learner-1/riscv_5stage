@@ -1,0 +1,109 @@
+{
+  "status": "PASS",
+  "migration_commits": 19,
+  "common_parent": "1b7cb1251f5ff589ab1a6be8537b3362cc3f3a73",
+  "old_head": "a8bcedf971b172436d9a14adb6d59df5c19c8d9c",
+  "published_lfs_head": "4299b9ec38520ac480b70250d23bfe2f3be8fad5",
+  "changed_tree_pairs": 52,
+  "unchanged_subtrees": 83,
+  "changed_paths": [
+    ".gitattributes",
+    "docs/evidence/cpu5_axi_20261025/raw_evidence.zip",
+    "docs/evidence/cpu5_cache_20261024/raw_evidence.zip",
+    "docs/evidence/cpu5_coremark_20261025/raw_evidence.zip",
+    "docs/evidence/cpu5_csr_20261023/raw_evidence.zip",
+    "docs/evidence/cpu5_d0_20261025/raw_evidence.zip",
+    "docs/evidence/cpu5_fence_20261024/raw_evidence.zip",
+    "docs/evidence/cpu5_irq_20261024/raw_evidence.zip",
+    "docs/evidence/cpu5_m_20261023/raw_evidence.zip",
+    "docs/evidence/cpu5_machine_20261024/raw_evidence.zip",
+    "docs/evidence/cpu5_mmio_20261024/raw_evidence.zip",
+    "docs/evidence/cpu5_stats_20261025/raw_evidence.zip"
+  ],
+  "lfs_payloads": [
+    {
+      "path": "docs/evidence/cpu5_csr_20261023/raw_evidence.zip",
+      "bytes": 19220954,
+      "sha256": "1d42e7f6ddc8ff34506bef97afd4260766cb506638833df747549c71506b3816",
+      "original_git_blob": "5f6980b76ae513a275e0f923a6eafb2be552cf87",
+      "pointer_blob": "a6013624c77a36c2037d3e2001a052acab71bb1b"
+    },
+    {
+      "path": "docs/evidence/cpu5_m_20261023/raw_evidence.zip",
+      "bytes": 23423724,
+      "sha256": "e6ca8721fb2792cfab3cc4e7c2ccf47f8df8f19ed838316ec864384285098249",
+      "original_git_blob": "326a555e12ceaeb5d95c1fa67f0b0c8557678d86",
+      "pointer_blob": "d3b8d0141c6492af1764aa9180bfb0487ed2a05d"
+    },
+    {
+      "path": "docs/evidence/cpu5_irq_20261024/raw_evidence.zip",
+      "bytes": 28010264,
+      "sha256": "064db22132cc57bfd3e061b0bcfc32ec2f71e4bd20f60f688953885c8f77e275",
+      "original_git_blob": "6c2cc3c8a4f5d230abb72c22d97dfc57cdf38d56",
+      "pointer_blob": "348d604f0716754771743d310135a5af96725478"
+    },
+    {
+      "path": "docs/evidence/cpu5_mmio_20261024/raw_evidence.zip",
+      "bytes": 32360874,
+      "sha256": "b0cf3e2660534f02448f712d72ae8550c6a032a6c0510f022b84c9eb6585fb54",
+      "original_git_blob": "e896d928238209801518183e9baf72d33b6d88e3",
+      "pointer_blob": "dfc7aefc10e5c2fc6d9fc79e1e73de3b74850b14"
+    },
+    {
+      "path": "docs/evidence/cpu5_machine_20261024/raw_evidence.zip",
+      "bytes": 58039109,
+      "sha256": "1d8b4a74a2b738adc8ee8353e246ac5e459c9f7f1321892129103bc60a4e1b61",
+      "original_git_blob": "706d8d3592cb8c5c395fc2b8b1a824d756c5d166",
+      "pointer_blob": "d690b53de38aaa31302bcc381628fe19530efb56"
+    },
+    {
+      "path": "docs/evidence/cpu5_fence_20261024/raw_evidence.zip",
+      "bytes": 79123975,
+      "sha256": "94df73de454f42b43ae1c66d43d674dde5dee85d0d966497274609524c963cee",
+      "original_git_blob": "9ea24b1321ccbde1fff1e3c6daee9bffb428ba73",
+      "pointer_blob": "19342375bf98a564a88df98f676c58b9ad7dffae"
+    },
+    {
+      "path": "docs/evidence/cpu5_cache_20261024/raw_evidence.zip",
+      "bytes": 112898218,
+      "sha256": "2aaca1b3be882ee511c501b1e4d397d6e1da80e08c751c3b773209e3fb382a7a",
+      "original_git_blob": "614e0de1f88e97484a7f29785662ecc1c3334f64",
+      "pointer_blob": "517ee3eafae92ea33d43733217f83fc3454bfe1d"
+    },
+    {
+      "path": "docs/evidence/cpu5_axi_20261025/raw_evidence.zip",
+      "bytes": 194229772,
+      "sha256": "a9616511aa5b79b179fe8cc7d796340a592e271c31a5d7c8b1995f36b4188bb2",
+      "original_git_blob": "62bad45e5263b04915b3dae4f7dc048ca2b310f7",
+      "pointer_blob": "d79872f33e4ce3a519c248edaa6da84b07632cce"
+    },
+    {
+      "path": "docs/evidence/cpu5_d0_20261025/raw_evidence.zip",
+      "bytes": 191187041,
+      "sha256": "4c957de8c0497cd1e3241aca325b48b2a03f93665c646d0243a8666121441905",
+      "original_git_blob": "d4c7dd4184183bb0f5fd2eb0bec48839eab6b881",
+      "pointer_blob": "a1795b0269e0dcd26ce919828b9e0f9e366b8652"
+    },
+    {
+      "path": "docs/evidence/cpu5_stats_20261025/raw_evidence.zip",
+      "bytes": 240800900,
+      "sha256": "6621311396e7c74ef13031603c6374b6a5d5a38e2ed382173c331fa48e02a20d",
+      "original_git_blob": "e95a3ff843960b5213b73d066daac824dd879f7b",
+      "pointer_blob": "2618ecc3ad942934ff1db85de5c776afc6288179"
+    },
+    {
+      "path": "docs/evidence/cpu5_coremark_20261025/raw_evidence.zip",
+      "bytes": 679448,
+      "sha256": "b50be7ba3ddf66a96f287db0dc8806b5dc6209cbce97d9cb08dc65863d15c8a0",
+      "original_git_blob": "267faa9a4b7a2c3ae2ffb8fc3e4f6425418d0478",
+      "pointer_blob": "e6f6b02079edc8ad8c79e420fea93af2f21873c7"
+    }
+  ],
+  "lfs_bytes": 979974279,
+  "unhydrated_lfs_paths": [],
+  "source_and_manifest_blobs_unchanged": true,
+  "simulation_rerun": false,
+  "proof_sha256": "0e059895df2e5257353e40acd5cc234cb1ec4d6eb912b37f837a9562020b5db2",
+  "aliases_created": 19,
+  "aliases_installed": true
+}

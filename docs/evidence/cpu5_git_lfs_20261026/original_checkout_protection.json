@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "files_checked": 4744,
+  "changed": [],
+  "head": "a8bcedf971b172436d9a14adb6d59df5c19c8d9c",
+  "head_preserved": true,
+  "status_preserved": true,
+  "status_format": "git status --short --untracked-files=all"
+}

@@ -1,0 +1,34 @@
+{
+  "status": "FROZEN",
+  "scope": "CPU5 Git LFS migration and historical baseline lookup compatibility",
+  "source_commit": "6e9da66d3e217aa78b8a7aaf3f5662b5171d4477",
+  "frozen_utc": "2026-10-26T06:22:40.235427+00:00",
+  "files": {
+    ".gitattributes": {
+      "bytes": 9,
+      "sha256": "8b9c3028d6467ff3be7c793141927841d70f47f52d0590677438f488ca154992"
+    },
+    "baseline_setup.json": {
+      "bytes": 4955,
+      "sha256": "c7993d6cceeba7d0f486b85f028ff2733a77c61cbfa3116df868edefabc68514"
+    },
+    "original_checkout_protection.json": {
+      "bytes": 245,
+      "sha256": "6f67481be4a6cac14e0f4029420eb5ac40233efe86d246ea77e06dbb7d0a998d"
+    },
+    "README.md": {
+      "bytes": 1156,
+      "sha256": "dc5059cd46f674b07b621fc927d053b134a835b4d69305d58b859e30a5822eda"
+    },
+    "source_identity.json": {
+      "bytes": 1618,
+      "sha256": "8e6d1e277dd5f1c2018ce52a593a8b096b35b1b7f9d991ce92522aa6b285f7b4"
+    },
+    "verification.json": {
+      "bytes": 2342,
+      "sha256": "d940a7085b6c86530192e6404cebc6d6739e2364b1c0e4865204eb82b1b167f6"
+    }
+  },
+  "simulations_rerun": false,
+  "board_test": false
+}
