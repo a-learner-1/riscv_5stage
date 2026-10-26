@@ -167,8 +167,16 @@ module cpu5_alu_pipeline #(
     // Every other aligned address, including unknown/Stats, orders at MEM.
     assign ram_ex_fault=ram_ex_misaligned || (!ENABLE_MMIO && ram_ex_out_of_range);
     wire ex_ram_fault=ENABLE_RAM && ex_is_mem && !idex_q.exception_valid && ram_ex_fault;
+    // MEM already applies its own age kill before retirement/fault delivery.
+    // A previously killed owner cannot still own a live matching MEM slot.
+    // Do not feed the owner's same-cycle kill (which includes this MEM trap)
+    // back into fault qualification: that creates trap -> kill -> match loops.
+    // The owner is allocated either with a RAM LOAD entering MEM or by the
+    // current MEM STORE/ordered LOAD. Register that association at allocation
+    // instead of placing a 64-bit equality on completion/forwarding/redirect.
+    reg mem_ram_issued_q;
     wire ram_mem_matches=ENABLE_RAM && ram_completion_valid && exmem_valid_q &&
-        ram_completion_seq==exmem_q.seq && !ram_completion_killed;
+        mem_ram_issued_q;
     wire ram_mem_error=ram_mem_matches && (exmem_q.is_load||exmem_q.is_store) && ram_completion_error;
     wire wb_can_load=!memwb_valid_q || wb_fire;
     // MIP changes independently of retirement. ID must not capture its value
@@ -280,7 +288,7 @@ module cpu5_alu_pipeline #(
     wire ex_can_load=!idex_valid_q || kill_ex || ex_move || trap_fire || mret_fire || irq_take;
     // A STORE is first offered only by the oldest live, commit-qualified MEM
     // packet. Once offered, the owner retains it regardless of later stalls.
-    wire ram_mem_owned=ram_owner_valid && ram_owner_seq==exmem_q.seq;
+    wire ram_mem_owned=ram_owner_valid && mem_ram_issued_q;
     wire mem_store_request=ENABLE_RAM && rst_n && !irq_take && exmem_valid_q && !kill_mem &&
         exmem_q.is_store && exmem_supported_q && !exmem_q.exception_valid &&
         mem_enable && !flush_valid && !mem_fault && !ram_mem_owned;
@@ -296,6 +304,13 @@ module cpu5_alu_pipeline #(
     assign ram_completion_ready=ram_mem_matches && (retire_fire || trap_fire);
     assign owner_kill_valid=flush_fire || trap_fire || mret_fire || irq_take;
     assign owner_kill_cut=irq_take?{SEQ_BITS{1'b0}}:flush_fire?flush_cut_seq:exmem_q.seq+1'b1;
+    always @(posedge clk or negedge rst_n) begin
+        if(!rst_n)mem_ram_issued_q<=1'b0;
+        else if(mem_can_load)
+            mem_ram_issued_q<=ex_move && ex_load_request && ram_issue_fire;
+        else if(mem_request && ram_issue_fire)
+            mem_ram_issued_q<=1'b1;
+    end
     generate if(ENABLE_RAM)begin:g_ram
         cpu5_ram_unit #(.DMEM_BASE_ADDR(DMEM_BASE_ADDR),.DMEM_WORDS(DMEM_WORDS)) u_decode(
             .instr(in_instr),.rs1_value(rf1),.rs2_value(rf2),.response_word(32'd0),
@@ -677,6 +692,14 @@ module cpu5_alu_pipeline #(
                (IRQ_ENABLED && (!ENABLE_CSR || !ENABLE_SYNC_TRAPS || !ENABLE_CONTROL_FLOW)))
         $fatal(1,"CPU5 ALU requires 64-bit age, positive epoch and supported forwarding mode");
     always @(posedge clk)if(rst_n)begin
+        if(ram_mem_matches && ram_completion_killed && !kill_mem && !irq_take)
+            $fatal(1,"CPU5 killed D owner still matches a live MEM packet");
+        if(ENABLE_RAM && exmem_valid_q && mem_ram_issued_q &&
+            (!ram_owner_valid || ram_owner_seq!==exmem_q.seq))
+            $fatal(1,"CPU5 registered MEM/D association lost owner age");
+        if(ENABLE_RAM && exmem_valid_q && ram_owner_valid &&
+            ram_owner_seq==exmem_q.seq && !mem_ram_issued_q)
+            $fatal(1,"CPU5 matching MEM/D age lacks registered association");
         if(retire_fire && (!exmem_supported_q||exmem_q.exception_valid||kill_mem))
             $fatal(1,"CPU5 invalid retirement authorization");
         if(wb_we && wb_rd==0)$fatal(1,"CPU5 x0 write");

@@ -8,7 +8,7 @@
 
 CPU5 的历史验收证据归档现由 Git LFS 保存。新 clone 请先执行 `git lfs pull`，再执行 `python tools/setup_cpu5_git_baselines.py --install`，以恢复归档并建立旧提交编号的本地兼容引用。详细步骤、迁移完整性证明和验证范围见 [CPU5 LFS 与历史基线说明](docs/cpu5_git_lfs_compat_20261026.md)。这一步不代表重新完成 CPU5 功能或上板验收。
 
-CPU5 五级流水线已完成四配置真实 CoreMark 功能仿真、独立指令回放及计时／终止排空审计；正式成绩、布局布线和上板验证待完成。实现与证据范围见 [CPU5 CoreMark S18 记录](docs/cpu5_coremark_hardening_20261026.md)。
+CPU5 五级流水线已完成四配置真实 CoreMark 功能仿真、独立指令回放及计时／终止排空审计，见 [CPU5 CoreMark S18 记录](docs/cpu5_coremark_hardening_20261026.md)。现已为 MES50HP 增加独立 CPU5 板级顶层：RV32IM、D0 BRAM、各 2 KiB 双路 Cache、BTB64、50 MHz／115200；performance 与 validation 镜像分别通过布局布线、最终静态时序并生成 SBIT/BIN。板级配置短程仿真、复位和 UART 证据见 [CPU5 S19/S20 记录](docs/cpu5_pds_board_20261026.md)。CPU5 正式上板成绩仍待实测，原三级成绩继续作为原版本基线。
 
 ## 功能与验证状态
 

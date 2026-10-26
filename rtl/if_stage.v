@@ -6,7 +6,10 @@ module if_stage #(
     parameter integer IMEM_RSP_WAIT_CYCLES = 0,
     parameter integer ENABLE_TRAPS = 0,
     parameter integer ENABLE_BRANCH_PRED = 0,
-    parameter integer BTB_ENTRIES = 64
+    parameter integer BTB_ENTRIES = 64,
+    // CPU5 may register a redirect before querying an asynchronous I-cache tag.
+    // A held request still drains unchanged; legacy CPU3 keeps its bypass.
+    parameter integer REGISTER_REDIRECT_REQUEST = 0
 ) (
     input  wire        clk,
     input  wire        rst_n,
@@ -141,9 +144,10 @@ module if_stage #(
     assign fetch_rsp_fault = fetch_rsp_fire && !fetch_rsp_drop && fetch_rsp_error;
     assign fetch_req_valid = rst_n &&
         (!imem_fault || ((ENABLE_TRAPS != 0) && redirect_x)) && !fetch_rsp_fault &&
-        (req_hold_q || ((!fetch_pending_q || fetch_rsp_fire) && !stall_x));
+        (req_hold_q || ((!fetch_pending_q || fetch_rsp_fire) && !stall_x &&
+                       (!(REGISTER_REDIRECT_REQUEST != 0) || !redirect_x)));
     assign fetch_req_addr = req_hold_q ? req_pc_q :
-                            redirect_x ? redirect_pc_x : pc_f;
+                            ((REGISTER_REDIRECT_REQUEST == 0) && redirect_x) ? redirect_pc_x : pc_f;
     assign fetch_req_stale = req_hold_q && (req_stale_q || redirect_x);
     assign fetch_req_ready = (EXTERNAL_IMEM != 0) ? imem_req_ready : local_req_ready;
     assign fetch_req_fire = fetch_req_valid && fetch_req_ready;

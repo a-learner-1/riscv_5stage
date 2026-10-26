@@ -79,7 +79,8 @@ module cpu5_if_adapter #(
 
     if_stage #(.PROGRAM_FILE(PROGRAM_FILE), .IMEM_WORDS(IMEM_WORDS),
         .EXTERNAL_IMEM(1), .ENABLE_TRAPS(1),
-        .ENABLE_BRANCH_PRED(ENABLE_BRANCH_PRED), .BTB_ENTRIES(BTB_ENTRIES)) u_if_stage (
+        .ENABLE_BRANCH_PRED(ENABLE_BRANCH_PRED), .BTB_ENTRIES(BTB_ENTRIES),
+        .REGISTER_REDIRECT_REQUEST(1)) u_if_stage (
         .clk(clk), .rst_n(rst_n), .redirect_x(redirect_fire),
         .redirect_pc_x(redirect_pc), .stall_x(!id_ready || fault_valid_q || seq_exhausted),
         .pc_f(unused_pc_f), .pc_x(raw_pc), .instr_x(raw_instr), .valid_x(raw_valid),

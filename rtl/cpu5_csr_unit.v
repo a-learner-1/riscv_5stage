@@ -15,7 +15,7 @@ module cpu5_csr_unit #(
     input wire commit_fire,mret_fire,trap_fire,
     input wire [31:0] fault_pc,fault_cause,fault_tval,
     output wire [31:0] mtvec_value,mepc_value,
-    input wire [31:0] irq_pending=32'd0,
+    input wire [31:0] irq_pending,
     output wire [31:0] mstatus_value,mie_value,
     output wire post_commit_global_enable,output wire [31:0] post_commit_mie
 );
