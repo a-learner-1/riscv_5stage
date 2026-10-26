@@ -1,0 +1,109 @@
+CPU5 independent audit case0
+CPU5 independent audit case1
+CPU5 independent audit case2
+CPU5 independent audit case3
+{
+  "status": "COMMITTED SOURCES VERIFIED",
+  "hardware_download_performed": false,
+  "formal_score_measured": false,
+  "pds": [
+    {
+      "profile": "performance",
+      "bitstream": false,
+      "run_id": "20261026T090603130714Z_cd31062c_performance",
+      "resources": {
+        "luts": 10837,
+        "registers": 8870,
+        "latches": 0,
+        "drm18k_equivalent": 28.0,
+        "apms": 4.0
+      },
+      "setup_wns_ns": 0.021,
+      "hold_whs_ns": 0.112,
+      "d0_drm18k_instances": 8
+    },
+    {
+      "profile": "performance",
+      "bitstream": true,
+      "run_id": "20261026T092323757000Z_e63a0380_bitstream_performance",
+      "resources": {
+        "luts": 10837,
+        "registers": 8870,
+        "latches": 0,
+        "drm18k_equivalent": 28.0,
+        "apms": 4.0
+      },
+      "setup_wns_ns": 0.021,
+      "hold_whs_ns": 0.112,
+      "d0_drm18k_instances": 8
+    },
+    {
+      "profile": "validation",
+      "bitstream": false,
+      "run_id": "20261026T091826337049Z_45544e2d_validation",
+      "resources": {
+        "luts": 10837,
+        "registers": 8870,
+        "latches": 0,
+        "drm18k_equivalent": 28.0,
+        "apms": 4.0
+      },
+      "setup_wns_ns": 0.021,
+      "hold_whs_ns": 0.112,
+      "d0_drm18k_instances": 8
+    },
+    {
+      "profile": "validation",
+      "bitstream": true,
+      "run_id": "20261026T092930494001Z_67427b2d_bitstream_validation",
+      "resources": {
+        "luts": 10837,
+        "registers": 8870,
+        "latches": 0,
+        "drm18k_equivalent": 28.0,
+        "apms": 4.0
+      },
+      "setup_wns_ns": 0.021,
+      "hold_whs_ns": 0.112,
+      "d0_drm18k_instances": 8
+    }
+  ],
+  "source_commit": "18c8e61fd5d024d41e96792f222c2de8f28fdc95",
+  "board_smoke": [
+    {
+      "profile": "smoke",
+      "cycles": 16828637,
+      "window_cycles": 389224,
+      "uart_frames": 3771,
+      "crc": "0xe9f5"
+    },
+    {
+      "profile": "smoke-validation",
+      "cycles": 16962573,
+      "window_cycles": 389194,
+      "uart_frames": 3802,
+      "crc": "0x18f2"
+    }
+  ],
+  "control_groups": [
+    "ram",
+    "trap",
+    "run_cpu5_csr_control",
+    "run_cpu5_irq_control",
+    "run_cpu5_m_control",
+    "run_cpu5_fence_control"
+  ],
+  "guards": {
+    "negative_count": 47,
+    "existing_final_sta_guard_tests": 9,
+    "redirect_protocol_checks": 11
+  },
+  "compatibility": {
+    "status": "DIAGNOSTIC VERIFIED",
+    "total_retired": 2409425,
+    "total_window_cycles": 3129696,
+    "record_sha256": "b7c6e90111ef33ead003b566c719deeb40c842eac36273f5310639e80431f6ce",
+    "fresh_replay_performed": true
+  },
+  "source_files_verified": 101
+}

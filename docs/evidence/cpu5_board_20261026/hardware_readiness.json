@@ -1,0 +1,9 @@
+{
+  "checked_at": "2026-10-26T19:10:30.7031550+08:00",
+  "timezone": "Asia/Shanghai",
+  "serial_ports": [],
+  "matching_present_devices": [],
+  "detection_scope": "Present Windows PnP devices filtered by Pango/JTAG/FTDI/USB Serial/COM name, plus .NET serial port enumeration",
+  "hardware_download_performed": false,
+  "formal_score_measured": false
+}

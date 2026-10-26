@@ -1,0 +1,9 @@
+{
+  "pds_performance": "20261026T090603130714Z_cd31062c_performance",
+  "pds_validation": "20261026T091826337049Z_45544e2d_validation",
+  "bitstream_performance": "20261026T092323757000Z_e63a0380_bitstream_performance",
+  "bitstream_validation": "20261026T092930494001Z_67427b2d_bitstream_validation",
+  "board_smoke": "20261026T092839901861Z_85160397_board_smoke",
+  "control_regressions": "20261026T090744936826Z_9e163bb8_controls",
+  "guards": "20261026T092639121054Z_190c3c82_guards"
+}

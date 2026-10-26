@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "source_commit": "18c8e61fd5d024d41e96792f222c2de8f28fdc95",
+  "source_files_verified": 101,
+  "full_raw_replay_cases": 4,
+  "total_retired": 2409425,
+  "archive_sha256": "9c3bc4cb2a9493721918cd104c6d114032b58a94dbcb7fa6fa47af754820e2ed",
+  "archive_unchanged": true,
+  "artifact_storage": "ordinary extracted directories; no runtime junctions",
+  "replay_console_sha256": "506eff24e4bbf2b2133284c55bc840bdf53636fe0a042ae243e204be229ffdc1",
+  "hardware_download_performed": false,
+  "formal_score_measured": false
+}

@@ -1,0 +1,151 @@
+{
+  "target": "MES50HP / PGL50H-6IFBG484",
+  "source_commit": "18c8e61fd5d024d41e96792f222c2de8f28fdc95",
+  "clock_hz": 50000000,
+  "uart_baud": 115200,
+  "isa": "rv32im",
+  "backend": "D0 BRAM",
+  "icache_bytes": 2048,
+  "dcache_bytes": 2048,
+  "btb_entries": 64,
+  "hardware_download_performed": false,
+  "formal_score_measured": false,
+  "profiles": {
+    "performance": {
+      "run_id": "20261026T092323757000Z_e63a0380_bitstream_performance",
+      "iterations": 2000,
+      "formal_image": true,
+      "formal_score_measured": false,
+      "route_sha256": "ccb224f86ad8d1fc47b4b05db319f2d40ec37e7026423b730283ba7db9950cc3",
+      "final_sta_sha256": "ae6413e251cde07ae3dedf320bc8caef3144b2348537ed83c38cb3fd39f7661c",
+      "final_sta_rows": [
+        [
+          "0.021",
+          "0.000",
+          "0",
+          "26882"
+        ],
+        [
+          "0.159",
+          "0.000",
+          "0",
+          "26882"
+        ],
+        [
+          "12.950",
+          "0.000",
+          "0",
+          "7997"
+        ],
+        [
+          "0.789",
+          "0.000",
+          "0",
+          "7997"
+        ],
+        [
+          "5.573",
+          "0.000",
+          "0",
+          "26882"
+        ],
+        [
+          "0.112",
+          "0.000",
+          "0",
+          "26882"
+        ],
+        [
+          "14.940",
+          "0.000",
+          "0",
+          "7997"
+        ],
+        [
+          "0.563",
+          "0.000",
+          "0",
+          "7997"
+        ]
+      ],
+      "files": {
+        "CPU5_performance.bin": {
+          "sha256": "ce55fd3a395ee5bb7d4f51660dda56fd254ffeb7fb401f6ba2dc151a10d14eeb",
+          "bytes": 2100060
+        },
+        "CPU5_performance.sbit": {
+          "sha256": "7bdabde6802244784ddcde42a16f93c87f147f3dbf418e2280d5eeaa783ede16",
+          "bytes": 2101696
+        }
+      }
+    },
+    "validation": {
+      "run_id": "20261026T092930494001Z_67427b2d_bitstream_validation",
+      "iterations": 2000,
+      "formal_image": true,
+      "formal_score_measured": false,
+      "route_sha256": "e082ae7c5e35d80f8afdb22041afadda24abeb7eae5d3d2d0ab525f15b60716b",
+      "final_sta_sha256": "df290e3d6ece90b65302f5ec182738911619a42fe25b452c55bccd99b919aa36",
+      "final_sta_rows": [
+        [
+          "0.021",
+          "0.000",
+          "0",
+          "26882"
+        ],
+        [
+          "0.159",
+          "0.000",
+          "0",
+          "26882"
+        ],
+        [
+          "12.950",
+          "0.000",
+          "0",
+          "7997"
+        ],
+        [
+          "0.789",
+          "0.000",
+          "0",
+          "7997"
+        ],
+        [
+          "5.573",
+          "0.000",
+          "0",
+          "26882"
+        ],
+        [
+          "0.112",
+          "0.000",
+          "0",
+          "26882"
+        ],
+        [
+          "14.940",
+          "0.000",
+          "0",
+          "7997"
+        ],
+        [
+          "0.563",
+          "0.000",
+          "0",
+          "7997"
+        ]
+      ],
+      "files": {
+        "CPU5_validation.bin": {
+          "sha256": "7c1fc57e3d1f95d2212b530e6fc0ecc16725721488977c75a113271ea0db6912",
+          "bytes": 2100060
+        },
+        "CPU5_validation.sbit": {
+          "sha256": "659d92618f91f3c35615d2985ea7a6731b17f110ca8c6a3533d97b430a32014e",
+          "bytes": 2101696
+        }
+      }
+    }
+  }
+}

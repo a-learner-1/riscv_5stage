@@ -1,0 +1,11 @@
+{
+  "status": "FROZEN_REPLAY_VERIFIED",
+  "source_commit": "18c8e61fd5d024d41e96792f222c2de8f28fdc95",
+  "archive_sha256": "9c3bc4cb2a9493721918cd104c6d114032b58a94dbcb7fa6fa47af754820e2ed",
+  "archive_bytes": 135021038,
+  "archive_entries": 1089,
+  "source_package_sha256": "764d118bd7b727061d8c6afc81f483df550a98936e43fbbec2e7a32a1337973c",
+  "source_files": 462,
+  "hardware_download_performed": false,
+  "formal_score_measured": false
+}

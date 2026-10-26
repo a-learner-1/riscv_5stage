@@ -1,0 +1,45 @@
+{
+  "status": "DELIVERED_VERIFIED_NOT_DOWNLOADED",
+  "source_commit": "18c8e61fd5d024d41e96792f222c2de8f28fdc95",
+  "evidence_directory": "docs/evidence/cpu5_board_20261026",
+  "manifest_sha256": "8267a892b3fd86f824e8411d83cfb45ac954c29f320c4d07a7b6d924c6a43094",
+  "raw_archive_sha256": "9c3bc4cb2a9493721918cd104c6d114032b58a94dbcb7fa6fa47af754820e2ed",
+  "raw_archive_bytes": 135021038,
+  "raw_archive_entries": 1089,
+  "downloads_sha256": "babc9384a45e9bd72db68d41c211077ad0aa8c377f582749490602d7742ac8c0",
+  "frozen_replay": {
+    "status": "PASS",
+    "source_commit": "18c8e61fd5d024d41e96792f222c2de8f28fdc95",
+    "source_files_verified": 101,
+    "full_raw_replay_cases": 4,
+    "total_retired": 2409425,
+    "archive_sha256": "9c3bc4cb2a9493721918cd104c6d114032b58a94dbcb7fa6fa47af754820e2ed",
+    "archive_unchanged": true,
+    "artifact_storage": "ordinary extracted directories; no runtime junctions",
+    "replay_console_sha256": "506eff24e4bbf2b2133284c55bc840bdf53636fe0a042ae243e204be229ffdc1",
+    "hardware_download_performed": false,
+    "formal_score_measured": false
+  },
+  "original_checkout_protection": {
+    "status": "PASS",
+    "files_checked": 4739,
+    "changed": [],
+    "head_unchanged": true,
+    "status_unchanged": true,
+    "original_head": "a8bcedf971b172436d9a14adb6d59df5c19c8d9c",
+    "original_repository": "D:\\FPGA\\riscv_3stage"
+  },
+  "hardware_readiness": {
+    "checked_at": "2026-10-26T19:10:30.7031550+08:00",
+    "timezone": "Asia/Shanghai",
+    "serial_ports": [],
+    "matching_present_devices": [],
+    "detection_scope": "Present Windows PnP devices filtered by Pango/JTAG/FTDI/USB Serial/COM name, plus .NET serial port enumeration",
+    "hardware_download_performed": false,
+    "formal_score_measured": false
+  },
+  "hardware_download_performed": false,
+  "formal_score_measured": false,
+  "agent_pushed": false,
+  "next_step": "Connect powered MES50HP with JTAG and USB-UART; run performance and validation >=10s formal board tests."
+}
