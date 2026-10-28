@@ -72,3 +72,7 @@ axi_latency_work/
 
 # AXI write stage profiling
 axi_write_profile_work/
+
+# 根目录 ModelSim 临时工作库（已跟踪的历史证据不受影响）
+/*_work/
+/.pytest_cache/
