@@ -1,0 +1,122 @@
+{
+  "date": "2026-10-28",
+  "timezone": "Asia/Shanghai",
+  "source_commit": "6b4932ba11d846027bc94f6bc8782c34d518936b",
+  "scope": "Board acceptance, 50MHz ILA implementation, three-algorithm captures and CPU technical report; no new RTL changes.",
+  "platform": {
+    "board": "MES50HP",
+    "isa": "RV32IM",
+    "cpu_hz": 50000000,
+    "uart": "115200 8N1",
+    "rom_kib": 32,
+    "ram_kib": 16,
+    "icache_kib": 2,
+    "dcache_kib": 2,
+    "btb_entries": 64
+  },
+  "formal_board_runs": {
+    "performance": {
+      "iterations": 2000,
+      "raw_ticks": 776315137,
+      "seconds": "15.526302740",
+      "coremark": "128.813667587",
+      "coremark_per_mhz": "2.576273352",
+      "cpi": "1.339822844",
+      "crc": [
+        "e9f5",
+        "e714",
+        "1fd7",
+        "8e3a",
+        "4983"
+      ],
+      "result": "FORMAL PASS"
+    },
+    "validation": {
+      "iterations": 2000,
+      "raw_ticks": 777329152,
+      "seconds": "15.546583040",
+      "coremark": "128.645631960",
+      "coremark_per_mhz": "2.572912639",
+      "cpi": "1.340521074",
+      "crc": [
+        "18f2",
+        "e3c1",
+        "0747",
+        "8d84",
+        "0cac"
+      ],
+      "result": "FORMAL PASS"
+    },
+    "crc_field_order": [
+      "seedcrc",
+      "crclist",
+      "crcmatrix",
+      "crcstate",
+      "crcfinal"
+    ],
+    "evidence": "User-provided UART output and archived original SSCOM screenshots."
+  },
+  "ila_build": {
+    "cpu_hz": 50000000,
+    "data_bits": 173,
+    "depth": 1024,
+    "seed": 2,
+    "setup_slow_ns": 0.111,
+    "setup_fast_ns": 5.783,
+    "hold_slow_ns": 0.159,
+    "hold_fast_ns": 0.113,
+    "all_constraints_met": true,
+    "sbit_sha256": "14c82c451db3fb186c9ec60ab3166b80fc6c90bff3412d556466c0ab9fd029f0",
+    "fic_sha256": "9d6267556bbce9541f8fa143763c3e262adec3d59d5b32b492d35a97fe78070f"
+  },
+  "captures": {
+    "list": {
+      "samples": 1024,
+      "ex_to_mem_checks": 566,
+      "mismatches": 0,
+      "retire_events": 567,
+      "gpr_write_events": 359
+    },
+    "matrix": {
+      "samples": 1024,
+      "ex_to_mem_checks": 727,
+      "mismatches": 0,
+      "retire_events": 728,
+      "gpr_write_events": 624,
+      "observed_sequence": "EX 0x385c resident at0..3; move+3; retire+4; WB+5 x14=0x28.",
+      "origin_caution": "At sample512 EX_MOVE=0. VCD does not encode Trigger Setup expression."
+    },
+    "state": {
+      "samples": 1024,
+      "ex_to_mem_checks": 807,
+      "mismatches": 0,
+      "retire_events": 808,
+      "gpr_write_events": 523,
+      "observed_sequence": "Character x15=0x33; retired 3f64->3f9c; STORE pause/resume; 3fcc->4014."
+    },
+    "time_basis": "50MHz /20ns per sample. Preserve raw exporter100ns default as sample index; do not treat it as physical clock.",
+    "scope": "Window event counts do not represent whole-CoreMark CPI; no predictor/redirect/handshake cause attribution."
+  },
+  "report": {
+    "archive_path": "report/CPU技术文档_矩阵与状态机ILA补充版.docx",
+    "sha256": "5b2e09f31e8151717c772a008f185d449bd5932989b735c88bad7b61c1de43f9",
+    "pages": 26,
+    "figures": 17,
+    "tables": 11,
+    "cnn_edited": false,
+    "references_added": false
+  },
+  "remaining_materials": [
+    "Board photos A/B",
+    "Independent maximum-frequency sweep if reporting Fmax",
+    "External IRQ board evidence if claiming physical validation"
+  ],
+  "historical_note": "docs/conversation_handoff_20261026_cpu5_board.md is an earlier waiting-for-board snapshot and is outside this commit staging list.",
+  "evidence_archive": {
+    "repository_path": "docs/evidence/cpu5_board_20261028/raw_evidence.zip",
+    "bytes": 19806021,
+    "sha256": "7d0ff2564dfffec6bcbe5fa10ab4b553203433eb2d96727b385ac690749e702c",
+    "payload_files": 60,
+    "git_lfs_filter_verified": true
+  }
+}
