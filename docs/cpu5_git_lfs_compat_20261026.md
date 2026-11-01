@@ -7,8 +7,8 @@ GitHub 的普通 Git 推送拒绝了四个超过 100 MiB 的原始证据 ZIP。�
 在 Git Bash 中执行；`python` 需为 Python 3.9 或以上：
 
 ```bash
-git clone https://github.com/a-learner-1/riscv_3stage.git
-cd riscv_3stage
+git clone https://github.com/a-learner-1/riscv_5stage.git
+cd riscv_5stage
 git lfs install --local
 git lfs pull
 python tools/setup_cpu5_git_baselines.py --install --report build/cpu5_git_baseline_setup.json

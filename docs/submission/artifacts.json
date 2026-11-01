@@ -1,0 +1,21 @@
+{
+  "repository": "https://github.com/a-learner-1/riscv_5stage",
+  "release_tag": "v1.0.0-cpu5",
+  "scope": "CPU5 standalone board implementation and existing board/ILA evidence; original archives unchanged",
+  "validated_rtl_commit": "18c8e61fd5d024d41e96792f222c2de8f28fdc95",
+  "board_results": "docs/cpu5_board_results_20261028.json",
+  "files": [
+    {
+      "name": "CPU5_board_downloads.zip",
+      "repository_path": "docs/evidence/cpu5_board_20261026/cpu5_board_downloads.zip",
+      "bytes": 1448904,
+      "sha256": "babc9384a45e9bd72db68d41c211077ad0aa8c377f582749490602d7742ac8c0"
+    },
+    {
+      "name": "CPU5_board_evidence.zip",
+      "repository_path": "docs/evidence/cpu5_board_20261028/raw_evidence.zip",
+      "bytes": 19806021,
+      "sha256": "7d0ff2564dfffec6bcbe5fa10ab4b553203433eb2d96727b385ac690749e702c"
+    }
+  ]
+}

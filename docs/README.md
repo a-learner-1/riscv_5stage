@@ -1,6 +1,14 @@
 # 文档导航
 
-当前开发主线为 CPU5 五级流水线。第一次接手请先看[仓库首页](../README.md)和[CNN 接入指南](integration/cpu5_cnn_handoff.md)。下列阶段文档保留冻结时的事实与验证范围；当前实板状态以最新结果记录为准。
+当前主线为 CPU5 五级流水线。作品评审请先看[仓库首页](../README.md)和[作品代码与验证说明](submission/README.md)；开发接手再看[CNN 接入指南](integration/cpu5_cnn_handoff.md)。下列阶段文档保留冻结时的事实与验证范围；当前实板状态以最新结果记录为准。
+
+## 作品提交入口
+
+| 文档 | 内容 |
+| --- | --- |
+| [作品代码与验证说明](submission/README.md) | 评审阅读顺序、五级代码定位、上板步骤与构建方式 |
+| [固定版本与下载](https://github.com/a-learner-1/riscv_5stage/releases/tag/v1.0.0-cpu5) | 对应提交的源码、双种子上板包、实板与 ILA 证据 |
+| [附件校验清单](submission/artifacts.json) | 下载附件与原冻结归档的路径、字节数及 SHA-256 |
 
 ## 交接与实板结果
 

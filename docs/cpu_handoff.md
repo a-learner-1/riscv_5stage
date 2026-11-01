@@ -4,10 +4,10 @@
 
 ## 推荐直接使用 Git 仓库
 
-仓库地址：`https://github.com/a-learner-1/riscv_3stage.git`。私有仓库的接收方需要有访问权限。使用英文路径，先取得源码，按需要再拉取 LFS 原始证据：
+仓库地址：`https://github.com/a-learner-1/riscv_5stage.git`。接收方需要具备仓库访问权限。使用英文路径，先取得源码，按需要再拉取 LFS 原始证据：
 
 ```bash
-GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/a-learner-1/riscv_3stage.git cpu5_cnn
+GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/a-learner-1/riscv_5stage.git cpu5_cnn
 cd cpu5_cnn
 git lfs install --local
 git switch -c cnn-integration

@@ -1,120 +1,109 @@
-# CPU5 RV32IM 五级流水线处理器
+# 面向CNN推理的R-V结构设计
 
-基于 Verilog 的 32 位 RISC-V 裸机处理器，在紫光同创 MES50HP（PGL50H-6IFBG484）开发板上运行。当前主线为 **IF → ID → EX → MEM → WB 五级流水线**，支持 RV32IM、数据前递、64 项 BTB、两路组相联 I/D Cache、UART、GPIO及最小机器态控制。
+**CPU5 · RV32IM 五级流水线处理器 · MES50HP FPGA 实现**
 
-CPU5 已完成 50 MHz 实板 CoreMark 双种子测试，以及链表、矩阵和状态机的 ILA 采集。项目面向音频识别系统扩展：CPU 可承担控制与软件任务，后续与 CNN 协处理器配合。**CNN、MFCC、音频采集与完整推理链路目前仍属后续集成范围。**
+本仓库交付作品中的自研处理器子工程：使用 Verilog 实现 IF、ID、EX、MEM、WB 五级单发射顺序流水线，支持 RV32IM、整数前递、BTB64、两路 I/D Cache、UART、GPIO及最小机器态控制。CPU5 已完成 **50 MHz 实板 CoreMark 双种子测试**和链表、矩阵、状态机三类算法的 ILA 采样。
 
-仓库名 `riscv_3stage` 沿用早期工程；三级版本保留作历史对照。队友接入请使用下列 CPU5 入口。
+作品面向 CPU 与 CNN 专用逻辑协同的应用结构。本仓库的性能、资源与波形对应**独立 CPU5 工程**；音频采集、CNN 模型及完整声音识别 SoC 不包含在本次 CPU5 代码交付中，其结果应由对应系统工程说明。
 
-## 从这里开始
+## 评审入口
 
-| 你要做的事 | 入口 |
+| 查看内容 | 入口 |
 | --- | --- |
-| CNN 队友第一次接手 | [CPU5 与 CNN 接入指南](docs/integration/cpu5_cnn_handoff.md) |
-| 找代码、工具和验证资料 | [文档导航](docs/README.md) |
-| 查看板级完整配置 | [cpu5_coremark_board_top.v](rtl/cpu5_coremark_board_top.v) |
-| 扩展 D0 RAM 与 AXI4-Lite 外设 | [cpu5_d0_axi_lite_top.v](rtl/cpu5_d0_axi_lite_top.v) |
-| 查看已完成的实板结果 | [板测与 ILA 结果](docs/cpu5_board_results_20261028.json)、[证据入口](docs/evidence/cpu5_board_20261028/README.md) |
-| 下载既有 CoreMark 双种子位流 | [CPU5 下载包](docs/evidence/cpu5_board_20261026/cpu5_board_downloads.zip) |
-| 导出源码、核对交付范围 | [源码交接说明](docs/cpu_handoff.md) |
+| 阅读顺序、代码定位与复现步骤 | **[作品代码与验证说明](docs/submission/README.md)** |
+| 固定提交的源码、上板文件与原始证据 | **[CPU5 提交版本与下载](https://github.com/a-learner-1/riscv_5stage/releases/tag/v1.0.0-cpu5)** |
+| 板级顶层 | [cpu5_coremark_board_top.v](rtl/cpu5_coremark_board_top.v) |
+| 五级流水线主体 | [cpu5_alu_pipeline.v](rtl/cpu5_alu_pipeline.v)、[级间数据定义](rtl/cpu5_pipeline_types.vh) |
+| 实板结果及三类算法波形记录 | [结果 JSON](docs/cpu5_board_results_20261028.json)、[证据导航](docs/evidence/cpu5_board_20261028/README.md) |
+| 设计、接口和各阶段验证文档 | [文档目录](docs/README.md) |
 
-## 当前配置与实测
+## 处理器结构
 
-| 项目 | CPU5 正式板级配置 |
+```mermaid
+flowchart LR
+    IF["IF 取指与预测"] --> ID["ID 译码与读寄存器"]
+    ID --> EX["EX 运算与分支解析"]
+    EX --> MEM["MEM 访存与架构退休"]
+    MEM --> WB["WB 寄存器物理写回"]
+    MEM -. "EX/MEM 前递" .-> EX
+    WB -. "MEM/WB 前递" .-> EX
+    WB -. "同拍旁路" .-> ID
+    EX -. "重定向" .-> IF
+```
+
+MEM 是唯一架构退休点，WB 完成已经退休结果的通用寄存器物理写回。有效位、指令年龄及事务所有权共同约束回压、冲刷、异常和外设副作用；STORE、分支、CSR 与 MRET 的退休事件与 GPR 写使能分别定义。
+
+| 项目 | 正式 CPU5 板级配置 |
 | --- | --- |
-| 指令集与执行 | RV32IM，ILP32，小端；单发射、顺序执行与退休 |
-| 流水线提交 | MEM 为唯一架构退休点，WB 完成通用寄存器物理写回 |
-| 工作频率 | 50 MHz，20 ns 时钟约束；已验证工作点 |
-| 存储 | ROM 32 KiB；D0 同步 BRAM 16 KiB |
-| Cache | I/D 各 2 KiB；两路、64 组、每行 16 字节 |
-| D Cache 策略 | 写穿透、不写分配，无写缓冲 |
-| 分支 | BTB64，EX 解析及重定向 |
-| 外设 | UART 115200、8N1；GPIO；mtime/mtimecmp、MSIP；Stats |
-| 统计 | schema4/profile2，64 位周期/退休计数，十类互斥周期 |
-| 综合资源 | 10837 LUT、8870 寄存器、28 DRM18K 等价、4 APM |
+| 平台 | MES50HP，紫光同创 Logos PGL50H-6IFBG484 |
+| 指令集 | RV32IM，ILP32，小端；单发射、顺序执行与退休 |
+| 已验证工作点 | 50 MHz，20 ns 约束；不据此推定理论最高频率 |
+| 存储 | 32 KiB ROM、16 KiB D0 同步 BRAM |
+| Cache | I/D 各 2 KiB；两路、64 组、16 字节行 |
+| 数据写策略 | 写穿透、不写分配，无写缓冲 |
+| 分支控制 | 64 项 BTB，EX 解析与重定向 |
+| 外设与控制 | UART 115200 / 8N1、GPIO、mtime/mtimecmp、MSIP、最小机器态 CSR与中断 |
+| 外部数据接口 | 32 位 AXI4-Lite，单笔在途 |
+| 统计 | schema4/profile2，十类互斥周期、64 位周期及退休计数 |
+
+## 实板结果
 
 | CoreMark 指标 | performance | validation |
 | --- | ---: | ---: |
 | 迭代次数 | 2000 | 2000 |
-| 实际算法时间 / 秒 | 15.526302740 | 15.546583040 |
-| 迭代每秒 | **128.813667587** | 128.645631960 |
-| 每 MHz 迭代每秒 | **2.576273352** | 2.572912639 |
+| 算法运行时间 / 秒 | 15.526302740 | 15.546583040 |
+| CoreMark | **128.813667587** | 128.645631960 |
+| CoreMark/MHz | **2.576273352** | 2.572912639 |
 | CPI | 1.339822844 | 1.340521074 |
-| 结果 | FORMAL PASS | FORMAL PASS |
+| CRC 与运行判定 | FORMAL PASS | FORMAL PASS |
 
-正式性能取 performance；validation 用另一组种子核对正确性。原三级完整实现为 117.958048697 CoreMark，本版提升约 9.20%。两版存在预热方式和软件布局差异，该对照不单独衡量流水线级数的收益。50 MHz 也不表示已测得最高频率。
+正式成绩采用 performance；validation 用另一组种子核对正确性。两组均运行超过 10 秒。`FORMAL PASS` 是本工程 CoreMark 移植层的有效运行判定，含 CRC、迭代及计时检查，不表示形式化验证工具证明。
 
-## 获取仓库
+正式双种子构建的综合资源为 **10837 LUT、8870 寄存器、28 DRM18K 等价、4 APM**；50 MHz 最终 STA 的 Slow Setup WNS 为 **+0.021 ns**，失败端点为 0。资源分母包含整个 CPU 板级设计。带 ILA 的调试构建单独实现、单独记录，不计入以上正式资源。
 
-将工程放在英文路径，例如 `D:/FPGA/cpu5_cnn`。源码阅读与 CNN 接口开发可以先跳过约 1 GB 的历史 LFS 原始证据。在 **Git Bash** 执行：
+三类 ILA 窗口均为 173 位数据、1024 点、50 MHz 采样，覆盖顺序推进、乘法驻留、字符读取、分支目标恢复及 STORE 暂停。局部窗口事件数不替代全程 CPI，也不用于推断未采集信号的停顿原因。详细数值见[板测结果](docs/cpu5_board_results_20261028.json)。
+
+## 下载与使用
+
+只查看代码可直接浏览本仓库；需要上板或核对原始波形，使用[提交版本下载页](https://github.com/a-learner-1/riscv_5stage/releases/tag/v1.0.0-cpu5)中的文件：
+
+| 文件 | 用途 |
+| --- | --- |
+| Source code | 对应提交版本的仓库源码；大体积 LFS 证据另行下载 |
+| CPU5_board_downloads.zip | MES50HP 的 performance/validation SBIT、BIN 与同包身份清单 |
+| CPU5_board_evidence.zip | 原始串口、时序及三类算法 ILA 的既有证据归档 |
+| SHA256SUMS.txt | 两个下载附件的 SHA-256 校验值 |
+
+下载附件复用已有冻结文件，没有重新生成位流或修改原始证据。上板须使用相匹配的开发板与约束；串口配置为 115200、8N1、无流控。操作与预期结果见[复现说明](docs/submission/README.md#使用既有位流上板)。
+
+使用 Git Bash 克隆源码，可先跳过历史大证据：
 
 ```bash
-GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/a-learner-1/riscv_3stage.git cpu5_cnn
-cd cpu5_cnn
+GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/a-learner-1/riscv_5stage.git
+cd riscv_5stage
 git lfs install --local
-git switch -c cnn-integration
 ```
 
-只获取现有 CPU5 下载包和最新板测证据：
+需要最新板测原始归档时，可从下载页获取，或执行：
 
 ```bash
 git lfs pull --include="docs/evidence/cpu5_board_20261028/raw_evidence.zip"
 ```
 
-双种子下载包是普通 Git 文件，路径见上表；LFS 命令用于取得原始板测与 ILA 归档。若要运行引用旧提交的完整历史验收工具，再下载全部 LFS 数据并初始化本地兼容引用：
+构建工具为 RISC-V GCC 15.2.0、ModelSim 10.6e、PDS 2022.2-SP6.4及 Python 3.10+。固件、PDS 实现、仿真及历史验收的不同入口见[完整复现说明](docs/submission/README.md#从源码构建)。
 
-```bash
-git lfs pull
-python tools/setup_cpu5_git_baselines.py --install --report build/cpu5_git_baseline_setup.json
-```
+## 目录与扩展
 
-各阶段冻结证据与工具的使用范围见 [LFS 与历史基线说明](docs/cpu5_git_lfs_compat_20261026.md)。源码 ZIP 不含 Git 历史，执行上述 Git 初始化时需使用 clone 的仓库。
+| 目录 | 内容 |
+| --- | --- |
+| [rtl/](rtl/) | CPU5、公共 Cache/总线/外设及历史实现 |
+| [software/cpu5_coremark/](software/cpu5_coremark/) | CPU5 启动、链接和 CoreMark 移植 |
+| [benchmarks/coremark/](benchmarks/coremark/) | CoreMark 算法、来源与许可证 |
+| [tb/](tb/) / [tests/](tests/) | 模块、处理器、系统 testbench 与工具测试 |
+| [tools/](tools/) | 固件、仿真、构建、验收和源码导出工具 |
+| [pds/](pds/) | 引脚与时钟约束 |
+| [docs/](docs/) | 设计文档、提交说明与冻结证据 |
 
-## 构建与上板入口
+CNN 开发从 [CPU5 接入指南](docs/integration/cpu5_cnn_handoff.md)开始。AXI4-Lite 控制接口、共享缓冲区、Cache 一致性及 IRQ 需要在对应系统顶层确认；独立 CPU 的 CoreMark 成绩不作为 CNN 端到端性能。根目录旧脚本与历史记录保留原路径，当前五级实现以本页指定入口为准。
 
-已使用的工具版本为 RISC-V GCC 15.2.0、ModelSim 10.6e、PDS 2022.2-SP6.4。以下命令从仓库根目录执行；`python` 需为 Python 3.9 或以上，`--cross` 是本机 GCC 工具名前缀。
-
-```bash
-# 编译两组正式固件；工具链在 PATH 时可使用此前缀
-python tools/build_cpu5_board_images.py --profile performance --cross riscv-none-elf-
-python tools/build_cpu5_board_images.py --profile validation --cross riscv-none-elf-
-
-# 以 performance 为例，完成 P&R 和时序检查，再生成位流
-python tools/build_cpu5_pds.py --profile performance --stage timing --pds D:/pango/PDS_2022.2-SP6.4/bin/pds_shell.exe
-python tools/build_cpu5_bitstream.py --record build/cpu5_s19/pds_performance.json --pds D:/pango/PDS_2022.2-SP6.4/bin/pds_shell.exe
-```
-
-`--pds` 替换为实际安装路径。validation 使用相应的 `--profile validation` 与 `pds_validation.json`。固件在 `build/cpu5_s19/firmware/<profile>/`；每次实现与生成文件在 `build/cpu5_s19/runs/<run_id>/`，实际路径以 JSON 记录为准。脚本只构建，JTAG 下载由用户操作。
-
-使用既有下载包时，核对同包的 `release_manifest.json`，打开串口 115200、8N1、无流控，再通过 PDS 下载对应 `.sbit`。KEY1 重启 CPU；REPROGRAM 会重装 FPGA 配置。ILA `.sbit` 与 `.fic` 必须来自同一次插核构建。
-
-CPU5 的编译清单采用 SystemVerilog 模式及仓库根目录 include 路径，示例为 `vlog -sv +incdir+.`。`run_cpu5_*.do` 是各阶段的定向入口；部分入口固定本机 Python 路径或检查历史基线。完整 CoreMark 仿真可由 `tools/run_cpu5_coremark.py` 配置 `--vsim`、`--cross`、`--storage`；操作前阅读[对应说明](docs/cpu5_coremark_hardening_20261026.md)。根目录旧 `Makefile` 和不带 `cpu5` 的板级脚本主要服务三级工程。
-
-## CNN 接入先确认这几项
-
-- 使用 `cpu5_d0_axi_lite_top` 的 `m_axi_*` 接口，在新系统顶层组合路由、Stats 和 CNN 从设备；正式 CoreMark 板顶用于保留性能基线。
-- 当前数据控制接口为 **32 位 AXI4-Lite、单笔在途**。独立 AXI4 读突发演示属于旧系统实验，不是已接入 CPU5 的 CNN DMA。
-- 正式配置的 `0x30000000–0x300001FF` 为 Stats；CNN 控制窗口与缓冲区地址需单独约定。
-- D0 RAM 是 CPU 私有 16 KiB 工作存储，当前没有 CNN 访问端口或 DMA 一致性机制。共享缓冲区需明确实际存储、访问路径和 Cache 策略。
-- 正式板顶把外部原始 IRQ 接为 0。首次联调可用状态轮询，接中断时需在新顶层引出并接入 `irq_external`。
-
-信号分组、参数、寄存器约定和联调顺序均在[接入指南](docs/integration/cpu5_cnn_handoff.md)。项目目标中的 MFCC、INT8 CNN、脉动阵列和时钟门控需要在各自实现与联调后再记录结果。CoreMark 衡量 CPU；CNN 加速比应使用同一模型、输入和精度口径比较软件推理与硬件推理。
-
-## 目录地图
-
-```text
-rtl/                    CPU5、保留的三级实现、Cache、总线与外设
-software/cpu5_coremark/  CPU5 启动、链接和 CoreMark 平台移植
-software/               公共 MMIO 头文件及各类裸机示例
-benchmarks/coremark/    CoreMark 算法及许可证
-tb/                     模块、CPU、SoC 与板级 testbench
-tools/                  固件生成、仿真、构建、验收和导出工具
-pds/                    板卡引脚及时钟约束
-programs/               已保留的文本初始化镜像
-docs/integration/       队友接入指南
-docs/evidence/          冻结证据与 LFS 原始归档
-docs/history/           旧首页与旧交接说明
-build/                  本机构建产物，不提交
-```
-
-根目录 `.do`、`.bat` 保留原位置，使现有脚本和冻结文件身份保持可用。后续 CNN 模块可放在 `rtl/cnn/`、驱动放在 `software/cnn/`，并新增独立系统顶层与构建入口；这些目录目前是建议布局。历史版本和详细说明从[文档导航](docs/README.md)进入。
+CoreMark 第三方来源与使用条款见 [SOURCE.md](benchmarks/coremark/SOURCE.md) 和 [LICENSE.md](benchmarks/coremark/LICENSE.md)。
